@@ -1,0 +1,216 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<DataDictionary>
+  <TableName>
+    <Map name="财务分析" aliases="财务分析" />
+    <Map name="环比分析" aliases="环比分析" />
+    <Map name="经营发展能力" aliases="经营发展能力" />
+    <Map name="利润表" aliases="利润表摘要|利润表" />
+    <Map name="每股指标" aliases="每股指标" />
+    <Map name="现金流量表" aliases="现金流量表摘要|现金流量表" />
+    <Map name="异动分析" aliases="异动分析" />
+    <Map name="主要财务指标" aliases="主要财务指标" />
+    <Map name="资产负债表" aliases="资产负债表摘要|资产负债表" />
+  </TableName>
+  <Table name="主要财务指标">
+    <Row>
+      <Map name="归属母公司股东权益" aliases="归属母公司股东权益" />
+      <Map name="归属母公司净利润" aliases="归属母公司净利润" />
+      <Map name="基本每股收益" aliases="基本每股收益" />
+      <Map name="基本每股收益(扣除后)" aliases="基本每股收益(扣除后)" />
+      <Map name="加权净资产收益率" aliases="加权净资产收益率" />
+      <Map name="加权净资产收益率(扣除后)" aliases="加权净资产收益率(扣除后)" />
+      <Map name="经营现金流量净额" aliases="经营现金流量净额" />
+      <Map name="净利润" aliases="净利润" />
+      <Map name="净资产收益率" aliases="净资产收益率" />
+      <Map name="净资产收益率(扣除)" aliases="净资产收益率(扣除)" />
+      <Map name="利润总额" aliases="利润总额" />
+      <Map name="每股经营现金净流量" aliases="每股经营现金净流量" />
+      <Map name="每股净资产" aliases="每股净资产" />
+      <Map name="每股未分配利润" aliases="每股未分配利润" />
+      <Map name="每股现金流量" aliases="每股现金流量" />
+      <Map name="每股盈余公积金" aliases="每股盈余公积金" />
+      <Map name="每股资本公积金" aliases="每股资本公积金" />
+      <Map name="投资收益" aliases="投资收益" />
+      <Map name="稀释每股收益" aliases="稀释每股收益" />
+      <Map name="营业成本" aliases="营业成本" />
+      <Map name="营业利润" aliases="营业利润" />
+      <Map name="营业收入" aliases="营业收入" />
+      <Map name="主营成本" aliases="主营成本" />
+      <Map name="主营业务收入" aliases="主营业务收入" />
+      <Map name="总资产" aliases="总资产" />
+    </Row>
+    <Column />
+  </Table>
+  <Table name="每股指标">
+    <Row>
+      <Map name="每股经营现金净流量" aliases="每股经营现金净流量" />
+      <Map name="每股净资产" aliases="每股净资产" />
+      <Map name="每股收益" aliases="每股收益" />
+      <Map name="每股收益(扣除)" aliases="每股收益(扣除)" />
+      <Map name="每股未分配利润" aliases="每股未分配利润" />
+      <Map name="每股现金流量" aliases="每股现金流量" />
+      <Map name="每股资本公积金" aliases="每股资本公积金" />
+      <Map name="审计意见" aliases="审计意见" />
+    </Row>
+    <Column />
+  </Table>
+  <Table name="经营发展能力">
+    <Row>
+      <Map name="存货周转率" aliases="存货周转率" />
+      <Map name="股东权益增长率" aliases="股东权益增长率" />
+      <Map name="净利润增长率" aliases="净利润增长率" />
+      <Map name="净资产增长率" aliases="净资产增长率" />
+      <Map name="利润总额增长率" aliases="利润总额增长率" />
+      <Map name="营业利润增长率" aliases="营业利润增长率" />
+      <Map name="营业收入增长率" aliases="营业收入增长率" />
+      <Map name="应收账款周转率" aliases="应收账款周转率" />
+      <Map name="总资产增长率" aliases="总资产增长率" />
+      <Map name="总资产周转率" aliases="总资产周转率" />
+    </Row>
+    <Column />
+  </Table>
+  <Table name="财务分析">
+    <Row>
+      <Map name="产权比率" aliases="产权比率" />
+      <Map name="存货周转率" aliases="存货周转率" />
+      <Map name="股东权益比率" aliases="股东权益比率" />
+      <Map name="股东权益增长率" aliases="股东权益增长率" />
+      <Map name="股东权益周转率" aliases="股东权益周转率" />
+      <Map name="固定资产比率" aliases="固定资产比率" />
+      <Map name="固定资产增长率" aliases="固定资产增长率" />
+      <Map name="固定资产周转率" aliases="固定资产周转率" />
+      <Map name="净利润率" aliases="净利润率" />
+      <Map name="净利润增长率" aliases="净利润增长率" />
+      <Map name="净资产收益率" aliases="净资产收益率" />
+      <Map name="利息保障倍数" aliases="利息保障倍数" />
+      <Map name="流动比率" aliases="流动比率" />
+      <Map name="流动资产比率" aliases="流动资产比率" />
+      <Map name="流动资产周转率" aliases="流动资产周转率" />
+      <Map name="速动比率" aliases="速动比率" />
+      <Map name="无形资产比率" aliases="无形资产比率" />
+      <Map name="销售净利率" aliases="销售净利率" />
+      <Map name="销售毛利率" aliases="销售毛利率" />
+      <Map name="营业利润率" aliases="营业利润率" />
+      <Map name="营业利润增长率" aliases="营业利润增长率" />
+      <Map name="营业收入增长率" aliases="营业收入增长率" />
+      <Map name="应收账款周转率" aliases="应收账款周转率" />
+      <Map name="资产负债率" aliases="资产负债率" />
+      <Map name="总资产收益率" aliases="总资产收益率" />
+      <Map name="总资产增长率" aliases="总资产增长率" />
+      <Map name="总资产周转率" aliases="总资产周转率" />
+    </Row>
+    <Column />
+  </Table>
+  <Table name="资产负债表">
+    <Row>
+      <Map name="存货" aliases="存货" />
+      <Map name="短期借款" aliases="短期借款" />
+      <Map name="非流动资产" aliases="非流动资产" />
+      <Map name="固定资产" aliases="固定资产" />
+      <Map name="归属于母公司所有者权益合计" aliases="归属于母公司所有者权益合计" />
+      <Map name="货币资金" aliases="货币资金" />
+      <Map name="可供出售金融资产" aliases="可供出售金融资产" />
+      <Map name="流动负债" aliases="流动负债" />
+      <Map name="流动资产" aliases="流动资产" />
+      <Map name="其他应收款" aliases="其他应收款" />
+      <Map name="所有者权益合计" aliases="所有者权益合计" />
+      <Map name="未分配利润" aliases="未分配利润" />
+      <Map name="无形资产" aliases="无形资产" />
+      <Map name="应付账款" aliases="应付账款" />
+      <Map name="应收账款" aliases="应收账款" />
+      <Map name="预收账款" aliases="预收账款" />
+      <Map name="长期借款" aliases="长期借款" />
+      <Map name="资本公积" aliases="资本公积" />
+      <Map name="总负债" aliases="总负债" />
+      <Map name="总资产" aliases="总资产" />
+    </Row>
+    <Column />
+  </Table>
+  <Table name="利润表">
+    <Row>
+      <Map name="财务费用" aliases="财务费用" />
+      <Map name="管理费用" aliases="管理费用" />
+      <Map name="归属母公司净利润" aliases="归属母公司净利润" />
+      <Map name="净利润" aliases="净利润" />
+      <Map name="利润总额" aliases="利润总额" />
+      <Map name="所得税费用" aliases="所得税费用" />
+      <Map name="投资收益" aliases="投资收益" />
+      <Map name="营业成本" aliases="营业成本" />
+      <Map name="营业利润" aliases="营业利润" />
+      <Map name="营业收入" aliases="营业收入" />
+      <Map name="营业外收支净额" aliases="营业外收支净额" />
+      <Map name="营业总成本" aliases="营业总成本" />
+      <Map name="营业总收入" aliases="营业总收入" />
+    </Row>
+    <Column />
+  </Table>
+  <Table name="现金流量表">
+    <Row>
+      <Map name="筹资现金流出小计" aliases="筹资现金流出小计" />
+      <Map name="筹资现金流量净额" aliases="筹资现金流量净额" />
+      <Map name="筹资现金流入小计" aliases="筹资现金流入小计" />
+      <Map name="汇率变动对现金影响" aliases="汇率变动对现金影响" />
+      <Map name="经营现金流出小计" aliases="经营现金流出小计" />
+      <Map name="经营现金流量净额" aliases="经营现金流量净额" />
+      <Map name="经营现金流入小计" aliases="经营现金流入小计" />
+      <Map name="投资现金流出小计" aliases="投资现金流出小计" />
+      <Map name="投资现金流量净额" aliases="投资现金流量净额" />
+      <Map name="投资现金流入小计" aliases="投资现金流入小计" />
+      <Map name="现金及现金等价物净增加额" aliases="现金及现金等价物净增加额" />
+    </Row>
+    <Column />
+  </Table>
+  <Table name="异动分析">
+    <Row>
+      <Map name="(附注)经营现金流量净额" aliases="(附注)经营活动产生的现金流量净额|(附注)经营现金流量净额" />
+	    <Map name="筹资现金流出小计" aliases="筹资现金流出小计|筹资活动产生的现金流出小计" />
+	    <Map name="筹资现金流量净额" aliases="筹资现金流量净额|筹资活动产生的现金流量净额" />
+	    <Map name="筹资现金流入小计" aliases="筹资现金流入小计|筹资活动产生的现金流入小计" />
+      <Map name="存货的减少" aliases="存货的减少" />
+      <Map name="短期借款" aliases="短期借款" />
+      <Map name="分配股利利润或偿付利息所支付的现金" aliases="分配股利利润或偿付利息所支付的现金" />
+      <Map name="负债合计" aliases="负债合计" />
+      <Map name="购建固定资产、无形资产、其他长期资产所支付的现金" aliases="购建固定资产、无形资产、其他长期资产所支付的现金" />
+      <Map name="购买商品、接受劳务支付的现金" aliases="购买商品、接受劳务支付的现金" />
+      <Map name="归属于母公司所有者的净利润" aliases="归属于母公司所有者的净利润" />
+      <Map name="货币资金" aliases="货币资金" />
+	    <Map name="经营现金流出小计" aliases="经营现金流出小计|经营活动产生的现金流出小计" />
+	    <Map name="经营现金流量净额" aliases="经营现金流量净额|经营活动产生的现金流量净额" />
+	    <Map name="经营现金流入小计" aliases="经营现金流入小计|经营活动产生的现金流入小计" />
+	    <Map name="经营性应付项目增加" aliases="经营性应付项目的增加|经营性应付项目增加" />
+	    <Map name="经营性应收项目减少" aliases="经营性应收项目减少|经营性应收项目的减少" />
+      <Map name="利润总额" aliases="利润总额" />
+      <Map name="流动负债合计" aliases="流动负债合计" />
+      <Map name="其他应收款" aliases="其他应收款" />
+	    <Map name="投资现金流出小计" aliases="投资现金流出小计|投资活动产生的现金流出小计" />
+	    <Map name="投资现金流量净额" aliases="投资现金流量净额|投资活动产生的现金流量净额" />
+	    <Map name="投资现金流入小计" aliases="投资现金流入小计|投资活动产生的现金流入小计" />
+      <Map name="未分配利润" aliases="未分配利润" />
+      <Map name="无形资产" aliases="无形资产" />
+      <Map name="现金及现金等价物净增加额" aliases="现金及现金等价物净增加额" />
+      <Map name="现金期末余额" aliases="现金期末余额" />
+      <Map name="营业利润" aliases="营业利润" />
+      <Map name="营业外收支净额" aliases="营业外收支净额" />
+      <Map name="应付账款" aliases="应付账款" />
+      <Map name="应收账款" aliases="应收账款" />
+      <Map name="在建工程" aliases="在建工程" />
+      <Map name="长期借款" aliases="长期借款" />
+      <Map name="主营业务利润" aliases="主营业务利润" />
+      <Map name="主营业务收入" aliases="主营业务收入" />
+    </Row>
+    <Column>
+      <Map name="2002年变动幅度" aliases="2002年变动幅度" />
+      <Map name="2003年变动幅度" aliases="2003年变动幅度" />
+      <Map name="2004年变动幅度" aliases="2004年变动幅度" />
+      <Map name="2005年变动幅度" aliases="2005年变动幅度" />
+      <Map name="2006年变动幅度" aliases="2006年变动幅度" />
+      <Map name="2007年变动幅度" aliases="2007年变动幅度" />
+      <Map name="2008年变动幅度" aliases="2008年变动幅度" />
+      <Map name="2009年变动幅度" aliases="2009年变动幅度" />
+      <Map name="2010年变动幅度" aliases="2010年变动幅度" />
+      <Map name="2011年变动幅度" aliases="2011年变动幅度" />
+      <Map name="2012年变动幅度" aliases="2012年变动幅度" />
+      <Map name="变动幅度" aliases="变动幅度" />
+    </Column>
+  </Table>
+</DataDictionary>

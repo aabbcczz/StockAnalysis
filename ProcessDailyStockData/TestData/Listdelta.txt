@@ -1,0 +1,1 @@
+..\..\TestData\SH600000.delta.txt

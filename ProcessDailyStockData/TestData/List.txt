@@ -1,0 +1,3 @@
+..\..\TestData\SH600000.txt
+..\..\TestData\SH600004.txt
+..\..\TestData\SH600005.txt
