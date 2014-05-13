@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace MetricsDefinition
 {
-    abstract class SingleValueMetric<InputType, OutputType> : Metric
+    public abstract class SingleValueMetric<InputType, OutputType> : Metric
     {
         public SingleValueMetric(params object[] parameters)
             : base(MetricType.SingleValueMetric, parameters)

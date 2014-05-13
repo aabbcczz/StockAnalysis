@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace MetricsDefinition
 {
-    enum MetricType
+    public enum MetricType
     {
         Unknown = 0,
         SingleValueMetric, // metric that is a single value for a sequence of input

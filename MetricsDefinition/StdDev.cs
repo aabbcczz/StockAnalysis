@@ -6,31 +6,56 @@ using System.Threading.Tasks;
 
 namespace MetricsDefinition
 {
-    class StdDev : SingleValueMetric<double, double>
+    public class StdDev : SequentialValueMetric<double, double>
     {
-        public StdDev()
-            : base ()
+        private int _days;
+
+        public StdDev(int days)
+            : base (days)
         {
-            // empty
+            if (days <= 0)
+            {
+                throw new ArgumentOutOfRangeException("days must be greater than zero");
+            }
+
+            _days = days;
         }
 
-        public override double Calculate(IEnumerable<double> input)
+        public override IEnumerable<double> Calculate(IEnumerable<double> input)
         {
             if (input == null || input.Count() == 0)
             {
                 throw new ArgumentNullException("input");
             }
 
-            double average = input.Average();
+            double[] allData = input.ToArray();
 
-            double sumOfSquare = 0.0;
-
-            foreach(var data in input)
+            for (int i = 0; i < allData.Length; ++i)
             {
-                sumOfSquare += (data - average) * (data - average);
-            }
+                if (i < _days - 1)
+                {
+                    yield return double.NaN;
+                }
+                else
+                {
+                    double sum = 0.0;
 
-            return Math.Sqrt(sumOfSquare / input.Count());
+                    for (int j = i - _days + 1; j <= i; ++j)
+                    {
+                        sum += allData[j];
+                    }
+
+                    double average = sum / _days;
+                    double sumOfSquares = 0;
+
+                    for (int j = i - _days + 1; j <= i; ++j)
+                    {
+                        sumOfSquares += (allData[j] - average) * (allData[j] - average);
+                    }
+
+                    yield return Math.Sqrt(sumOfSquares / _days);
+                }
+            }
         }
     }
 }

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace MetricsDefinition
 {
-    class MovingAverage : SequentialValueMetric<double, double>
+    public class MovingAverage : SequentialValueMetric<double, double>
     {
         private int _days;
 

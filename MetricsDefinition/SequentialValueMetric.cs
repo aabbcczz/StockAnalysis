@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace MetricsDefinition
 {
-    abstract class SequentialValueMetric<InputType, OutputType> : Metric
+    public abstract class SequentialValueMetric<InputType, OutputType> : Metric
     {
         public SequentialValueMetric(params object[] parameters)
             : base(MetricType.SequentialValueMetric, parameters)

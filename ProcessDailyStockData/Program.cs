@@ -232,6 +232,8 @@ namespace ProcessDailyStockData
                 {
                     ProcessOneFile(file.Trim(), startDate, endDate, outputFileFolder);
                 }
+
+                Console.Write(".");
             }
         }
     }

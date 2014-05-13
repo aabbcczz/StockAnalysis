@@ -8,7 +8,7 @@ using StockAnalysis.Share;
 
 namespace MetricsDefinition
 {
-    class StockDailyHistoryData
+    public class StockDailyHistoryData
     {
         private List<StockDailySummary> _data = null;
 
@@ -16,6 +16,11 @@ namespace MetricsDefinition
 
         public IEnumerable<StockDailySummary> Data { get { return _data; } }
 
+        public StockDailyHistoryData(StockName name, IEnumerable<StockDailySummary> data)
+        {
+            Name = name;
 
+            _data = data.ToList();
+        }
     }
 }

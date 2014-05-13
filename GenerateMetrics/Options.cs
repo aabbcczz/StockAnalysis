@@ -7,7 +7,7 @@ using System.IO;
 using CommandLine;
 using CommandLine.Text;
 
-namespace ProcessDailyStockData
+namespace GenerateMetrics
 {
     public sealed class Options
     {
@@ -20,7 +20,7 @@ namespace ProcessDailyStockData
         [Option('v', "Verbose", HelpText = "Verbose level, Range: from 0 to 2.", DefaultValue = 0)]
         public int VerboseLevel { get; set; }
 
-        [Option('o', "OutputFolder", Required = true, HelpText = "The output file folder")]
+        [Option('o', "OutputFileFolder", Required = true, HelpText = "The output file folder")]
         public string OutputFileFolder { get; set; }
 
         [Option('s', "StartDate", HelpText = "The start date of data being processed")]

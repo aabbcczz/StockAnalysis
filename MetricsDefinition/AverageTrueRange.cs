@@ -9,7 +9,7 @@ namespace MetricsDefinition
     /// <summary>
     /// The ATR metric
     /// </summary>
-    class AverageTrueRange : SequentialValueMetric<StockDailySummary, double>
+    public class AverageTrueRange : SequentialValueMetric<StockDailySummary, double>
     {
         private int _days;
 

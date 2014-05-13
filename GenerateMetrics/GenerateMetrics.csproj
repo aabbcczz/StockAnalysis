@@ -32,6 +32,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="CommandLine">
+      <HintPath>.\CommandLine.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -41,11 +44,25 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Options.cs">
+      <SubType>
+      </SubType>
+    </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\MetricsDefinition\MetricsDefinition.csproj">
+      <Project>{f91a0391-93c9-4542-bafc-dbc694ca5fb5}</Project>
+      <Name>MetricsDefinition</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\StockAnalysisShare\StockAnalysisShare.csproj">
+      <Project>{46eebd03-e7d2-4958-a782-d22435cbc2bb}</Project>
+      <Name>StockAnalysisShare</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

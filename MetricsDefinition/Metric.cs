@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace MetricsDefinition
 {
-    class Metric
+    public class Metric
     {
         private MetricType _type;
         private object[] _parameters;

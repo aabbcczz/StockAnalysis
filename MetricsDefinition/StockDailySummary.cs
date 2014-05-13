@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace MetricsDefinition
 {
-    class StockDailySummary
+    public class StockDailySummary
     {
         public DateTime Date { get; set; } // transaction date
         public double OpenMarketPrice { get; set; } // price when openning market
