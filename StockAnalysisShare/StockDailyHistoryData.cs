@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 using StockAnalysis.Share;
 
-namespace MetricsDefinition
+namespace StockAnalysis.Share
 {
     public class StockDailyHistoryData
     {

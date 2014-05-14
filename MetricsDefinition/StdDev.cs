@@ -6,22 +6,22 @@ using System.Threading.Tasks;
 
 namespace MetricsDefinition
 {
-    public class StdDev : SequentialValueMetric<double, double>
+    [Metric("SD", "lookback:System.Int32")]
+    public class StdDev : IGeneralMetric
     {
-        private int _days;
+        private int _lookback;
 
-        public StdDev(int days)
-            : base (days)
+        public StdDev(int lookback)
         {
-            if (days <= 0)
+            if (lookback <= 0)
             {
-                throw new ArgumentOutOfRangeException("days must be greater than zero");
+                throw new ArgumentOutOfRangeException("lookback must be greater than zero");
             }
 
-            _days = days;
+            _lookback = lookback;
         }
 
-        public override IEnumerable<double> Calculate(IEnumerable<double> input)
+        public IEnumerable<double> Calculate(IEnumerable<double> input)
         {
             if (input == null || input.Count() == 0)
             {
@@ -32,7 +32,7 @@ namespace MetricsDefinition
 
             for (int i = 0; i < allData.Length; ++i)
             {
-                if (i < _days - 1)
+                if (i < _lookback - 1)
                 {
                     yield return 0.0;
                 }
@@ -40,20 +40,20 @@ namespace MetricsDefinition
                 {
                     double sum = 0.0;
 
-                    for (int j = i - _days + 1; j <= i; ++j)
+                    for (int j = i - _lookback + 1; j <= i; ++j)
                     {
                         sum += allData[j];
                     }
 
-                    double average = sum / _days;
+                    double average = sum / _lookback;
                     double sumOfSquares = 0;
 
-                    for (int j = i - _days + 1; j <= i; ++j)
+                    for (int j = i - _lookback + 1; j <= i; ++j)
                     {
                         sumOfSquares += (allData[j] - average) * (allData[j] - average);
                     }
 
-                    yield return Math.Sqrt(sumOfSquares / _days);
+                    yield return Math.Sqrt(sumOfSquares / _lookback);
                 }
             }
         }

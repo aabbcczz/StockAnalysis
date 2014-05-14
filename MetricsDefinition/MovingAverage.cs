@@ -6,21 +6,22 @@ using System.Threading.Tasks;
 
 namespace MetricsDefinition
 {
-    public class MovingAverage : SequentialValueMetric<double, double>
+    [Metric("MA", "lookback:System.Int32")]
+    public class MovingAverage : IGeneralMetric
     {
-        private int _days;
+        private int _lookback;
 
-        public MovingAverage(int days)
+        public MovingAverage(int lookback)
         {
-            if (days <= 0)
+            if (lookback <= 0)
             {
-                throw new ArgumentOutOfRangeException("days");
+                throw new ArgumentOutOfRangeException("lookback");
             }
 
-            _days = days;
+            _lookback = lookback;
         }
 
-        public override IEnumerable<double> Calculate(IEnumerable<double> input)
+        public IEnumerable<double> Calculate(IEnumerable<double> input)
         {
             double sum = 0.0;
 
@@ -28,19 +29,19 @@ namespace MetricsDefinition
 
             for (int i = 0; i < allData.Length; ++i)
             {
-                if (i < _days - 1)
+                if (i < _lookback - 1)
                 {
                     yield return 0.0;
                 }
-                else if (i == _days - 1)
+                else if (i == _lookback - 1)
                 {
-                    sum = input.Take(_days).Sum();
-                    yield return sum / _days;
+                    sum = input.Take(_lookback).Sum();
+                    yield return sum / _lookback;
                 }
                 else
                 {
-                    sum = sum - allData[i - _days] + allData[i];
-                    yield return sum / _days;
+                    sum = sum - allData[i - _lookback] + allData[i];
+                    yield return sum / _lookback;
                 }
             }
         }

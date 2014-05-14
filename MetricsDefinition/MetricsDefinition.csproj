@@ -40,15 +40,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AverageTrueRange.cs" />
-    <Compile Include="Metric.cs" />
-    <Compile Include="MetricType.cs" />
+    <Compile Include="IGeneralMetric.cs" />
+    <Compile Include="MetricAttribute.cs" />
+    <Compile Include="MetricEvaluator.cs" />
     <Compile Include="MovingAverage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SequentialValueMetric.cs" />
-    <Compile Include="SingleValueMetric.cs" />
     <Compile Include="StdDev.cs" />
-    <Compile Include="StockDailySummary.cs" />
-    <Compile Include="StockDailyHistoryData.cs" />
+    <Compile Include="IStockDailySummaryMetric.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\StockAnalysisShare\StockAnalysisShare.csproj">

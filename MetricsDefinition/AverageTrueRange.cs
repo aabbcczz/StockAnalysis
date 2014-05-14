@@ -4,17 +4,19 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using StockAnalysis.Share;
+
 namespace MetricsDefinition
 {
     /// <summary>
     /// The ATR metric
     /// </summary>
-    public class AverageTrueRange : SequentialValueMetric<StockDailySummary, double>
+    [Metric("ATR", "days:System.Int32")]
+    public class AverageTrueRange : IStockDailySummaryMetric
     {
         private int _days;
 
         public AverageTrueRange(int days)
-            : base(days)
         {
             if (days <= 1)
             {
@@ -24,7 +26,7 @@ namespace MetricsDefinition
             _days = days;
         }
 
-        public override IEnumerable<double> Calculate(IEnumerable<StockDailySummary> input)
+        public IEnumerable<double> Calculate(IEnumerable<StockDailySummary> input)
         {
  	        if (input == null)
             {
