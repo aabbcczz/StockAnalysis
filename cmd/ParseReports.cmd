@@ -1,0 +1,1 @@
+..\bin\ReportParser.exe -i ..\reports -o ..\data -r 1 -d ..\datadictionary.xml -g ..\newdatadictionary.xml

@@ -1,0 +1,1 @@
+..\Bin\GetFinanceReports.exe -s ..\stocknametable.txt -o ..\reports\temp -i 10 -r 10

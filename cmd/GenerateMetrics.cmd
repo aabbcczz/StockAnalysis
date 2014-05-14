@@ -1,0 +1,2 @@
+dir /s /b ..\ProcessedLatestDailyData\ExcludeRight\*.* > ..\ProcessedLatestDailyDataFileList.txt
+..\bin\GenerateMetrics -l ..\ProcessedLatestDailyDataFileList.txt -o ..\ProcessedLatestDailyData\ExcludeRightMetrics
