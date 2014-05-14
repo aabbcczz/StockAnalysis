@@ -120,7 +120,10 @@ namespace GenerateMetrics
                 dailyData.AmountOfSharesInAllTransaction = double.Parse(row[6]);
                 dailyData.AmountOfMoneyInAllTransaction = double.Parse(row[7]);
 
-                data.Add(dailyData);
+                if (dailyData.AmountOfMoneyInAllTransaction != 0.0)
+                {
+                    data.Add(dailyData);
+                }
             }
 
             return new StockDailyHistoryData(name, data);
@@ -163,7 +166,7 @@ namespace GenerateMetrics
                 for (int i = 0; i < summary.Length; ++i)
                 {
                     outputter.WriteLine(
-                        "{0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10},{11}",
+                        "{0},{1:yyyy/MM/dd},{2:0.00},{3:0.00},{4:0.00},{5:0.00},{6:0.00},{7:0.00},{8:0.00},{9:0.00},{10:0.00},{11:0.00}",
                         data.Name.Code,
                         summary[i].Date,
                         summary[i].CloseMarketPrice,

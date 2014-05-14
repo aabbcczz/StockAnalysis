@@ -21,6 +21,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GenerateMetrics", "Generate
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MetricsDefinition", "MetricsDefinition\MetricsDefinition.csproj", "{F91A0391-93C9-4542-BAFC-DBC694CA5FB5}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SelectStocksBasedOnMetrics", "SelectStocksBasedOnMetrics\SelectStocksBasedOnMetrics.csproj", "{BA5E8BA4-6BE7-425F-A811-8B588B178CBA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -63,6 +65,10 @@ Global
 		{F91A0391-93C9-4542-BAFC-DBC694CA5FB5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F91A0391-93C9-4542-BAFC-DBC694CA5FB5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F91A0391-93C9-4542-BAFC-DBC694CA5FB5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BA5E8BA4-6BE7-425F-A811-8B588B178CBA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BA5E8BA4-6BE7-425F-A811-8B588B178CBA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BA5E8BA4-6BE7-425F-A811-8B588B178CBA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BA5E8BA4-6BE7-425F-A811-8B588B178CBA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

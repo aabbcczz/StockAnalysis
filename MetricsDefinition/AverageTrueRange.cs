@@ -51,7 +51,7 @@ namespace MetricsDefinition
             {
                 if (i < _days - 1)
                 {
-                    yield return double.NaN;
+                    yield return 0.0;
                 }
                 else if (i == _days - 1)
                 {

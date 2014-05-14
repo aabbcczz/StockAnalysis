@@ -118,6 +118,7 @@ namespace ProcessDailyStockData
             using (StreamWriter outputter = new StreamWriter(outputFile, false, Encoding.UTF8))
             {
                 string header = "code,date,open,highest,lowest,close,transactionCount,transactionAmountMoney";
+                const int indexOfTransactionCount = 6;
 
                 outputter.WriteLine(header);
 
@@ -141,6 +142,16 @@ namespace ProcessDailyStockData
                         if (date < startDate || date > endDate)
                         {
                             continue;
+                        }
+
+                        int transactionCount = -1;
+
+                        if (int.TryParse(fields[indexOfTransactionCount], out transactionCount))
+                        {
+                            if (transactionCount == 0)
+                            {
+                                continue;
+                            }
                         }
 
                         outputter.WriteLine("{0},{1}", code, lines[i]);
