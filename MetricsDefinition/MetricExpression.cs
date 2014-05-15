@@ -10,7 +10,7 @@ namespace MetricsDefinition
 {
     abstract class MetricExpression
     {
-        public abstract IEnumerable<double> Evaluate(IEnumerable<StockDailySummary> data);
+        public abstract IEnumerable<double> Evaluate(IEnumerable<StockTransactionSummary> data);
 
         public abstract IEnumerable<double> Evaluate(IEnumerable<double> data);
     }

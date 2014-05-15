@@ -11,8 +11,8 @@ namespace MetricsDefinition
     /// <summary>
     /// The ATR metric
     /// </summary>
-    [Metric("ATR", "days:System.Int32")]
-    public class AverageTrueRange : IStockDailySummaryMetric
+    [Metric("ATR")]
+    public sealed class AverageTrueRange : IStockTransactionSummaryMetric
     {
         private int _days;
 
@@ -26,7 +26,7 @@ namespace MetricsDefinition
             _days = days;
         }
 
-        public IEnumerable<double> Calculate(IEnumerable<StockDailySummary> input)
+        public IEnumerable<double> Calculate(IEnumerable<StockTransactionSummary> input)
         {
  	        if (input == null)
             {
@@ -44,7 +44,7 @@ namespace MetricsDefinition
                             data.HighestPrice - previousDayClosePrice), 
                         previousDayClosePrice - data.LowestPrice));
 
-                previousDayClosePrice = data.CloseMarketPrice;
+                previousDayClosePrice = data.ClosePrice;
             }
 
             double previousDayAverageTrueRange = 0.0;

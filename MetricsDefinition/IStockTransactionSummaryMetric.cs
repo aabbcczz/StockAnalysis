@@ -8,8 +8,8 @@ using StockAnalysis.Share;
 
 namespace MetricsDefinition
 {
-    interface IStockDailySummaryMetric : IMetric
+    interface IStockTransactionSummaryMetric : IMetric
     {
-        IEnumerable<double> Calculate(IEnumerable<StockDailySummary> input);
+        IEnumerable<double> Calculate(IEnumerable<StockTransactionSummary> input);
     }
 }

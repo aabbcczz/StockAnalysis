@@ -65,14 +65,17 @@ namespace GenerateMetrics
                 }
             }
 
+            // load metric definitions
+            string[] metrics = LoadMetricsDefinition(options.MetricsDefinitionFile).ToArray();
+
             if (!string.IsNullOrEmpty(options.InputFile))
             {
                 // single input file
-                ProcessOneFile(options.InputFile, options.StartDate, options.EndDate, folder);
+                ProcessOneFile(options.InputFile, options.StartDate, options.EndDate, folder, metrics);
             }
             else
             {
-                ProcessListOfFiles(options.InputFileList, options.StartDate, options.EndDate, folder);
+                ProcessListOfFiles(options.InputFileList, options.StartDate, options.EndDate, folder, metrics);
             }
 
 
@@ -81,7 +84,7 @@ namespace GenerateMetrics
             return 0;
         }
 
-        static StockDailyHistoryData LoadInputFile(string file, DateTime startDate, DateTime endDate)
+        static StockHistoryData LoadInputFile(string file, DateTime startDate, DateTime endDate)
         {
             if (string.IsNullOrEmpty(file))
             {
@@ -100,7 +103,7 @@ namespace GenerateMetrics
 
             // header is code,date,open,highest,lowest,close,transactionCount,transactionAmountMoney
 
-            List<StockDailySummary> data = new List<StockDailySummary>(inputData.RowCount);
+            List<StockTransactionSummary> data = new List<StockTransactionSummary>(inputData.RowCount);
 
             foreach (var row in inputData.Rows)
             {
@@ -110,54 +113,44 @@ namespace GenerateMetrics
                     continue;
                 }
 
-                StockDailySummary dailyData = new StockDailySummary();
+                StockTransactionSummary dailyData = new StockTransactionSummary();
 
-                dailyData.Date = DateTime.Parse(row[1]);
-                dailyData.OpenMarketPrice = double.Parse(row[2]);
+                dailyData.Time = DateTime.Parse(row[1]);
+                dailyData.OpenPrice = double.Parse(row[2]);
                 dailyData.HighestPrice = double.Parse(row[3]);
                 dailyData.LowestPrice = double.Parse(row[4]);
-                dailyData.CloseMarketPrice = double.Parse(row[5]);
-                dailyData.AmountOfSharesInAllTransaction = double.Parse(row[6]);
-                dailyData.AmountOfMoneyInAllTransaction = double.Parse(row[7]);
+                dailyData.ClosePrice = double.Parse(row[5]);
+                dailyData.AmountOfShares = double.Parse(row[6]);
+                dailyData.AmountOfMoney = double.Parse(row[7]);
 
-                if (dailyData.AmountOfMoneyInAllTransaction != 0.0)
+                if (dailyData.AmountOfMoney != 0.0)
                 {
                     data.Add(dailyData);
                 }
             }
 
-            return new StockDailyHistoryData(name, data);
+            return new StockHistoryData(name, 86400L, data);
         }
 
-        static void ProcessOneFile(string file, DateTime startDate, DateTime endDate, string outputFileFolder)
+        static void ProcessOneFile(string file, DateTime startDate, DateTime endDate, string outputFileFolder, string[] metrics)
         {
             if (string.IsNullOrEmpty(file) || string.IsNullOrEmpty(outputFileFolder))
             {
                 throw new ArgumentNullException();
             }
 
-            StockDailyHistoryData data = LoadInputFile(file, startDate, endDate);
+            StockHistoryData data = LoadInputFile(file, startDate, endDate);
 
-            var atr20 = new AverageTrueRange(20).Calculate(data.Data).ToArray();
-            var stddevAtr20 = new StdDev(20).Calculate(atr20).ToArray();
-
-            var atr40 = new AverageTrueRange(40).Calculate(data.Data).ToArray();
-            var stddevAtr40 = new StdDev(40).Calculate(atr40).ToArray();
-
-            var closeMarketPrices = data.Data.Select(s => s.CloseMarketPrice);
-
-            var ma5 = new MovingAverage(5).Calculate(closeMarketPrices).ToArray();
-            var ma10 = new MovingAverage(10).Calculate(closeMarketPrices).ToArray();
-            var ma20 = new MovingAverage(20).Calculate(closeMarketPrices).ToArray();
-            var ma30 = new MovingAverage(30).Calculate(closeMarketPrices).ToArray();
-            var ma60 = new MovingAverage(60).Calculate(closeMarketPrices).ToArray();
-
+            double[][] metricValues = metrics
+                .AsParallel()
+                .Select(m => MetricEvaluator.Evaluate(m, data.Data).ToArray())
+                .ToArray();
 
             string outputFile = Path.Combine(outputFileFolder, data.Name.Code + ".day.metric.csv");
 
             using (StreamWriter outputter = new StreamWriter(outputFile, false, Encoding.UTF8))
             {
-                string header = "code,date,close,atr.20,stddev.atr.20,atr.40,stddev.atr.40,ma.5,ma.10,ma.20,ma.30,ma.60";
+                string header = "code,date," + string.Join(",", metrics.Select(m => m.Replace(',', '|')));
 
                 outputter.WriteLine(header);
 
@@ -165,25 +158,22 @@ namespace GenerateMetrics
 
                 for (int i = 0; i < summary.Length; ++i)
                 {
+                    string value = string.Join(
+                        ",", 
+                        metricValues
+                            .Select(v => v[i])
+                            .Select(d => string.Format("{0:0.00}", d)));
+
                     outputter.WriteLine(
-                        "{0},{1:yyyy/MM/dd},{2:0.00},{3:0.00},{4:0.00},{5:0.00},{6:0.00},{7:0.00},{8:0.00},{9:0.00},{10:0.00},{11:0.00}",
+                        "{0},{1:yyyy/MM/dd},{2}",
                         data.Name.Code,
-                        summary[i].Date,
-                        summary[i].CloseMarketPrice,
-                        atr20[i],
-                        stddevAtr20[i],
-                        atr40[i],
-                        stddevAtr40[i],
-                        ma5[i],
-                        ma10[i],
-                        ma20[i],
-                        ma30[i],
-                        ma60[i]);
+                        summary[i].Time,
+                        value);
                 }
             }
         }
 
-        static void ProcessListOfFiles(string listFile, DateTime startDate, DateTime endDate, string outputFileFolder)
+        static void ProcessListOfFiles(string listFile, DateTime startDate, DateTime endDate, string outputFileFolder, string[] metrics)
         {
             if (string.IsNullOrEmpty(listFile) || string.IsNullOrEmpty(outputFileFolder))
             {
@@ -199,11 +189,21 @@ namespace GenerateMetrics
                 {
                     if (!String.IsNullOrWhiteSpace(file))
                     {
-                        ProcessOneFile(file.Trim(), startDate, endDate, outputFileFolder);
+                        ProcessOneFile(file.Trim(), startDate, endDate, outputFileFolder, metrics);
                     }
 
                     Console.Write(".");
                 });
+        }
+
+        static IEnumerable<string> LoadMetricsDefinition(string file)
+        {
+            string[] lines = File.ReadAllLines(file);
+
+            return lines
+                .Select(l => l.Trim())
+                .Where(l => !string.IsNullOrWhiteSpace(l))
+                .Where(l => !l.StartsWith("#"));
         }
     }
 }

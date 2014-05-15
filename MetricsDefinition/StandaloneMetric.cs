@@ -22,11 +22,11 @@ namespace MetricsDefinition
             _metric = metric;
         }
 
-        public override IEnumerable<double> Evaluate(IEnumerable<StockAnalysis.Share.StockDailySummary> data)
+        public override IEnumerable<double> Evaluate(IEnumerable<StockAnalysis.Share.StockTransactionSummary> data)
         {
-            if (_metric is IStockDailySummaryMetric)
+            if (_metric is IStockTransactionSummaryMetric)
             {
-                IStockDailySummaryMetric metric = (IStockDailySummaryMetric)_metric;
+                IStockTransactionSummaryMetric metric = (IStockTransactionSummaryMetric)_metric;
 
                 return metric.Calculate(data);
             }

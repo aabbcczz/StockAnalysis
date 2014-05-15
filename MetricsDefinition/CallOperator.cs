@@ -23,7 +23,7 @@ namespace MetricsDefinition
             _callee = callee;
         }
 
-        public override IEnumerable<double> Evaluate(IEnumerable<StockAnalysis.Share.StockDailySummary> data)
+        public override IEnumerable<double> Evaluate(IEnumerable<StockAnalysis.Share.StockTransactionSummary> data)
         {
             return _caller.Evaluate(_callee.Evaluate(data));
         }

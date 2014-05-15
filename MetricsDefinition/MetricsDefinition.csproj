@@ -39,10 +39,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AmountOfMoney.cs" />
+    <Compile Include="AmountOfShares.cs" />
     <Compile Include="AverageTrueRange.cs" />
     <Compile Include="CallOperator.cs" />
+    <Compile Include="ClosePrice.cs" />
+    <Compile Include="HighestPrice.cs" />
     <Compile Include="IGeneralMetric.cs" />
     <Compile Include="IMetric.cs" />
+    <Compile Include="LowestPrice.cs" />
     <Compile Include="MetricAttribute.cs" />
     <Compile Include="MetricBinaryOperator.cs" />
     <Compile Include="MetricEvaluator.cs" />
@@ -50,10 +55,11 @@
     <Compile Include="MetricExpressionParser.cs" />
     <Compile Include="MetricUnaryOperator.cs" />
     <Compile Include="MovingAverage.cs" />
+    <Compile Include="OpenPrice.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="StandaloneMetric.cs" />
     <Compile Include="StdDev.cs" />
-    <Compile Include="IStockDailySummaryMetric.cs" />
+    <Compile Include="IStockTransactionSummaryMetric.cs" />
     <Compile Include="Token.cs" />
     <Compile Include="Tokenizer.cs" />
     <Compile Include="TokenType.cs" />

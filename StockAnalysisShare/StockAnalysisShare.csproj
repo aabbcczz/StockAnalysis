@@ -49,8 +49,8 @@
     <Compile Include="FinanceReportRow.cs" />
     <Compile Include="FinanceReportTable.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="StockDailyHistoryData.cs" />
-    <Compile Include="StockDailySummary.cs" />
+    <Compile Include="StockHistoryData.cs" />
+    <Compile Include="StockTransactionSummary.cs" />
     <Compile Include="StockMarket.cs" />
     <Compile Include="StockName.cs" />
     <Compile Include="StockNameTable.cs" />

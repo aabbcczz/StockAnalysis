@@ -57,14 +57,30 @@ namespace MetricsDefinition
         /// of M1.
         /// </param>
         /// <param name="data">input data for evaluation</param>
-        public static IEnumerable<double> Evaluate(string expression, IEnumerable<StockDailySummary> data)
+        public static IEnumerable<double> Evaluate(string expression, IEnumerable<StockTransactionSummary> data)
         {
-            return null;
+            return ParseExpression(expression).Evaluate(data);
         }
 
         public static IEnumerable<double> Evaluate(string expression, IEnumerable<double> data)
         {
-            return null;
+
+            return ParseExpression(expression).Evaluate(data);
+        }
+
+        private static MetricExpression ParseExpression(string expression)
+        {
+            string errorMessage;
+            MetricExpression metricExpression =
+                new MetricExpressionParser().Parse(expression, out errorMessage);
+
+            if (metricExpression == null)
+            {
+                throw new InvalidOperationException(
+                    string.Format("Parse expression {0} failed. \nError message: {1}", expression, errorMessage));
+            }
+
+            return metricExpression;
         }
     }
 }

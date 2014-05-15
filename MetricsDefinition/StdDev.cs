@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 
 namespace MetricsDefinition
 {
-    [Metric("SD", "lookback:System.Int32")]
-    public class StdDev : IGeneralMetric
+    [Metric("SD")]
+    public sealed class StdDev : IGeneralMetric
     {
         private int _lookback;
 

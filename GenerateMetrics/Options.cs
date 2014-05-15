@@ -23,6 +23,9 @@ namespace GenerateMetrics
         [Option('o', "OutputFileFolder", Required = true, HelpText = "The output file folder")]
         public string OutputFileFolder { get; set; }
 
+        [Option('m', "MetricsDefinitionFile", Required = true, HelpText = "The metrics definition file, each line is a metric")]
+        public string MetricsDefinitionFile { get; set; }
+
         [Option('s', "StartDate", HelpText = "The start date of data being processed")]
         public DateTime StartDate { get; set; }
 

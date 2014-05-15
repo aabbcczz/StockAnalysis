@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 
 namespace MetricsDefinition
 {
-    [Metric("MA", "lookback:System.Int32")]
-    public class MovingAverage : IGeneralMetric
+    [Metric("MA")]
+    public sealed class MovingAverage : IGeneralMetric
     {
         private int _lookback;
 
