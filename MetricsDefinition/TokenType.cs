@@ -4,12 +4,16 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using StockAnalysis.Share;
-
 namespace MetricsDefinition
 {
-    interface IStockDailySummaryMetric : IMetric
+    enum TokenType
     {
-        IEnumerable<double> Calculate(IEnumerable<StockDailySummary> input);
+        Identifier,
+        Number,
+        LeftParenthese,
+        RightParenthese,
+        LeftBracket,
+        RightBracket,
+        Comma
     }
 }

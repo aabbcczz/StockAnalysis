@@ -4,12 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using StockAnalysis.Share;
-
 namespace MetricsDefinition
 {
-    interface IStockDailySummaryMetric : IMetric
+    interface IMetric
     {
-        IEnumerable<double> Calculate(IEnumerable<StockDailySummary> input);
     }
 }

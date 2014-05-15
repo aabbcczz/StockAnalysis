@@ -193,15 +193,17 @@ namespace GenerateMetrics
             // Get all input files from list file
             string[] files = File.ReadAllLines(listFile, Encoding.UTF8);
 
-            foreach (var file in files)
-            {
-                if (!String.IsNullOrWhiteSpace(file))
+            Parallel.ForEach(
+                files,
+                (string file) =>
                 {
-                    ProcessOneFile(file.Trim(), startDate, endDate, outputFileFolder);
-                }
+                    if (!String.IsNullOrWhiteSpace(file))
+                    {
+                        ProcessOneFile(file.Trim(), startDate, endDate, outputFileFolder);
+                    }
 
-                Console.Write(".");
-            }
+                    Console.Write(".");
+                });
         }
     }
 }

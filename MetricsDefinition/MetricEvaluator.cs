@@ -5,6 +5,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Reflection;
 
+using StockAnalysis.Share;
+
 namespace MetricsDefinition
 {
     public static class MetricEvaluator
@@ -19,8 +21,7 @@ namespace MetricsDefinition
 
             var metrics = assembly.GetTypes()
                 .Where(type => type.IsClass 
-                    && (typeof(IGeneralMetric).IsAssignableFrom(type)
-                        || typeof(IStockDailySummaryMetric).IsAssignableFrom(type)));
+                    && typeof(IMetric).IsAssignableFrom(type));
 
             foreach (var metric in metrics)
             {
@@ -46,10 +47,24 @@ namespace MetricsDefinition
             }
         }
 
-
-        public static void Evaluate(string expression)
+        /// <summary>
+        /// Evaluate a metric by name and parameter in expression
+        /// </summary>
+        /// <param name="expression">
+        /// Expression to be evaluated.
+        /// Expression is like M1[P1,P2,...](M2[P3,P4,...](...)), where M1/M2 is the short name of metric,
+        /// P1,P2,P3,P4 is the corresponding parameter for the metric. operator() means the M2 output is the input
+        /// of M1.
+        /// </param>
+        /// <param name="data">input data for evaluation</param>
+        public static IEnumerable<double> Evaluate(string expression, IEnumerable<StockDailySummary> data)
         {
+            return null;
+        }
 
+        public static IEnumerable<double> Evaluate(string expression, IEnumerable<double> data)
+        {
+            return null;
         }
     }
 }

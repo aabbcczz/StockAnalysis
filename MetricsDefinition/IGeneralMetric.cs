@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace MetricsDefinition
 {
-    interface IGeneralMetric
+    interface IGeneralMetric : IMetric
     {
         IEnumerable<double> Calculate(IEnumerable<double> input);
     }

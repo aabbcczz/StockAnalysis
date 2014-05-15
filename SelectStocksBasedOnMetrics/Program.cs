@@ -111,35 +111,45 @@ namespace SelectStocksBasedOnMetrics
             {
                 const int keptDays = 5;
 
-                outputter.WriteLine("Code,Date,DayN0Close,DayN0Atr20,DayN0StddevAtr20,DayN0Atr40,DayN0StddevAtr40,DayN0Ma10,DayN0Ma20,DayN1Ma10,DayN1Ma20,DayN2Ma10,DayN2Ma20");
+                List<StockSelectionMetrics> ssms = new List<StockSelectionMetrics>(files.Count());
 
-                foreach (var file in files)
-                {
-                    if (String.IsNullOrWhiteSpace(file))
+                Parallel.ForEach(
+                    files,
+                    (string file) =>
                     {
-                        continue;
-                    }
+                        if (String.IsNullOrWhiteSpace(file))
+                        {
+                            return;
+                        }
 
-                    StockDailyMetrics[] metrics = ProcessOneFile(file.Trim(), keptDays).Reverse().ToArray();
+                        StockDailyMetrics[] metrics = ProcessOneFile(file.Trim(), keptDays).Reverse().ToArray();
 
-                    StockSelectionMetrics ssm = new StockSelectionMetrics
-                    {
-                        Code = metrics[0].Code,
-                        Date = metrics[0].Date,
-                        DayN0CloseMarketPrice = metrics[0].CloseMarketPrice,
-                        DayN0Atr20 = metrics[0].Atr20,
-                        DayN0Atr40 = metrics[0].Atr40,
-                        DayN0StddevAtr20 = metrics[0].StddevAtr20,
-                        DayN0StddevAtr40 = metrics[0].StddevAtr40,
-                        DayN0Ma10 = metrics[0].Ma10,
-                        DayN0Ma20 = metrics[0].Ma20,
-                        DayN1Ma10 = metrics[1].Ma10,
-                        DayN1Ma20 = metrics[1].Ma20,
-                        DayN2Ma10 = metrics[2].Ma10,
-                        DayN2Ma20 = metrics[2].Ma20,
-                        Predication = StockSelectionMetrics.Movement.NoMove,
-                        PredicatedPriceWillCauseMovement = 0.0
-                    };
+                        StockSelectionMetrics ssm = new StockSelectionMetrics
+                        {
+                            Code = metrics[0].Code,
+                            Date = metrics[0].Date,
+                            DayN0CloseMarketPrice = metrics[0].CloseMarketPrice,
+                            DayN0Atr20 = metrics[0].Atr20,
+                            DayN0Atr40 = metrics[0].Atr40,
+                            DayN0StddevAtr20 = metrics[0].StddevAtr20,
+                            DayN0StddevAtr40 = metrics[0].StddevAtr40,
+                            DayN0Ma10 = metrics[0].Ma10,
+                            DayN0Ma20 = metrics[0].Ma20,
+                            DayN1Ma10 = metrics[1].Ma10,
+                            DayN1Ma20 = metrics[1].Ma20,
+                            DayN2Ma10 = metrics[2].Ma10,
+                            DayN2Ma20 = metrics[2].Ma20,
+                            Predication = StockSelectionMetrics.Movement.NoMove,
+                            PredicatedPriceWillCauseMovement = 0.0
+                        };
+
+                        lock(ssms)
+                        {
+                            ssms.Add(ssm);
+                        }
+
+                        Console.Write(".");
+                    });
 
                 //    // determine if MA10 is crossing MA20 upwards in recent 3 days
                 //    // index 0 is today, 1 is yesterday, and so on.
@@ -163,6 +173,10 @@ namespace SelectStocksBasedOnMetrics
 
                 //}
 
+                outputter.WriteLine("Code,Date,DayN0Close,DayN0Atr20,DayN0StddevAtr20,DayN0Atr40,DayN0StddevAtr40,DayN0Ma10,DayN0Ma20,DayN1Ma10,DayN1Ma20,DayN2Ma10,DayN2Ma20");
+
+                foreach (var ssm in ssms)
+                {
                     outputter.WriteLine(
                         "N{0},{1:yyyy/MM/dd},{2:0.00},{3:0.00},{4:0.00},{5:0.00},{6:0.00},{7:0.00},{8:0.00},{9:0.00},{10:0.00},{11:0.00},{12:0.00}",
                         ssm.Code,
@@ -178,8 +192,6 @@ namespace SelectStocksBasedOnMetrics
                         ssm.DayN1Ma20,
                         ssm.DayN2Ma10,
                         ssm.DayN2Ma20);
-
-                    Console.Write(".");
                 }
 
             }
