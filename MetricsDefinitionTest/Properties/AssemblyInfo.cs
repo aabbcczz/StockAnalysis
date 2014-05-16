@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("MetricsDefinition")]
+[assembly: AssemblyTitle("MetricsDefinitionTest")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Microsoft IT")]
-[assembly: AssemblyProduct("MetricsDefinition")]
+[assembly: AssemblyProduct("MetricsDefinitionTest")]
 [assembly: AssemblyCopyright("Copyright © Microsoft IT 2014")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("40b8b2e4-6107-447c-8d6d-62610ce1521d")]
+[assembly: Guid("bae2d391-3ed3-4788-93fd-816b0d89b8b8")]
 
 // Version information for an assembly consists of the following four values:
 //
@@ -34,6 +34,3 @@ using System.Runtime.InteropServices;
 // [assembly: AssemblyVersion("1.0.*")]
 [assembly: AssemblyVersion("1.0.0.0")]
 [assembly: AssemblyFileVersion("1.0.0.0")]
-
-
-[assembly: InternalsVisibleTo("MetricsDefinitionTest")]

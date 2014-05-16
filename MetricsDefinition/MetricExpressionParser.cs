@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
-using System.Reflection;
 
 namespace MetricsDefinition
 {
@@ -80,35 +80,69 @@ namespace MetricsDefinition
         {
             errorMessage = string.Empty;
 
+            // parse the first part, such as MA[20]
             StandaloneMetric metric = ParseMetric(out errorMessage);
             if (metric == null)
             {
                 return null;
             }
 
-            Token token = PeekNextToken();
+            // parse the call operation part, such as (MA[20)
+            MetricExpression callee = null;
 
+            Token token = PeekNextToken();
             if (token != null && token.Type == TokenType.LeftParenthese)
             {
-                MetricExpression expression = Parse(out errorMessage);
+                GetNextToken();
 
-                if (expression != null)
+                callee = Parse(out errorMessage);
+
+                if (callee == null || !Expect(TokenType.RightParenthese, out token, out errorMessage))
                 {
-                    if (!Expect(TokenType.RightParenthese, out token, out errorMessage))
-                    {
-                        return null;
-                    }
+                    return null;
+                }
+           }
 
-                    CallOperator call = new CallOperator(metric, expression);
-                    return call;
+            // parse the selection part, such as .DIF
+            int fieldIndex = -1;
+            token = PeekNextToken();
+            if (token != null && token.Type == TokenType.Dot)
+            {
+                GetNextToken();
+
+                if (!Expect(TokenType.Identifier, out token, out errorMessage))
+                {
+                    return null;
                 }
 
-                return null;
+                string field = token.Value;
+
+                // verify if the selection name is part of metric definition
+                Type metricType = metric.Metric.GetType();
+                MetricAttribute attribute = metricType.GetCustomAttribute<MetricAttribute>();
+
+                if (!attribute.NameToFieldIndexMap.ContainsKey(field))
+                {
+                    errorMessage = string.Format("{0} is not a valid subfield of metric {1}", field, metricType.Name);
+                    return null;
+                }
+
+                fieldIndex = attribute.NameToFieldIndexMap[field];
             }
-            else
+
+            MetricExpression retValue = metric;
+
+            if (callee != null)
             {
-                return metric;
+                retValue = new CallOperator(metric, callee);
             }
+
+            if (fieldIndex >= 0)
+            {
+                retValue = new SelectionOperator(retValue, fieldIndex);
+            }
+
+            return retValue;
         }
 
         private StandaloneMetric ParseMetric(out string errorMessage)
@@ -124,11 +158,11 @@ namespace MetricsDefinition
             }
 
             string name = token.Value;
-            string[] parameters = null;
+            string[] parameters = new string[0];
 
             Token nextToken = PeekNextToken();
 
-            if (nextToken != null || nextToken.Type == TokenType.LeftBracket)
+            if (nextToken != null && nextToken.Type == TokenType.LeftBracket)
             {
                 GetNextToken();
 
@@ -157,10 +191,14 @@ namespace MetricsDefinition
 
             try
             {
-                var constructors = metricType.FindMembers(MemberTypes.Constructor, BindingFlags.Public, null, null);
+                var constructors = metricType.FindMembers(
+                    MemberTypes.Constructor, 
+                    BindingFlags.Public | BindingFlags.Instance, 
+                    null, 
+                    null);
                 foreach (var constructor in constructors)
                 {
-                    Type[] parameterTypes = ((MethodInfo)constructor).GetParameters().Select(pi => pi.ParameterType).ToArray();
+                    Type[] parameterTypes = ((ConstructorInfo)constructor).GetParameters().Select(pi => pi.ParameterType).ToArray();
                     if (parameterTypes.Length != parameters.Length)
                     {
                         continue;

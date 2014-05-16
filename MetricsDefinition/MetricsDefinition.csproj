@@ -57,6 +57,7 @@
     <Compile Include="MovingAverage.cs" />
     <Compile Include="OpenPrice.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SelectionOperator.cs" />
     <Compile Include="StandaloneMetric.cs" />
     <Compile Include="StdDev.cs" />
     <Compile Include="IStockTransactionSummaryMetric.cs" />

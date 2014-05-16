@@ -10,7 +10,7 @@ namespace MetricsDefinition
     sealed class Tokenizer
     {
         static Regex RegexIdentifier = new Regex(@"[_a-zA-Z][_a-zA-Z0-9]*", RegexOptions.Compiled);
-        static Regex RegexNumber = new Regex(@"\d+[\.\d+]?", RegexOptions.Compiled);
+        static Regex RegexNumber = new Regex(@"\d+(\.\d+)?", RegexOptions.Compiled);
 
         private string _expression;
         private int _position = 0;
@@ -65,7 +65,10 @@ namespace MetricsDefinition
                         token = new Token(TokenType.Comma, _position, _position, ",");
                         ++_position;
                         break;
-
+                    case '.':
+                        token = new Token(TokenType.Dot, _position, _position, ".");
+                        ++_position;
+                        break;
                     default:
                         if (char.IsLetter(ch) || ch == '_')
                         {
@@ -82,6 +85,8 @@ namespace MetricsDefinition
                         }
                         break;
                 }
+
+                break;
             }
 
             return true;
@@ -121,7 +126,7 @@ namespace MetricsDefinition
             _position += match.Length;
 
             return new Token(
-                TokenType.Identifier,
+                TokenType.Number,
                 startPosition,
                 _position - 1,
                 match.Value);

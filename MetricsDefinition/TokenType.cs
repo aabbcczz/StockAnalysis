@@ -14,6 +14,7 @@ namespace MetricsDefinition
         RightParenthese,
         LeftBracket,
         RightBracket,
+        Dot,
         Comma
     }
 }

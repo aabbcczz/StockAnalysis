@@ -150,7 +150,8 @@ namespace GenerateMetrics
 
             using (StreamWriter outputter = new StreamWriter(outputFile, false, Encoding.UTF8))
             {
-                string header = "code,date," + string.Join(",", metrics.Select(m => m.Replace(',', '|')));
+                string header = "code,date," 
+                    + string.Join(",", metrics.Select(m => MetricHelper.ConvertMetricToCsvCompatibleHead(m)));
 
                 outputter.WriteLine(header);
 
@@ -159,10 +160,9 @@ namespace GenerateMetrics
                 for (int i = 0; i < summary.Length; ++i)
                 {
                     string value = string.Join(
-                        ",", 
-                        metricValues
-                            .Select(v => v[i])
-                            .Select(d => string.Format("{0:0.00}", d)));
+                            ",",
+                            metricValues
+                                .Select(v => string.Format("{0:0.00}", v[i])));
 
                     outputter.WriteLine(
                         "{0},{1:yyyy/MM/dd},{2}",
