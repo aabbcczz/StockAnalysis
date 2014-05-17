@@ -11,16 +11,18 @@ namespace MetricsDefinition
     public sealed class MetricAttribute : Attribute
     {
         private Dictionary<string, int> _subfields = new Dictionary<string, int>();
-        public string ShortName { get; set; }
+        public string[] ShortNames { get; set; }
         public IDictionary<string, int> NameToFieldIndexMap { get { return _subfields; } }
         /// <summary>
         /// Define metric attribute
         /// </summary>
-        /// <param name="shortName">short name of metric. e.g. "MA" for MovingAverage</param>
+        /// <param name="shortNames">short names of metric. e.g. "EMA,EXPMA" for ExponentialMovingAverage. Multiple short names can be separated by ','</param>
         /// <param name="subfields">subfields' description. Each subfield is separated by ',', e.g. "DIF,DEA" for MACD</param>
-        public MetricAttribute(string shortName, string subfields = "V")
+        public MetricAttribute(string shortNames, string subfields = "V")
         {
-            ShortName = shortName;
+            ShortNames = shortNames.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                .Select(s => s.Trim())
+                .ToArray();
 
             if (!string.IsNullOrWhiteSpace(subfields))
             {

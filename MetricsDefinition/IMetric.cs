@@ -8,5 +8,6 @@ namespace MetricsDefinition
 {
     interface IMetric
     {
+        IEnumerable<double>[] Calculate(IEnumerable<double>[] input);
     }
 }

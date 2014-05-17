@@ -36,6 +36,10 @@ namespace MetricsDefinitionTest
             // unknown metric name
             Assert.IsNull(parser.Parse("M", out errorMessage));
 
+            // multiple metric name
+            Assert.IsNotNull(parser.Parse("EMA[20]", out errorMessage));
+            Assert.IsNotNull(parser.Parse("EXPMA[20]", out errorMessage));
+
             // invalid parameters
             Assert.IsNull(parser.Parse("MA", out errorMessage));
             Assert.IsNull(parser.Parse("MA[20,10]", out errorMessage));
@@ -57,27 +61,27 @@ namespace MetricsDefinitionTest
             Assert.IsNotNull(parser.Parse("MA[ 20 ]", out errorMessage));
 
             // valid syntax
-            Assert.IsNotNull(parser.Parse("CP", out errorMessage));
-            Assert.IsNotNull(parser.Parse("CP[]", out errorMessage));
+            Assert.IsNotNull(parser.Parse("S", out errorMessage));
+            Assert.IsNotNull(parser.Parse("S[]", out errorMessage));
 
             // invalid embed syntax
-            Assert.IsNull(parser.Parse("CP()", out errorMessage));
+            Assert.IsNull(parser.Parse("S()", out errorMessage));
             Assert.IsNull(parser.Parse("MA[20]()", out errorMessage));
-            Assert.IsNull(parser.Parse("CP[", out errorMessage));
-            Assert.IsNull(parser.Parse("CP]", out errorMessage));
+            Assert.IsNull(parser.Parse("S[", out errorMessage));
+            Assert.IsNull(parser.Parse("S]", out errorMessage));
             Assert.IsNull(parser.Parse("MA[20", out errorMessage));
-            Assert.IsNull(parser.Parse("CP,", out errorMessage));
+            Assert.IsNull(parser.Parse("S,", out errorMessage));
             Assert.IsNull(parser.Parse("MA[20,", out errorMessage));
 
-            Assert.IsNull(parser.Parse("CP(CP", out errorMessage));
-            Assert.IsNull(parser.Parse("MA[20](CP", out errorMessage));
+            Assert.IsNull(parser.Parse("S(S", out errorMessage));
+            Assert.IsNull(parser.Parse("MA[20](S", out errorMessage));
             Assert.IsNull(parser.Parse("MA[20](MA[20]", out errorMessage));
 
             // valid embeded syntax
-            Assert.IsNotNull(parser.Parse("CP(CP)", out errorMessage));
-            Assert.IsNotNull(parser.Parse("MA[20](CP)", out errorMessage));
+            Assert.IsNotNull(parser.Parse("S(S)", out errorMessage));
+            Assert.IsNotNull(parser.Parse("MA[20](S)", out errorMessage));
             Assert.IsNotNull(parser.Parse("MA[20](MA[20])", out errorMessage));
-            Assert.IsNotNull(parser.Parse("MA[20](MA[20](CP))", out errorMessage));
+            Assert.IsNotNull(parser.Parse("MA[20](MA[20](S))", out errorMessage));
 
             // invalid selection syntax
             Assert.IsNull(parser.Parse("MA[20].", out errorMessage));
@@ -100,8 +104,8 @@ namespace MetricsDefinitionTest
             Assert.IsNotNull(parser.Parse("MA[20].V ", out errorMessage));
             Assert.IsNotNull(parser.Parse("MA[20]. V", out errorMessage));
             Assert.IsNotNull(parser.Parse("MA[20] .V", out errorMessage));
-            Assert.IsNotNull(parser.Parse("MA[20](CP).V", out errorMessage));
-            Assert.IsNotNull(parser.Parse("MA[20](CP.V).V", out errorMessage));
+            Assert.IsNotNull(parser.Parse("MA[20](S).V", out errorMessage));
+            Assert.IsNotNull(parser.Parse("MA[20](S.CP).V", out errorMessage));
         }
     }
 }

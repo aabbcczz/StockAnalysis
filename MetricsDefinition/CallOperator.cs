@@ -23,14 +23,14 @@ namespace MetricsDefinition
             _callee = callee;
         }
 
-        public override IEnumerable<double> Evaluate(IEnumerable<StockAnalysis.Share.StockTransactionSummary> data)
+        public override IEnumerable<double>[] Evaluate(IEnumerable<double>[] data)
         {
             return _caller.Evaluate(_callee.Evaluate(data));
         }
 
-        public override IEnumerable<double> Evaluate(IEnumerable<double> data)
+        public override string[] GetFieldNames()
         {
-            return _caller.Evaluate(_callee.Evaluate(data));
+            return _caller.GetFieldNames();
         }
     }
 }

@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using System.Reflection;
+
 namespace MetricsDefinition
 {
     sealed class StandaloneMetric : MetricExpression
@@ -22,32 +24,19 @@ namespace MetricsDefinition
             _metric = metric;
         }
 
-        public override IEnumerable<double> Evaluate(IEnumerable<StockAnalysis.Share.StockTransactionSummary> data)
+        public override IEnumerable<double>[] Evaluate(IEnumerable<double>[] data)
         {
-            if (_metric is IStockTransactionSummaryMetric)
-            {
-                IStockTransactionSummaryMetric metric = (IStockTransactionSummaryMetric)_metric;
-
-                return metric.Calculate(data);
-            }
-            else
-            {
-                throw new NotImplementedException();
-            }
+            return _metric.Calculate(data);
         }
 
-        public override IEnumerable<double> Evaluate(IEnumerable<double> data)
+        public override string[] GetFieldNames()
         {
-            if (_metric is IGeneralMetric)
-            {
-                IGeneralMetric metric = (IGeneralMetric)_metric;
+            MetricAttribute attribute = _metric.GetType().GetCustomAttribute<MetricAttribute>();
 
-                return metric.Calculate(data);
-            }
-            else
-            {
-                throw new NotImplementedException();
-            }
+            return attribute.NameToFieldIndexMap
+                .OrderBy(kvp => kvp.Value)
+                .Select(kvp => kvp.Key)
+                .ToArray();
         }
     }
 }

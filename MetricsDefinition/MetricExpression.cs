@@ -10,8 +10,8 @@ namespace MetricsDefinition
 {
     abstract class MetricExpression
     {
-        public abstract IEnumerable<double> Evaluate(IEnumerable<StockTransactionSummary> data);
+        public abstract string[] GetFieldNames();
 
-        public abstract IEnumerable<double> Evaluate(IEnumerable<double> data);
+        public abstract IEnumerable<double>[] Evaluate(IEnumerable<double>[] data);
     }
 }

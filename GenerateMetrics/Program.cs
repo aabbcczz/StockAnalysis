@@ -120,10 +120,10 @@ namespace GenerateMetrics
                 dailyData.HighestPrice = double.Parse(row[3]);
                 dailyData.LowestPrice = double.Parse(row[4]);
                 dailyData.ClosePrice = double.Parse(row[5]);
-                dailyData.AmountOfShares = double.Parse(row[6]);
-                dailyData.AmountOfMoney = double.Parse(row[7]);
+                dailyData.Volume = double.Parse(row[6]);
+                dailyData.Amount = double.Parse(row[7]);
 
-                if (dailyData.AmountOfMoney != 0.0)
+                if (dailyData.Volume != 0.0)
                 {
                     data.Add(dailyData);
                 }
@@ -141,17 +141,48 @@ namespace GenerateMetrics
 
             StockHistoryData data = LoadInputFile(file, startDate, endDate);
 
-            double[][] metricValues = metrics
-                .AsParallel()
-                .Select(m => MetricEvaluator.Evaluate(m, data.Data).ToArray())
-                .ToArray();
+            IEnumerable<double>[] input = new IEnumerable<double>[6]
+            {
+                data.Data.Select(d => d.OpenPrice),
+                data.Data.Select(d => d.ClosePrice),
+                data.Data.Select(d => d.HighestPrice),
+                data.Data.Select(d => d.LowestPrice),
+                data.Data.Select(d => d.Volume),
+                data.Data.Select(d => d.Amount),
+            };
+
+            List<double[]> metricValues = new List<double[]>();
+            List<string> allFieldNames = new List<string>();
+
+            Parallel.ForEach(
+                metrics,
+                m => 
+                    {
+                        string[] fieldNames;
+
+                        var result = MetricEvaluator.Evaluate(m, input, out fieldNames).Select(r => r.ToArray());
+
+                        lock(metricValues)
+                        {
+                            metricValues.AddRange(result);
+
+                            if (result.Count() == 1)
+                            {
+                                allFieldNames.Add(m);
+                            }
+                            else
+                            {
+                                allFieldNames.AddRange(fieldNames.Select(s => m + "." + s));
+                            }
+                        }
+                    });
 
             string outputFile = Path.Combine(outputFileFolder, data.Name.Code + ".day.metric.csv");
 
             using (StreamWriter outputter = new StreamWriter(outputFile, false, Encoding.UTF8))
             {
                 string header = "code,date," 
-                    + string.Join(",", metrics.Select(m => MetricHelper.ConvertMetricToCsvCompatibleHead(m)));
+                    + string.Join(",", allFieldNames.Select(m => MetricHelper.ConvertMetricToCsvCompatibleHead(m)));
 
                 outputter.WriteLine(header);
 

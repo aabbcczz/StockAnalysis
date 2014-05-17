@@ -9,7 +9,7 @@ namespace MetricsDefinition
     sealed class SelectionOperator : MetricUnaryOperator
     {
         private int _fieldIndex;
-
+        
         public SelectionOperator(MetricExpression host, int fieldIndex)
             : base(host)
         {
@@ -21,14 +21,21 @@ namespace MetricsDefinition
             _fieldIndex = fieldIndex;
         }
     
-        public override IEnumerable<double> Evaluate(IEnumerable<StockAnalysis.Share.StockTransactionSummary> data)
+        public override IEnumerable<double>[] Evaluate(IEnumerable<double>[] data)
         {
- 	        throw new NotImplementedException();
+            IEnumerable<double>[] result = Operand.Evaluate(data);
+
+            if (result.Length <= _fieldIndex)
+            {
+                throw new ArgumentException("result data has no enough fields");
+            }
+
+            return new IEnumerable<double>[1] { result[_fieldIndex] };
         }
 
-        public override IEnumerable<double> Evaluate(IEnumerable<double> data)
+        public override string[] GetFieldNames()
         {
- 	        throw new NotImplementedException();
+            return new string[1] { Operand.GetFieldNames()[_fieldIndex] }; 
         }
     }
 }

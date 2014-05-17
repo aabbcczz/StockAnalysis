@@ -13,7 +13,7 @@ namespace StockAnalysis.Share
         public double ClosePrice { get; set; } // price when closing market
         public double HighestPrice { get; set; } // highest price in the whole day
         public double LowestPrice { get; set; } // lowest price in the whole day
-        public double AmountOfShares { get; set; } // total amount of shares in all transactions
-        public double AmountOfMoney { get; set; } // total amount of money in all transaction
+        public double Volume { get; set; } // total amount of volume in all transactions
+        public double Amount { get; set; } // total amount of money in all transaction
     }
 }

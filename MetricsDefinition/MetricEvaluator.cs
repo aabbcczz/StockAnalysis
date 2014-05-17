@@ -32,18 +32,21 @@ namespace MetricsDefinition
                     throw new InvalidProgramException(string.Format("Metric class {0} has not been associated with MetricAttribute", metric.Name));
                 }
 
-                if (NameToMetricAttributeMap.ContainsKey(attribute.ShortName))
+                foreach (var name in attribute.ShortNames)
                 {
-                    throw new InvalidProgramException(
-                        string.Format(
-                            "Short name {0} has been defined for class {1}", 
-                            attribute.ShortName, 
-                            NameToMetricMap[attribute.ShortName].Name));
+                    if (NameToMetricAttributeMap.ContainsKey(name))
+                    {
+                        throw new InvalidProgramException(
+                            string.Format(
+                                "Short name {0} has been defined for class {1}",
+                                name,
+                                NameToMetricMap[name].Name));
+                    }
+
+                    NameToMetricAttributeMap.Add(name, attribute);
+
+                    NameToMetricMap.Add(name, metric);
                 }
-
-                NameToMetricAttributeMap.Add(attribute.ShortName, attribute);
-
-                NameToMetricMap.Add(attribute.ShortName, metric);
             }
         }
 
@@ -57,15 +60,13 @@ namespace MetricsDefinition
         /// of M1.
         /// </param>
         /// <param name="data">input data for evaluation</param>
-        public static IEnumerable<double> Evaluate(string expression, IEnumerable<StockTransactionSummary> data)
+        public static IEnumerable<double>[] Evaluate(string expression, IEnumerable<double>[] data, out string[] fieldNames)
         {
-            return ParseExpression(expression).Evaluate(data);
-        }
+            MetricExpression metricExpression = ParseExpression(expression);
 
-        public static IEnumerable<double> Evaluate(string expression, IEnumerable<double> data)
-        {
+            fieldNames = metricExpression.GetFieldNames();
 
-            return ParseExpression(expression).Evaluate(data);
+            return metricExpression.Evaluate(data);
         }
 
         private static MetricExpression ParseExpression(string expression)
