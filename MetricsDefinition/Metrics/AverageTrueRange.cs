@@ -35,13 +35,13 @@ namespace MetricsDefinition
         {
             if (lookback <= 1)
             {
-                throw new ArgumentException("days must be greater than 1");
+                throw new ArgumentException("lookback must be greater than 1");
             }
 
             _lookback = lookback;
         }
 
-        public IEnumerable<double>[] Calculate(IEnumerable<double>[] input)
+        public double[][] Calculate(double[][] input)
         {
  	        if (input == null || input.Length == 0)
             {
@@ -54,9 +54,9 @@ namespace MetricsDefinition
                 throw new ArgumentException("ATR can only accept StockData's output as input");
             }
 
-            double[] highestPrice = input[_highestPriceFieldIndex].ToArray();
-            double[] lowestPrice = input[_lowestPriceFieldIndex].ToArray();
-            double[] closePrice = input[_closePriceFieldIndex].ToArray();
+            double[] highestPrice = input[_highestPriceFieldIndex];
+            double[] lowestPrice = input[_lowestPriceFieldIndex];
+            double[] closePrice = input[_closePriceFieldIndex];
 
             double previousDayClosePrice = 0.0;
             double[] trueRange = new double[highestPrice.Length];

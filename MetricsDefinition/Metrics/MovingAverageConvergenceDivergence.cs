@@ -30,31 +30,22 @@ namespace MetricsDefinition.Metrics
             _diffLookback = diffLookback;
         }
 
-        public IEnumerable<double>[] Calculate(IEnumerable<double>[] input)
+        public double[][] Calculate(double[][] input)
         {
             if (input == null || input.Length == 0)
             {
                 throw new ArgumentNullException("input");
             }
 
-            if (input.Length != 1)
-            {
-                throw new ArgumentException("MACD accept only one field of input");
-            }
 
-
-            double[] allData = input[0].ToArray();
+            double[] allData = input[0];
             double[] diff = new double[allData.Length];
 
             var emaShort = new ExponentialMovingAverage(_shortLookback)
-                .Calculate(input)
-                .First()
-                .ToArray();
+                .Calculate(input)[0];
 
             var emaLong = new ExponentialMovingAverage(_longLookback)
-                .Calculate(input)
-                .First()
-                .ToArray();
+                .Calculate(input)[0];
 
             for (int i = 0; i < diff.Length; ++i)
             {
@@ -62,9 +53,7 @@ namespace MetricsDefinition.Metrics
             }
 
             var dea = new ExponentialMovingAverage(_diffLookback)
-                .Calculate(new IEnumerable<double>[1] { diff })
-                .First()
-                .ToArray();
+                .Calculate(new double[1][] { diff })[0];
 
             return new double[2][] { diff, dea };
         }

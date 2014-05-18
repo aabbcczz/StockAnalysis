@@ -23,7 +23,7 @@ namespace MetricsDefinition
             _callee = callee;
         }
 
-        public override IEnumerable<double>[] Evaluate(IEnumerable<double>[] data)
+        public override double[][] Evaluate(double[][] data)
         {
             return _caller.Evaluate(_callee.Evaluate(data));
         }

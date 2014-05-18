@@ -24,7 +24,7 @@ namespace MetricsDefinition
             _metric = metric;
         }
 
-        public override IEnumerable<double>[] Evaluate(IEnumerable<double>[] data)
+        public override double[][] Evaluate(double[][] data)
         {
             return _metric.Calculate(data);
         }

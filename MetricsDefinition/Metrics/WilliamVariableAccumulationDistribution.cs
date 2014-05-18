@@ -3,20 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
 using System.Reflection;
 
 namespace MetricsDefinition
 {
-
-    [Metric("COSTMA,CYC,CMA")]
-    class CostMovingAverage : IMetric
+    [Metric("WVAD")]
+    class WilliamVariableAccumulationDistribution : IMetric
     {
-        // lookback 0 means infinity lookback
         private int _lookback;
         
-        // because we are processing data with right recovered, the amount can't be used
-        // and we need to estimate the price by averging HP/LP/OP/CP.
         static private int HighestPriceFieldIndex;
         static private int LowestPriceFieldIndex;
         static private int OpenPriceFieldIndex;
@@ -24,7 +19,7 @@ namespace MetricsDefinition
         static private int VolumeFieldIndex;
 
 
-        static CostMovingAverage()
+        static WilliamVariableAccumulationDistribution()
         {
             MetricAttribute attribute = typeof(StockData).GetCustomAttribute<MetricAttribute>();
 
@@ -35,10 +30,10 @@ namespace MetricsDefinition
             VolumeFieldIndex = attribute.NameToFieldIndexMap["VOL"];
         }
 
-        public CostMovingAverage(int lookback)
+        public WilliamVariableAccumulationDistribution(int lookback)
         {
             // lookback 0 means infinity lookback
-            if (lookback < 0)
+            if (lookback <= 0)
             {
                 throw new ArgumentException("lookback must be greater than 0");
             }
@@ -53,10 +48,10 @@ namespace MetricsDefinition
                 throw new ArgumentNullException("input");
             }
 
-            // CMA can only accept StockData's output as input
+            // WVAD can only accept StockData's output as input
             if (input.Length != StockData.FieldCount)
             {
-                throw new ArgumentException("COSTMA can only accept StockData's output as input");
+                throw new ArgumentException("WVAD can only accept StockData's output as input");
             }
 
             double[] highestPrices = input[HighestPriceFieldIndex];
@@ -64,42 +59,30 @@ namespace MetricsDefinition
             double[] openPrices = input[OpenPriceFieldIndex];
             double[] closePrices = input[ClosePriceFieldIndex];
             double[] volumes = input[VolumeFieldIndex];
-            double[] averagePrices = new double[volumes.Length];
-
-            for (int i = 0; i < averagePrices.Length; ++i)
+            double[] indices = new double[volumes.Length];
+            for (int i = 0; i < indices.Length; ++i)
             {
-                averagePrices[i] = (highestPrices[i] + lowestPrices[i] + openPrices[i] + closePrices[i]) / 4;
+                indices[i] = (closePrices[i] - openPrices[i]) * volumes[i] / (highestPrices[i] - lowestPrices[i]);
             }
 
-            double sumOfVolume = 0.0;
-            double sumOfCost = 0.0;
+            double sum = 0.0;
 
             double[] result = new double[volumes.Length];
 
             for (int i = 0; i < volumes.Length; ++i)
             {
-                if (_lookback == 0)
+                if (i < _lookback)
                 {
-                    sumOfVolume += volumes[i];
-                    sumOfCost += volumes[i] * averagePrices[i];
+                    sum += indices[i];
                 }
                 else
                 {
-                    if (i < _lookback)
-                    {
-                        sumOfVolume += volumes[i];
-                        sumOfCost += volumes[i] * averagePrices[i];
-                    }
-                    else
-                    {
-                        int j = i - _lookback + 1;
+                    int j = i - _lookback + 1;
 
-                        sumOfVolume += volumes[i] - volumes[j];
-                        sumOfCost += volumes[i] * averagePrices[i] - volumes[j] * averagePrices[j];
-                    }
+                    sum += indices[i] - indices[j];
                 }
 
-                result[i] = sumOfCost / sumOfVolume;
+                result[i] = sum;
             }
 
             return new double[1][] { result };

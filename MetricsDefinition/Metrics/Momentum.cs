@@ -4,14 +4,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MetricsDefinition
+namespace MetricsDefinition.Metrics
 {
-    [Metric("MA")]
-    public sealed class MovingAverage : IMetric
+    [Metric("MTM")]
+    class Momentum : IMetric
     {
-        private int _lookback;
+         private int _lookback;
 
-        public MovingAverage(int lookback)
+         public Momentum(int lookback)
         {
             if (lookback <= 0)
             {
@@ -28,8 +28,6 @@ namespace MetricsDefinition
                 throw new ArgumentNullException("input");
             }
 
-            double sum = 0.0;
-
             double[] allData = input[0];
             double[] result = new double[allData.Length];
 
@@ -37,13 +35,11 @@ namespace MetricsDefinition
             {
                 if (i < _lookback)
                 {
-                    sum += allData[i];
-                    result[i] = sum / (i + 1);
+                    result[i] = 0.0;
                 }
                 else
                 {
-                    sum = sum - allData[i - _lookback] + allData[i];
-                    result[i] = sum / _lookback;
+                    result[i] = allData[i] * 100.0 / allData[i - _lookback];
                 }
             }
 

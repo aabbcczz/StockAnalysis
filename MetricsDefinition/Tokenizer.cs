@@ -9,7 +9,7 @@ namespace MetricsDefinition
 {
     sealed class Tokenizer
     {
-        static Regex RegexIdentifier = new Regex(@"[_a-zA-Z][_a-zA-Z0-9]*", RegexOptions.Compiled);
+        static Regex RegexIdentifier = new Regex(@"[_a-zA-Z\%][_a-zA-Z\%0-9]*", RegexOptions.Compiled);
         static Regex RegexNumber = new Regex(@"\d+(\.\d+)?", RegexOptions.Compiled);
 
         private string _expression;

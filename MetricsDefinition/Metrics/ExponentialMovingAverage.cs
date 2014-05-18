@@ -21,19 +21,14 @@ namespace MetricsDefinition
             _lookback = lookback;
         }
 
-        public IEnumerable<double>[] Calculate(IEnumerable<double>[] input)
+        public double[][] Calculate(double[][] input)
         {
             if (input == null || input.Length == 0)
             {
                 throw new ArgumentNullException("input");
             }
 
-            if (input.Length != 1)
-            {
-                throw new ArgumentException("ExponentialMovingAverage accept only one field of input");
-            }
-
-            double[] allData = input[0].ToArray();
+            double[] allData = input[0];
             double[] result = new double[allData.Length];
 
             for (int i = 0; i < allData.Length; ++i)

@@ -12,6 +12,6 @@ namespace MetricsDefinition
     {
         public abstract string[] GetFieldNames();
 
-        public abstract IEnumerable<double>[] Evaluate(IEnumerable<double>[] data);
+        public abstract double[][] Evaluate(double[][] data);
     }
 }

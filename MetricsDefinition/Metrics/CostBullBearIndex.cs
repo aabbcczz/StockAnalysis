@@ -27,12 +27,12 @@ namespace MetricsDefinition
             _lookback4 = lookback4;
         }
 
-        public IEnumerable<double>[] Calculate(IEnumerable<double>[] input)
+        public double[][] Calculate(double[][] input)
         {
-            double[] ma1 = new CostMovingAverage(_lookback1).Calculate(input).First().ToArray();
-            double[] ma2 = new CostMovingAverage(_lookback2).Calculate(input).First().ToArray();
-            double[] ma3 = new CostMovingAverage(_lookback3).Calculate(input).First().ToArray();
-            double[] ma4 = new CostMovingAverage(_lookback4).Calculate(input).First().ToArray();
+            double[] ma1 = new CostMovingAverage(_lookback1).Calculate(input)[0];
+            double[] ma2 = new CostMovingAverage(_lookback2).Calculate(input)[0];
+            double[] ma3 = new CostMovingAverage(_lookback3).Calculate(input)[0];
+            double[] ma4 = new CostMovingAverage(_lookback4).Calculate(input)[0];
 
             double[] result = new double[ma1.Length];
             for (int i = 0; i < ma1.Length; ++i)
@@ -40,7 +40,7 @@ namespace MetricsDefinition
                 result[i] = (ma1[i] + ma2[i] + ma3[i] + ma4[i] ) / 4;
             }
 
-            return new IEnumerable<double>[1] { result };
+            return new double[1][] { result };
         }
     }
 }

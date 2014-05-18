@@ -21,16 +21,16 @@ namespace MetricsDefinition
             _fieldIndex = fieldIndex;
         }
     
-        public override IEnumerable<double>[] Evaluate(IEnumerable<double>[] data)
+        public override double[][] Evaluate(double[][] data)
         {
-            IEnumerable<double>[] result = Operand.Evaluate(data);
+            double[][] result = Operand.Evaluate(data);
 
             if (result.Length <= _fieldIndex)
             {
                 throw new ArgumentException("result data has no enough fields");
             }
 
-            return new IEnumerable<double>[1] { result[_fieldIndex] };
+            return new double[1][] { result[_fieldIndex] };
         }
 
         public override string[] GetFieldNames()

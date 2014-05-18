@@ -6,24 +6,24 @@ using System.Threading.Tasks;
 
 namespace MetricsDefinition
 {
-    [Metric("S", "OP,CP,HP,LP,VOL,AMT")]
+    [Metric("S", "CP,OP,HP,LP,VOL,AMT")]
     public sealed class StockData : IMetric
     {
         public const int FieldCount = 6;
 
-        public IEnumerable<double>[] Calculate(IEnumerable<double>[] input)
+        public double[][] Calculate(double[][] input)
         {
             if (input == null)
             {
                 throw new ArgumentNullException("input");
             }
 
-            if (input.Length < FieldCount)
+            if (input.Length != FieldCount)
             {
-                throw new ArgumentException("input has less number of fields than expected");
+                throw new ArgumentException("input has different number of fields than expected");
             }
 
-            return input.Take(FieldCount).ToArray();
+            return input;
         }
     }
 }

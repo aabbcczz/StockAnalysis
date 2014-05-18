@@ -60,7 +60,7 @@ namespace MetricsDefinition
         /// of M1.
         /// </param>
         /// <param name="data">input data for evaluation</param>
-        public static IEnumerable<double>[] Evaluate(string expression, IEnumerable<double>[] data, out string[] fieldNames)
+        public static double[][] Evaluate(string expression, double[][] data, out string[] fieldNames)
         {
             MetricExpression metricExpression = ParseExpression(expression);
 

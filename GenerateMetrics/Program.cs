@@ -141,14 +141,16 @@ namespace GenerateMetrics
 
             StockHistoryData data = LoadInputFile(file, startDate, endDate);
 
-            IEnumerable<double>[] input = new IEnumerable<double>[6]
+            double[][] input = new double[6][]
             {
-                data.Data.Select(d => d.OpenPrice),
-                data.Data.Select(d => d.ClosePrice),
-                data.Data.Select(d => d.HighestPrice),
-                data.Data.Select(d => d.LowestPrice),
-                data.Data.Select(d => d.Volume),
-                data.Data.Select(d => d.Amount),
+                // according to the StockData required order to ensure the metric that forgot to 
+                // add (S.CP) can still work.
+                data.Data.Select(d => d.ClosePrice).ToArray(),
+                data.Data.Select(d => d.OpenPrice).ToArray(),
+                data.Data.Select(d => d.HighestPrice).ToArray(),
+                data.Data.Select(d => d.LowestPrice).ToArray(),
+                data.Data.Select(d => d.Volume).ToArray(),
+                data.Data.Select(d => d.Amount).ToArray(),
             };
 
             List<double[]> metricValues = new List<double[]>();
@@ -160,13 +162,13 @@ namespace GenerateMetrics
                     {
                         string[] fieldNames;
 
-                        var result = MetricEvaluator.Evaluate(m, input, out fieldNames).Select(r => r.ToArray());
+                        var result = MetricEvaluator.Evaluate(m, input, out fieldNames);
 
                         lock(metricValues)
                         {
                             metricValues.AddRange(result);
 
-                            if (result.Count() == 1)
+                            if (result.Length == 1)
                             {
                                 allFieldNames.Add(m);
                             }
@@ -186,9 +188,9 @@ namespace GenerateMetrics
 
                 outputter.WriteLine(header);
 
-                var summary = data.Data.ToArray();
+                var times = data.Data.Select(d => d.Time).ToArray();
 
-                for (int i = 0; i < summary.Length; ++i)
+                for (int i = 0; i < times.Length; ++i)
                 {
                     string value = string.Join(
                             ",",
@@ -198,7 +200,7 @@ namespace GenerateMetrics
                     outputter.WriteLine(
                         "{0},{1:yyyy/MM/dd},{2}",
                         data.Name.Code,
-                        summary[i].Time,
+                        times[i],
                         value);
                 }
             }
