@@ -39,9 +39,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Metrics\DirectionMovementIndex.cs" />
     <Compile Include="Metrics\AccumulationDistribution.cs" />
     <Compile Include="Metrics\AverageTrueRange.cs" />
     <Compile Include="CallOperator.cs" />
+    <Compile Include="Metrics\RelativeStrengthIndex.cs" />
+    <Compile Include="Metrics\RateOfChange.cs" />
+    <Compile Include="Metrics\MovingSum.cs" />
+    <Compile Include="Metrics\MovingBias.cs" />
     <Compile Include="Metrics\BullBearIndex.cs" />
     <Compile Include="Metrics\CostBullBearIndex.cs" />
     <Compile Include="Metrics\CostMovingAverage.cs" />
