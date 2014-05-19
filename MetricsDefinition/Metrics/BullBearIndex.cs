@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace MetricsDefinition
 {
     [Metric("BBI")]
-    class BullBearIndex : IMetric
+    class BullBearIndex : Metric
     {
         private int _lookback1;
         private int _lookback2;
@@ -27,18 +27,16 @@ namespace MetricsDefinition
             _lookback4 = lookback4;
         }
 
-        public double[][] Calculate(double[][] input)
+        public override double[][] Calculate(double[][] input)
         {
-            double[] ma1 = new MovingAverage(_lookback1).Calculate(input)[0];
-            double[] ma2 = new MovingAverage(_lookback2).Calculate(input)[0];
-            double[] ma3 = new MovingAverage(_lookback3).Calculate(input)[0];
-            double[] ma4 = new MovingAverage(_lookback4).Calculate(input)[0];
+            double[] ma1 = new MovingAverage(_lookback1).Calculate(input[0]);
+            double[] ma2 = new MovingAverage(_lookback2).Calculate(input[0]);
+            double[] ma3 = new MovingAverage(_lookback3).Calculate(input[0]);
+            double[] ma4 = new MovingAverage(_lookback4).Calculate(input[0]);
 
-            double[] result = new double[ma1.Length];
-            for (int i = 0; i < ma1.Length; ++i)
-            {
-                result[i] = (ma1[i] + ma2[i] + ma3[i] + ma4[i] ) / 4;
-            }
+            double[] result = ma1.OperateThis(
+                ma2, ma3, ma4,
+                (m1, m2, m3, m4) => { return (m1 + m2 + m3 + m4) / 4; });
 
             return new double[1][] { result };
         }

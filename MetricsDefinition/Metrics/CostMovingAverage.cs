@@ -10,31 +10,11 @@ namespace MetricsDefinition
 {
 
     [Metric("COSTMA,CYC,CMA")]
-    class CostMovingAverage : IMetric
+    class CostMovingAverage : Metric
     {
         // lookback 0 means infinity lookback
         private int _lookback;
         
-        // because we are processing data with right recovered, the amount can't be used
-        // and we need to estimate the price by averging HP/LP/OP/CP.
-        static private int HighestPriceFieldIndex;
-        static private int LowestPriceFieldIndex;
-        static private int OpenPriceFieldIndex;
-        static private int ClosePriceFieldIndex;
-        static private int VolumeFieldIndex;
-
-
-        static CostMovingAverage()
-        {
-            MetricAttribute attribute = typeof(StockData).GetCustomAttribute<MetricAttribute>();
-
-            HighestPriceFieldIndex = attribute.NameToFieldIndexMap["HP"];
-            LowestPriceFieldIndex = attribute.NameToFieldIndexMap["LP"];
-            OpenPriceFieldIndex = attribute.NameToFieldIndexMap["OP"];
-            ClosePriceFieldIndex = attribute.NameToFieldIndexMap["CP"];
-            VolumeFieldIndex = attribute.NameToFieldIndexMap["VOL"];
-        }
-
         public CostMovingAverage(int lookback)
         {
             // lookback 0 means infinity lookback
@@ -46,7 +26,7 @@ namespace MetricsDefinition
             _lookback = lookback;
         }
 
-        public double[][] Calculate(double[][] input)
+        public override double[][] Calculate(double[][] input)
         {
  	        if (input == null || input.Length == 0)
             {
@@ -59,17 +39,16 @@ namespace MetricsDefinition
                 throw new ArgumentException("COSTMA can only accept StockData's output as input");
             }
 
-            double[] highestPrices = input[HighestPriceFieldIndex];
-            double[] lowestPrices = input[LowestPriceFieldIndex];
-            double[] openPrices = input[OpenPriceFieldIndex];
-            double[] closePrices = input[ClosePriceFieldIndex];
-            double[] volumes = input[VolumeFieldIndex];
-            double[] averagePrices = new double[volumes.Length];
+            double[] hp = input[StockData.HighestPriceFieldIndex];
+            double[] lp = input[StockData.LowestPriceFieldIndex];
+            double[] op = input[StockData.OpenPriceFieldIndex];
+            double[] cp = input[StockData.ClosePriceFieldIndex];
+            double[] volumes = input[StockData.VolumeFieldIndex];
 
-            for (int i = 0; i < averagePrices.Length; ++i)
-            {
-                averagePrices[i] = (highestPrices[i] + lowestPrices[i] + openPrices[i] + closePrices[i]) / 4;
-            }
+            double[] averagePrices = MetricHelper.OperateNew(
+                hp, lp, cp,
+                (h, l, c) => { return (h + l + 2 * c) / 4; });
+
 
             double sumOfVolume = 0.0;
             double sumOfCost = 0.0;
@@ -92,7 +71,7 @@ namespace MetricsDefinition
                     }
                     else
                     {
-                        int j = i - _lookback + 1;
+                        int j = i - _lookback;
 
                         sumOfVolume += volumes[i] - volumes[j];
                         sumOfCost += volumes[i] * averagePrices[i] - volumes[j] * averagePrices[j];

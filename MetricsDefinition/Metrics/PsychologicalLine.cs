@@ -8,7 +8,7 @@ using System.Reflection;
 namespace MetricsDefinition
 {
     [Metric("PSY")]
-    class PsychologicalLine : IMetric
+    class PsychologicalLine : Metric
     {
         private int _lookback;
         
@@ -23,7 +23,7 @@ namespace MetricsDefinition
             _lookback = lookback;
         }
 
-        public double[][] Calculate(double[][] input)
+        public override double[][] Calculate(double[][] input)
         {
  	        if (input == null || input.Length == 0)
             {
@@ -31,38 +31,18 @@ namespace MetricsDefinition
             }
 
             double[] allData = input[0];
-            int[] up = new int[allData.Length];
+            double[] up = new double[allData.Length];
 
-            up[0] = 0;
+            up[0] = 0.0;
             for (int i = 1; i < up.Length; ++i)
             {
                 if (allData[i] > allData[i - 1])
                 {
-                    up[i] = 1;
+                    up[i] = 100.0;
                 }
             }
 
-            double sum = 0.0;
-
-            double[] result = new double[up.Length];
-
-            for (int i = 0; i < up.Length; ++i)
-            {
-                if (i < _lookback)
-                {
-                    sum += up[i];
-                    result[i] = sum * 100.0 / (i + 1);
-                }
-                else
-                {
-                    int j = i - _lookback + 1;
-
-                    sum += up[i] - up[j];
-                    result[i] = sum * 100.0 / _lookback;
-                }
-            }
-
-            return new double[1][] { result };
+            return new MovingAverage(_lookback).Calculate(new double[1][] { up });
         }
     }
 }

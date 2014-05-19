@@ -8,23 +8,10 @@ using System.Reflection;
 namespace MetricsDefinition
 {
     [Metric("W%R, WMS%R")]
-    class WilliamOverboughtOversoldIndex : IMetric
+    class WilliamOverboughtOversoldIndex : Metric
     {
         private int _lookback;
         
-        static private int HighestPriceFieldIndex;
-        static private int LowestPriceFieldIndex;
-        static private int ClosePriceFieldIndex;
-
-        static WilliamOverboughtOversoldIndex()
-        {
-            MetricAttribute attribute = typeof(StockData).GetCustomAttribute<MetricAttribute>();
-
-            HighestPriceFieldIndex = attribute.NameToFieldIndexMap["HP"];
-            LowestPriceFieldIndex = attribute.NameToFieldIndexMap["LP"];
-            ClosePriceFieldIndex = attribute.NameToFieldIndexMap["CP"];
-        }
-
         public WilliamOverboughtOversoldIndex(int lookback)
         {
             if (lookback <= 0)
@@ -35,36 +22,36 @@ namespace MetricsDefinition
             _lookback = lookback;
         }
 
-        public double[][] Calculate(double[][] input)
+        public override double[][] Calculate(double[][] input)
         {
  	        if (input == null || input.Length == 0)
             {
                 throw new ArgumentNullException("input");
             }
 
-            // KDJ can only accept StockData's output as input
+            // W%R can only accept StockData's output as input
             if (input.Length != StockData.FieldCount)
             {
-                throw new ArgumentException("KDJ can only accept StockData's output as input");
+                throw new ArgumentException("W%R can only accept StockData's output as input");
             }
 
-            double[] highestPrices = input[HighestPriceFieldIndex];
-            double[] lowestPrices = input[LowestPriceFieldIndex];
-            double[] closePrices = input[ClosePriceFieldIndex];
+            double[] hp = input[StockData.HighestPriceFieldIndex];
+            double[] lp = input[StockData.LowestPriceFieldIndex];
+            double[] cp = input[StockData.ClosePriceFieldIndex];
 
             double lowestPrice = double.MaxValue;
             int lowestPriceIndex = -1;
             double highestPrice = double.MinValue;
             int highestPriceIndex = -1;
 
-            double[] result = new double[closePrices.Length];
+            double[] result = new double[cp.Length];
 
-            for (int i = 0; i < closePrices.Length; ++i)
+            for (int i = 0; i < cp.Length; ++i)
             {
                 // find out the lowest price and highest price in past _kLookback period.
-                if (lowestPrices[i] <= lowestPrice)
+                if (lp[i] <= lowestPrice)
                 {
-                    lowestPrice = lowestPrices[i];
+                    lowestPrice = lp[i];
                     lowestPriceIndex = i;
                 }
                 else
@@ -76,18 +63,18 @@ namespace MetricsDefinition
                         lowestPriceIndex = -1;
                         for (int m = i - _lookback + 1; m <= i; ++m)
                         {
-                            if (lowestPrices[m] <= lowestPrice)
+                            if (lp[m] <= lowestPrice)
                             {
-                                lowestPrice = lowestPrices[m];
+                                lowestPrice = lp[m];
                                 lowestPriceIndex = m;
                             }
                         }
                     }
                 }
 
-                if (highestPrices[i] >= highestPrice)
+                if (hp[i] >= highestPrice)
                 {
-                    highestPrice = highestPrices[i];
+                    highestPrice = hp[i];
                     highestPriceIndex = i;
                 }
                 else
@@ -99,9 +86,9 @@ namespace MetricsDefinition
                         highestPriceIndex = -1;
                         for (int m = i - _lookback + 1; m <= i; ++m)
                         {
-                            if (highestPrices[m] >= highestPrice)
+                            if (hp[m] >= highestPrice)
                             {
-                                highestPrice = highestPrices[m];
+                                highestPrice = hp[m];
                                 highestPriceIndex = m;
                             }
                         }
@@ -109,7 +96,7 @@ namespace MetricsDefinition
                 }
 
                 // calculate RSV
-                double rsv = (closePrices[i] - lowestPrice) / (highestPrice - lowestPrice) * 100;
+                double rsv = (cp[i] - lowestPrice) / (highestPrice - lowestPrice) * 100;
                 result[i] = 100.0 - rsv;
             }
 

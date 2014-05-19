@@ -4,10 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MetricsDefinition.Metrics
+namespace MetricsDefinition
 {
     [Metric("MTM")]
-    class Momentum : IMetric
+    class Momentum : Metric
     {
          private int _lookback;
 
@@ -21,7 +21,7 @@ namespace MetricsDefinition.Metrics
             _lookback = lookback;
         }
 
-        public double[][] Calculate(double[][] input)
+         public override double[][] Calculate(double[][] input)
         {
             if (input == null || input.Length == 0)
             {

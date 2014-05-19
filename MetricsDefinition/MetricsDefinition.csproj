@@ -58,6 +58,7 @@
     <Compile Include="MetricExpression.cs" />
     <Compile Include="MetricExpressionParser.cs" />
     <Compile Include="Metrics\Bias.cs" />
+    <Compile Include="Metrics\CommodityChannelIndex.cs" />
     <Compile Include="Metrics\WilliamOverboughtOversoldIndex.cs" />
     <Compile Include="Metrics\QuickKDJ.cs" />
     <Compile Include="Metrics\KDJStochastics.cs" />
@@ -69,10 +70,11 @@
     <Compile Include="Metrics\TripleExponentialMovingAverage.cs" />
     <Compile Include="Metrics\VolumeRatio.cs" />
     <Compile Include="Metrics\PsychologicalLine.cs" />
+    <Compile Include="Metrics\ArBrCr.cs" />
     <Compile Include="Metrics\WilliamVariableAccumulationDistribution.cs" />
     <Compile Include="MetricUnaryOperator.cs" />
     <Compile Include="Metrics\MovingAverage.cs" />
-    <Compile Include="NegativeVolumeIndex.cs" />
+    <Compile Include="Metrics\NegativeVolumeIndex.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SelectionOperator.cs" />
     <Compile Include="StandaloneMetric.cs" />

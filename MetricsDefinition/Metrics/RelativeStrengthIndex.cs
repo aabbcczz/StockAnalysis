@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace MetricsDefinition
 {
     [Metric("RSI")]
-    public sealed class RelativeStrengthIndex : IMetric
+    public sealed class RelativeStrengthIndex : Metric
     {
         private int _lookback;
 
@@ -21,7 +21,7 @@ namespace MetricsDefinition
             _lookback = lookback;
         }
 
-        public double[][] Calculate(double[][] input)
+        public override double[][] Calculate(double[][] input)
         {
             if (input == null || input.Length == 0)
             {
@@ -40,17 +40,16 @@ namespace MetricsDefinition
                 dc[i] = Math.Max(0.0, -diff);
             }
 
-            double[] msuc = new MovingSum(_lookback).Calculate(new double[1][] { uc })[0];
-            double[] msdc = new MovingSum(_lookback).Calculate(new double[1][] { dc })[0];
+            double[] msuc = new MovingSum(_lookback).Calculate(uc);
+            double[] msdc = new MovingSum(_lookback).Calculate(dc);
 
-            double[] result = new double[cp.Length];
-
-            for (int i = 0; i < cp.Length; ++i)
-            {
-                double sum = msuc[i] + msdc[i];
-                
-                result[i] = sum == 0.0 ? 0.0 : msuc[i] / (msuc[i] + msdc[i]) * 100.0;
-            }
+            double[] result = msuc.OperateThis(
+                msdc, 
+                (u, d) =>
+                {
+                    double sum = u + d;
+                    return sum == 0.0 ? 0.0 : u / sum * 100.0;
+                });
 
             return new double[1][] { result };
         }

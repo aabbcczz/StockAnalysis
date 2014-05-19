@@ -5,29 +5,13 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Reflection;
 
-namespace MetricsDefinition.Metrics
+namespace MetricsDefinition
 {
     [Metric("MFI")]
-    class MoneyFlowIndex : IMetric
+    class MoneyFlowIndex : Metric
     {
         private int _lookback;
         
-        static private int HighestPriceFieldIndex;
-        static private int LowestPriceFieldIndex;
-        static private int ClosePriceFieldIndex;
-        static private int VolumeFieldIndex;
-
-
-        static MoneyFlowIndex()
-        {
-            MetricAttribute attribute = typeof(StockData).GetCustomAttribute<MetricAttribute>();
-
-            HighestPriceFieldIndex = attribute.NameToFieldIndexMap["HP"];
-            LowestPriceFieldIndex = attribute.NameToFieldIndexMap["LP"];
-            ClosePriceFieldIndex = attribute.NameToFieldIndexMap["CP"];
-            VolumeFieldIndex = attribute.NameToFieldIndexMap["VOL"];
-        }
-
         public MoneyFlowIndex(int lookback)
         {
             if (lookback <= 0)
@@ -38,7 +22,7 @@ namespace MetricsDefinition.Metrics
             _lookback = lookback;
         }
 
-        public double[][] Calculate(double[][] input)
+        public override double[][] Calculate(double[][] input)
         {
  	        if (input == null || input.Length == 0)
             {
@@ -51,33 +35,30 @@ namespace MetricsDefinition.Metrics
                 throw new ArgumentException("MoneyFlowIndex can only accept StockData's output as input");
             }
 
-            double[] highestPrices = input[HighestPriceFieldIndex];
-            double[] lowestPrices = input[LowestPriceFieldIndex];
-            double[] closePrices = input[ClosePriceFieldIndex];
-            double[] volumes = input[VolumeFieldIndex];
-            double[] truePrices = new double[volumes.Length];
-            for (int i = 0; i < truePrices.Length; ++i)
-            {
-                truePrices[i] = (highestPrices[i] + lowestPrices[i] + closePrices[i]) / 3;
-            }
+            double[] hp = input[StockData.HighestPriceFieldIndex];
+            double[] lp = input[StockData.LowestPriceFieldIndex];
+            double[] cp = input[StockData.ClosePriceFieldIndex];
+            double[] volumes = input[StockData.VolumeFieldIndex];
 
-            double[] positiveMoneyFlow = new double[truePrices.Length];
-            double[] negativeMoneyFlow = new double[truePrices.Length];
+            double[] tp = MetricHelper.OperateNew(hp, lp, cp, (h, l, c) => (h + l + c) / 3);
 
-            positiveMoneyFlow[0] = truePrices[0] * volumes[0];
+            double[] positiveMoneyFlow = new double[tp.Length];
+            double[] negativeMoneyFlow = new double[tp.Length];
+
+            positiveMoneyFlow[0] = tp[0] * volumes[0];
             negativeMoneyFlow[0] = 1e-6; // set a very small number to avoid dividing by zero
 
-            for (int i = 1; i < truePrices.Length; ++i)
+            for (int i = 1; i < tp.Length; ++i)
             {
-                if (truePrices[i] > truePrices[i - 1])
+                if (tp[i] > tp[i - 1])
                 {
-                    positiveMoneyFlow[i] = truePrices[i] * volumes[i];
+                    positiveMoneyFlow[i] = tp[i] * volumes[i];
                     negativeMoneyFlow[i] = 0.0;
                 }
-                else if (truePrices[i] < truePrices[i - 1])
+                else if (tp[i] < tp[i - 1])
                 {
                     positiveMoneyFlow[i] = 0.0;
-                    negativeMoneyFlow[i] = truePrices[i] * volumes[i];
+                    negativeMoneyFlow[i] = tp[i] * volumes[i];
                 }
                 else
                 {
@@ -85,28 +66,10 @@ namespace MetricsDefinition.Metrics
                 }
             }
 
-            double sumOfPmf = 0.0;
-            double sumOfNmf = 0.0;
+            var sumOfPmf = new MovingSum(_lookback).Calculate(positiveMoneyFlow);
+            var sumOfNmf = new MovingSum(_lookback).Calculate(negativeMoneyFlow);
 
-            double[] result = new double[volumes.Length];
-
-            for (int i = 0; i < result.Length; ++i)
-            {
-                if (i < _lookback)
-                {
-                    sumOfPmf += positiveMoneyFlow[i];
-                    sumOfNmf += negativeMoneyFlow[i];
-                }
-                else
-                {
-                    int j = i - _lookback + 1;
-
-                    sumOfPmf += positiveMoneyFlow[i] - positiveMoneyFlow[j];
-                    sumOfNmf += negativeMoneyFlow[i] - negativeMoneyFlow[j];
-                }
-
-                result[i] = 100.0 / (1.0 + sumOfPmf / sumOfNmf);
-            }
+            double[] result = sumOfPmf.OperateThis(sumOfNmf, (p, n) => 100.0 / (1.0 + p / n));
 
             return new double[1][] { result };
         }

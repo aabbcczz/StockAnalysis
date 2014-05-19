@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace MetricsDefinition
 {
     [Metric("TRIX,TEMA")]
-    class TripleExponentialMovingAverage : IMetric
+    class TripleExponentialMovingAverage : Metric
     {
         private int _lookback;
 
@@ -21,7 +21,7 @@ namespace MetricsDefinition
             _lookback = lookback;
         }
 
-        public double[][] Calculate(double[][] input)
+        public override double[][] Calculate(double[][] input)
         {
             ExponentialMovingAverage ema = new ExponentialMovingAverage(_lookback);
 

@@ -8,21 +8,9 @@ using System.Reflection;
 namespace MetricsDefinition
 {
     [Metric("VR")]
-    class VolumeRatio : IMetric
+    class VolumeRatio : Metric
     {
         private int _lookback;
-
-        static private int ClosePriceFieldIndex;
-        static private int VolumeFieldIndex;
-
-
-        static VolumeRatio()
-        {
-            MetricAttribute attribute = typeof(StockData).GetCustomAttribute<MetricAttribute>();
-
-            ClosePriceFieldIndex = attribute.NameToFieldIndexMap["CP"];
-            VolumeFieldIndex = attribute.NameToFieldIndexMap["VOL"];
-        }
 
         public VolumeRatio(int lookback)
         {
@@ -34,7 +22,7 @@ namespace MetricsDefinition
             _lookback = lookback;
         }
 
-        public double[][] Calculate(double[][] input)
+        public override double[][] Calculate(double[][] input)
         {
             if (input == null || input.Length == 0)
             {
@@ -47,8 +35,8 @@ namespace MetricsDefinition
                 throw new ArgumentException("VolumeRatio can only accept StockData's output as input");
             }
 
-            double[] closePrices = input[ClosePriceFieldIndex];
-            double[] volumes = input[VolumeFieldIndex];
+            double[] cp = input[StockData.ClosePriceFieldIndex];
+            double[] volumes = input[StockData.VolumeFieldIndex];
 
             double[] positiveVolume = new double[volumes.Length];
             double[] negativeVolume = new double[volumes.Length];
@@ -58,15 +46,15 @@ namespace MetricsDefinition
             negativeVolume[0] = 1e-6; // set a very small number to avoid dividing by zero
             zeroVolume[0] = volumes[0];
 
-            for (int i = 1; i < closePrices.Length; ++i)
+            for (int i = 1; i < cp.Length; ++i)
             {
-                if (closePrices[i] > closePrices[i - 1])
+                if (cp[i] > cp[i - 1])
                 {
                     positiveVolume[i] = volumes[i];
                     negativeVolume[i] = 0.0;
                     zeroVolume[i] = 0.0;
                 }
-                else if (closePrices[i] < closePrices[i - 1])
+                else if (cp[i] < cp[i - 1])
                 {
                     positiveVolume[i] = 0.0;
                     negativeVolume[i] = volumes[i];
@@ -96,7 +84,7 @@ namespace MetricsDefinition
                 }
                 else
                 {
-                    int j = i - _lookback + 1;
+                    int j = i - _lookback;
 
                     sumOfPV += positiveVolume[i] - positiveVolume[j];
                     sumOfNV += negativeVolume[i] - negativeVolume[j];

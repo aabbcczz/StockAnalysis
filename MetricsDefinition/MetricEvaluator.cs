@@ -21,10 +21,15 @@ namespace MetricsDefinition
 
             var metrics = assembly.GetTypes()
                 .Where(type => type.IsClass 
-                    && typeof(IMetric).IsAssignableFrom(type));
+                    && typeof(Metric).IsAssignableFrom(type));
 
             foreach (var metric in metrics)
             {
+                if (metric == typeof(Metric))
+                {
+                    continue;
+                }
+
                 MetricAttribute attribute = metric.GetCustomAttribute<MetricAttribute>();
 
                 if (attribute == null)

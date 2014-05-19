@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace MetricsDefinition
 {
     [Metric("ROC")]
-    public sealed class RateOfChange : IMetric
+    public sealed class RateOfChange : Metric
     {
         private int _lookback;
 
@@ -21,7 +21,7 @@ namespace MetricsDefinition
             _lookback = lookback;
         }
 
-        public double[][] Calculate(double[][] input)
+        public override double[][] Calculate(double[][] input)
         {
             if (input == null || input.Length == 0)
             {

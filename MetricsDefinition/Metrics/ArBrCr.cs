@@ -7,12 +7,12 @@ using System.Reflection;
 
 namespace MetricsDefinition
 {
-    [Metric("WVAD")]
-    class WilliamVariableAccumulationDistribution : Metric
+    [Metric("ABCR", "AR,BR,CR")]
+    class ArBrCr : Metric
     {
         private int _lookback;
-        
-        public WilliamVariableAccumulationDistribution(int lookback)
+
+        public ArBrCr(int lookback)
         {
             // lookback 0 means infinity lookback
             if (lookback <= 0)
@@ -30,22 +30,21 @@ namespace MetricsDefinition
                 throw new ArgumentNullException("input");
             }
 
-            // WVAD can only accept StockData's output as input
+            // ArBrCr can only accept StockData's output as input
             if (input.Length != StockData.FieldCount)
             {
-                throw new ArgumentException("WVAD can only accept StockData's output as input");
+                throw new ArgumentException("ArBrCr can only accept StockData's output as input");
             }
 
             double[] hp = input[StockData.HighestPriceFieldIndex];
             double[] lp = input[StockData.LowestPriceFieldIndex];
             double[] op = input[StockData.OpenPriceFieldIndex];
             double[] cp = input[StockData.ClosePriceFieldIndex];
-            double[] volumes = input[StockData.VolumeFieldIndex];
 
-            double[] indices = MetricHelper.OperateNew(hp, lp, cp, op, volumes,
-                (h, l, c, o, v) => (c - o) * v / (h - l));
+            double sum = 0.0;
 
-            double[] result = new MovingSum(_lookback).Calculate(indices);
+            double[] result = new double[cp.Length];
+
 
             return new double[1][] { result };
         }

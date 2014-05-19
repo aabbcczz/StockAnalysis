@@ -8,25 +8,13 @@ using System.Reflection;
 namespace MetricsDefinition
 {
     [Metric("NVI")]
-    class NegativeVolumeIndex : IMetric
+    class NegativeVolumeIndex : Metric
     {
-        static private int ClosePriceFieldIndex;
-        static private int VolumeFieldIndex;
-
-
-        static NegativeVolumeIndex()
-        {
-            MetricAttribute attribute = typeof(StockData).GetCustomAttribute<MetricAttribute>();
-
-            ClosePriceFieldIndex = attribute.NameToFieldIndexMap["CP"];
-            VolumeFieldIndex = attribute.NameToFieldIndexMap["VOL"];
-        }
-
         public NegativeVolumeIndex()
         {
         }
 
-        public double[][] Calculate(double[][] input)
+        public override double[][] Calculate(double[][] input)
         {
             if (input == null || input.Length == 0)
             {
@@ -39,8 +27,8 @@ namespace MetricsDefinition
                 throw new ArgumentException("NegativeVolumeIndex can only accept StockData's output as input");
             }
 
-            double[] closePrices = input[ClosePriceFieldIndex];
-            double[] volumes = input[VolumeFieldIndex];
+            double[] cp = input[StockData.ClosePriceFieldIndex];
+            double[] volumes = input[StockData.VolumeFieldIndex];
 
             double[] result = new double[volumes.Length];
 
@@ -49,7 +37,7 @@ namespace MetricsDefinition
             {
                 if (volumes[i] < volumes[i - 1])
                 {
-                    result[i] = result[i - 1] * closePrices[i] / closePrices[i - 1];
+                    result[i] = result[i - 1] * cp[i] / cp[i - 1];
                 }
                 else
                 {

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace MetricsDefinition
 {
     [Metric("MA")]
-    public sealed class MovingAverage : IMetric
+    public sealed class MovingAverage : Metric
     {
         private int _lookback;
 
@@ -21,31 +21,16 @@ namespace MetricsDefinition
             _lookback = lookback;
         }
 
-        public double[][] Calculate(double[][] input)
+        public override double[][] Calculate(double[][] input)
         {
             if (input == null || input.Length == 0)
             {
                 throw new ArgumentNullException("input");
             }
 
-            double sum = 0.0;
-
-            double[] allData = input[0];
-            double[] result = new double[allData.Length];
-
-            for (int i = 0; i < allData.Length; ++i)
-            {
-                if (i < _lookback)
-                {
-                    sum += allData[i];
-                    result[i] = sum / (i + 1);
-                }
-                else
-                {
-                    sum = sum - allData[i - _lookback] + allData[i];
-                    result[i] = sum / _lookback;
-                }
-            }
+            double[] result = new MovingSum(_lookback)
+                .Calculate(input[0])
+                .OperateThis((double)_lookback, (s, l) => s / l);
 
             return new double[1][] { result };
         }

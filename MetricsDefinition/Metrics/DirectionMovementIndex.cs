@@ -8,24 +8,10 @@ using System.Reflection;
 namespace MetricsDefinition
 {
     [Metric("DMI", "PDI,NDI,ADX,ADXR")]
-    class DirectionMovementIndex : IMetric
+    class DirectionMovementIndex : Metric
     {
         private int _lookback;
         
-        static private int HighestPriceFieldIndex;
-        static private int LowestPriceFieldIndex;
-        static private int ClosePriceFieldIndex;
-
-
-        static DirectionMovementIndex()
-        {
-            MetricAttribute attribute = typeof(StockData).GetCustomAttribute<MetricAttribute>();
-
-            HighestPriceFieldIndex = attribute.NameToFieldIndexMap["HP"];
-            LowestPriceFieldIndex = attribute.NameToFieldIndexMap["LP"];
-            ClosePriceFieldIndex = attribute.NameToFieldIndexMap["CP"];
-        }
-
         public DirectionMovementIndex(int lookback)
         {
             if (lookback <= 0)
@@ -36,7 +22,7 @@ namespace MetricsDefinition
             _lookback = lookback;
         }
 
-        public double[][] Calculate(double[][] input)
+        public override double[][] Calculate(double[][] input)
         {
  	        if (input == null || input.Length == 0)
             {
@@ -49,9 +35,9 @@ namespace MetricsDefinition
                 throw new ArgumentException("DMI can only accept StockData's output as input");
             }
 
-            double[] hp = input[HighestPriceFieldIndex];
-            double[] lp = input[LowestPriceFieldIndex];
-            double[] cp = input[ClosePriceFieldIndex];
+            double[] hp = input[StockData.HighestPriceFieldIndex];
+            double[] lp = input[StockData.LowestPriceFieldIndex];
+            double[] cp = input[StockData.ClosePriceFieldIndex];
 
             // calculate +DM and -DM
             double[] pdm = new double[hp.Length];
@@ -98,38 +84,31 @@ namespace MetricsDefinition
             }
 
             // calculate +DIM and -DIM
-            double[] mspdm = new MovingSum(_lookback).Calculate(new double[1][]{ pdm })[0];
-            double[] msndm = new MovingSum(_lookback).Calculate(new double[1][]{ ndm })[0];
-            double[] mstr = new MovingSum(_lookback).Calculate(new double[1][]{ tr })[0];
+            double[] mspdm = new MovingSum(_lookback).Calculate(pdm);
+            double[] msndm = new MovingSum(_lookback).Calculate(ndm);
+            double[] mstr = new MovingSum(_lookback).Calculate(tr);
 
 
-            double[] pdim = new double[pdm.Length];
-            double[] ndim = new double[ndm.Length];
-
-            for (int i = 0; i < pdim.Length; ++i)
-            {
-                pdim[i] = mspdm[i] * 100.0 / mstr[i];
-                ndim[i] = msndm[i] * 100.0 / mstr[i];
-            }
+            double[] pdim = MetricHelper.OperateNew(mspdm, mstr, (p, t) => { return p * 100.0 / t; });
+            double[] ndim = MetricHelper.OperateNew(msndm, mstr, (n, t) => { return n * 100.0 / t; });
 
             // calculate DX and ADX
-            double[] dx = new double[pdim.Length];
-            for (int i = 0; i < dx.Length; ++i)
-            {
-                double sum = pdim[i] + ndim[i];
+            double[] dx = MetricHelper.OperateNew(pdim, ndim, (p, n) =>
+                {
+                    double sum = p + n;
 
-                dx[i] = sum == 0.0 ? 0.0 : Math.Abs(pdim[i] - ndim[i]) / (pdim[i] + ndim[i]);
-            }
+                    return sum == 0.0 ? 0.0 : Math.Abs(p - n) / sum;
+                });
 
-            double[] adx = new MovingAverage(_lookback).Calculate(new double[1][] { dx })[0];
+            double[] adx = new MovingAverage(_lookback).Calculate(dx);
 
             // calculate ADXR
             double[] adxr = new double[adx.Length];
             for (int i = 0; i < adxr.Length; ++i)
             {
-                if (i < _lookback)
+                if (i < _lookback - 1)
                 {
-                    adxr[i] = (adx[i] + adx[0]) / 2.0;
+                    adxr[i] = (adx[i] + 0.0) / 2.0;
                 }
                 else
                 {

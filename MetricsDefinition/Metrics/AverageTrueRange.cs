@@ -13,24 +13,10 @@ namespace MetricsDefinition
     /// The ATR metric
     /// </summary>
     [Metric("ATR")]
-    public sealed class AverageTrueRange : IMetric
+    public sealed class AverageTrueRange : Metric
     {
         private int _lookback;
         
-        static private int _highestPriceFieldIndex;
-        static private int _lowestPriceFieldIndex;
-        static private int _closePriceFieldIndex;
-
-
-        static AverageTrueRange()
-        {
-            MetricAttribute attribute = typeof(StockData).GetCustomAttribute<MetricAttribute>();
-
-            _highestPriceFieldIndex = attribute.NameToFieldIndexMap["HP"];
-            _lowestPriceFieldIndex = attribute.NameToFieldIndexMap["LP"];
-            _closePriceFieldIndex = attribute.NameToFieldIndexMap["CP"];
-        }
-
         public AverageTrueRange(int lookback)
         {
             if (lookback <= 1)
@@ -41,7 +27,7 @@ namespace MetricsDefinition
             _lookback = lookback;
         }
 
-        public double[][] Calculate(double[][] input)
+        public override double[][] Calculate(double[][] input)
         {
  	        if (input == null || input.Length == 0)
             {
@@ -54,43 +40,25 @@ namespace MetricsDefinition
                 throw new ArgumentException("ATR can only accept StockData's output as input");
             }
 
-            double[] highestPrice = input[_highestPriceFieldIndex];
-            double[] lowestPrice = input[_lowestPriceFieldIndex];
-            double[] closePrice = input[_closePriceFieldIndex];
+            double[] hp = input[StockData.HighestPriceFieldIndex];
+            double[] lp = input[StockData.LowestPriceFieldIndex];
+            double[] cp = input[StockData.ClosePriceFieldIndex];
 
-            double previousDayClosePrice = 0.0;
-            double[] trueRange = new double[highestPrice.Length];
+            double prevCp = 0.0;
+            double[] trueRange = new double[hp.Length];
 
-            for (int i = 0; i < highestPrice.Length; ++i)
+            for (int i = 0; i < hp.Length; ++i)
             {
                 trueRange[i] = 
                     Math.Max(
-                        Math.Max(highestPrice[i] - lowestPrice[i],
-                            highestPrice[i] - previousDayClosePrice),
-                        previousDayClosePrice - lowestPrice[i]);
+                        Math.Max(hp[i] - lp[i],
+                            hp[i] - prevCp),
+                        prevCp - lp[i]);
 
-                previousDayClosePrice = closePrice[i];
+                prevCp = cp[i];
             }
 
-            double[] result = new double[trueRange.Length];
-
-            double previousDayAverageTrueRange = 0.0;
-
-            for (int i = 0; i < trueRange.Length; ++i)
-            {
-                if (i < _lookback)
-                {
-                    previousDayAverageTrueRange = trueRange.Take(i + 1).Average();
-                    result[i] = previousDayAverageTrueRange;
-                }
-                else
-                {
-                    previousDayAverageTrueRange = ((_lookback - 1) * previousDayAverageTrueRange + trueRange[i] ) / _lookback;
-                    result[i] = previousDayAverageTrueRange;
-                }
-            }
-
-            return new double[1][] { result };
+            return new MovingAverage(_lookback).Calculate(new double[1][] { trueRange });
         }
     }
 }

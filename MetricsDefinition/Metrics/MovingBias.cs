@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace MetricsDefinition
 {
     [Metric("MB")]
-    class MovingBias : IMetric
+    class MovingBias : Metric
     {
         private int _shortLookback;
         private int _longLookback;
@@ -28,19 +28,14 @@ namespace MetricsDefinition
             _longLookback = longLookback;
         }
 
-        public double[][] Calculate(double[][] input)
+        public override double[][] Calculate(double[][] input)
         {
             double[] allData = input[0];
 
             double[] maShort = new MovingAverage(_shortLookback).Calculate(input)[0];
             double[] maLong = new MovingAverage(_longLookback).Calculate(input)[0];
 
-            double[] result = new double[allData.Length];
-
-            for (int i = 0; i < result.Length; ++i)
-            {
-                result[i] = maShort[i] - maLong[i];
-            }
+            double[] result = maShort.OperateThis(maLong, (s, l) => s - l);
 
             return new double[1][] { result };
         }

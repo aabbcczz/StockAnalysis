@@ -10,11 +10,11 @@ namespace MetricsDefinition
 {
     sealed class StandaloneMetric : MetricExpression
     {
-        private IMetric _metric;
+        private Metric _metric;
 
-        public IMetric Metric { get { return _metric; } }
+        public Metric Metric { get { return _metric; } }
 
-        public StandaloneMetric(IMetric metric)
+        public StandaloneMetric(Metric metric)
         {
             if (metric == null)
             {

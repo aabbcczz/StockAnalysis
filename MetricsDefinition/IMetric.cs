@@ -6,8 +6,13 @@ using System.Threading.Tasks;
 
 namespace MetricsDefinition
 {
-    interface IMetric
+    public abstract class Metric
     {
-        double[][] Calculate(double[][] input);
+        public abstract double[][] Calculate(double[][] input);
+
+        public double[] Calculate(double[] input)
+        {
+            return Calculate(new double[1][] { input })[0];
+        }
     }
 }

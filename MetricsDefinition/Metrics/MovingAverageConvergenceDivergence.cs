@@ -4,10 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MetricsDefinition.Metrics
+namespace MetricsDefinition
 {
     [Metric("MACD", "DIFF,DEA")]
-    public class MovingAverageConvergenceDivergence : IMetric
+    public class MovingAverageConvergenceDivergence : Metric
     {
         private int _shortLookback;
         private int _longLookback;
@@ -30,7 +30,7 @@ namespace MetricsDefinition.Metrics
             _diffLookback = diffLookback;
         }
 
-        public double[][] Calculate(double[][] input)
+        public override double[][] Calculate(double[][] input)
         {
             if (input == null || input.Length == 0)
             {
@@ -38,22 +38,16 @@ namespace MetricsDefinition.Metrics
             }
 
 
-            double[] allData = input[0];
-            double[] diff = new double[allData.Length];
-
             var emaShort = new ExponentialMovingAverage(_shortLookback)
-                .Calculate(input)[0];
+                .Calculate(input[0]);
 
             var emaLong = new ExponentialMovingAverage(_longLookback)
-                .Calculate(input)[0];
+                .Calculate(input[0]);
 
-            for (int i = 0; i < diff.Length; ++i)
-            {
-                diff[i] = emaShort[i] - emaLong[i];
-            }
+            var diff = emaShort.OperateThis(emaLong, (s, l) => s - l);
 
             var dea = new ExponentialMovingAverage(_diffLookback)
-                .Calculate(new double[1][] { diff })[0];
+                .Calculate(diff);
 
             return new double[2][] { diff, dea };
         }

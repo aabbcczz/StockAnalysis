@@ -8,27 +8,13 @@ using System.Reflection;
 namespace MetricsDefinition
 {
     [Metric("OBV")]
-    class OnBalanceVolume : IMetric
+    class OnBalanceVolume : Metric
     {
-        // because we are processing data with right recovered, the amount can't be used
-        // and we need to estimate the price by averging HP/LP/OP/CP.
-        static private int ClosePriceFieldIndex;
-        static private int VolumeFieldIndex;
-
-
-        static OnBalanceVolume()
-        {
-            MetricAttribute attribute = typeof(StockData).GetCustomAttribute<MetricAttribute>();
-
-            ClosePriceFieldIndex = attribute.NameToFieldIndexMap["CP"];
-            VolumeFieldIndex = attribute.NameToFieldIndexMap["VOL"];
-        }
-
         public OnBalanceVolume()
         {
         }
 
-        public double[][] Calculate(double[][] input)
+        public override double[][] Calculate(double[][] input)
         {
  	        if (input == null || input.Length == 0)
             {
@@ -41,8 +27,8 @@ namespace MetricsDefinition
                 throw new ArgumentException("OBV can only accept StockData's output as input");
             }
 
-            double[] closePrices = input[ClosePriceFieldIndex];
-            double[] volumes = input[VolumeFieldIndex];
+            double[] cp = input[StockData.ClosePriceFieldIndex];
+            double[] volumes = input[StockData.VolumeFieldIndex];
 
             double obv = 0.0;
             double[] result = new double[volumes.Length];
@@ -55,7 +41,7 @@ namespace MetricsDefinition
                 }
                 else
                 {
-                    obv += Math.Sign(closePrices[i] - closePrices[i - 1]) * volumes[i];
+                    obv += Math.Sign(cp[i] - cp[i - 1]) * volumes[i];
                 }
 
                 result[i] = obv;

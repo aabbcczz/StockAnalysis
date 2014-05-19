@@ -220,7 +220,7 @@ namespace MetricsDefinition
                     }
 
                     // now try to create instance with converted parameters
-                    metric = new StandaloneMetric((IMetric)Activator.CreateInstance(metricType, objects));
+                    metric = new StandaloneMetric((Metric)Activator.CreateInstance(metricType, objects));
                     break;
                 }
 

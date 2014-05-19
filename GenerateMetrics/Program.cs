@@ -101,7 +101,7 @@ namespace GenerateMetrics
             string code = inputData[0][0];
             StockName name = new StockName(code);
 
-            // header is code,date,open,highest,lowest,close,transactionCount,transactionAmountMoney
+            // header is code,date,open,highest,lowest,close,volume,amount
 
             List<StockTransactionSummary> data = new List<StockTransactionSummary>(inputData.RowCount);
 
@@ -141,17 +141,17 @@ namespace GenerateMetrics
 
             StockHistoryData data = LoadInputFile(file, startDate, endDate);
 
-            double[][] input = new double[6][]
-            {
-                // according to the StockData required order to ensure the metric that forgot to 
-                // add (S.CP) can still work.
-                data.Data.Select(d => d.ClosePrice).ToArray(),
-                data.Data.Select(d => d.OpenPrice).ToArray(),
-                data.Data.Select(d => d.HighestPrice).ToArray(),
-                data.Data.Select(d => d.LowestPrice).ToArray(),
-                data.Data.Select(d => d.Volume).ToArray(),
-                data.Data.Select(d => d.Amount).ToArray(),
-            };
+            double[][] input = new double[6][];
+
+            // according to the StockData required order to ensure the metric that forgot to 
+            // add (S.CP) can still work.
+            input[StockData.ClosePriceFieldIndex] = data.Data.Select(d => d.ClosePrice).ToArray();
+            input[StockData.OpenPriceFieldIndex] = data.Data.Select(d => d.OpenPrice).ToArray();
+            input[StockData.HighestPriceFieldIndex] = data.Data.Select(d => d.HighestPrice).ToArray();
+            input[StockData.LowestPriceFieldIndex] = data.Data.Select(d => d.LowestPrice).ToArray();
+            input[StockData.VolumeFieldIndex] = data.Data.Select(d => d.Volume).ToArray();
+            input[StockData.AmountFieldIndex] = data.Data.Select(d => d.Amount).ToArray();
+
 
             List<double[]> metricValues = new List<double[]>();
             List<string> allFieldNames = new List<string>();
