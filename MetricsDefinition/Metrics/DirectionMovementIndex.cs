@@ -8,7 +8,7 @@ using System.Reflection;
 namespace MetricsDefinition
 {
     [Metric("DMI", "PDI,NDI,ADX,ADXR")]
-    class DirectionMovementIndex : Metric
+    public sealed class DirectionMovementIndex : Metric
     {
         private int _lookback;
         

@@ -8,7 +8,7 @@ using System.Reflection;
 namespace MetricsDefinition
 {
     [Metric("NVI")]
-    class NegativeVolumeIndex : Metric
+    public sealed class NegativeVolumeIndex : Metric
     {
         public NegativeVolumeIndex()
         {

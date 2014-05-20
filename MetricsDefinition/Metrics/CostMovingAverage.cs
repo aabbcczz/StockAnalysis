@@ -10,7 +10,7 @@ namespace MetricsDefinition
 {
 
     [Metric("COSTMA,CYC,CMA")]
-    class CostMovingAverage : Metric
+    public sealed class CostMovingAverage : Metric
     {
         // lookback 0 means infinity lookback
         private int _lookback;

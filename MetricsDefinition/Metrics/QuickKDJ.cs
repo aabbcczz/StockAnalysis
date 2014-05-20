@@ -8,7 +8,7 @@ using System.Reflection;
 namespace MetricsDefinition
 {
     [Metric("QKD", "K,D,J")]
-    class QuickKDJ : Metric
+    public sealed class QuickKDJ : Metric
     {
         private int _kLookback;
         private int _kDecay;

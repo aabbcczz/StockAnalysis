@@ -6,12 +6,12 @@ using System.Threading.Tasks;
 
 namespace MetricsDefinition
 {
-    [Metric("BIAS")]
-    public sealed class Bias : Metric
+    [Metric("OSC")]
+    public sealed class Oscillator : Metric
     {
         private int _lookback;
 
-        public Bias(int lookback)
+        public Oscillator(int lookback)
         {
             if (lookback <= 0)
             {
@@ -25,7 +25,7 @@ namespace MetricsDefinition
         {
             double[] ma = new MovingAverage(_lookback).Calculate(input[0]);
 
-            double[] result = ma.OperateThis(input[0], (m, i) => { return (i - m) / m; });
+            double[] result = ma.OperateThis(input[0], (m, i) => { return i - m; });
 
             return new double[1][] { result };
         }

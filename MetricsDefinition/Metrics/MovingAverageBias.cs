@@ -6,13 +6,13 @@ using System.Threading.Tasks;
 
 namespace MetricsDefinition
 {
-    [Metric("MB")]
-    class MovingBias : Metric
+    [Metric("MB,MAB")]
+    public sealed class MovingAverageBias : Metric
     {
         private int _shortLookback;
         private int _longLookback;
 
-        public MovingBias(int shortLookback, int longLookback)
+        public MovingAverageBias(int shortLookback, int longLookback)
         {
             if (shortLookback <= 0 || longLookback <= 0)
             {

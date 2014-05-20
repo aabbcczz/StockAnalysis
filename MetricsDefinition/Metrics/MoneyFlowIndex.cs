@@ -8,7 +8,7 @@ using System.Reflection;
 namespace MetricsDefinition
 {
     [Metric("MFI")]
-    class MoneyFlowIndex : Metric
+    public sealed class MoneyFlowIndex : Metric
     {
         private int _lookback;
         

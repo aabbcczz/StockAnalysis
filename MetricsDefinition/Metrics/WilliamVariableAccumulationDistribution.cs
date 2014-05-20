@@ -8,7 +8,7 @@ using System.Reflection;
 namespace MetricsDefinition
 {
     [Metric("WVAD")]
-    class WilliamVariableAccumulationDistribution : Metric
+    public sealed class WilliamVariableAccumulationDistribution : Metric
     {
         private int _lookback;
         

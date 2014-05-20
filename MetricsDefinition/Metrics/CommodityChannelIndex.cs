@@ -8,7 +8,7 @@ using System.Reflection;
 namespace MetricsDefinition
 {
     [Metric("CCI")]
-    class CommodityChannelIndex : Metric
+    public sealed class CommodityChannelIndex : Metric
     {
         private const double Alpha = 0.015;
 

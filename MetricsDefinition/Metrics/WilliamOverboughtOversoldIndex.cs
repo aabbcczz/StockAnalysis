@@ -8,7 +8,7 @@ using System.Reflection;
 namespace MetricsDefinition
 {
     [Metric("W%R, WMS%R")]
-    class WilliamOverboughtOversoldIndex : Metric
+    public sealed class WilliamOverboughtOversoldIndex : Metric
     {
         private int _lookback;
         

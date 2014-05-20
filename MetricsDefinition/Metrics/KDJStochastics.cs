@@ -8,7 +8,7 @@ using System.Reflection;
 namespace MetricsDefinition
 {
     [Metric("KDJ", "K,D,J")]
-    class KDJStochastics : Metric
+    public sealed class KDJStochastics : Metric
     {
         private int _kLookback;
         private int _kDecay;

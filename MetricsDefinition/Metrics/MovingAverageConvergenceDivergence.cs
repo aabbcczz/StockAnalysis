@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace MetricsDefinition
 {
     [Metric("MACD", "DIFF,DEA")]
-    public class MovingAverageConvergenceDivergence : Metric
+    public sealed class MovingAverageConvergenceDivergence : Metric
     {
         private int _shortLookback;
         private int _longLookback;

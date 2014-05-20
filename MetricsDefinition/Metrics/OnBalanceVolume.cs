@@ -8,7 +8,7 @@ using System.Reflection;
 namespace MetricsDefinition
 {
     [Metric("OBV")]
-    class OnBalanceVolume : Metric
+    public sealed class OnBalanceVolume : Metric
     {
         public OnBalanceVolume()
         {

@@ -8,7 +8,7 @@ using System.Reflection;
 namespace MetricsDefinition
 {
     [Metric("PVI")]
-    class PositiveVolumeIndex : Metric
+    public sealed class PositiveVolumeIndex : Metric
     {
         public PositiveVolumeIndex()
         {

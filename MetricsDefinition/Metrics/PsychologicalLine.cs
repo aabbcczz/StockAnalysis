@@ -8,7 +8,7 @@ using System.Reflection;
 namespace MetricsDefinition
 {
     [Metric("PSY")]
-    class PsychologicalLine : Metric
+    public sealed class PsychologicalLine : Metric
     {
         private int _lookback;
         

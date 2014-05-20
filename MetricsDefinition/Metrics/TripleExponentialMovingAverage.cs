@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace MetricsDefinition
 {
     [Metric("TRIX,TEMA")]
-    class TripleExponentialMovingAverage : Metric
+    public sealed class TripleExponentialMovingAverage : Metric
     {
         private int _lookback;
 

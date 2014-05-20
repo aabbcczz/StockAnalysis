@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace MetricsDefinition
 {
     [Metric("CBBI")]
-    class CostBullBearIndex : Metric
+    public sealed class CostBullBearIndex : Metric
     {
         private int _lookback1;
         private int _lookback2;

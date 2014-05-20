@@ -8,7 +8,7 @@ using System.Reflection;
 namespace MetricsDefinition
 {
     [Metric("AD")]
-    class AccumulationDistribution : Metric
+    public sealed class AccumulationDistribution : Metric
     {
         private int _lookback;
 

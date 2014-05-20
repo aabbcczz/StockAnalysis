@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace MetricsDefinition
 {
     [Metric("MTM")]
-    class Momentum : Metric
+    public sealed class Momentum : Metric
     {
          private int _lookback;
 

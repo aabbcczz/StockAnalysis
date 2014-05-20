@@ -8,7 +8,7 @@ using System.Reflection;
 namespace MetricsDefinition
 {
     [Metric("VR")]
-    class VolumeRatio : Metric
+    public sealed class VolumeRatio : Metric
     {
         private int _lookback;
 

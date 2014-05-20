@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace MetricsDefinition
 {
     [Metric("EMA, EXPMA")]
-    class ExponentialMovingAverage : Metric
+    public sealed class ExponentialMovingAverage : Metric
     {
         private int _lookback;
 

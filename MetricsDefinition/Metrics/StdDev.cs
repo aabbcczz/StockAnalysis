@@ -54,6 +54,11 @@ namespace MetricsDefinition
         private double CalculateStdDev(double sum, double[] data, int startIndex, int endIndex)
         {
             int count = endIndex - startIndex + 1;
+            if (count == 1)
+            {
+                return 0.0;
+            }
+
 
             double average = sum / count;
             double sumOfSquares = 0.0;
@@ -63,7 +68,7 @@ namespace MetricsDefinition
                 sumOfSquares += (data[j] - average) * (data[j] - average);
             }
 
-            return Math.Sqrt(sumOfSquares / count);
+            return Math.Sqrt(sumOfSquares / (count - 1));
         }
     }
 }
