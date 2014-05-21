@@ -20,6 +20,9 @@ namespace SelectStocksBasedOnMetrics
         [Option('o', "OutputFile", Required = true, HelpText = "The output file")]
         public string OutputFile { get; set; }
 
+        [Option('k', "KeptRecord", Required = true, HelpText = "The number of record to be kept for each stock")]
+        public int KeptRecord { get; set; }
+
         [HelpOption]
         public string GetUsage()
         {
@@ -33,6 +36,7 @@ namespace SelectStocksBasedOnMetrics
             {
                 writer.WriteLine("Input file list: {0}", InputFileList);
                 writer.WriteLine("Output file: {0}", OutputFile);
+                writer.WriteLine("Kept record: {0}", KeptRecord);
             }
         }
 
@@ -46,6 +50,11 @@ namespace SelectStocksBasedOnMetrics
             if (VerboseLevel > 2)
             {
                 VerboseLevel = 2;
+            }
+
+            if (KeptRecord <= 0)
+            {
+                throw new ArgumentOutOfRangeException("Argument \"KeptRecord\" must be greater than 0");
             }
         }
     }
