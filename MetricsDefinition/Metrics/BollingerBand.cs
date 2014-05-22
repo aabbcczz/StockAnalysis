@@ -36,7 +36,7 @@ namespace MetricsDefinition
             }
 
             double[] ma = new MovingAverage(_lookback).Calculate(input[0]);
-            double[] stddev = new StdDev(_lookback).Calculate(ma);
+            double[] stddev = new StdDev(_lookback).Calculate(input[0]);
 
             double[] ub = MetricHelper.OperateNew(ma, stddev, (m, s) => m + _alpha * s);
             double[] lb = MetricHelper.OperateNew(ma, stddev, (m, s) => m - _alpha * s);

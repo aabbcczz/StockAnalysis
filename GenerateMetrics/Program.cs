@@ -156,28 +156,26 @@ namespace GenerateMetrics
             List<double[]> metricValues = new List<double[]>();
             List<string> allFieldNames = new List<string>();
 
-            Parallel.ForEach(
-                metrics,
-                m => 
+            foreach(var m in metrics)
+            {
+                string[] fieldNames;
+
+                var result = MetricEvaluator.Evaluate(m, input, out fieldNames);
+
+                lock (metricValues)
+                {
+                    metricValues.AddRange(result);
+
+                    if (result.Length == 1)
                     {
-                        string[] fieldNames;
-
-                        var result = MetricEvaluator.Evaluate(m, input, out fieldNames);
-
-                        lock(metricValues)
-                        {
-                            metricValues.AddRange(result);
-
-                            if (result.Length == 1)
-                            {
-                                allFieldNames.Add(m);
-                            }
-                            else
-                            {
-                                allFieldNames.AddRange(fieldNames.Select(s => m + "." + s));
-                            }
-                        }
-                    });
+                        allFieldNames.Add(m);
+                    }
+                    else
+                    {
+                        allFieldNames.AddRange(fieldNames.Select(s => m + "." + s));
+                    }
+                }
+            }
 
             string outputFile = Path.Combine(outputFileFolder, data.Name.Code + ".day.metric.csv");
 
