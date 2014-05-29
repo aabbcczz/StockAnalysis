@@ -14,10 +14,12 @@ namespace MetricsDefinition
 
         public TrendPivot(double trendTolerance)
         {
-            if (trendTolerance < 0.0 || _trendTolerance > 1.0)
+            if (trendTolerance < 0.0 || trendTolerance > 1.0)
             {
                 throw new ArgumentOutOfRangeException("trendTolerance must be in [0.0, 1.0]");
             }
+
+            _trendTolerance = trendTolerance;
         }
 
         public override double[][] Calculate(double[][] input)
@@ -28,10 +30,7 @@ namespace MetricsDefinition
             }
 
             // find trends point
-            FindTrendPivots(input[0]);
-
-
-            double[] result = new double[1];
+            double[] result = FindTrendPivots(input[0]);
 
             return new double[1][] { result };
         }
@@ -49,14 +48,9 @@ namespace MetricsDefinition
             List<KeyValuePair<int, double>> rawTrendPivots = new List<KeyValuePair<int,double>>(data.Length);
 
             int startIndex = 0;
-            while (startIndex < data.Length)
+            while (startIndex < data.Length && startIndex >= 0)
             {
                 rawTrendPivots.Add(new KeyValuePair<int, double>(startIndex, data[startIndex]));
-
-                if (startIndex == data.Length - 1)
-                {
-                    break;
-                }
 
                 startIndex = FindNextPivot(data, startIndex);
             }
@@ -88,32 +82,20 @@ namespace MetricsDefinition
             int startPivotIndex = 0;
             List<KeyValuePair<int, double>> trendPivots = new List<KeyValuePair<int, double>>(rawTrendPivots.Count);
 
-            while (startPivotIndex < rawTrendPivots.Count)
+            while (startPivotIndex < rawTrendPivots.Count && startPivotIndex >= 0)
             {
                 trendPivots.Add(rawTrendPivots[startPivotIndex]);
 
-                if (startPivotIndex == rawTrendPivots.Count - 1)
-                {
-                    // last one pivot, nothing to do more.
-                    break;
-                }
-
-
+                startPivotIndex = FindNextPivot(rawTrendPivots, startIndex);
             }
 
+            // construct result: set all non-pivot data to zero and keep only pivot data
             pivots = new double[data.Length];
 
-            pivots[0] = data[0];
-
-            int pivotIndex = 0;
-
-            do
+            foreach (var kvp in trendPivots)
             {
-                pivotIndex = FindNextPivot(data, pivotIndex);
-
-                pivots[pivotIndex] = data[pivotIndex];
-
-            } while (pivotIndex < data.Length - 1);
+                pivots[kvp.Key] = kvp.Value;
+            }
 
             return pivots;
         }
