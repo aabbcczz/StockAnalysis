@@ -28,10 +28,7 @@ namespace MetricsDefinition
             }
 
             // find trends point
-            FindTrendPivots(input[0]);
-
-
-            double[] result = new double[1];
+            var result = FindTrendPivots(input[0]);
 
             return new double[1][] { result };
         }
@@ -98,7 +95,7 @@ namespace MetricsDefinition
                     break;
                 }
 
-
+                ++startPivotIndex;
             }
 
             pivots = new double[data.Length];

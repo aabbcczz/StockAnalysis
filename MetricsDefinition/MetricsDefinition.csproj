@@ -40,6 +40,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Metrics\BollingerBand.cs" />
+    <Compile Include="Metrics\Lowest.cs" />
+    <Compile Include="Metrics\Highest.cs" />
+    <Compile Include="Metrics\TrendPivot.cs" />
     <Compile Include="Metrics\UltimateOscillator.cs" />
     <Compile Include="Metrics\Oscillator.cs" />
     <Compile Include="Metrics\Chavkin.cs" />
