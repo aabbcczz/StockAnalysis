@@ -10,16 +10,16 @@ namespace StockAnalysis.Share
 {
     public class StockHistoryData
     {
-        private List<StockTransactionSummary> _data = null;
+        private List<TransactionSummary> _data = null;
         private StockName _name;
         private long _intervalInSecond;
 
         public StockName Name { get{ return _name; } }
 
-        public IEnumerable<StockTransactionSummary> Data { get { return _data; } }
+        public IEnumerable<TransactionSummary> Data { get { return _data; } }
 
         public long IntervalInSecond { get { return _intervalInSecond; } }
-        public StockHistoryData(StockName name, long intervalInSecond, IEnumerable<StockTransactionSummary> data)
+        public StockHistoryData(StockName name, long intervalInSecond, IEnumerable<TransactionSummary> data)
         {
             _name = name;
             _intervalInSecond = intervalInSecond;

@@ -103,7 +103,7 @@ namespace GenerateMetrics
 
             // header is code,date,open,highest,lowest,close,volume,amount
 
-            List<StockTransactionSummary> data = new List<StockTransactionSummary>(inputData.RowCount);
+            List<TransactionSummary> data = new List<TransactionSummary>(inputData.RowCount);
 
             foreach (var row in inputData.Rows)
             {
@@ -113,7 +113,7 @@ namespace GenerateMetrics
                     continue;
                 }
 
-                StockTransactionSummary dailyData = new StockTransactionSummary();
+                TransactionSummary dailyData = new TransactionSummary();
 
                 dailyData.Time = DateTime.Parse(row[1]);
                 dailyData.OpenPrice = double.Parse(row[2]);

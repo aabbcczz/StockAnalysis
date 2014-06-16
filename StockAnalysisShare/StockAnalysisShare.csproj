@@ -51,7 +51,7 @@
     <Compile Include="MetricHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="StockHistoryData.cs" />
-    <Compile Include="StockTransactionSummary.cs" />
+    <Compile Include="TransactionSummary.cs" />
     <Compile Include="StockMarket.cs" />
     <Compile Include="StockName.cs" />
     <Compile Include="StockNameTable.cs" />

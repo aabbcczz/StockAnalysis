@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace StockAnalysis.Share
 {
-    public class StockTransactionSummary
+    public class TransactionSummary
     {
         public DateTime Time { get; set; } // transaction time
         public double OpenPrice { get; set; } // price when openning market
