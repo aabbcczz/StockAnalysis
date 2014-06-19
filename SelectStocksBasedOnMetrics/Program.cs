@@ -117,7 +117,13 @@ namespace SelectStocksBasedOnMetrics
                             return;
                         }
 
-                        StockMetricRecord[] metrics = ProcessOneFile(file.Trim(), keptRecord).Reverse().ToArray();
+                        var rawMetrics = ProcessOneFile(file.Trim(), keptRecord);
+                        if (rawMetrics == null)
+                        {
+                            return;
+                        }
+
+                        StockMetricRecord[] metrics = rawMetrics.Reverse().ToArray();
 
                         StockMetricRecord expandedMetric = new StockMetricRecord();
                         expandedMetric.Code = metrics[0].Code;
