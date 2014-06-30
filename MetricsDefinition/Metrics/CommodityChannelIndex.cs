@@ -36,7 +36,7 @@ namespace MetricsDefinition
 
             double d = sum / _truePrices.Length;
 
-            return (truePrice - maTruePrice) / d / Alpha;
+            return d == 0.0 ? 0.0 : (truePrice - maTruePrice) / d / Alpha;
         }
     }
 }

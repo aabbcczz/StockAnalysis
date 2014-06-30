@@ -24,7 +24,14 @@ namespace MetricsDefinition
         {
             Data.Add(dataPoint);
 
-            _lastResult = (_lastResult * (WindowSize - 1) + dataPoint * 2.0) / (WindowSize + 1);
+            if (Data.Length == 1)
+            {
+                _lastResult = dataPoint;
+            }
+            else
+            {
+                _lastResult = (_lastResult * (WindowSize - 1) + dataPoint * 2.0) / (WindowSize + 1);
+            }
 
             return _lastResult;
         }

@@ -13,38 +13,63 @@ namespace MetricsDefinition
         private int _startIndex;
         private int _endIndex;
         private int _capacity;
+        private int _length;
 
-        public int Length { get { return _capacity; } }
+        public int Length { get { return _length; } }
 
         public T this[int index]
         {
             get 
             { 
-                if (index < 0 || index >= _capacity)
+                if (index < 0 || index >= _length)
                 {
                     throw new IndexOutOfRangeException();
                 }
 
-                index = (_startIndex + index) % _capacity;
+                index = (_startIndex + index) % _length;
                 return _storage[index]; 
             }
         }
 		
         public CirculatedArray(int capacity)
         {
+            if (capacity <= 0)
+            {
+                throw new ArgumentOutOfRangeException("capacity should be greater than zero");
+            }
+
             _storage = new T[capacity];
-
             _capacity = capacity;
-
             _startIndex = 0;
-
-            _endIndex = _storage.Length - 1;
+            _endIndex = 0;
+            _length = 0;
         }
 
         public void Add(T value)
         {
-            _startIndex = (_startIndex + 1) % _capacity;
-            _endIndex = (_endIndex + 1) % _capacity;
+            // special case for adding first value.
+            if (_length == 0)
+            {
+                _storage[0] = value;
+                _endIndex = 0;
+                _length = 1;
+
+                return;
+            }
+
+            if (_length < _capacity)
+            {
+                ++_endIndex;
+                ++_length;
+            }
+            else
+            {
+                ++_startIndex;
+                ++_endIndex;
+
+                _startIndex %= _capacity;
+                _endIndex %= _capacity;
+            }
 
             _storage[_endIndex] = value;
         }

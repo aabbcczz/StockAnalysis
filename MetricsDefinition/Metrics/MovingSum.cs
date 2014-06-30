@@ -18,8 +18,12 @@ namespace MetricsDefinition
 
         public override double Update(double dataPoint)
         {
-            _sum -= Data[0];
             _sum += dataPoint;
+
+            if (Data.Length >= WindowSize)
+            {
+                _sum -= Data[0];
+            }
 
             Data.Add(dataPoint);
 

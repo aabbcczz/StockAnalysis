@@ -19,7 +19,9 @@ namespace MetricsDefinition
 
         public override double Update(double dataPoint)
         {
-            return _movingSum.Update(dataPoint) / WindowSize;
+            double sum = _movingSum.Update(dataPoint);
+            
+            return sum / _movingSum.Data.Length;
         }
     }
 }

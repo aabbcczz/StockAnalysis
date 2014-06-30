@@ -39,13 +39,16 @@ namespace MetricsDefinition
 
             _mahl.Add(mahl);
 
-            if (_mahl[0] == 0.0)
+            int index = _mahl.Length < _interval ? 0 : _mahl.Length - _interval;
+
+            if (_mahl[index] == 0.0)
             {
                 return 0.0;
             }
             else
             {
-                return (_mahl[_mahl.Length - 1] - _mahl[0]) / _mahl[0] * 100.0;
+
+                return (_mahl[_mahl.Length - 1] - _mahl[index]) / _mahl[index] * 100.0;
             }
 
         }
