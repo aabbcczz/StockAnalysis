@@ -8,110 +8,49 @@ using System.Reflection;
 namespace MetricsDefinition
 {
     [Metric("QKD", "K,D,J")]
-    public sealed class QuickKDJ : Metric
+    public sealed class QuickKDJ : MultipleOutputBarInputSerialMetric
     {
-        private int _kLookback;
+        private int _kWindowSize;
         private int _kDecay;
         private int _jCoeff;
-        
-        public QuickKDJ(int kLookback, int kDecay, int jCoeff)
+
+        private double _prevD = 50.0;
+
+        private Highest _highest;
+        private Lowest _lowest;
+
+        public QuickKDJ(int kWindowSize, int kDecay, int jCoeff)
+            : base(1)
         {
-            if (kLookback <= 0 || kDecay <= 0 || jCoeff <= 0)
+            if (kWindowSize <= 0 || kDecay <= 0 || jCoeff <= 0)
             {
                 throw new ArgumentOutOfRangeException();
             }
 
-            _kLookback = kLookback;
+            _kWindowSize = kWindowSize;
             _kDecay = kDecay;
             _jCoeff = jCoeff;
+
+            _highest = new Highest(kWindowSize);
+            _lowest = new Lowest(kWindowSize);
         }
 
-        public override double[][] Calculate(double[][] input)
+        public override double[] Update(StockAnalysis.Share.Bar bar)
         {
- 	        if (input == null || input.Length == 0)
-            {
-                throw new ArgumentNullException("input");
-            }
+            double lowestPrice = _lowest.Update(bar.LowestPrice);
+            double highestPrice = _highest.Update(bar.HighestPrice);
 
-            // KDJ can only accept StockData's output as input
-            if (input.Length != StockData.FieldCount)
-            {
-                throw new ArgumentException("KDJ can only accept StockData's output as input");
-            }
+            double rsv = (bar.ClosePrice - lowestPrice) / (highestPrice - lowestPrice) * 100.0;
 
-            double[] hp = input[StockData.HighestPriceFieldIndex];
-            double[] lp = input[StockData.LowestPriceFieldIndex];
-            double[] cp = input[StockData.ClosePriceFieldIndex];
+            double k = rsv;
+            double d = ((_kDecay - 1) * _prevD + k) / _kDecay;
+            double j = _jCoeff * d - (_jCoeff - 1) * k;
 
-            double lowestPrice = double.MaxValue;
-            int lowestPriceIndex = -1;
-            double highestPrice = double.MinValue;
-            int highestPriceIndex = -1;
-            double previousD = 50.0;
+            // update status;
+            _prevD = d;
 
-            double[] kResult = new double[cp.Length];
-            double[] dResult = new double[cp.Length];
-            double[] jResult = new double[cp.Length];
+            return new double[3]{ k, d, j};
 
-            for (int i = 0; i < cp.Length; ++i)
-            {
-                // find out the lowest price and highest price in past _kLookback period.
-                if (lp[i] <= lowestPrice)
-                {
-                    lowestPrice = lp[i];
-                    lowestPriceIndex = i;
-                }
-                else
-                {
-                    // determine if current lowestPrice is still valid
-                    if (i >= _kLookback && lowestPriceIndex < i - _kLookback + 1)
-                    {
-                        lowestPrice = double.MaxValue;
-                        lowestPriceIndex = -1;
-                        for (int m = i - _kLookback + 1; m <= i; ++m)
-                        {
-                            if (lp[m] <= lowestPrice)
-                            {
-                                lowestPrice = lp[m];
-                                lowestPriceIndex = m;
-                            }
-                        }
-                    }
-                }
-
-                if (hp[i] >= highestPrice)
-                {
-                    highestPrice = hp[i];
-                    highestPriceIndex = i;
-                }
-                else
-                {
-                    // determine if current highest price is still valid
-                    if (i >= _kLookback && highestPriceIndex < i - _kLookback + 1)
-                    {
-                        highestPrice = double.MinValue;
-                        highestPriceIndex = -1;
-                        for (int m = i - _kLookback + 1; m <= i; ++m)
-                        {
-                            if (hp[m] >= highestPrice)
-                            {
-                                highestPrice = hp[m];
-                                highestPriceIndex = m;
-                            }
-                        }
-                    }
-                }
-
-                // calculate RSV
-                kResult[i] = (cp[i] - lowestPrice) / (highestPrice - lowestPrice) * 100;
-
-                dResult[i] = ((_kDecay - 1) * previousD + kResult[i]) / _kDecay;
-                previousD = dResult[i];
-
-                jResult[i] = _jCoeff * dResult[i] - (_jCoeff - 1) * kResult[i];
-            }
-
-            return new double[3][] { kResult, dResult, jResult };
         }
     }
 }

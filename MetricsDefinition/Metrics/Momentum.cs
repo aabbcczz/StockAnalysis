@@ -7,43 +7,20 @@ using System.Threading.Tasks;
 namespace MetricsDefinition
 {
     [Metric("MTM")]
-    public sealed class Momentum : Metric
+    public sealed class Momentum : SingleOutputRawInputSerialMetric
     {
-         private int _lookback;
-
-         public Momentum(int lookback)
+         public Momentum(int windowSize)
+             : base(windowSize + 1)
         {
-            if (lookback <= 0)
-            {
-                throw new ArgumentOutOfRangeException("lookback");
-            }
-
-            _lookback = lookback;
         }
 
-         public override double[][] Calculate(double[][] input)
-        {
-            if (input == null || input.Length == 0)
-            {
-                throw new ArgumentNullException("input");
-            }
+         public override double Update(double dataPoint)
+         {
+             Data.Add(dataPoint);
 
-            double[] allData = input[0];
-            double[] result = new double[allData.Length];
+             double oldData = Data[0];
 
-            for (int i = 0; i < allData.Length; ++i)
-            {
-                if (i < _lookback)
-                {
-                    result[i] = 0.0;
-                }
-                else
-                {
-                    result[i] = allData[i] * 100.0 / allData[i - _lookback];
-                }
-            }
-
-            return new double[1][] { result };
-        }
+             return oldData == 0.0 ? 0.0 : dataPoint * 100.0 / oldData;
+         }
     }
 }

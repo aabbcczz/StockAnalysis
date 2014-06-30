@@ -8,10 +8,28 @@ using StockAnalysis.Share;
 
 namespace MetricsDefinition
 {
-    abstract class MetricExpression
+    public abstract class MetricExpression
     {
-        public abstract string[] GetFieldNames();
+        public abstract string[] FieldNames { get; }
 
-        public abstract double[][] Evaluate(double[][] data);
+        public virtual double SingleOutputUpdate(Bar data)
+        {
+            throw new NotImplementedException();
+        }
+
+        public virtual double[] MultipleOutputUpdate(Bar data)
+        {
+            throw new NotImplementedException();
+        }
+
+        public virtual double SingleOutputUpdate(double data)
+        {
+            throw new NotImplementedException();
+        }
+
+        public virtual double[] MultipleOutputUpdate(double data)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

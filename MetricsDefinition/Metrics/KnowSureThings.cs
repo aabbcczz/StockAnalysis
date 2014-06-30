@@ -7,42 +7,35 @@ using System.Threading.Tasks;
 namespace MetricsDefinition
 {
     [Metric("KST")]
-    public sealed class KnowSureThings : Metric
+    public sealed class KnowSureThings : SingleOutputRawInputSerialMetric
     {
-        private int _lookback1;
-        private int _lookback2;
-        private int _lookback3;
-        private int _lookback4;
+        private RateOfChange _roc1;
+        private RateOfChange _roc2;
+        private RateOfChange _roc3;
+        private RateOfChange _roc4;
 
-        public KnowSureThings(int lookback1, int lookback2, int lookback3, int lookback4)
+        public KnowSureThings(int windowSize1, int windowSize2, int windowSize3, int windowSize4)
+            : base(1)
         {
-            if (lookback1 <= 0 || lookback2 <= 0 || lookback3 <= 0 || lookback4 <= 0)
+            if (windowSize1 <= 0 || windowSize2 <= 0 || windowSize3 <= 0 || windowSize4 <= 0)
             {
-                throw new ArgumentOutOfRangeException("lookback");
+                throw new ArgumentOutOfRangeException("windowSize");
             }
 
-            _lookback1 = lookback1;
-            _lookback2 = lookback2;
-            _lookback3 = lookback3;
-            _lookback4 = lookback4;
+            _roc1 = new RateOfChange(windowSize1);
+            _roc2 = new RateOfChange(windowSize2);
+            _roc3 = new RateOfChange(windowSize3);
+            _roc4 = new RateOfChange(windowSize4);
         }
 
-        public override double[][] Calculate(double[][] input)
+        public override double Update(double dataPoint)
         {
-            if (input == null || input.Length == 0)
-            {
-                throw new ArgumentNullException("input");
-            }
+            double roc1 = _roc1.Update(dataPoint);
+            double roc2 = _roc2.Update(dataPoint);
+            double roc3 = _roc3.Update(dataPoint);
+            double roc4 = _roc4.Update(dataPoint);
 
-            double[] roc1 = new RateOfChange(_lookback1).Calculate(input[0]);
-            double[] roc2 = new RateOfChange(_lookback2).Calculate(input[0]);
-            double[] roc3 = new RateOfChange(_lookback3).Calculate(input[0]);
-            double[] roc4 = new RateOfChange(_lookback4).Calculate(input[0]);
-
-            double[] result = roc1.OperateThis(roc2, roc3, roc4,
-                (r1, r2, r3, r4) => r1 + 2 * r2 + 3 * r3 + 4 * r4 / (1 + 2 + 3 + 4));
-
-            return new double[1][] { result };
-        }
+            return roc1 + 2 * roc2 + 3 * roc3 + 4 * roc4 / (1 + 2 + 3 + 4);
+        } 
     }
 }

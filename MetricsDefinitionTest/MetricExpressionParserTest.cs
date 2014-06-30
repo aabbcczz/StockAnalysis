@@ -13,12 +13,10 @@ namespace MetricsDefinitionTest
         {
             MetricExpressionParser parser = new MetricExpressionParser();
 
-            string errorMessage;
-
             try
             {
                 // null input
-                parser.Parse(null, out errorMessage);
+                parser.Parse(null);
             }
             catch (ArgumentNullException)
             {
@@ -26,86 +24,86 @@ namespace MetricsDefinitionTest
             }
 
             // empty input
-            Assert.IsNull(parser.Parse("", out errorMessage));
-            Assert.IsNull(parser.Parse("  \t\n", out errorMessage));
+            Assert.IsNull(parser.Parse(""));
+            Assert.IsNull(parser.Parse("  \t\n"));
 
             // case sensitivity test
-            Assert.IsNull(parser.Parse("ma[20]", out errorMessage));
-            Assert.IsNotNull(parser.Parse("MA[20]", out errorMessage));
+            Assert.IsNull(parser.Parse("ma[20]"));
+            Assert.IsNotNull(parser.Parse("MA[20]"));
 
             // unknown metric name
-            Assert.IsNull(parser.Parse("M", out errorMessage));
+            Assert.IsNull(parser.Parse("M"));
 
             // multiple metric name
-            Assert.IsNotNull(parser.Parse("EMA[20]", out errorMessage));
-            Assert.IsNotNull(parser.Parse("EXPMA[20]", out errorMessage));
+            Assert.IsNotNull(parser.Parse("EMA[20]"));
+            Assert.IsNotNull(parser.Parse("EXPMA[20]"));
 
             // invalid parameters
-            Assert.IsNull(parser.Parse("MA", out errorMessage));
-            Assert.IsNull(parser.Parse("MA[20,10]", out errorMessage));
-            Assert.IsNull(parser.Parse("MA[20;10]", out errorMessage));
-            Assert.IsNull(parser.Parse("MA[20(10]", out errorMessage));
-            Assert.IsNull(parser.Parse("MA[20)10]", out errorMessage));
-            Assert.IsNull(parser.Parse("MA[abc]", out errorMessage));
-            Assert.IsNull(parser.Parse("MA[20.00]", out errorMessage));
-            Assert.IsNull(parser.Parse("MA[.00]", out errorMessage));
-            Assert.IsNull(parser.Parse("MA[-20]", out errorMessage));
-            Assert.IsNull(parser.Parse("MA[+20]", out errorMessage));
-            Assert.IsNull(parser.Parse("MA[20a]", out errorMessage));
-            Assert.IsNull(parser.Parse("MA[20.00a]", out errorMessage));
+            Assert.IsNull(parser.Parse("MA"));
+            Assert.IsNull(parser.Parse("MA[20,10]"));
+            Assert.IsNull(parser.Parse("MA[20;10]"));
+            Assert.IsNull(parser.Parse("MA[20(10]"));
+            Assert.IsNull(parser.Parse("MA[20)10]"));
+            Assert.IsNull(parser.Parse("MA[abc]"));
+            Assert.IsNull(parser.Parse("MA[20.00]"));
+            Assert.IsNull(parser.Parse("MA[.00]"));
+            Assert.IsNull(parser.Parse("MA[-20]"));
+            Assert.IsNull(parser.Parse("MA[+20]"));
+            Assert.IsNull(parser.Parse("MA[20a]"));
+            Assert.IsNull(parser.Parse("MA[20.00a]"));
 
             // valid parameters
-            Assert.IsNotNull(parser.Parse("MA[20]", out errorMessage));
-            Assert.IsNotNull(parser.Parse("MA[20] ", out errorMessage));
-            Assert.IsNotNull(parser.Parse("MA [20]", out errorMessage));
-            Assert.IsNotNull(parser.Parse("MA[ 20 ]", out errorMessage));
+            Assert.IsNotNull(parser.Parse("MA[20]"));
+            Assert.IsNotNull(parser.Parse("MA[20] "));
+            Assert.IsNotNull(parser.Parse("MA [20]"));
+            Assert.IsNotNull(parser.Parse("MA[ 20 ]"));
 
             // valid syntax
-            Assert.IsNotNull(parser.Parse("S", out errorMessage));
-            Assert.IsNotNull(parser.Parse("S[]", out errorMessage));
+            Assert.IsNotNull(parser.Parse("BAR"));
+            Assert.IsNotNull(parser.Parse("BAR[]"));
 
             // invalid embed syntax
-            Assert.IsNull(parser.Parse("S()", out errorMessage));
-            Assert.IsNull(parser.Parse("MA[20]()", out errorMessage));
-            Assert.IsNull(parser.Parse("S[", out errorMessage));
-            Assert.IsNull(parser.Parse("S]", out errorMessage));
-            Assert.IsNull(parser.Parse("MA[20", out errorMessage));
-            Assert.IsNull(parser.Parse("S,", out errorMessage));
-            Assert.IsNull(parser.Parse("MA[20,", out errorMessage));
+            Assert.IsNull(parser.Parse("BAR()"));
+            Assert.IsNull(parser.Parse("MA[20]()"));
+            Assert.IsNull(parser.Parse("BAR["));
+            Assert.IsNull(parser.Parse("BAR]"));
+            Assert.IsNull(parser.Parse("MA[20"));
+            Assert.IsNull(parser.Parse("BAR,"));
+            Assert.IsNull(parser.Parse("MA[20,"));
 
-            Assert.IsNull(parser.Parse("S(S", out errorMessage));
-            Assert.IsNull(parser.Parse("MA[20](S", out errorMessage));
-            Assert.IsNull(parser.Parse("MA[20](MA[20]", out errorMessage));
+            Assert.IsNull(parser.Parse("BAR(BAR"));
+            Assert.IsNull(parser.Parse("MA[20](BAR"));
+            Assert.IsNull(parser.Parse("MA[20](MA[20]"));
 
             // valid embeded syntax
-            Assert.IsNotNull(parser.Parse("S(S)", out errorMessage));
-            Assert.IsNotNull(parser.Parse("MA[20](S)", out errorMessage));
-            Assert.IsNotNull(parser.Parse("MA[20](MA[20])", out errorMessage));
-            Assert.IsNotNull(parser.Parse("MA[20](MA[20](S))", out errorMessage));
+            Assert.IsNotNull(parser.Parse("BAR(BAR)"));
+            Assert.IsNotNull(parser.Parse("MA[20](BAR)"));
+            Assert.IsNotNull(parser.Parse("MA[20](MA[20])"));
+            Assert.IsNotNull(parser.Parse("MA[20](MA[20](BAR))"));
 
             // invalid selection syntax
-            Assert.IsNull(parser.Parse("MA[20].", out errorMessage));
-            Assert.IsNull(parser.Parse("MA[20].X", out errorMessage));
-            Assert.IsNull(parser.Parse("MA[20].1", out errorMessage));
-            Assert.IsNull(parser.Parse("MA[20].(", out errorMessage));
-            Assert.IsNull(parser.Parse("MA[20].)", out errorMessage));
-            Assert.IsNull(parser.Parse("MA[20]..", out errorMessage));
-            Assert.IsNull(parser.Parse("MA[20].[", out errorMessage));
-            Assert.IsNull(parser.Parse("MA[20].]", out errorMessage));
-            Assert.IsNull(parser.Parse("MA[20].V(", out errorMessage));
-            Assert.IsNull(parser.Parse("MA[20].V)", out errorMessage));
-            Assert.IsNull(parser.Parse("MA[20].V.", out errorMessage));
-            Assert.IsNull(parser.Parse("MA[20].V[", out errorMessage));
-            Assert.IsNull(parser.Parse("MA[20].V]", out errorMessage));
+            Assert.IsNull(parser.Parse("MA[20]."));
+            Assert.IsNull(parser.Parse("MA[20].X"));
+            Assert.IsNull(parser.Parse("MA[20].1"));
+            Assert.IsNull(parser.Parse("MA[20].("));
+            Assert.IsNull(parser.Parse("MA[20].)"));
+            Assert.IsNull(parser.Parse("MA[20].."));
+            Assert.IsNull(parser.Parse("MA[20].["));
+            Assert.IsNull(parser.Parse("MA[20].]"));
+            Assert.IsNull(parser.Parse("MA[20].V("));
+            Assert.IsNull(parser.Parse("MA[20].V)"));
+            Assert.IsNull(parser.Parse("MA[20].V."));
+            Assert.IsNull(parser.Parse("MA[20].V["));
+            Assert.IsNull(parser.Parse("MA[20].V]"));
 
 
             // valid selection syntax
-            Assert.IsNotNull(parser.Parse("MA[20].V", out errorMessage));
-            Assert.IsNotNull(parser.Parse("MA[20].V ", out errorMessage));
-            Assert.IsNotNull(parser.Parse("MA[20]. V", out errorMessage));
-            Assert.IsNotNull(parser.Parse("MA[20] .V", out errorMessage));
-            Assert.IsNotNull(parser.Parse("MA[20](S).V", out errorMessage));
-            Assert.IsNotNull(parser.Parse("MA[20](S.CP).V", out errorMessage));
+            Assert.IsNotNull(parser.Parse("MA[20].V"));
+            Assert.IsNotNull(parser.Parse("MA[20].V "));
+            Assert.IsNotNull(parser.Parse("MA[20]. V"));
+            Assert.IsNotNull(parser.Parse("MA[20] .V"));
+            Assert.IsNotNull(parser.Parse("MA[20](BAR).V"));
+            Assert.IsNotNull(parser.Parse("MA[20](BAR.CP).V"));
         }
     }
 }

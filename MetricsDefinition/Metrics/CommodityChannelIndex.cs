@@ -8,63 +8,35 @@ using System.Reflection;
 namespace MetricsDefinition
 {
     [Metric("CCI")]
-    public sealed class CommodityChannelIndex : Metric
+    public sealed class CommodityChannelIndex : SingleOutputBarInputSerialMetric
     {
         private const double Alpha = 0.015;
+        private MovingAverage _maTruePrice;
+        private CirculatedArray<double> _truePrices;
 
-        private int _lookback;
-        
-        public CommodityChannelIndex(int lookback)
+        public CommodityChannelIndex(int windowSize)
+            : base(1)
         {
-            if (lookback <= 0)
-            {
-                throw new ArgumentOutOfRangeException();
-            }
-
-            _lookback = lookback;
+            _maTruePrice = new MovingAverage(windowSize);
+            _truePrices = new CirculatedArray<double>(windowSize);
         }
 
-        public override double[][] Calculate(double[][] input)
+        public override double Update(StockAnalysis.Share.Bar bar)
         {
- 	        if (input == null || input.Length == 0)
+            double truePrice = (bar.HighestPrice + bar.LowestPrice + 2 * bar.ClosePrice ) / 4;
+            _truePrices.Add(truePrice);
+
+            double maTruePrice = _maTruePrice.Update(truePrice);
+
+            double sum = 0.0;
+            for (int i = 0; i < _truePrices.Length; ++i)
             {
-                throw new ArgumentNullException("input");
+                sum += Math.Abs(_truePrices[i] - maTruePrice);
             }
 
-            // CCI can only accept StockData's output as input
-            if (input.Length != StockData.FieldCount)
-            {
-                throw new ArgumentException("CCI can only accept StockData's output as input");
-            }
+            double d = sum / _truePrices.Length;
 
-            double[] hp = input[StockData.HighestPriceFieldIndex];
-            double[] lp = input[StockData.LowestPriceFieldIndex];
-            double[] cp = input[StockData.ClosePriceFieldIndex];
-
-            double[] tp = MetricHelper.OperateNew(
-                hp, lp, cp,
-                (h, l, c) => { return (h + l + 2 * c) / 4; });
-
-            double[] matp = new MovingAverage(_lookback).Calculate(tp);
-
-            double[] d = new double[tp.Length];
-            for (int i = 0; i < d.Length; ++i)
-            {
-                double sum = 0.0;
-                for (int j = Math.Max(0, i - _lookback + 1); j <= i; ++j)
-                {
-                    sum += Math.Abs(tp[j] - matp[i]);
-                }
-
-                d[i] = sum / _lookback;
-            }
-
-            double[] result = tp.OperateThis(
-                matp, d,
-                (tpv, matpv, dv) => { return (tpv - matpv) / dv / Alpha; });
-
-
-            return new double[1][] { result };
+            return (truePrice - maTruePrice) / d / Alpha;
         }
     }
 }

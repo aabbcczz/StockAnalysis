@@ -7,32 +7,19 @@ using System.Threading.Tasks;
 namespace MetricsDefinition
 {
     [Metric("MA")]
-    public sealed class MovingAverage : Metric
+    public sealed class MovingAverage : SingleOutputRawInputSerialMetric
     {
-        private int _lookback;
+        private MovingSum _movingSum;
 
-        public MovingAverage(int lookback)
+        public MovingAverage(int windowSize)
+            : base(1)
         {
-            if (lookback <= 0)
-            {
-                throw new ArgumentOutOfRangeException("lookback");
-            }
-
-            _lookback = lookback;
+            _movingSum = new MovingSum(windowSize);
         }
 
-        public override double[][] Calculate(double[][] input)
+        public override double Update(double dataPoint)
         {
-            if (input == null || input.Length == 0)
-            {
-                throw new ArgumentNullException("input");
-            }
-
-            double[] result = new MovingSum(_lookback)
-                .Calculate(input[0])
-                .OperateThis((double)_lookback, (s, l) => s / l);
-
-            return new double[1][] { result };
+            return _movingSum.Update(dataPoint) / WindowSize;
         }
     }
 }

@@ -103,7 +103,7 @@ namespace GenerateMetrics
 
             // header is code,date,open,highest,lowest,close,volume,amount
 
-            List<TransactionSummary> data = new List<TransactionSummary>(inputData.RowCount);
+            List<Bar> data = new List<Bar>(inputData.RowCount);
 
             foreach (var row in inputData.Rows)
             {
@@ -113,7 +113,7 @@ namespace GenerateMetrics
                     continue;
                 }
 
-                TransactionSummary dailyData = new TransactionSummary();
+                Bar dailyData = new Bar();
 
                 dailyData.Time = DateTime.Parse(row[1]);
                 dailyData.OpenPrice = double.Parse(row[2]);
@@ -141,40 +141,32 @@ namespace GenerateMetrics
 
             StockHistoryData data = LoadInputFile(file, startDate, endDate);
 
-            double[][] input = new double[6][];
-
-            // according to the StockData required order to ensure the metric that forgot to 
-            // add (S.CP) can still work.
-            input[StockData.ClosePriceFieldIndex] = data.Data.Select(d => d.ClosePrice).ToArray();
-            input[StockData.OpenPriceFieldIndex] = data.Data.Select(d => d.OpenPrice).ToArray();
-            input[StockData.HighestPriceFieldIndex] = data.Data.Select(d => d.HighestPrice).ToArray();
-            input[StockData.LowestPriceFieldIndex] = data.Data.Select(d => d.LowestPrice).ToArray();
-            input[StockData.VolumeFieldIndex] = data.Data.Select(d => d.Volume).ToArray();
-            input[StockData.AmountFieldIndex] = data.Data.Select(d => d.Amount).ToArray();
-
-
             List<double[]> metricValues = new List<double[]>();
             List<string> allFieldNames = new List<string>();
 
-            foreach(var m in metrics)
+            // parse metrics to expression
+            MetricExpression[] metricExpressions = metrics
+                .Select(m => MetricEvaluationContext.ParseExpression(m))
+                .ToArray();
+
+            // build field names
+            for (int i = 0; i < metrics.Length; ++i)
             {
-                string[] fieldNames;
-
-                var result = MetricEvaluator.Evaluate(m, input, out fieldNames);
-
-                lock (metricValues)
+                if (metricExpressions[i].FieldNames.Length == 1)
                 {
-                    metricValues.AddRange(result);
-
-                    if (result.Length == 1)
-                    {
-                        allFieldNames.Add(m);
-                    }
-                    else
-                    {
-                        allFieldNames.AddRange(fieldNames.Select(s => m + "." + s));
-                    }
+                    allFieldNames.Add(metrics[i]);
                 }
+                else
+                {
+                    allFieldNames.AddRange(metricExpressions[i].FieldNames.Select(s => metrics[i] + "." + s));
+                }
+            }
+
+            // calculate metrics
+            foreach (Bar bar in data.Data)
+            {
+                var metricValuesForOneBar = metricExpressions.SelectMany(m => m.MultipleOutputUpdate(bar)).ToArray();
+                metricValues.Add(metricValuesForOneBar);
             }
 
             string outputFile = Path.Combine(outputFileFolder, data.Name.Code + ".day.metric.csv");
@@ -192,8 +184,8 @@ namespace GenerateMetrics
                 {
                     string value = string.Join(
                             ",",
-                            metricValues
-                                .Select(v => string.Format("{0:0.00}", v[i])));
+                            metricValues[i]
+                                .Select(v => string.Format("{0:0.00}", v)));
 
                     outputter.WriteLine(
                         "{0},{1:yyyy/MM/dd},{2}",

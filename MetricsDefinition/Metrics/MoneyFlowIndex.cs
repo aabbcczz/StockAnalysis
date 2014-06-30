@@ -8,70 +8,61 @@ using System.Reflection;
 namespace MetricsDefinition
 {
     [Metric("MFI")]
-    public sealed class MoneyFlowIndex : Metric
+    public sealed class MoneyFlowIndex : SingleOutputBarInputSerialMetric
     {
-        private int _lookback;
-        
-        public MoneyFlowIndex(int lookback)
-        {
-            if (lookback <= 0)
-            {
-                throw new ArgumentException("lookback must be greater than 0");
-            }
+        private MovingSum _msPmf;
+        private MovingSum _msNmf;
+        private double _prevTruePrice = double.NaN;
+        private bool _firstData = true;
 
-            _lookback = lookback;
+        public MoneyFlowIndex(int windowSize)
+            : base (1)
+        {
+            _msNmf = new MovingSum(windowSize);
+            _msPmf = new MovingSum(windowSize);
         }
 
-        public override double[][] Calculate(double[][] input)
+        public override double Update(StockAnalysis.Share.Bar bar)
         {
- 	        if (input == null || input.Length == 0)
+            const double SmallValue = 1e-10;
+        
+            double truePrice = (bar.HighestPrice + bar.LowestPrice + bar.ClosePrice) / 3;
+            
+            double positiveMoneyFlow;
+            double negativeMoneyFlow;
+
+            if (_firstData)
             {
-                throw new ArgumentNullException("input");
+                positiveMoneyFlow = truePrice * bar.Volume;
+                negativeMoneyFlow = SmallValue;
             }
-
-            // MFI can only accept StockData's output as input
-            if (input.Length != StockData.FieldCount)
+            else
             {
-                throw new ArgumentException("MoneyFlowIndex can only accept StockData's output as input");
-            }
-
-            double[] hp = input[StockData.HighestPriceFieldIndex];
-            double[] lp = input[StockData.LowestPriceFieldIndex];
-            double[] cp = input[StockData.ClosePriceFieldIndex];
-            double[] volumes = input[StockData.VolumeFieldIndex];
-
-            double[] tp = MetricHelper.OperateNew(hp, lp, cp, (h, l, c) => (h + l + c) / 3);
-
-            double[] positiveMoneyFlow = new double[tp.Length];
-            double[] negativeMoneyFlow = new double[tp.Length];
-
-            positiveMoneyFlow[0] = tp[0] * volumes[0];
-            negativeMoneyFlow[0] = 1e-6; // set a very small number to avoid dividing by zero
-
-            for (int i = 1; i < tp.Length; ++i)
-            {
-                if (tp[i] > tp[i - 1])
+                if (truePrice > _prevTruePrice)
                 {
-                    positiveMoneyFlow[i] = tp[i] * volumes[i];
-                    negativeMoneyFlow[i] = 0.0;
+                    positiveMoneyFlow = truePrice * bar.Volume;
+                    negativeMoneyFlow = 0.0;
                 }
-                else if (tp[i] < tp[i - 1])
+                else if (truePrice < _prevTruePrice)
                 {
-                    positiveMoneyFlow[i] = 0.0;
-                    negativeMoneyFlow[i] = tp[i] * volumes[i];
+                    positiveMoneyFlow = 0.0;
+                    negativeMoneyFlow = truePrice * bar.Volume;
                 }
                 else
                 {
-                    positiveMoneyFlow[i] = negativeMoneyFlow[i] = 1e-6;
+                    positiveMoneyFlow = negativeMoneyFlow = SmallValue;
                 }
             }
 
-            var sumOfPmf = new MovingSum(_lookback).Calculate(positiveMoneyFlow);
-            var sumOfNmf = new MovingSum(_lookback).Calculate(negativeMoneyFlow);
+            double sumPmf = _msPmf.Update(positiveMoneyFlow);
+            double sumNmf = _msNmf.Update(negativeMoneyFlow);
 
-            double[] result = sumOfPmf.OperateThis(sumOfNmf, (p, n) => 100.0 / (1.0 + p / n));
+            // update status
+            _prevTruePrice = truePrice;
+            _firstData = false;
 
-            return new double[1][] { result };
+            // return result
+            return 100.0 / (1.0 + sumPmf / sumNmf);
         }
     }
 }

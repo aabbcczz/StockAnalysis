@@ -8,50 +8,26 @@ using System.Reflection;
 namespace MetricsDefinition
 {
     [Metric("AD")]
-    public sealed class AccumulationDistribution : Metric
+    public sealed class AccumulationDistribution : SingleOutputBarInputSerialMetric
     {
-        private int _lookback;
+        private MovingSum _sumCost;
+        private MovingSum _sumVolume;
 
-        public AccumulationDistribution(int lookback)
+        public AccumulationDistribution(int windowSize)
+            : base(1)
         {
-            if (lookback <= 0)
-            {
-                throw new ArgumentException("lookback must be greater than 0");
-            }
-
-            _lookback = lookback;
+            _sumCost = new MovingSum(windowSize);
+            _sumVolume = new MovingSum(windowSize);
         }
 
-        public override double[][] Calculate(double[][] input)
+        public override double Update(StockAnalysis.Share.Bar bar)
         {
-            if (input == null || input.Length == 0)
-            {
-                throw new ArgumentNullException("input");
-            }
+            double cost = ((bar.ClosePrice - bar.LowestPrice) 
+                - (bar.HighestPrice - bar.ClosePrice)) 
+                / (bar.HighestPrice - bar.LowestPrice)
+                * bar.Volume;
 
-            // AD can only accept StockData's output as input
-            if (input.Length != StockData.FieldCount)
-            {
-                throw new ArgumentException("AD can only accept StockData's output as input");
-            }
-
-            double[] hp = input[StockData.HighestPriceFieldIndex];
-            double[] lp = input[StockData.LowestPriceFieldIndex];
-            double[] cp = input[StockData.ClosePriceFieldIndex];
-            double[] volumes = input[StockData.VolumeFieldIndex];
-            double[] costs = MetricHelper.OperateNew(
-                hp,
-                cp,
-                lp,
-                volumes,
-                (h, c, l, vol) => { return ((c - l) - (h - c)) / (h - l) * vol; });
-
-            var result = MetricHelper.OperateNew(
-                new MovingSum(_lookback).Calculate(volumes),
-                new MovingSum(_lookback).Calculate(costs),
-                (v, c) => c / v);
-
-            return new double[1][] { result };
+            return _sumCost.Update(cost) / _sumVolume.Update(bar.Volume);
         }
     }
 }

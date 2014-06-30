@@ -7,38 +7,33 @@ using System.Threading.Tasks;
 namespace MetricsDefinition
 {
     [Metric("CBBI")]
-    public sealed class CostBullBearIndex : Metric
+    public sealed class CostBullBearIndex : SingleOutputBarInputSerialMetric
     {
-        private int _lookback1;
-        private int _lookback2;
-        private int _lookback3;
-        private int _lookback4;
+        private CostMovingAverage _cma1;
+        private CostMovingAverage _cma2;
+        private CostMovingAverage _cma3;
+        private CostMovingAverage _cma4;
 
-        public CostBullBearIndex(int lookback1, int lookback2, int lookback3, int lookback4)
+        public CostBullBearIndex(int windowSize1, int windowSize2, int windowSize3, int windowSize4)
+            : base(1)
         {
-            if (lookback1 <= 0 || lookback2 <= 0 || lookback3 <= 0 || lookback4 <=0)
+            if (windowSize1 <= 0 || windowSize2 <= 0 || windowSize3 <= 0 || windowSize4 <=0)
             {
-                throw new ArgumentOutOfRangeException("lookback must be greater than 0");
+                throw new ArgumentOutOfRangeException("windowSize must be greater than 0");
             }
 
-            _lookback1 = lookback1;
-            _lookback2 = lookback2;
-            _lookback3 = lookback3;
-            _lookback4 = lookback4;
+            _cma1 = new CostMovingAverage(windowSize1);
+            _cma2 = new CostMovingAverage(windowSize2);
+            _cma3 = new CostMovingAverage(windowSize3);
+            _cma4 = new CostMovingAverage(windowSize4);
         }
 
-        public override double[][] Calculate(double[][] input)
+        public override double Update(StockAnalysis.Share.Bar bar)
         {
-            double[] ma1 = new CostMovingAverage(_lookback1).Calculate(input[0]);
-            double[] ma2 = new CostMovingAverage(_lookback2).Calculate(input[0]);
-            double[] ma3 = new CostMovingAverage(_lookback3).Calculate(input[0]);
-            double[] ma4 = new CostMovingAverage(_lookback4).Calculate(input[0]);
-
-            double[] result = ma1.OperateThis(
-                ma2, ma3, ma4,
-                (m1, m2, m3, m4) => { return (m1 + m2 + m3 + m4) / 4; });
-
-            return new double[1][] { result };
+            return (_cma1.Update(bar) +
+                _cma2.Update(bar) +
+                _cma3.Update(bar) +
+                _cma4.Update(bar)) / 4;
         }
     }
 }

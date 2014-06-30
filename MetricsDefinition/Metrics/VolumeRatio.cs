@@ -8,93 +8,65 @@ using System.Reflection;
 namespace MetricsDefinition
 {
     [Metric("VR")]
-    public sealed class VolumeRatio : Metric
+    public sealed class VolumeRatio : SingleOutputBarInputSerialMetric
     {
-        private int _lookback;
+        private double _prevClosePrice = 0.0;
+        private bool _firstBar = true;
 
-        public VolumeRatio(int lookback)
+        private MovingSum _msPv;
+        private MovingSum _msNv;
+        private MovingSum _msZv;
+
+        public VolumeRatio(int windowSize)
+            : base(1)
         {
-            if (lookback <= 0)
-            {
-                throw new ArgumentException("lookback must be greater than 0");
-            }
-
-            _lookback = lookback;
+            _msPv = new MovingSum(windowSize);
+            _msNv = new MovingSum(windowSize);
+            _msZv = new MovingSum(windowSize);
         }
 
-        public override double[][] Calculate(double[][] input)
+        public override double Update(StockAnalysis.Share.Bar bar)
         {
-            if (input == null || input.Length == 0)
+            const double SmallValue = 1e-10;
+   
+            double pv, nv, zv;
+            
+            if (_firstBar)
             {
-                throw new ArgumentNullException("input");
+                pv = nv = SmallValue;
+                zv = bar.Volume;
             }
-
-            // VR can only accept StockData's output as input
-            if (input.Length != StockData.FieldCount)
+            else
             {
-                throw new ArgumentException("VolumeRatio can only accept StockData's output as input");
-            }
-
-            double[] cp = input[StockData.ClosePriceFieldIndex];
-            double[] volumes = input[StockData.VolumeFieldIndex];
-
-            double[] positiveVolume = new double[volumes.Length];
-            double[] negativeVolume = new double[volumes.Length];
-            double[] zeroVolume = new double[volumes.Length];
-
-            positiveVolume[0] = 1e-6;
-            negativeVolume[0] = 1e-6; // set a very small number to avoid dividing by zero
-            zeroVolume[0] = volumes[0];
-
-            for (int i = 1; i < cp.Length; ++i)
-            {
-                if (cp[i] > cp[i - 1])
+                if (bar.ClosePrice > _prevClosePrice)
                 {
-                    positiveVolume[i] = volumes[i];
-                    negativeVolume[i] = 0.0;
-                    zeroVolume[i] = 0.0;
+                    pv = bar.Volume;
+                    nv = zv = 0.0;
                 }
-                else if (cp[i] < cp[i - 1])
+                else if (bar.ClosePrice < _prevClosePrice)
                 {
-                    positiveVolume[i] = 0.0;
-                    negativeVolume[i] = volumes[i];
-                    zeroVolume[i] = 0.0;
+                    nv = bar.Volume;
+                    pv = zv = 0.0;
                 }
                 else
                 {
-                    positiveVolume[i] = 0.0;
-                    negativeVolume[i] = 0.0;
-                    zeroVolume[i] = volumes[i];
+                    zv = bar.Volume;
+                    pv = nv = 0.0;
                 }
             }
 
-            double sumOfPV = 1e-6;
-            double sumOfNV = 1e-6;
-            double sumOfZV = 1e-6;
+            double msPv = _msPv.Update(pv) + SmallValue;
+            double msNv = _msNv.Update(nv) + SmallValue;
+            double msZv = _msZv.Update(zv) + SmallValue;
 
-            double[] result = new double[volumes.Length];
+            double result = (msPv + msZv / 2.0) / (msNv + msZv / 2.0) * 100.0;
 
-            for (int i = 0; i < result.Length; ++i)
-            {
-                if (i < _lookback)
-                {
-                    sumOfPV += positiveVolume[i];
-                    sumOfNV += negativeVolume[i];
-                    sumOfZV += zeroVolume[i];
-                }
-                else
-                {
-                    int j = i - _lookback;
+            // update status
+            _prevClosePrice = bar.ClosePrice;
+            _firstBar = false;
 
-                    sumOfPV += positiveVolume[i] - positiveVolume[j];
-                    sumOfNV += negativeVolume[i] - negativeVolume[j];
-                    sumOfZV += zeroVolume[i] - zeroVolume[j];
-                }
-
-                result[i] = (sumOfPV + sumOfZV / 2.0) / (sumOfNV + sumOfZV / 2.0) * 100.0;
-            }
-
-            return new double[1][] { result };
+            // return result;
+            return result;
         }
     }
 }

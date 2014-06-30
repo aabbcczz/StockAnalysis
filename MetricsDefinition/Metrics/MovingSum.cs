@@ -7,47 +7,24 @@ using System.Threading.Tasks;
 namespace MetricsDefinition
 {
     [Metric("MS")]
-    public sealed class MovingSum : Metric
+    public sealed class MovingSum : SingleOutputRawInputSerialMetric
     {
-        private int _lookback;
+        private double _sum = 0.0;
 
-        public MovingSum(int lookback)
+        public MovingSum(int windowSize)
+            : base(windowSize)
         {
-            if (lookback <= 0)
-            {
-                throw new ArgumentOutOfRangeException("lookback");
-            }
-
-            _lookback = lookback;
         }
 
-        public override double[][] Calculate(double[][] input)
+        public override double Update(double dataPoint)
         {
-            if (input == null || input.Length == 0)
-            {
-                throw new ArgumentNullException("input");
-            }
+            _sum -= Data[0];
+            _sum += dataPoint;
 
-            double sum = 0.0;
+            Data.Add(dataPoint);
 
-            double[] allData = input[0];
-            double[] result = new double[allData.Length];
-
-            for (int i = 0; i < allData.Length; ++i)
-            {
-                if (i < _lookback)
-                {
-                    sum += allData[i];
-                    result[i] = sum;
-                }
-                else
-                {
-                    sum = sum - allData[i - _lookback] + allData[i];
-                    result[i] = sum;
-                }
-            }
-
-            return new double[1][] { result };
+            return _sum;
         }
+
     }
 }
