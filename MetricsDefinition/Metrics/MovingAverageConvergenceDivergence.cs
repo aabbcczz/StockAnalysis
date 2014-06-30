@@ -7,49 +7,38 @@ using System.Threading.Tasks;
 namespace MetricsDefinition
 {
     [Metric("MACD", "DIFF,DEA")]
-    public sealed class MovingAverageConvergenceDivergence : Metric
+    public sealed class MovingAverageConvergenceDivergence : MultipleOutputRawInputSerialMetric
     {
-        private int _shortLookback;
-        private int _longLookback;
-        private int _diffLookback;
+        private ExponentialMovingAverage _emaShort;
+        private ExponentialMovingAverage _emaLong;
+        private ExponentialMovingAverage _emaDiff;
 
-        public MovingAverageConvergenceDivergence(int shortLookback, int longLookback, int diffLookback)
+        public MovingAverageConvergenceDivergence(int shortWindowSize, int longWindowSize, int diffWindowSize)
+            : base(1)
         {
-            if (shortLookback < 1 || longLookback < 1 || diffLookback < 1)
+            if (shortWindowSize < 1 || longWindowSize < 1 || diffWindowSize < 1)
             {
                 throw new ArgumentOutOfRangeException("No any parameter can be smaller than 1");
             }
 
-            if (shortLookback >= longLookback)
+            if (shortWindowSize >= longWindowSize)
             {
-                throw new ArgumentException("short lookback should be smaller than long lookback");
+                throw new ArgumentException("short windowSize should be smaller than long windowSize");
             }
 
-            _shortLookback = shortLookback;
-            _longLookback = longLookback;
-            _diffLookback = diffLookback;
+            _emaShort = new ExponentialMovingAverage(shortWindowSize);
+            _emaLong = new ExponentialMovingAverage(longWindowSize);
+            _emaDiff = new ExponentialMovingAverage(diffWindowSize);
         }
 
-        public override double[][] Calculate(double[][] input)
+        public override double[] Update(double dataPoint)
         {
-            if (input == null || input.Length == 0)
-            {
-                throw new ArgumentNullException("input");
-            }
+            double emaShort = _emaShort.Update(dataPoint);
+            double emaLong = _emaLong.Update(dataPoint);
+            double diff = emaShort - emaLong;
+            double dea = _emaDiff.Update(diff);
 
-
-            var emaShort = new ExponentialMovingAverage(_shortLookback)
-                .Calculate(input[0]);
-
-            var emaLong = new ExponentialMovingAverage(_longLookback)
-                .Calculate(input[0]);
-
-            var diff = emaShort.OperateThis(emaLong, (s, l) => s - l);
-
-            var dea = new ExponentialMovingAverage(_diffLookback)
-                .Calculate(diff);
-
-            return new double[2][] { diff, dea };
+            return new double[2] { diff, dea };
         }
     }
 }

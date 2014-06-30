@@ -13,52 +13,26 @@ namespace MetricsDefinition
     /// The ATR metric
     /// </summary>
     [Metric("ATR")]
-    public sealed class AverageTrueRange : Metric
+    public sealed class AverageTrueRange : SingleOutputBarInputSerialMetric
     {
-        private int _lookback;
-        
-        public AverageTrueRange(int lookback)
+        private double _prevClosePrice = 0.0;
+        private MovingAverage _maTrueRange;
+        public AverageTrueRange(int windowSize)
+            : base(1)
         {
-            if (lookback <= 1)
-            {
-                throw new ArgumentException("lookback must be greater than 1");
-            }
-
-            _lookback = lookback;
+            _maTrueRange = new MovingAverage(windowSize);
         }
 
-        public override double[][] Calculate(double[][] input)
+        public override double Update(Bar bar)
         {
- 	        if (input == null || input.Length == 0)
-            {
-                throw new ArgumentNullException("input");
-            }
+            double trueRange = 
+                Math.Max(
+                    Math.Max(bar.HighestPrice - bar.LowestPrice, bar.HighestPrice - _prevClosePrice),
+                    _prevClosePrice - bar.LowestPrice);
 
-            // ATR can only accept StockData's output as input
-            if (input.Length != StockData.FieldCount)
-            {
-                throw new ArgumentException("ATR can only accept StockData's output as input");
-            }
+            _prevClosePrice = bar.ClosePrice;
 
-            double[] hp = input[StockData.HighestPriceFieldIndex];
-            double[] lp = input[StockData.LowestPriceFieldIndex];
-            double[] cp = input[StockData.ClosePriceFieldIndex];
-
-            double prevCp = 0.0;
-            double[] trueRange = new double[hp.Length];
-
-            for (int i = 0; i < hp.Length; ++i)
-            {
-                trueRange[i] = 
-                    Math.Max(
-                        Math.Max(hp[i] - lp[i],
-                            hp[i] - prevCp),
-                        prevCp - lp[i]);
-
-                prevCp = cp[i];
-            }
-
-            return new MovingAverage(_lookback).Calculate(new double[1][] { trueRange });
+            return _maTrueRange.Update(trueRange);
         }
     }
 }

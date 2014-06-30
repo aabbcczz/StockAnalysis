@@ -5,90 +5,73 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Reflection;
 
+using StockAnalysis.Share;
+
 namespace MetricsDefinition
 {
     [Metric("ABCR", "AR,BR,CR")]
-    public sealed class ArBrCr : Metric
+    public sealed class ArBrCr : MultipleOutputBarInputSerialMetric
     {
-        private int _lookback;
+        private Bar _prevBar;
+        private bool _firstBar = true;
 
-        public ArBrCr(int lookback)
+        private MovingSum _sumUp;
+        private MovingSum _sumDown;
+        private MovingSum _sumBrBs;
+        private MovingSum _sumBrSs;
+        private MovingSum _sumCrBs;
+        private MovingSum _sumCrSs;
+
+        public ArBrCr(int windowSize)
+            : base(1)
         {
-            // lookback 0 means infinity lookback
-            if (lookback <= 0)
-            {
-                throw new ArgumentException("lookback must be greater than 0");
-            }
-
-            _lookback = lookback;
+            _sumUp = new MovingSum(windowSize);
+            _sumDown = new MovingSum(windowSize);
+            _sumBrBs = new MovingSum(windowSize);
+            _sumBrSs = new MovingSum(windowSize);
+            _sumCrBs = new MovingSum(windowSize);
+            _sumCrSs = new MovingSum(windowSize);
         }
 
-        public override double[][] Calculate(double[][] input)
+        public override double[] Update(StockAnalysis.Share.Bar bar)
         {
- 	        if (input == null || input.Length == 0)
-            {
-                throw new ArgumentNullException("input");
-            }
-
-            // ArBrCr can only accept StockData's output as input
-            if (input.Length != StockData.FieldCount)
-            {
-                throw new ArgumentException("ArBrCr can only accept StockData's output as input");
-            }
-
-            double[] hp = input[StockData.HighestPriceFieldIndex];
-            double[] lp = input[StockData.LowestPriceFieldIndex];
-            double[] op = input[StockData.OpenPriceFieldIndex];
-            double[] cp = input[StockData.ClosePriceFieldIndex];
-
             // calculate AR
-            double[] up = new MovingSum(_lookback).Calculate(MetricHelper.OperateNew(hp, op, (h, o) => h - o));
-            double[] down = new MovingSum(_lookback).Calculate(MetricHelper.OperateNew(op, lp, (o, l) => o - l));
+            double up = _sumUp.Update(bar.HighestPrice - bar.OpenPrice);
+            double down = _sumDown.Update(bar.OpenPrice - bar.LowestPrice);
 
-            double[] ar = up.OperateThis(down, (u, d) => d == 0.0 ? 0.0 : u / d * 100.0);
+            double ar = down == 0.0 ? 0.0 : up / down * 100.0;
 
             // calculate BR
-            double[] tempBrBs = new double[hp.Length];
-            for (int i = 0; i < tempBrBs.Length; ++i)
-            {
-                tempBrBs[i] = i == 0 ? 0.0 : Math.Max(0.0, hp[i] - cp[i - 1]);
-            }
+            double tempBrBs = _firstBar ? 0.0 : Math.Max(0.0, bar.HighestPrice - _prevBar.ClosePrice);
+            double tempBrSs = _firstBar ? 0.0 : Math.Max(0.0, _prevBar.ClosePrice - bar.LowestPrice);
 
-            double[] brbs = new MovingSum(_lookback).Calculate(tempBrBs);
+            double brbs = _sumBrBs.Update(tempBrBs);
+            double brss = _sumBrSs.Update(tempBrSs);
 
-            double[] tempBrSs = new double[hp.Length];
-            for (int i = 0; i < tempBrSs.Length; ++i)
-            {
-                tempBrSs[i] = i == 0 ? 0.0 : Math.Max(0.0, cp[i - 1] - lp[i]);
-            }
-
-            double[] brss = new MovingSum(_lookback).Calculate(tempBrSs);
-
-            double[] br = brbs.OperateThis(brss, (b, s) => s == 0.0 ? 0.0 : b / s * 100.0);
+            double br = brss == 0.0 ? 0.0 : brbs / brss * 100.0;
 
             // calculate CR
-            double[] tp = MetricHelper.OperateNew(hp, lp, cp, (h, l, c) => (h + l + c + c) / 4);
+            double tp = Tp(_prevBar);
 
-            double[] tempCrBs = new double[hp.Length];
-            for (int i = 0; i < tempCrBs.Length; ++i)
-            {
-                tempCrBs[i] = i == 0 ? 0.0 : Math.Max(0.0, hp[i] - tp[i - 1]);
-            }
+            double tempCrBs = _firstBar ? 0.0 : Math.Max(0.0, bar.HighestPrice - tp);
+            double tempCrSs = _firstBar ? 0.0 : Math.Max(0.0, tp - bar.LowestPrice);
 
-            double[] crbs = new MovingSum(_lookback).Calculate(tempCrBs);
+            double crbs = _sumCrBs.Update(tempCrBs);
+            double crss = _sumCrSs.Update(tempCrSs);
 
-            double[] tempCrSs = new double[hp.Length];
-            for (int i = 0; i < tempCrSs.Length; ++i)
-            {
-                tempCrSs[i] = i == 0 ? 0.0 : Math.Max(0.0, tp[i - 1] - lp[i]);
-            }
+            double cr = crss == 0.0 ? 0.0 : crbs / crss * 100.0;
 
-            double[] crss = new MovingSum(_lookback).Calculate(tempCrSs);
+            // update bar
+            _prevBar = bar;
+            _firstBar = false;
 
-            double[] cr = crbs.OperateThis(crss, (b, s) => s == 0.0 ? 0.0 : b / s * 100.0);
+            // return results;
+            return new double[3] { ar, br, cr };
+        }
 
-            // return results
-            return new double[3][] { ar, br, cr };
+        private double Tp(Bar bar)
+        {
+            return (bar.HighestPrice + bar.LowestPrice + 2 * bar.ClosePrice) / 4;
         }
     }
 }

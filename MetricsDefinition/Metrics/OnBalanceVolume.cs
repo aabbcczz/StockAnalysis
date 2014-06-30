@@ -8,46 +8,30 @@ using System.Reflection;
 namespace MetricsDefinition
 {
     [Metric("OBV")]
-    public sealed class OnBalanceVolume : Metric
+    public sealed class OnBalanceVolume : SingleOutputBarInputSerialMetric
     {
+        private double _prevObv = 0.0;
+        private double _prevClosePrice = 0.0;
+        private bool _firstBar = true;
+
         public OnBalanceVolume()
+            : base(1)
         {
         }
 
-        public override double[][] Calculate(double[][] input)
+        public override double Update(StockAnalysis.Share.Bar bar)
         {
- 	        if (input == null || input.Length == 0)
-            {
-                throw new ArgumentNullException("input");
-            }
+            double obv = _firstBar
+                ? bar.Volume
+                : _prevObv + Math.Sign(bar.ClosePrice - _prevClosePrice) * bar.Volume;
 
-            // OBV can only accept StockData's output as input
-            if (input.Length != StockData.FieldCount)
-            {
-                throw new ArgumentException("OBV can only accept StockData's output as input");
-            }
+            // update status
+            _prevClosePrice = bar.ClosePrice;
+            _prevObv = obv;
+            _firstBar = false;
 
-            double[] cp = input[StockData.ClosePriceFieldIndex];
-            double[] volumes = input[StockData.VolumeFieldIndex];
-
-            double obv = 0.0;
-            double[] result = new double[volumes.Length];
-
-            for (int i = 0; i < volumes.Length; ++i)
-            {
-                if (i == 0)
-                {
-                    obv = volumes[i];
-                }
-                else
-                {
-                    obv += Math.Sign(cp[i] - cp[i - 1]) * volumes[i];
-                }
-
-                result[i] = obv;
-            }
-
-            return new double[1][] { result };
+            // return result;
+            return obv;
         }
     }
 }

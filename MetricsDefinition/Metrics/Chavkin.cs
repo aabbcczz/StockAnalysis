@@ -13,57 +13,41 @@ namespace MetricsDefinition
     /// The Chavkin metric
     /// </summary>
     [Metric("CV")]
-    public sealed class Chavkin : Metric
+    public sealed class Chavkin : SingleOutputBarInputSerialMetric
     {
-        private int _lookback;
         private int _interval;
+        private ExponentialMovingAverage _ema;
+        private CirculatedArray<double> _mahl;
 
-        public Chavkin(int lookback, int interval)
+        public Chavkin(int windowSize, int interval)
+            : base(1)
         {
-            if (lookback <= 1 || interval <= 0 || interval > lookback)
+            if (interval <= 0 || interval > windowSize)
             {
                 throw new ArgumentOutOfRangeException();
             }
 
-            _lookback = lookback;
             _interval = interval;
+
+            _ema = new ExponentialMovingAverage(windowSize);
+            _mahl = new CirculatedArray<double>(interval);
         }
 
-        public override double[][] Calculate(double[][] input)
+        public override double Update(Bar bar)
         {
- 	        if (input == null || input.Length == 0)
+            double mahl = _ema.Update(bar.HighestPrice - bar.LowestPrice);
+
+            _mahl.Add(mahl);
+
+            if (_mahl[0] == 0.0)
             {
-                throw new ArgumentNullException("input");
+                return 0.0;
+            }
+            else
+            {
+                return (_mahl[_mahl.Length - 1] - _mahl[0]) / _mahl[0] * 100.0;
             }
 
-            // Chavkin can only accept StockData's output as input
-            if (input.Length != StockData.FieldCount)
-            {
-                throw new ArgumentException("Chavkin can only accept StockData's output as input");
-            }
-
-            double[] hp = input[StockData.HighestPriceFieldIndex];
-            double[] lp = input[StockData.LowestPriceFieldIndex];
-            double[] cp = input[StockData.ClosePriceFieldIndex];
-
-            double[] mahl = new ExponentialMovingAverage(_lookback)
-                .Calculate(MetricHelper.OperateNew(hp, lp, (h, l) => h - l));
-
-            double[] result = new double[hp.Length];
-
-            for (int i = 0; i < result.Length; ++i)
-            {
-                if (i < _interval)
-                {
-                    result[i] = (mahl[i] - mahl[0]) / mahl[0] * 100.0;
-                }
-                else
-                {
-                    result[i] = (mahl[i] - mahl[i - _interval + 1]) / mahl[i - _interval + 1] * 100.0;
-                }
-            }
-
-            return new double[1][] { result };
         }
     }
 }

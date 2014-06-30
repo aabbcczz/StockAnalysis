@@ -7,37 +7,31 @@ using System.Threading.Tasks;
 namespace MetricsDefinition
 {
     [Metric("MB,MAB")]
-    public sealed class MovingAverageBias : Metric
+    public sealed class MovingAverageBias : SingleOutputRawInputSerialMetric
     {
-        private int _shortLookback;
-        private int _longLookback;
+        private MovingAverage _maShort;
+        private MovingAverage _maLong;
 
-        public MovingAverageBias(int shortLookback, int longLookback)
+        public MovingAverageBias(int shortWindowSize, int longWindowSize)
+            : base(1)
         {
-            if (shortLookback <= 0 || longLookback <= 0)
+            if (shortWindowSize <= 0 || longWindowSize <= 0)
             {
-                throw new ArgumentOutOfRangeException("lookback");
+                throw new ArgumentOutOfRangeException("windowSize");
             }
 
-            if (shortLookback >= longLookback)
+            if (shortWindowSize >= longWindowSize)
             {
-                throw new ArgumentException("short lookback should be smaller than long lookback");
+                throw new ArgumentException("short windowSize should be smaller than long windowSize");
             }
 
-            _shortLookback = shortLookback;
-            _longLookback = longLookback;
+            _maShort = new MovingAverage(shortWindowSize);
+            _maLong = new MovingAverage(longWindowSize);
         }
 
-        public override double[][] Calculate(double[][] input)
+        public override double Update(double dataPoint)
         {
-            double[] allData = input[0];
-
-            double[] maShort = new MovingAverage(_shortLookback).Calculate(input)[0];
-            double[] maLong = new MovingAverage(_longLookback).Calculate(input)[0];
-
-            double[] result = maShort.OperateThis(maLong, (s, l) => s - l);
-
-            return new double[1][] { result };
+            return _maShort.Update(dataPoint) - _maLong.Update(dataPoint);
         }
     }
 }
