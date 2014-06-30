@@ -11,11 +11,6 @@ namespace MetricsDefinition
         private StandaloneMetric _caller;
         private MetricExpression _callee;
 
-        public override string[] FieldNames
-        {
-            get { return _caller.FieldNames; }
-        }
-
         public CallOperator(StandaloneMetric caller, MetricExpression callee)
             : base(caller, callee)
         {
@@ -28,72 +23,14 @@ namespace MetricsDefinition
             _callee = callee;
         }
 
-        public override double SingleOutputUpdate(double data)
+        public override double[][] Evaluate(double[][] data)
         {
-            double calleeResult;
-
-            if (_callee.FieldNames.Length <= 1)
-            {
-                calleeResult = _callee.SingleOutputUpdate(data);
-
-                return _caller.SingleOutputUpdate(calleeResult);
-            }
-            else
-            {
-                throw new InvalidOperationException(
-                    "callee has multiple outputs, and caller can't handle it");
-            }
+            return _caller.Evaluate(_callee.Evaluate(data));
         }
 
-        public override double[] MultipleOutputUpdate(double data)
+        public override string[] GetFieldNames()
         {
-            double calleeResult;
-
-            if (_callee.FieldNames.Length <= 1)
-            {
-                calleeResult = _callee.SingleOutputUpdate(data);
-
-                return _caller.MultipleOutputUpdate(calleeResult);
-            }
-            else
-            {
-                throw new InvalidOperationException(
-                    "callee has multiple outputs, and caller can't handle it");
-            }
-        }
-
-        public override double SingleOutputUpdate(StockAnalysis.Share.Bar data)
-        {
-            double calleeResult;
-
-            if (_callee.FieldNames.Length <= 1)
-            {
-                calleeResult = _callee.SingleOutputUpdate(data);
-
-                return _caller.SingleOutputUpdate(calleeResult);
-            }
-            else
-            {
-                throw new InvalidOperationException(
-                    "callee has multiple outputs, and caller can't handle it");
-            }
-        }
-
-        public override double[] MultipleOutputUpdate(StockAnalysis.Share.Bar data)
-        {
-            double calleeResult;
-
-            if (_callee.FieldNames.Length <= 1)
-            {
-                calleeResult = _callee.SingleOutputUpdate(data);
-
-                return _caller.MultipleOutputUpdate(calleeResult);
-            }
-            else
-            {
-                throw new InvalidOperationException(
-                    "callee has multiple outputs, and caller can't handle it");
-            }
+            return _caller.GetFieldNames();
         }
     }
 }

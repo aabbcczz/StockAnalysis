@@ -7,27 +7,100 @@ using System.Reflection;
 
 namespace MetricsDefinition
 {
-    [Metric("WR, WMSR")]
-    public sealed class WilliamOverboughtOversoldIndex : SingleOutputBarInputSerialMetric
+    [Metric("W%R, WMS%R")]
+    public sealed class WilliamOverboughtOversoldIndex : Metric
     {
-        private Highest _highest;
-        private Lowest _lowest;
+        private int _lookback;
         
-        public WilliamOverboughtOversoldIndex(int windowSize)
-            : base(1)
+        public WilliamOverboughtOversoldIndex(int lookback)
         {
-            _highest = new Highest(windowSize);
-            _lowest = new Lowest(windowSize);
+            if (lookback <= 0)
+            {
+                throw new ArgumentOutOfRangeException();
+            }
+
+            _lookback = lookback;
         }
 
-        public override double Update(StockAnalysis.Share.Bar bar)
+        public override double[][] Calculate(double[][] input)
         {
-            double highest = _highest.Update(bar.HighestPrice);
-            double lowest = _lowest.Update(bar.LowestPrice);
+ 	        if (input == null || input.Length == 0)
+            {
+                throw new ArgumentNullException("input");
+            }
 
-            double rsv = (bar.ClosePrice - lowest) / (highest - lowest) * 100;
+            // W%R can only accept StockData's output as input
+            if (input.Length != StockData.FieldCount)
+            {
+                throw new ArgumentException("W%R can only accept StockData's output as input");
+            }
 
-            return 100.0 - rsv;
+            double[] hp = input[StockData.HighestPriceFieldIndex];
+            double[] lp = input[StockData.LowestPriceFieldIndex];
+            double[] cp = input[StockData.ClosePriceFieldIndex];
+
+            double lowestPrice = double.MaxValue;
+            int lowestPriceIndex = -1;
+            double highestPrice = double.MinValue;
+            int highestPriceIndex = -1;
+
+            double[] result = new double[cp.Length];
+
+            for (int i = 0; i < cp.Length; ++i)
+            {
+                // find out the lowest price and highest price in past _kLookback period.
+                if (lp[i] <= lowestPrice)
+                {
+                    lowestPrice = lp[i];
+                    lowestPriceIndex = i;
+                }
+                else
+                {
+                    // determine if current lowestPrice is still valid
+                    if (i >= _lookback && lowestPriceIndex < i - _lookback + 1)
+                    {
+                        lowestPrice = double.MaxValue;
+                        lowestPriceIndex = -1;
+                        for (int m = i - _lookback + 1; m <= i; ++m)
+                        {
+                            if (lp[m] <= lowestPrice)
+                            {
+                                lowestPrice = lp[m];
+                                lowestPriceIndex = m;
+                            }
+                        }
+                    }
+                }
+
+                if (hp[i] >= highestPrice)
+                {
+                    highestPrice = hp[i];
+                    highestPriceIndex = i;
+                }
+                else
+                {
+                    // determine if current highest price is still valid
+                    if (i >= _lookback && highestPriceIndex < i - _lookback + 1)
+                    {
+                        highestPrice = double.MinValue;
+                        highestPriceIndex = -1;
+                        for (int m = i - _lookback + 1; m <= i; ++m)
+                        {
+                            if (hp[m] >= highestPrice)
+                            {
+                                highestPrice = hp[m];
+                                highestPriceIndex = m;
+                            }
+                        }
+                    }
+                }
+
+                // calculate RSV
+                double rsv = (cp[i] - lowestPrice) / (highestPrice - lowestPrice) * 100;
+                result[i] = 100.0 - rsv;
+            }
+
+            return new double[1][] { result };
         }
     }
 }

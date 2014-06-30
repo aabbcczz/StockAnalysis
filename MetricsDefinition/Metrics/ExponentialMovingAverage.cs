@@ -7,26 +7,43 @@ using System.Threading.Tasks;
 namespace MetricsDefinition
 {
     [Metric("EMA, EXPMA")]
-    public sealed class ExponentialMovingAverage : SingleOutputRawInputSerialMetric
+    public sealed class ExponentialMovingAverage : Metric
     {
-        private double _lastResult = 0.0;
+        private int _lookback;
 
-        public ExponentialMovingAverage(int windowSize)
-            : base(windowSize)
+        public ExponentialMovingAverage(int lookback)
         {
-            if (windowSize < 2)
+            if (lookback < 2)
             {
-                throw new ArgumentOutOfRangeException("windowSize must be greater than 1");
+                throw new ArgumentOutOfRangeException("lookback must be greater than 1");
             }
+
+            _lookback = lookback;
         }
 
-        public override double Update(double dataPoint)
+        public override double[][] Calculate(double[][] input)
         {
-            Data.Add(dataPoint);
+            if (input == null || input.Length == 0)
+            {
+                throw new ArgumentNullException("input");
+            }
 
-            _lastResult = (_lastResult * (WindowSize - 1) + dataPoint * 2.0) / (WindowSize + 1);
+            double[] allData = input[0];
+            double[] result = new double[allData.Length];
 
-            return _lastResult;
+            for (int i = 0; i < allData.Length; ++i)
+            {
+                if (i == 0)
+                {
+                    result[i] = allData[0];
+                }
+                else
+                {
+                    result[i] = (result[i - 1] * (_lookback - 1) + allData[i] * 2.0) / (_lookback + 1);
+                }
+            }
+
+            return new double[1][] { result };
         }
     }
 }

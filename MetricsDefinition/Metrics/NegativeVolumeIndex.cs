@@ -7,44 +7,42 @@ using System.Reflection;
 
 namespace MetricsDefinition
 {
-    [Metric("OBV")]
-    public sealed class OnBalanceVolume : Metric
+    [Metric("NVI")]
+    public sealed class NegativeVolumeIndex : Metric
     {
-        public OnBalanceVolume()
+        public NegativeVolumeIndex()
         {
         }
 
         public override double[][] Calculate(double[][] input)
         {
- 	        if (input == null || input.Length == 0)
+            if (input == null || input.Length == 0)
             {
                 throw new ArgumentNullException("input");
             }
 
-            // OBV can only accept StockData's output as input
+            // NVI can only accept StockData's output as input
             if (input.Length != StockData.FieldCount)
             {
-                throw new ArgumentException("OBV can only accept StockData's output as input");
+                throw new ArgumentException("NegativeVolumeIndex can only accept StockData's output as input");
             }
 
             double[] cp = input[StockData.ClosePriceFieldIndex];
             double[] volumes = input[StockData.VolumeFieldIndex];
 
-            double obv = 0.0;
             double[] result = new double[volumes.Length];
 
-            for (int i = 0; i < volumes.Length; ++i)
+            result[0] = 100.0;
+            for (int i = 1; i < result.Length; ++i)
             {
-                if (i == 0)
+                if (volumes[i] < volumes[i - 1])
                 {
-                    obv = volumes[i];
+                    result[i] = result[i - 1] * cp[i] / cp[i - 1];
                 }
                 else
                 {
-                    obv += Math.Sign(cp[i] - cp[i - 1]) * volumes[i];
+                    result[i] = result[i - 1];
                 }
-
-                result[i] = obv;
             }
 
             return new double[1][] { result };

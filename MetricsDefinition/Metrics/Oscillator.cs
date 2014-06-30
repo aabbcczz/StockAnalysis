@@ -7,19 +7,27 @@ using System.Threading.Tasks;
 namespace MetricsDefinition
 {
     [Metric("OSC")]
-    public sealed class Oscillator : SingleOutputRawInputSerialMetric
+    public sealed class Oscillator : Metric
     {
-        private MovingAverage _ma;
+        private int _lookback;
 
-        public Oscillator(int windowSize)
-            : base(1)
+        public Oscillator(int lookback)
         {
-            _ma = new MovingAverage(windowSize);
+            if (lookback <= 0)
+            {
+                throw new ArgumentOutOfRangeException("lookback");
+            }
+
+            _lookback = lookback;
         }
 
-        public override double Update(double dataPoint)
+        public override double[][] Calculate(double[][] input)
         {
-            return dataPoint - _ma.Update(dataPoint);
+            double[] ma = new MovingAverage(_lookback).Calculate(input[0]);
+
+            double[] result = ma.OperateThis(input[0], (m, i) => { return i - m; });
+
+            return new double[1][] { result };
         }
     }
 }

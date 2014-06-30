@@ -11,9 +11,8 @@ namespace MetricsDefinition
     public sealed class MetricAttribute : Attribute
     {
         private Dictionary<string, int> _subfields = new Dictionary<string, int>();
-        public string[] ShortNames { get; private set; }
+        public string[] ShortNames { get; set; }
         public IDictionary<string, int> NameToFieldIndexMap { get { return _subfields; } }
-
         /// <summary>
         /// Define metric attribute
         /// </summary>

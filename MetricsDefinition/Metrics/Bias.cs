@@ -7,21 +7,27 @@ using System.Threading.Tasks;
 namespace MetricsDefinition
 {
     [Metric("BIAS")]
-    public sealed class Bias : SingleOutputRawInputSerialMetric
+    public sealed class Bias : Metric
     {
-        private MovingAverage _ma;
+        private int _lookback;
 
-        public Bias(int windowSize)
-            : base(1)
+        public Bias(int lookback)
         {
-            _ma = new MovingAverage(windowSize);
+            if (lookback <= 0)
+            {
+                throw new ArgumentOutOfRangeException("lookback");
+            }
+
+            _lookback = lookback;
         }
 
-        public override double Update(double dataPoint)
+        public override double[][] Calculate(double[][] input)
         {
-            double average = _ma.Update(dataPoint);
+            double[] ma = new MovingAverage(_lookback).Calculate(input[0]);
 
-            return (dataPoint - average) / average;
+            double[] result = ma.OperateThis(input[0], (m, i) => { return (i - m) / m; });
+
+            return new double[1][] { result };
         }
     }
 }

@@ -9,13 +9,7 @@ namespace MetricsDefinition
     sealed class SelectionOperator : MetricUnaryOperator
     {
         private int _fieldIndex;
-        private string[] _fieldNames;
-
-        public override string[] FieldNames
-        {
-            get { return _fieldNames; }
-        }
-
+        
         public SelectionOperator(MetricExpression host, int fieldIndex)
             : base(host)
         {
@@ -24,34 +18,24 @@ namespace MetricsDefinition
                 throw new ArgumentException("fieldIndex must not be negative");
             }
 
-            if (fieldIndex >= host.FieldNames.Length)
+            _fieldIndex = fieldIndex;
+        }
+    
+        public override double[][] Evaluate(double[][] data)
+        {
+            double[][] result = Operand.Evaluate(data);
+
+            if (result.Length <= _fieldIndex)
             {
-                throw new ArgumentException("fieldIndex is greater than host's total fields");
+                throw new ArgumentException("result data has no enough fields");
             }
 
-            _fieldIndex = fieldIndex;
-
-            _fieldNames = new string[1] { host.FieldNames[fieldIndex] };
+            return new double[1][] { result[_fieldIndex] };
         }
 
-        public override double SingleOutputUpdate(double data)
+        public override string[] GetFieldNames()
         {
-            return Operand.SingleOutputUpdate(data);
-        }
-
-        public override double[] MultipleOutputUpdate(double data)
-        {
-            return new double[1] { Operand.MultipleOutputUpdate(data)[_fieldIndex] };
-        }
-
-        public override double SingleOutputUpdate(StockAnalysis.Share.Bar data)
-        {
-            return Operand.SingleOutputUpdate(data);
-        }
-
-        public override double[] MultipleOutputUpdate(StockAnalysis.Share.Bar data)
-        {
-            return new double[1] { Operand.MultipleOutputUpdate(data)[_fieldIndex] };
+            return new string[1] { Operand.GetFieldNames()[_fieldIndex] }; 
         }
     }
 }

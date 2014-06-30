@@ -7,34 +7,38 @@ using System.Threading.Tasks;
 namespace MetricsDefinition
 {
     [Metric("BBI")]
-    public sealed class BullBearIndex : SingleOutputRawInputSerialMetric
+    public sealed class BullBearIndex : Metric
     {
-        private MovingAverage _ma1;
-        private MovingAverage _ma2;
-        private MovingAverage _ma3;
-        private MovingAverage _ma4;
+        private int _lookback1;
+        private int _lookback2;
+        private int _lookback3;
+        private int _lookback4;
 
-        public BullBearIndex(int windowSize1, int windowSize2, int windowSize3, int windowSize4)
-            : base(1)
+        public BullBearIndex(int lookback1, int lookback2, int lookback3, int lookback4)
         {
-            if (windowSize1 <= 0 || windowSize2 <= 0 || windowSize3 <= 0 || windowSize4 <=0)
+            if (lookback1 <= 0 || lookback2 <= 0 || lookback3 <= 0 || lookback4 <=0)
             {
-                throw new ArgumentOutOfRangeException("windowSize must be greater than 0");
+                throw new ArgumentOutOfRangeException("lookback must be greater than 0");
             }
 
-            _ma1 = new MovingAverage(windowSize1);
-            _ma2 = new MovingAverage(windowSize2);
-            _ma3 = new MovingAverage(windowSize3);
-            _ma4 = new MovingAverage(windowSize4);
+            _lookback1 = lookback1;
+            _lookback2 = lookback2;
+            _lookback3 = lookback3;
+            _lookback4 = lookback4;
         }
 
-        public override double Update(double dataPoint)
+        public override double[][] Calculate(double[][] input)
         {
-            return (_ma1.Update(dataPoint) +
-                   _ma2.Update(dataPoint) +
-                   _ma3.Update(dataPoint) +
-                   _ma4.Update(dataPoint)) / 4.0;
-        }
+            double[] ma1 = new MovingAverage(_lookback1).Calculate(input[0]);
+            double[] ma2 = new MovingAverage(_lookback2).Calculate(input[0]);
+            double[] ma3 = new MovingAverage(_lookback3).Calculate(input[0]);
+            double[] ma4 = new MovingAverage(_lookback4).Calculate(input[0]);
 
+            double[] result = ma1.OperateThis(
+                ma2, ma3, ma4,
+                (m1, m2, m3, m4) => { return (m1 + m2 + m3 + m4) / 4; });
+
+            return new double[1][] { result };
+        }
     }
 }

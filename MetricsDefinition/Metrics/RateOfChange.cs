@@ -7,20 +7,43 @@ using System.Threading.Tasks;
 namespace MetricsDefinition
 {
     [Metric("ROC")]
-    public sealed class RateOfChange : SingleOutputRawInputSerialMetric
+    public sealed class RateOfChange : Metric
     {
-        public RateOfChange(int windowSize)
-            : base (windowSize + 1)
+        private int _lookback;
+
+        public RateOfChange(int lookback)
         {
+            if (lookback <= 0)
+            {
+                throw new ArgumentOutOfRangeException("lookback");
+            }
+
+            _lookback = lookback;
         }
 
-        public override double Update(double dataPoint)
+        public override double[][] Calculate(double[][] input)
         {
-            Data.Add(dataPoint);
+            if (input == null || input.Length == 0)
+            {
+                throw new ArgumentNullException("input");
+            }
 
-            double oldData = Data[0];
+            double[] allData = input[0];
+            double[] result = new double[allData.Length];
 
-            return oldData == 0.0 ? 0.0 : (dataPoint - oldData) / oldData * 100.0;
+            for (int i = 0; i < allData.Length; ++i)
+            {
+                if (i < _lookback)
+                {
+                    result[i] = (allData[i] - allData[0]) / allData[0] * 100.0;
+                }
+                else
+                {
+                    result[i] = (allData[i] - allData[i - _lookback]) / allData[i - _lookback] * 100.0;
+                }
+            }
+
+            return new double[1][] { result };
         }
     }
 }

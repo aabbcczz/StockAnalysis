@@ -7,46 +7,63 @@ using System.Threading.Tasks;
 namespace MetricsDefinition
 {
     [Metric("HI")]
-    public sealed class Highest : SingleOutputRawInputSerialMetric
+    public sealed class Highest : Metric
     {
-        private double _highestPrice = double.MinValue;
-        private int _highestPriceIndex = -1;
+        private int _lookback;
 
-        public Highest(int windowSize)
-            : base(windowSize)
+        public Highest(int lookback)
         {
+            if (lookback <= 0)
+            {
+                throw new ArgumentOutOfRangeException("lookback");
+            }
+
+            _lookback = lookback;
         }
 
-        public override double Update(double dataPoint)
+        public override double[][] Calculate(double[][] input)
         {
-            Data.Add(dataPoint);
-            --_highestPriceIndex;
-
-            if (dataPoint >= _highestPrice)
+            if (input == null || input.Length == 0)
             {
-                _highestPrice = dataPoint;
-                _highestPriceIndex = Data.Length - 1;
+                throw new ArgumentNullException("input");
             }
-            else
+
+            double highestPrice = double.MinValue;
+            int highestPriceIndex = -1;
+
+            double[] data = input[0];
+            double[] result = new double[data.Length];
+
+            for (int i = 0; i < data.Length; ++i)
             {
-                // determine if current highest price is still valid
-                if (_highestPriceIndex < 0)
+                if (data[i] >= highestPrice)
                 {
-                    _highestPrice = double.MinValue;
-                    _highestPriceIndex = -1;
-                    for (int i = 0; i < Data.Length; ++i)
+                    highestPrice = data[i];
+                    highestPriceIndex = i;
+                }
+                else
+                {
+                    // determine if current highest price is still valid
+                    if (i >= _lookback && highestPriceIndex < i - _lookback + 1)
                     {
-                        double data = Data[i];
-                        if (data >= _highestPrice)
+                        highestPrice = double.MinValue;
+                        highestPriceIndex = -1;
+                        for (int m = i - _lookback + 1; m <= i; ++m)
                         {
-                            _highestPrice = data;
-                            _highestPriceIndex = i;
+                            if (data[m] >= highestPrice)
+                            {
+                                highestPrice = data[m];
+                                highestPriceIndex = m;
+                            }
                         }
                     }
                 }
+
+                result[i] = highestPrice;
+
             }
 
-            return _highestPrice;
+            return new double[1][] { result };
         }
-     }
+    }
 }

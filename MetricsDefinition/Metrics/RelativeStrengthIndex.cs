@@ -7,37 +7,51 @@ using System.Threading.Tasks;
 namespace MetricsDefinition
 {
     [Metric("RSI")]
-    public sealed class RelativeStrengthIndex : SingleOutputRawInputSerialMetric
+    public sealed class RelativeStrengthIndex : Metric
     {
-        private MovingSum _msUc;
-        private MovingSum _msDc;
-        private double _prevData;
-        private bool _firstData = true;
-        public RelativeStrengthIndex(int windowSize)
-            : base(1)
+        private int _lookback;
+
+        public RelativeStrengthIndex(int lookback)
         {
-            _msUc = new MovingSum(windowSize);
-            _msDc = new MovingSum(windowSize);
+            if (lookback <= 0)
+            {
+                throw new ArgumentOutOfRangeException("lookback");
+            }
+
+            _lookback = lookback;
         }
 
-        public override double Update(double dataPoint)
+        public override double[][] Calculate(double[][] input)
         {
-            double uc = _firstData
-                ? 0.0
-                : Math.Max(0.0, dataPoint - _prevData);
+            if (input == null || input.Length == 0)
+            {
+                throw new ArgumentNullException("input");
+            }
 
-            double dc = _firstData
-                ? 0.0
-                : Math.Max(0.0, _prevData - dataPoint);
+            double[] cp = input[0];
+            double[] uc = new double[cp.Length];
+            double[] dc = new double[cp.Length];
 
-            double msuc = _msUc.Update(uc);
-            double msdc = _msDc.Update(dc);
+            uc[0] = dc[0] = 0.0;
+            for (int i = 1; i < cp.Length; ++i)
+            {
+                double diff = cp[i] - cp[i - 1];
+                uc[i] = Math.Max(0.0, diff);
+                dc[i] = Math.Max(0.0, -diff);
+            }
 
-            // update status
-            _prevData = dataPoint;
-            _firstData = false;
+            double[] msuc = new MovingSum(_lookback).Calculate(uc);
+            double[] msdc = new MovingSum(_lookback).Calculate(dc);
 
-            return (msuc + msdc == 0.0) ? 0.0 : msuc / (msuc + msdc) * 100.0;
+            double[] result = msuc.OperateThis(
+                msdc, 
+                (u, d) =>
+                {
+                    double sum = u + d;
+                    return sum == 0.0 ? 0.0 : u / sum * 100.0;
+                });
+
+            return new double[1][] { result };
         }
     }
 }

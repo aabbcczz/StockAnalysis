@@ -8,61 +8,70 @@ using System.Reflection;
 namespace MetricsDefinition
 {
     [Metric("MFI")]
-    public sealed class MoneyFlowIndex : SingleOutputBarInputSerialMetric
+    public sealed class MoneyFlowIndex : Metric
     {
-        private MovingSum _msPmf;
-        private MovingSum _msNmf;
-        private double _prevTruePrice = double.NaN;
-        private bool _firstData = true;
-
-        public MoneyFlowIndex(int windowSize)
-            : base (1)
+        private int _lookback;
+        
+        public MoneyFlowIndex(int lookback)
         {
-            _msNmf = new MovingSum(windowSize);
-            _msPmf = new MovingSum(windowSize);
+            if (lookback <= 0)
+            {
+                throw new ArgumentException("lookback must be greater than 0");
+            }
+
+            _lookback = lookback;
         }
 
-        public override double Update(StockAnalysis.Share.Bar bar)
+        public override double[][] Calculate(double[][] input)
         {
-            const double SmallValue = 1e-10;
-        
-            double truePrice = (bar.HighestPrice + bar.LowestPrice + bar.ClosePrice) / 3;
-            
-            double positiveMoneyFlow;
-            double negativeMoneyFlow;
-
-            if (_firstData)
+ 	        if (input == null || input.Length == 0)
             {
-                positiveMoneyFlow = truePrice * bar.Volume;
-                negativeMoneyFlow = SmallValue;
+                throw new ArgumentNullException("input");
             }
-            else
+
+            // MFI can only accept StockData's output as input
+            if (input.Length != StockData.FieldCount)
             {
-                if (truePrice > _prevTruePrice)
+                throw new ArgumentException("MoneyFlowIndex can only accept StockData's output as input");
+            }
+
+            double[] hp = input[StockData.HighestPriceFieldIndex];
+            double[] lp = input[StockData.LowestPriceFieldIndex];
+            double[] cp = input[StockData.ClosePriceFieldIndex];
+            double[] volumes = input[StockData.VolumeFieldIndex];
+
+            double[] tp = MetricHelper.OperateNew(hp, lp, cp, (h, l, c) => (h + l + c) / 3);
+
+            double[] positiveMoneyFlow = new double[tp.Length];
+            double[] negativeMoneyFlow = new double[tp.Length];
+
+            positiveMoneyFlow[0] = tp[0] * volumes[0];
+            negativeMoneyFlow[0] = 1e-6; // set a very small number to avoid dividing by zero
+
+            for (int i = 1; i < tp.Length; ++i)
+            {
+                if (tp[i] > tp[i - 1])
                 {
-                    positiveMoneyFlow = truePrice * bar.Volume;
-                    negativeMoneyFlow = 0.0;
+                    positiveMoneyFlow[i] = tp[i] * volumes[i];
+                    negativeMoneyFlow[i] = 0.0;
                 }
-                else if (truePrice < _prevTruePrice)
+                else if (tp[i] < tp[i - 1])
                 {
-                    positiveMoneyFlow = 0.0;
-                    negativeMoneyFlow = truePrice * bar.Volume;
+                    positiveMoneyFlow[i] = 0.0;
+                    negativeMoneyFlow[i] = tp[i] * volumes[i];
                 }
                 else
                 {
-                    positiveMoneyFlow = negativeMoneyFlow = SmallValue;
+                    positiveMoneyFlow[i] = negativeMoneyFlow[i] = 1e-6;
                 }
             }
 
-            double sumPmf = _msPmf.Update(positiveMoneyFlow);
-            double sumNmf = _msNmf.Update(negativeMoneyFlow);
+            var sumOfPmf = new MovingSum(_lookback).Calculate(positiveMoneyFlow);
+            var sumOfNmf = new MovingSum(_lookback).Calculate(negativeMoneyFlow);
 
-            // update status
-            _prevTruePrice = truePrice;
-            _firstData = false;
+            double[] result = sumOfPmf.OperateThis(sumOfNmf, (p, n) => 100.0 / (1.0 + p / n));
 
-            // return result
-            return 100.0 / (1.0 + sumPmf / sumNmf);
+            return new double[1][] { result };
         }
     }
 }

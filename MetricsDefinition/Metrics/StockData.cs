@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 
 namespace MetricsDefinition
 {
-    [Metric("BAR", "CP,OP,HP,LP,VOL,AMT")]
-    public sealed class BarData : MultipleOutputBarInputSerialMetric
+    [Metric("S", "CP,OP,HP,LP,VOL,AMT")]
+    public sealed class StockData : Metric
     {
         public const int FieldCount = 6;
         public const int ClosePriceFieldIndex = 0;
@@ -17,22 +17,19 @@ namespace MetricsDefinition
         public const int VolumeFieldIndex = 4;
         public const int AmountFieldIndex = 5;
 
-        public BarData()
-            : base(1)
+        public override double[][] Calculate(double[][] input)
         {
-        }
+            if (input == null)
+            {
+                throw new ArgumentNullException("input");
+            }
 
-        public override double[] Update(StockAnalysis.Share.Bar bar)
-        {
-            return new double[FieldCount] 
-            { 
-                bar.ClosePrice,
-                bar.OpenPrice,
-                bar.HighestPrice,
-                bar.LowestPrice,
-                bar.Volume,
-                bar.Amount
-            };
+            if (input.Length != FieldCount)
+            {
+                throw new ArgumentException("input has different number of fields than expected");
+            }
+
+            return input;
         }
     }
 }

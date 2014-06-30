@@ -10,26 +10,78 @@ namespace MetricsDefinition
 {
 
     [Metric("COSTMA,CYC,CMA")]
-    public sealed class CostMovingAverage : SingleOutputBarInputSerialMetric
+    public sealed class CostMovingAverage : Metric
     {
-        private MovingSum _msCost;
-        private MovingSum _msVolume;
-
-        public CostMovingAverage(int windowSize)
-            : base (windowSize)
+        // lookback 0 means infinity lookback
+        private int _lookback;
+        
+        public CostMovingAverage(int lookback)
         {
-            _msCost = new MovingSum(windowSize);
-            _msVolume = new MovingSum(windowSize);
+            // lookback 0 means infinity lookback
+            if (lookback < 0)
+            {
+                throw new ArgumentException("lookback must be greater than 0");
+            }
+
+            _lookback = lookback;
         }
 
-        public override double Update(StockAnalysis.Share.Bar bar)
+        public override double[][] Calculate(double[][] input)
         {
-            double truePrice = (bar.HighestPrice + bar.LowestPrice + 2 * bar.ClosePrice ) / 4;
+ 	        if (input == null || input.Length == 0)
+            {
+                throw new ArgumentNullException("input");
+            }
 
-            double sumCost = _msCost.Update(bar.Volume * truePrice);
-            double sumVolume = _msVolume.Update(bar.Volume);
+            // CMA can only accept StockData's output as input
+            if (input.Length != StockData.FieldCount)
+            {
+                throw new ArgumentException("COSTMA can only accept StockData's output as input");
+            }
 
-            return sumCost / sumVolume;
+            double[] hp = input[StockData.HighestPriceFieldIndex];
+            double[] lp = input[StockData.LowestPriceFieldIndex];
+            double[] op = input[StockData.OpenPriceFieldIndex];
+            double[] cp = input[StockData.ClosePriceFieldIndex];
+            double[] volumes = input[StockData.VolumeFieldIndex];
+
+            double[] averagePrices = MetricHelper.OperateNew(
+                hp, lp, cp,
+                (h, l, c) => { return (h + l + 2 * c) / 4; });
+
+
+            double sumOfVolume = 0.0;
+            double sumOfCost = 0.0;
+
+            double[] result = new double[volumes.Length];
+
+            for (int i = 0; i < volumes.Length; ++i)
+            {
+                if (_lookback == 0)
+                {
+                    sumOfVolume += volumes[i];
+                    sumOfCost += volumes[i] * averagePrices[i];
+                }
+                else
+                {
+                    if (i < _lookback)
+                    {
+                        sumOfVolume += volumes[i];
+                        sumOfCost += volumes[i] * averagePrices[i];
+                    }
+                    else
+                    {
+                        int j = i - _lookback;
+
+                        sumOfVolume += volumes[i] - volumes[j];
+                        sumOfCost += volumes[i] * averagePrices[i] - volumes[j] * averagePrices[j];
+                    }
+                }
+
+                result[i] = sumOfCost / sumOfVolume;
+            }
+
+            return new double[1][] { result };
         }
     }
 }

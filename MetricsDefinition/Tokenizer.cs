@@ -15,14 +15,7 @@ namespace MetricsDefinition
         private string _expression;
         private int _position = 0;
 
-        public string LastErrorMessage { get; private set; }
-
         public int CurrentPostion { get { return _position; } }
-
-        private void Reset()
-        {
-            LastErrorMessage = string.Empty;
-        }
 
         public Tokenizer(string expression)
         {
@@ -35,9 +28,9 @@ namespace MetricsDefinition
             
         }
 
-        public bool GetNextToken(out Token token)
+        public bool GetNextToken(out Token token, out string errorMessage)
         {
-            Reset();
+            errorMessage = string.Empty;
 
             token = null;
 
@@ -87,7 +80,7 @@ namespace MetricsDefinition
                         }
                         else
                         {
-                            LastErrorMessage = string.Format("Unrecognized character '{0}'", ch);
+                            errorMessage = string.Format("Unrecognized character '{0}'", ch);
                             return false;
                         }
                         break;

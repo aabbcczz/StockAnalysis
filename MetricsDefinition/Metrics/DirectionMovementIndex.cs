@@ -5,100 +5,118 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Reflection;
 
-using StockAnalysis.Share;
-
 namespace MetricsDefinition
 {
     [Metric("DMI", "PDI,NDI,ADX,ADXR")]
-    public sealed class DirectionMovementIndex : MultipleOutputBarInputSerialMetric
+    public sealed class DirectionMovementIndex : Metric
     {
-        private Bar _prevBar;
-        private bool _firstBar = true;
-
-        private MovingSum _msPdm;
-        private MovingSum _msNdm;
-        private MovingSum _msTr;
-        private MovingAverage _maDx;
-        private CirculatedArray<double> _adx;
-
-        public DirectionMovementIndex(int windowSize)
-            : base (1)
+        private int _lookback;
+        
+        public DirectionMovementIndex(int lookback)
         {
-            _msPdm = new MovingSum(windowSize);
-            _msNdm = new MovingSum(windowSize);
-            _msTr = new MovingSum(windowSize);
-            _maDx = new MovingAverage(windowSize);
-            _adx = new CirculatedArray<double>(windowSize);
+            if (lookback <= 0)
+            {
+                throw new ArgumentException("lookback must be greater than 0");
+            }
+
+            _lookback = lookback;
         }
 
-        public override double[] Update(StockAnalysis.Share.Bar bar)
+        public override double[][] Calculate(double[][] input)
         {
-            // calculate +DM and -DM
-            double pdm, ndm;
-
-            if (_firstBar)
+ 	        if (input == null || input.Length == 0)
             {
-                pdm = 0.0;
-                ndm = 0.0;
+                throw new ArgumentNullException("input");
             }
-            else
-            {
-                pdm = Math.Max(0.0, bar.HighestPrice - _prevBar.HighestPrice);
-                ndm = Math.Max(0.0, _prevBar.LowestPrice - bar.LowestPrice);
 
-                if (pdm > ndm)
+            // DMI can only accept StockData's output as input
+            if (input.Length != StockData.FieldCount)
+            {
+                throw new ArgumentException("DMI can only accept StockData's output as input");
+            }
+
+            double[] hp = input[StockData.HighestPriceFieldIndex];
+            double[] lp = input[StockData.LowestPriceFieldIndex];
+            double[] cp = input[StockData.ClosePriceFieldIndex];
+
+            // calculate +DM and -DM
+            double[] pdm = new double[hp.Length];
+            double[] ndm = new double[hp.Length];
+
+            pdm[0] = 0.0;
+            ndm[0] = 0.0;
+
+            for (int i = 1; i < hp.Length; ++i)
+            {
+                pdm[i] = Math.Max(0.0, hp[i] - hp[i - 1]);
+                ndm[i] = Math.Max(0.0, lp[i - 1] - lp[i]);
+
+                if (pdm[i] > ndm[i])
                 {
-                    ndm = 0.0;
+                    ndm[i] = 0.0;
                 }
-                else if (pdm < ndm)
+                else if (pdm[i] < ndm[i])
                 {
-                    pdm = 0.0;
+                    pdm[i] = 0.0;
                 }
                 else
                 {
-                    pdm = ndm = 0.0;
+                    pdm[i] = ndm[i] = 0.0;
                 }
             }
 
             // Calculate +DI and -DI
-            double tr, pdi, ndi;
+            double[] tr = new double[hp.Length];
+            double[] pdi = new double[hp.Length];
+            double[] ndi = new double[hp.Length];
 
-            if (_firstBar)
-            {
-                tr = bar.HighestPrice - bar.LowestPrice;
-            }
-            else
-            {
-                tr = Math.Max(Math.Abs(bar.HighestPrice - bar.LowestPrice),
-                        Math.Max(Math.Abs(bar.HighestPrice - _prevBar.ClosePrice), Math.Abs(bar.LowestPrice - _prevBar.ClosePrice)));
-            }
+            tr[0] = hp[0] - lp[0];
+            pdi[0] = pdm[0] * 100.0 / tr[0];
+            ndi[0] = ndm[0] * 100.0 / tr[0];
 
-            pdi = pdm * 100.0 / tr;
-            ndi = ndm * 100.0 / tr;
+            for (int i = 1; i < tr.Length; ++i)
+            {
+                tr[i] = Math.Max(Math.Abs(hp[i] - lp[i]),
+                            Math.Max(Math.Abs(hp[i] - cp[i - 1]), Math.Abs(lp[i] - cp[i - 1])));
+
+                pdi[i] = pdm[i] * 100.0 / tr[i];
+                ndi[i] = ndm[i] * 100.0 / tr[i];
+            }
 
             // calculate +DIM and -DIM
-            double mspdm = _msPdm.Update(pdm);
-            double msndm = _msNdm.Update(ndm);
-            double mstr = _msTr.Update(tr);
+            double[] mspdm = new MovingSum(_lookback).Calculate(pdm);
+            double[] msndm = new MovingSum(_lookback).Calculate(ndm);
+            double[] mstr = new MovingSum(_lookback).Calculate(tr);
 
-            double pdim = mspdm * 100.0 / mstr;
-            double ndim = msndm * 100.0 / mstr;
+
+            double[] pdim = MetricHelper.OperateNew(mspdm, mstr, (p, t) => { return p * 100.0 / t; });
+            double[] ndim = MetricHelper.OperateNew(msndm, mstr, (n, t) => { return n * 100.0 / t; });
 
             // calculate DX and ADX
-            double dx = (pdim + ndim) == 0.0 ? 0.0 : Math.Abs(pdim - ndim) / (pdim + ndim);
+            double[] dx = MetricHelper.OperateNew(pdim, ndim, (p, n) =>
+                {
+                    double sum = p + n;
 
-            double adx = _maDx.Update(dx);
+                    return sum == 0.0 ? 0.0 : Math.Abs(p - n) / sum;
+                });
+
+            double[] adx = new MovingAverage(_lookback).Calculate(dx);
 
             // calculate ADXR
-            _adx.Add(adx);
-            double adxr = (_adx[_adx.Length - 1] + _adx[0]) / 2.0;
+            double[] adxr = new double[adx.Length];
+            for (int i = 0; i < adxr.Length; ++i)
+            {
+                if (i < _lookback - 1)
+                {
+                    adxr[i] = (adx[i] + 0.0) / 2.0;
+                }
+                else
+                {
+                    adxr[i] = (adx[i] + adx[i - _lookback + 1]) / 2.0;
+                }
+            }
 
-            // update internal status
-            _prevBar = bar;
-            _firstBar = false;
-
-            // return result
-            return new double[4] { pdim, ndim, adx, adxr };
+            return new double[4][] { pdim, ndim, adx, adxr };
         }
     }
 }

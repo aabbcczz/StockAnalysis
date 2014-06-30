@@ -1,0 +1,10 @@
+# metric definitions.
+# line starts with '#' is comment
+CP
+ATR
+MA[20]
+SD[20](ATR[20])
+# test
+MA[20]-
+MA[20](CP[1])
+MA[20](CP)

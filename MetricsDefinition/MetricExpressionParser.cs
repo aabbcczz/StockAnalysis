@@ -35,30 +35,21 @@ namespace MetricsDefinition
             return token;
         }
 
-        public string LastErrorMessage { get; private set;}
-
-        private void Reset()
+        public MetricExpression Parse(string expression, out string errorMessage)
         {
             _tokens.Clear();
-            LastErrorMessage = string.Empty;
-        }
-
-        public MetricExpression Parse(string expression)
-        {
-            // reset status and internal data structures.
-            Reset();
 
             // parse all tokens out and put it in queue.
             Tokenizer _tokenizer = new Tokenizer(expression);
 
             Token token = null;
-            
+            errorMessage = string.Empty;
 
             do
             {
-                if (!_tokenizer.GetNextToken(out token))
+                if (!_tokenizer.GetNextToken(out token, out errorMessage))
                 {
-                    LastErrorMessage = "Parse token failed: " + _tokenizer.LastErrorMessage;
+                    errorMessage = "Parse token failed: " + errorMessage;
                     return null;
                 }
 
@@ -70,14 +61,14 @@ namespace MetricsDefinition
 
 
             // use recursive descending parsing
-            MetricExpression metric = Parse();
+            MetricExpression metric = Parse(out errorMessage);
 
             if (metric != null)
             {
                 token = PeekNextToken();
                 if (token != null)
                 {
-                    LastErrorMessage = string.Format("Unexpected token {0} left after parsing at {1}", token.Type, token.StartPosition);
+                    errorMessage = string.Format("Unexpected token {0} left after parsing at {1}", token.Type, token.StartPosition);
                     return null;
                 }
             }
@@ -85,16 +76,18 @@ namespace MetricsDefinition
             return metric;
         }
 
-        private MetricExpression Parse()
+        private MetricExpression Parse(out string errorMessage)
         {
+            errorMessage = string.Empty;
+
             // parse the first part, such as MA[20]
-            StandaloneMetric metric = ParseMetric();
+            StandaloneMetric metric = ParseMetric(out errorMessage);
             if (metric == null)
             {
                 return null;
             }
 
-            // parse the call operation part, such as (MA[20])
+            // parse the call operation part, such as (MA[20)
             MetricExpression callee = null;
 
             Token token = PeekNextToken();
@@ -102,9 +95,9 @@ namespace MetricsDefinition
             {
                 GetNextToken();
 
-                callee = Parse();
+                callee = Parse(out errorMessage);
 
-                if (callee == null || !Expect(TokenType.RightParenthese, out token))
+                if (callee == null || !Expect(TokenType.RightParenthese, out token, out errorMessage))
                 {
                     return null;
                 }
@@ -117,7 +110,7 @@ namespace MetricsDefinition
             {
                 GetNextToken();
 
-                if (!Expect(TokenType.Identifier, out token))
+                if (!Expect(TokenType.Identifier, out token, out errorMessage))
                 {
                     return null;
                 }
@@ -130,7 +123,7 @@ namespace MetricsDefinition
 
                 if (!attribute.NameToFieldIndexMap.ContainsKey(field))
                 {
-                    LastErrorMessage = string.Format("{0} is not a valid subfield of metric {1}", field, metricType.Name);
+                    errorMessage = string.Format("{0} is not a valid subfield of metric {1}", field, metricType.Name);
                     return null;
                 }
 
@@ -152,12 +145,14 @@ namespace MetricsDefinition
             return retValue;
         }
 
-        private StandaloneMetric ParseMetric()
+        private StandaloneMetric ParseMetric(out string errorMessage)
         {
+            errorMessage = string.Empty;
+
             Token token;
 
             // Get name
-            if (!Expect(TokenType.Identifier, out token))
+            if (!Expect(TokenType.Identifier, out token, out errorMessage))
             {
                 return null;
             }
@@ -171,27 +166,27 @@ namespace MetricsDefinition
             {
                 GetNextToken();
 
-                parameters = ParseParameters();
+                parameters = ParseParameters(out errorMessage);
 
                 if (parameters == null)
                 {
                     return null;
                 }
 
-                if (!Expect(TokenType.RightBracket, out token))
+                if (!Expect(TokenType.RightBracket, out token, out errorMessage))
                 {
                     return null;
                 }
             }
 
             // check if name is valid metric
-            if (!MetricEvaluationContext.NameToMetricMap.ContainsKey(name))
+            if (!MetricEvaluator.NameToMetricMap.ContainsKey(name))
             {
-                LastErrorMessage = string.Format("Undefined metric name {0}", name);
+                errorMessage = string.Format("Undefined metric name {0}", name);
                 return null;
             }
 
-            Type metricType = MetricEvaluationContext.NameToMetricMap[name];
+            Type metricType = MetricEvaluator.NameToMetricMap[name];
             StandaloneMetric metric = null;
 
             try
@@ -225,13 +220,13 @@ namespace MetricsDefinition
                     }
 
                     // now try to create instance with converted parameters
-                    metric = new StandaloneMetric((SerialMetric)Activator.CreateInstance(metricType, objects));
+                    metric = new StandaloneMetric((Metric)Activator.CreateInstance(metricType, objects));
                     break;
                 }
 
                 if (metric == null)
                 {
-                    LastErrorMessage = string.Format(
+                    errorMessage = string.Format(
                         "Can't find proper constructor for metric {0} that can be initialized by parameters {1}",
                         metricType.Name,
                         string.Join(",", parameters));
@@ -241,7 +236,7 @@ namespace MetricsDefinition
             }
             catch (Exception ex)
             {
-                LastErrorMessage = string.Format(
+                errorMessage = string.Format(
                     "Create metric object {0} with parameter {1} failed. Exception {2}",
                     metricType.Name,
                     string.Join(",", parameters),
@@ -262,8 +257,10 @@ namespace MetricsDefinition
         /// empty array : no parameter
         /// otherwise : parameters
         /// </returns>
-        private string[] ParseParameters()
+        private string[] ParseParameters(out string errorMessage)
         {
+            errorMessage = string.Empty;
+
             Token token = null;
             List<string> parameters = new List<string>();
 
@@ -272,7 +269,7 @@ namespace MetricsDefinition
                 token = PeekNextToken();
                 if (token == null)
                 {
-                    LastErrorMessage = "Expect ']'";
+                    errorMessage = "Expect ']'";
                     return null;
                 }
 
@@ -281,7 +278,7 @@ namespace MetricsDefinition
                     break;
                 }
 
-                if (!Expect(TokenType.Number, out token))
+                if (!Expect(TokenType.Number, out token, out errorMessage))
                 {
                     return null;
                 }
@@ -301,20 +298,21 @@ namespace MetricsDefinition
             return parameters.ToArray();
         }
 
-        private bool Expect(TokenType expectedType, out Token token)
+        private bool Expect(TokenType expectedType, out Token token, out string errorMessage)
         {
+            errorMessage = string.Empty;
             token = PeekNextToken();
 
             if (token == null)
             {
-                LastErrorMessage = string.Format("Expect {0}, but there is no more token", expectedType);
+                errorMessage = string.Format("Expect {0}, but there is no more token", expectedType);
                 return false;
             }
 
             token = GetNextToken();
             if (token.Type != expectedType)
             {
-                LastErrorMessage = string.Format(
+                errorMessage = string.Format(
                     "Expect {0} at position {1}, but get {2}",
                     expectedType,
                     token.StartPosition,

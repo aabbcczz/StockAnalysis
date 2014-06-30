@@ -7,23 +7,25 @@ using System.Threading.Tasks;
 namespace MetricsDefinition
 {
     [Metric("TRIX,TEMA")]
-    public sealed class TripleExponentialMovingAverage : SingleOutputRawInputSerialMetric
+    public sealed class TripleExponentialMovingAverage : Metric
     {
-        private ExponentialMovingAverage _ema1;
-        private ExponentialMovingAverage _ema2;
-        private ExponentialMovingAverage _ema3;
+        private int _lookback;
 
-        public TripleExponentialMovingAverage(int windowSize)
-            : base(1)
+        public TripleExponentialMovingAverage(int lookback)
         {
-            _ema1 = new ExponentialMovingAverage(windowSize);
-            _ema2 = new ExponentialMovingAverage(windowSize);
-            _ema3 = new ExponentialMovingAverage(windowSize);
+            if (lookback <= 0)
+            {
+                throw new ArgumentOutOfRangeException("lookback");
+            }
+
+            _lookback = lookback;
         }
 
-        public override double Update(double dataPoint)
+        public override double[][] Calculate(double[][] input)
         {
-            return _ema1.Update(_ema2.Update(_ema3.Update(dataPoint)));
+            ExponentialMovingAverage ema = new ExponentialMovingAverage(_lookback);
+
+            return ema.Calculate(ema.Calculate(ema.Calculate(input)));
         }
     }
 }

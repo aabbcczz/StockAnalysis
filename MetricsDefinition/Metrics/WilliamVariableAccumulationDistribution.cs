@@ -8,21 +8,46 @@ using System.Reflection;
 namespace MetricsDefinition
 {
     [Metric("WVAD")]
-    public sealed class WilliamVariableAccumulationDistribution : SingleOutputBarInputSerialMetric
+    public sealed class WilliamVariableAccumulationDistribution : Metric
     {
-        private MovingSum _ms;
-
-        public WilliamVariableAccumulationDistribution(int windowSize)
-            : base(1)
+        private int _lookback;
+        
+        public WilliamVariableAccumulationDistribution(int lookback)
         {
-            _ms = new MovingSum(windowSize);
+            // lookback 0 means infinity lookback
+            if (lookback <= 0)
+            {
+                throw new ArgumentException("lookback must be greater than 0");
+            }
+
+            _lookback = lookback;
         }
 
-        public override double Update(StockAnalysis.Share.Bar bar)
+        public override double[][] Calculate(double[][] input)
         {
-            double index = (bar.ClosePrice - bar.OpenPrice) * bar.Volume / (bar.HighestPrice - bar.LowestPrice);
+ 	        if (input == null || input.Length == 0)
+            {
+                throw new ArgumentNullException("input");
+            }
 
-            return _ms.Update(index);
+            // WVAD can only accept StockData's output as input
+            if (input.Length != StockData.FieldCount)
+            {
+                throw new ArgumentException("WVAD can only accept StockData's output as input");
+            }
+
+            double[] hp = input[StockData.HighestPriceFieldIndex];
+            double[] lp = input[StockData.LowestPriceFieldIndex];
+            double[] op = input[StockData.OpenPriceFieldIndex];
+            double[] cp = input[StockData.ClosePriceFieldIndex];
+            double[] volumes = input[StockData.VolumeFieldIndex];
+
+            double[] indices = MetricHelper.OperateNew(hp, lp, cp, op, volumes,
+                (h, l, c, o, v) => (c - o) * v / (h - l));
+
+            double[] result = new MovingSum(_lookback).Calculate(indices);
+
+            return new double[1][] { result };
         }
     }
 }

@@ -39,8 +39,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BarInputSerialMetric.cs" />
-    <Compile Include="CirculatedArray.cs" />
     <Compile Include="Metrics\BollingerBand.cs" />
     <Compile Include="Metrics\Lowest.cs" />
     <Compile Include="Metrics\Highest.cs" />
@@ -61,13 +59,10 @@
     <Compile Include="Metrics\CostBullBearIndex.cs" />
     <Compile Include="Metrics\CostMovingAverage.cs" />
     <Compile Include="Metrics\ExponentialMovingAverage.cs" />
-    <Compile Include="MultipleOutputRawInputSerialMetric.cs" />
-    <Compile Include="MultipleOutputBarInputSerialMetric.cs" />
-    <Compile Include="RawInputSerialMetric.cs" />
-    <Compile Include="SerialMetric.cs" />
+    <Compile Include="IMetric.cs" />
     <Compile Include="MetricAttribute.cs" />
     <Compile Include="MetricBinaryOperator.cs" />
-    <Compile Include="MetricEvaluationContext.cs" />
+    <Compile Include="MetricEvaluator.cs" />
     <Compile Include="MetricExpression.cs" />
     <Compile Include="MetricExpressionParser.cs" />
     <Compile Include="Metrics\Bias.cs" />
@@ -79,6 +74,7 @@
     <Compile Include="Metrics\MoneyFlowIndex.cs" />
     <Compile Include="Metrics\MovingAverageConvergenceDivergence.cs" />
     <Compile Include="Metrics\OnBalanceVolume.cs" />
+    <Compile Include="Metrics\PositiveVolumeIndex.cs" />
     <Compile Include="Metrics\TripleExponentialMovingAverage.cs" />
     <Compile Include="Metrics\VolumeRatio.cs" />
     <Compile Include="Metrics\PsychologicalLine.cs" />
@@ -86,13 +82,12 @@
     <Compile Include="Metrics\WilliamVariableAccumulationDistribution.cs" />
     <Compile Include="MetricUnaryOperator.cs" />
     <Compile Include="Metrics\MovingAverage.cs" />
+    <Compile Include="Metrics\NegativeVolumeIndex.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SelectionOperator.cs" />
-    <Compile Include="SingleOutputRawInputSerialMetric.cs" />
-    <Compile Include="SingleOutputBarInputSerialMetric.cs" />
     <Compile Include="StandaloneMetric.cs" />
     <Compile Include="Metrics\StdDev.cs" />
-    <Compile Include="Metrics\BarData.cs" />
+    <Compile Include="Metrics\StockData.cs" />
     <Compile Include="Token.cs" />
     <Compile Include="Tokenizer.cs" />
     <Compile Include="TokenType.cs" />

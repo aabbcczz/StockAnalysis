@@ -8,33 +8,41 @@ using System.Reflection;
 namespace MetricsDefinition
 {
     [Metric("PSY")]
-    public sealed class PsychologicalLine : SingleOutputRawInputSerialMetric
+    public sealed class PsychologicalLine : Metric
     {
-        private double _prevData;
-        private bool _firstData = true;
-
-        private MovingAverage _ma;
-
-        public PsychologicalLine(int windowSize)
-            : base(1)
+        private int _lookback;
+        
+        public PsychologicalLine(int lookback)
         {
-            _ma = new MovingAverage(windowSize);
+            // lookback 0 means infinity lookback
+            if (lookback <= 0)
+            {
+                throw new ArgumentException("lookback must be greater than 0");
+            }
+
+            _lookback = lookback;
         }
 
-        public override double Update(double dataPoint)
+        public override double[][] Calculate(double[][] input)
         {
-            double up = _firstData
-                ? 0.0
-                : (dataPoint > _prevData)
-                    ? 100.0
-                    : 0.0;
+ 	        if (input == null || input.Length == 0)
+            {
+                throw new ArgumentNullException("input");
+            }
 
-            // update status
-            _prevData = dataPoint;
-            _firstData = false;
+            double[] allData = input[0];
+            double[] up = new double[allData.Length];
 
-            // return result
-            return _ma.Update(up);
+            up[0] = 0.0;
+            for (int i = 1; i < up.Length; ++i)
+            {
+                if (allData[i] > allData[i - 1])
+                {
+                    up[i] = 100.0;
+                }
+            }
+
+            return new MovingAverage(_lookback).Calculate(new double[1][] { up });
         }
     }
 }

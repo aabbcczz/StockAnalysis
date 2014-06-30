@@ -7,36 +7,41 @@ using System.Threading.Tasks;
 namespace MetricsDefinition
 {
     [Metric("BOLL", "UB,MA,LB")]
-    public sealed class BollingerBand : MultipleOutputRawInputSerialMetric
+    public sealed class BollingerBand : Metric
     {
+        private int _lookback;
         private double _alpha;
 
-        private MovingAverage _ma;
-        private StdDev _sd;
-
-        public BollingerBand(int windowSize, double alpha)
-            : base(1)
+        public BollingerBand(int lookback, double alpha)
         {
+            if (lookback <= 0)
+            {
+                throw new ArgumentOutOfRangeException("lookback");
+            }
+
             if (alpha <= 0.0)
             {
                 throw new ArgumentOutOfRangeException("alpha");
             }
 
+            _lookback = lookback;
             _alpha = alpha;
-
-            _ma = new MovingAverage(windowSize);
-            _sd = new StdDev(windowSize);
         }
 
-        public override double[] Update(double dataPoint)
+        public override double[][] Calculate(double[][] input)
         {
-            double ma = _ma.Update(dataPoint);
-            double stddev = _sd.Update(dataPoint);
+            if (input == null || input.Length == 0)
+            {
+                throw new ArgumentNullException("input");
+            }
 
-            double upperBound = ma + _alpha * stddev;
-            double lowerBound = ma - _alpha * stddev;
+            double[] ma = new MovingAverage(_lookback).Calculate(input[0]);
+            double[] stddev = new StdDev(_lookback).Calculate(input[0]);
 
-            return new double[3] { upperBound, ma, lowerBound };
+            double[] ub = MetricHelper.OperateNew(ma, stddev, (m, s) => m + _alpha * s);
+            double[] lb = MetricHelper.OperateNew(ma, stddev, (m, s) => m - _alpha * s);
+
+            return new double[3][] { ub, ma, lb };
         }
     }
 }

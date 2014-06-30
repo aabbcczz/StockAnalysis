@@ -7,43 +7,68 @@ using System.Threading.Tasks;
 namespace MetricsDefinition
 {
     [Metric("SD")]
-    public sealed class StdDev : SingleOutputRawInputSerialMetric
+    public sealed class StdDev : Metric
     {
-        public StdDev(int windowSize)
-            : base(windowSize)
+        private int _lookback;
+
+        public StdDev(int lookback)
         {
+            if (lookback <= 0)
+            {
+                throw new ArgumentOutOfRangeException("lookback must be greater than zero");
+            }
+
+            _lookback = lookback;
         }
 
-        public override double Update(double dataPoint)
+        public override double[][] Calculate(double[][] input)
         {
-            Data.Add(dataPoint);
+            if (input == null || input.Length == 0)
+            {
+                throw new ArgumentNullException("input");
+            }
 
-            return CalculateStdDev();
+            double[] allData = input[0];
+            double[] output = new double[allData.Length];
+            double sum = 0.0;
+
+            for (int i = 0; i < allData.Length; ++i)
+            {
+                if (i < _lookback)
+                {
+                    sum += allData[i];
+
+                    output[i] = CalculateStdDev(sum, allData, 0, i);
+                }
+                else
+                {
+                    sum = sum - allData[i - _lookback] + allData[i];
+
+                    output[i] = CalculateStdDev(sum, allData, i - _lookback + 1, i);
+                }
+            }
+
+            return new double[1][] { output };
         }
 
-        private double CalculateStdDev()
+        private double CalculateStdDev(double sum, double[] data, int startIndex, int endIndex)
         {
-            if (Data.Length <= 1)
+            int count = endIndex - startIndex + 1;
+            if (count == 1)
             {
                 return 0.0;
             }
 
-            double sum = 0.0;
-            for (int i = 0; i < Data.Length; ++i)
-            {
-                sum += Data[i];
-            }
 
-            double average = sum / Data.Length;
+            double average = sum / count;
             double sumOfSquares = 0.0;
 
-            for (int i = 0; i < Data.Length; ++i)
+            for (int j = startIndex; j <= endIndex; ++j)
             {
-                double data = Data[i];
-                sumOfSquares += (data - average) * (data - average);
+                sumOfSquares += (data[j] - average) * (data[j] - average);
             }
 
-            return Math.Sqrt(sumOfSquares / (Data.Length - 1));
+            return Math.Sqrt(sumOfSquares / (count - 1));
         }
     }
 }
