@@ -10,6 +10,8 @@ namespace TradingStrategy
     {
         public bool Succeeded { get; set; }
 
+        public DateTime Time { get; set; }
+
         public ITradingObject Object { get; set; }
 
         public TradingAction Action { get; set; }

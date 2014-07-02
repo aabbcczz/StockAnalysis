@@ -44,12 +44,17 @@
     <Compile Include="Equity.cs" />
     <Compile Include="EquityManager.cs" />
     <Compile Include="Instruction.cs" />
+    <Compile Include="ITradingDataProvider.cs" />
     <Compile Include="ITradingStrategy.cs" />
+    <Compile Include="ITradingStrategyEvaluationContext.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SellingSequence.cs" />
+    <Compile Include="StandardTradingStrategyEvaluationContext.cs" />
     <Compile Include="TradingAction.cs" />
     <Compile Include="ITradingObject.cs" />
     <Compile Include="TradingPriceOption.cs" />
     <Compile Include="TradingSettings.cs" />
+    <Compile Include="TradingStrategyEvaluator.cs" />
     <Compile Include="Transaction.cs" />
   </ItemGroup>
   <ItemGroup>
