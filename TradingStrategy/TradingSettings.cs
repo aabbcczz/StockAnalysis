@@ -19,8 +19,8 @@ namespace TradingStrategy
 //        public TradingPriceOption BuyShortPriceOption { get; set; }
 //        public TradingPriceOption CloseShortPriceOption { get; set; }
 
-        public TradingPriceOption BuyLongPriceOption { get; set; }
-        public TradingPriceOption CloseShortPriceOption { get; set; }
+        public TradingPriceOption OpenLongPriceOption { get; set; }
+        public TradingPriceOption CloseLongPriceOption { get; set; }
 
 
     }

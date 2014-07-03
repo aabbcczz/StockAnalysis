@@ -11,5 +11,6 @@ namespace TradingStrategy
         public ITradingObject Object { get; set; }
         public TradingAction Action { get; set; }
         public int Volume { get; set; }
+        public DateTime SubmissionTime { get; set; }
     }
 }

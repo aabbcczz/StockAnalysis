@@ -14,11 +14,13 @@ namespace TradingStrategy
         // name, like '中国平安'
         public string Name { get; protected set; }
 
-        // minimum transaction count per hand for buying
-        public int MinCountPerHandForBuying { get; protected set; }
+        public int VolumePerHand { get; protected set; }
 
-        // minimum transaction count per hand for selling
-        public int MinCountPerHandForSelling { get; protected set; }
+        // volume per unit for buying
+        public int VolumePerBuyingUnit { get; protected set; }
+
+        // volume per unit for selling
+        public int VolumePerSellingUnit { get; protected set; }
 
         // minimum price unit
         public double MinPriceUnit { get; protected set; }

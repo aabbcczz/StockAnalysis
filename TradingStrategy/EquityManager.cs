@@ -27,12 +27,7 @@ namespace TradingStrategy
         {
             error = string.Empty;
 
-            if (transaction.Action == TradingAction.Noop)
-            {
-                error = "Can't execute No-op action";
-                return false;
-            }
-            else if (transaction.Action == TradingAction.OpenLong)
+            if (transaction.Action == TradingAction.OpenLong)
             {
                 double charge = transaction.Price * transaction.Volume + transaction.Commission;
 
@@ -65,7 +60,7 @@ namespace TradingStrategy
                 }
 
                 Equity[] equities = _equities[code].ToArray();
-                
+
                 if (SequenceOfSelling == SellingSequence.LIFO)
                 {
                     equities = equities.Reverse().ToArray();
@@ -120,6 +115,11 @@ namespace TradingStrategy
 
                     return true;
                 }
+            }
+            else
+            {
+                throw new InvalidOperationException(
+                    string.Format("unsupported action {0}", transaction.Action));
             }
             
             throw new InvalidProgramException();

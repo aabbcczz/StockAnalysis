@@ -10,7 +10,9 @@ namespace TradingStrategy
     {
         public bool Succeeded { get; set; }
 
-        public DateTime Time { get; set; }
+        public DateTime SubmissionTime { get; set; }
+
+        public DateTime ExecutionTime { get; set; }
 
         public ITradingObject Object { get; set; }
 
@@ -21,5 +23,7 @@ namespace TradingStrategy
         public double Price { get; set; }
 
         public double Commission { get; set; }
+
+        public string Error { get; set; }
     }
 }

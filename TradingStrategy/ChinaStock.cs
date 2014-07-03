@@ -12,9 +12,9 @@ namespace TradingStrategy
 
         public string Name { get; protected set; }
 
-        public int MinCountPerHandForBuying { get; protected set;}
+        public int VolumePerBuyingUnit { get; protected set;}
 
-        public int MinCountPerHandForSelling { get; protected set;}
+        public int VolumePerSellingUnit { get; protected set;}
 
         public double MinPriceUnit { get; protected set;}
 
@@ -32,8 +32,8 @@ namespace TradingStrategy
         {
             Code = code;
             Name = name;
-            MinCountPerHandForBuying = minCountPerHandForBuying;
-            MinCountPerHandForSelling = minCountPerHandForSelling;
+            VolumePerBuyingUnit = minCountPerHandForBuying;
+            VolumePerSellingUnit = minCountPerHandForSelling;
             MinPriceUnit = minPriceUnit;
         }
     }

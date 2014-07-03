@@ -13,13 +13,13 @@ namespace TradingStrategy
         Today = 0x0,
         Tomorrow = 0x1,
 
-        PriceMask = 0xF0,
+        PriceMask = 0xFE,
 
-        OpenPrice = 0x00,
-        MiddlePrice = 0x10,
-        ClosePrice = 0x20,
-        HighestPrice = 0x30,
-        LowestPrice = 0x40,
+        OpenPrice = 0x2,
+        MiddlePrice = 0x4,
+        ClosePrice = 0x8,
+        HighestPrice = 0x10,
+        LowestPrice = 0x20,
         
         TodayMiddlePrice = Today | MiddlePrice,
         TodayHighestPrice = Today | HighestPrice,

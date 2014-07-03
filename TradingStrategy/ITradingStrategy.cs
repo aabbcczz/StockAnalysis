@@ -37,7 +37,7 @@ namespace TradingStrategy
         // The value of parameter 'time' will be in ascending order for each call of this function.
         public void StartPeriod(DateTime time);
 
-        public void (Transaction transaction);
+        public void NotifyTransactionStatus(Transaction transaction);
 
         public void Evaluate(ITradingObject tradingObject, Bar bar);
 
