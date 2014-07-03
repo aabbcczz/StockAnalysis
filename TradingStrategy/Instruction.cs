@@ -10,6 +10,6 @@ namespace TradingStrategy
     {
         public ITradingObject Object { get; set; }
         public TradingAction Action { get; set; }
-        public int Count { get; set; }
+        public int Volume { get; set; }
     }
 }

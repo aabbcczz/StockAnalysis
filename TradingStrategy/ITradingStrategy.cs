@@ -23,15 +23,27 @@ namespace TradingStrategy
         // finish evaluation, chance of cleaning up resources and do some other works
         public void Finish();
 
-        // start a new period. This function is called each time when a new period is started. 
-        // After that, system will call Evaluate function for each trading object.
-        // And then call EndPeriod to finish evaluating this period.
+        // Call sequence for one period:
+        // StartPeriod()
+        // NotifyTransactionStatus() for the transactions submitted in previous period
+        //      but that need to be executed in this period.
+        // Evaluate(). this function will be called for each valid trading object.
+        // GetInstructions() to get all required transactions from the bar in this period.
+        // NotifyTransactionStatus() for the transactions submitted AND executed in this period. Some transactions will be
+        //      executed in the next period and the status will be updated in the next UpdateTransactionStatus() call in the next period.
+        // EndPeriod()
+
+        // start a new period.
         // The value of parameter 'time' will be in ascending order for each call of this function.
         public void StartPeriod(DateTime time);
 
+        public void (Transaction transaction);
+
         public void Evaluate(ITradingObject tradingObject, Bar bar);
 
-        public IEnumerable<Instruction> EndPeriod();
+        public IEnumerable<Instruction> GetInstructions();
+
+        public void EndPeriod();
 
     }
 }

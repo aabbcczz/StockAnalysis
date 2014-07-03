@@ -69,18 +69,21 @@ namespace TradingStrategy
             IDictionary<string, Bar> thisPeriodData = null;
             DateTime thisPeriodTime;
 
-            IDictionary<string, Bar> nextPeriodData = null;
-            DateTime nextPeriodTime;
-
             while ((thisPeriodData = _provider.GetNextPeriodData(out thisPeriodTime)) != null)
             {
                 if (thisPeriodData.Count == 0)
                 {
                     continue;
                 }
-
+                
+                // start a new period
                 _strategy.StartPeriod(thisPeriodTime);
                 
+                // run pending instructions
+
+                // notify transaction status
+
+                // evaluate bar data
                 foreach (var kvp in thisPeriodData)
                 {
                     ITradingObject tradingObject = _indexedTradingObjects[kvp.Key];
@@ -93,28 +96,68 @@ namespace TradingStrategy
                     _strategy.Evaluate(tradingObject, kvp.Value);
                 }
 
-                var instructions = _strategy.EndPeriod();
+                // get instructions
+                var instructions = _strategy.GetInstructions();
 
+                // run instructions
                 foreach(var instruction in instructions)
                 {
                     Transaction transaction = BuildTransactionFromInstruction(instruction, thisPeriodTime);
                 }
+
+                // notify transaction status
+
+                // end period
+                _strategy.EndPeriod();
             }
 
 
             // finish evaluation
             _strategy.Finish();
 
+            // Sell all equities forciably.
+
+            // mark all pending transaction failed
+
+
+            // update 'evaluatable' flag to avoid this function be called twice
             _evaluatable = false;
         }
 
-        private Transaction BuildTransactionFromInstruction(Instruction instruction, DateTime time)
+        private Transaction BuildTransactionFromInstruction(Instruction instruction, DateTime time, Bar bar)
         {
+            if (time != bar.Time)
+            {
+                throw new ArgumentException("Inconsistent time in bar and time parameters");
+            }
+
+            if (instruction.Action == TradingAction.Noop)
+            {
+                return null;
+            }
+
             Transaction transaction = new Transaction()
             {
+                Action = instruction.Action,
+                Commission = 0.0,
                 Object = instruction.Object,
+                Price = 0.0,
+                Succeeded = false,
                 Time = time,
+                Volume = instruction.Volume
+            };
+
+            if (transaction.Action == TradingAction.OpenLong)
+            {
+                // buy long
+                if (_settings.BuyLongPriceOption == TradingPriceOption.)
             }
+            return transaction;
+        }
+
+        private double CalculateTransactionPrice(Bar bar, TradingPriceOption option)
+        {
+            if (option)
         }
     }
 }

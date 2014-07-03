@@ -17,9 +17,11 @@ namespace TradingStrategy
         public int Spread { get; set; }
 
 //        public TradingPriceOption BuyShortPriceOption { get; set; }
-        public TradingPriceOption BuyLongPriceOption { get; set; }
 //        public TradingPriceOption CloseShortPriceOption { get; set; }
+
+        public TradingPriceOption BuyLongPriceOption { get; set; }
         public TradingPriceOption CloseShortPriceOption { get; set; }
+
 
     }
 }
