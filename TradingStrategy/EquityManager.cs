@@ -10,7 +10,7 @@ namespace TradingStrategy
     {
         private Dictionary<string, List<Equity>> _equities = new Dictionary<string, List<Equity>>();
 
-        public readonly double InitialCapital { get; private set; }
+        public double InitialCapital { get; private set; }
 
         public double CurrentCapital { get; private set; }
 

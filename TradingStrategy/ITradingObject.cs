@@ -9,20 +9,20 @@ namespace TradingStrategy
     public interface ITradingObject
     {
         // code, like 'SH600002', should be unique
-        public string Code { get; protected set; }
+        string Code { get; }
 
         // name, like '中国平安'
-        public string Name { get; protected set; }
+        string Name { get; }
 
-        public int VolumePerHand { get; protected set; }
+        int VolumePerHand { get; }
 
         // volume per unit for buying
-        public int VolumePerBuyingUnit { get; protected set; }
+        int VolumePerBuyingUnit { get; }
 
         // volume per unit for selling
-        public int VolumePerSellingUnit { get; protected set; }
+        int VolumePerSellingUnit { get; }
 
         // minimum price unit
-        public double MinPriceUnit { get; protected set; }
+        double MinPriceUnit { get; }
     }
 }

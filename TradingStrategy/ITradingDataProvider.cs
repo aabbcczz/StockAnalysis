@@ -10,9 +10,9 @@ namespace TradingStrategy
 {
     public interface ITradingDataProvider
     {
-        public IEnumerable<ITradingObject> GetAllTradingObjects();
+        IEnumerable<ITradingObject> GetAllTradingObjects();
 
-        public IEnumerable<Bar> GetWarmUpData(string code);
+        IEnumerable<Bar> GetWarmUpData(string code);
 
         /// <summary>
         /// Get valid bars for all trading objects in next period
@@ -25,6 +25,6 @@ namespace TradingStrategy
         /// return null if there is no more period. 
         /// return empty dictionary if there is no data for next period.
         /// </returns>
-        public IDictionary<string, Bar> GetNextPeriodData(out DateTime time);
+        IDictionary<string, Bar> GetNextPeriodData(out DateTime time);
     }
 }

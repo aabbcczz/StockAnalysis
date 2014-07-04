@@ -10,8 +10,8 @@ namespace TradingStrategy
     public enum TradingPriceOption : int
     {
         TimeMask = 0x01,
-        Today = 0x0,
-        Tomorrow = 0x1,
+        CurrentPeriod = 0x0,
+        NextPeriod = 0x1,
 
         PriceMask = 0xFE,
 
@@ -21,16 +21,16 @@ namespace TradingStrategy
         HighestPrice = 0x10,
         LowestPrice = 0x20,
         
-        TodayMiddlePrice = Today | MiddlePrice,
-        TodayHighestPrice = Today | HighestPrice,
-        TodayOpenPrice = Today | OpenPrice,
-        TodayClosePrice = Today | ClosePrice,
-        TodayLowestPrice = Today | LowestPrice,
+        CurrentMiddlePrice = CurrentPeriod | MiddlePrice,
+        CurrentHighestPrice = CurrentPeriod | HighestPrice,
+        CurrentOpenPrice = CurrentPeriod | OpenPrice,
+        CurrentClosePrice = CurrentPeriod | ClosePrice,
+        CurrentLowestPrice = CurrentPeriod | LowestPrice,
 
-        TommorrowMiddlePrice = Tomorrow | MiddlePrice,
-        TommorrowHighestPrice = Tomorrow | HighestPrice,
-        TommorrowOpenPrice = Tomorrow | OpenPrice,
-        TommorrowClosePrice = Tomorrow | ClosePrice,
-        TommorrowLowestPrice = Tomorrow | LowestPrice,
+        NextMiddlePrice = NextPeriod | MiddlePrice,
+        NextHighestPrice = NextPeriod | HighestPrice,
+        NextOpenPrice = NextPeriod | OpenPrice,
+        NextClosePrice = NextPeriod | ClosePrice,
+        NextLowestPrice = NextPeriod | LowestPrice,
     }
 }

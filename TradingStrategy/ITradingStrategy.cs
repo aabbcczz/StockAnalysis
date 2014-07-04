@@ -10,18 +10,18 @@ namespace TradingStrategy
 {
     public interface ITradingStrategy
     {
-        public TradingSettings GetTradingSettings();
+        TradingSettings GetTradingSettings();
 
-        public double GetInitialCapital();
+        double GetInitialCapital();
 
         // initialize the strategy with evaluation context
-        public void Initialize(ITradingStrategyEvaluationContext context);
+        void Initialize(ITradingStrategyEvaluationContext context);
 
         // Warm up the strategy. this function will be called many times to traverse all warming up data
-        public void WarmUp(ITradingObject tradingObject, Bar bar);
+        void WarmUp(ITradingObject tradingObject, Bar bar);
 
         // finish evaluation, chance of cleaning up resources and do some other works
-        public void Finish();
+        void Finish();
 
         // Call sequence for one period:
         // StartPeriod()
@@ -35,15 +35,15 @@ namespace TradingStrategy
 
         // start a new period.
         // The value of parameter 'time' will be in ascending order for each call of this function.
-        public void StartPeriod(DateTime time);
+        void StartPeriod(DateTime time);
 
-        public void NotifyTransactionStatus(Transaction transaction);
+        void NotifyTransactionStatus(Transaction transaction);
 
-        public void Evaluate(ITradingObject tradingObject, Bar bar);
+        void Evaluate(ITradingObject tradingObject, Bar bar);
 
-        public IEnumerable<Instruction> GetInstructions();
+        IEnumerable<Instruction> GetInstructions();
 
-        public void EndPeriod();
+        void EndPeriod();
 
     }
 }

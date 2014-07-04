@@ -8,7 +8,7 @@ namespace TradingStrategy
 {
     public sealed class Equity
     {
-        public DateTime Time { get; set; }
+        public DateTime UpdateTime { get; set; }
 
         public string Code { get; set; }
 
@@ -24,7 +24,7 @@ namespace TradingStrategy
 
         public Equity(Transaction transaction)
         {
-            Time = transaction.Time;
+            UpdateTime = transaction.ExecutionTime;
             Code = transaction.Object.Code;
             Action = transaction.Action;
             Volume = transaction.Volume;

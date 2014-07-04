@@ -80,7 +80,7 @@ namespace TradingStrategy
                 // start a new period
                 _strategy.StartPeriod(thisPeriodTime);
                 
-                // run pending instructions
+                // run pending instructions left over from previous period
                 RunPendingInstructions(thisPeriodData, thisPeriodTime, false);
 
                 // evaluate bar data
@@ -101,7 +101,7 @@ namespace TradingStrategy
 
                 _pendingInstructions.AddRange(instructions);
 
-                // run instructions
+                // run instructions for current period
                 RunPendingInstructions(thisPeriodData, thisPeriodTime, true);
 
                 // end period
@@ -111,8 +111,8 @@ namespace TradingStrategy
             // finish evaluation
             _strategy.Finish();
 
-            // Sell all equities forciably.
-
+            // Sell all equities forcibly.
+            ClearEquityForcibly();
 
             // mark all pending instruction failed
             _pendingInstructions.Clear();
@@ -124,7 +124,7 @@ namespace TradingStrategy
         private void RunPendingInstructions(
             IDictionary<string, Bar> tradingData, 
             DateTime time, 
-            bool today)
+            bool forCurrentPeriod)
         {
             // run instructions
             for (int i = 0; i < _pendingInstructions.Count; ++i)
@@ -146,16 +146,16 @@ namespace TradingStrategy
                         string.Format("unsupported action {0}", instruction.Action));
                 }
 
-                if (today)
+                if (forCurrentPeriod)
                 {
-                    if (!option.HasFlag(TradingPriceOption.Today))
+                    if (!option.HasFlag(TradingPriceOption.CurrentPeriod))
                     {
                         continue;
                     }
                 }
                 else
                 {
-                    if (option.HasFlag(TradingPriceOption.Today))
+                    if (option.HasFlag(TradingPriceOption.CurrentPeriod))
                     {
                         throw new InvalidProgramException("Logic error, all transaction expect to be executed in today should have been fully executed");
                     }
@@ -163,7 +163,7 @@ namespace TradingStrategy
 
                 if (!tradingData.ContainsKey(instruction.Object.Code))
                 {
-                    if (today)
+                    if (forCurrentPeriod)
                     {
                         throw new InvalidOperationException(
                             string.Format("the trading object {0} can't be found in today trading data", instruction.Object.Code));

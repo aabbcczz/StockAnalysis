@@ -8,12 +8,12 @@ namespace TradingStrategy
 {
     public interface ITradingStrategyEvaluationContext
     {
-        public double GetCurrentCapital();
+        double GetCurrentCapital();
 
-        public IEnumerable<string> GetAllEquityCodes();
+        IEnumerable<string> GetAllEquityCodes();
 
-        public bool ExistsEquity(string code);
+        bool ExistsEquity(string code);
 
-        public IEnumerable<Equity> GetEquityDetails(string code);
+        IEnumerable<Equity> GetEquityDetails(string code);
     }
 }
