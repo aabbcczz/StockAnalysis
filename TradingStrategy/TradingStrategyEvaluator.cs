@@ -69,6 +69,7 @@ namespace TradingStrategy
             // evaluating
             IDictionary<string, Bar> thisPeriodData = null;
             DateTime thisPeriodTime;
+            DateTime lastPeriodTime = DateTime.MinValue;
 
             while ((thisPeriodData = _provider.GetNextPeriodData(out thisPeriodTime)) != null)
             {
@@ -106,19 +107,65 @@ namespace TradingStrategy
 
                 // end period
                 _strategy.EndPeriod();
+
+                // update last period time
+                lastPeriodTime = thisPeriodTime;
             }
 
             // finish evaluation
             _strategy.Finish();
 
             // Sell all equities forcibly.
-            ClearEquityForcibly();
+            ClearEquityForcibly(lastPeriodTime);
 
-            // mark all pending instruction failed
+            // clear all pending instructions.
             _pendingInstructions.Clear();
 
             // update 'evaluatable' flag to avoid this function be called twice
             _evaluatable = false;
+        }
+
+        private void ClearEquityForcibly(DateTime lastPeriodTime)
+        {
+            var codes = _equityManager.GetAllEquityCodes();
+            foreach (var code in codes)
+            {
+                var equities = _equityManager.GetEquityDetails(code);
+                int totalVolume = equities.Sum(e => e.Volume);
+
+                if (totalVolume <= 0)
+                {
+                    throw new InvalidOperationException("total volume should be greater than zero, logic error");
+                }
+
+                Bar bar;
+                if (!_provider.GetLastData(code, lastPeriodTime, out bar))
+                {
+                    throw new InvalidOperationException(
+                        string.Format("failed to get last data for code {0}, logic error", code));
+                }
+
+                Transaction transaction = new Transaction()
+                {
+                    Action = TradingAction.CloseLong,
+                    Commission = 0.0,
+                    ExecutionTime = lastPeriodTime,
+                    InstructionId = long.MaxValue,
+                    Object = _indexedTradingObjects[code],
+                    Price = bar.ClosePrice,
+                    Succeeded = false,
+                    SubmissionTime = lastPeriodTime,
+                    Volume = totalVolume
+                };
+
+                UpdateTransactionCommission(transaction);
+
+                if (!ExecuteTransaction(transaction, false))
+                {
+                    throw new InvalidOperationException(
+                        string.Format("failed to execute transaction, logic error", code));
+                }
+            }
         }
 
         private void RunPendingInstructions(
@@ -126,7 +173,6 @@ namespace TradingStrategy
             DateTime time, 
             bool forCurrentPeriod)
         {
-            // run instructions
             for (int i = 0; i < _pendingInstructions.Count; ++i)
             {
                 var instruction = _pendingInstructions[i];
@@ -179,17 +225,8 @@ namespace TradingStrategy
                     time,
                     tradingData[instruction.Object.Code]);
 
-                string error;
-                bool succeeded = _equityManager.ExecuteTransaction(transaction, out error);
-
-                transaction.Succeeded = succeeded;
-                transaction.Error = error;
-
-                // notify transaction status
-                _strategy.NotifyTransactionStatus(transaction);
-
-                // add to history
-                _transactionHistory.Add(transaction);
+                // execute transaction
+                ExecuteTransaction(transaction, true);
 
                 // remove instruction that has been executed
                 _pendingInstructions[i] = null;
@@ -197,6 +234,26 @@ namespace TradingStrategy
 
             // compact pending instruction list
             _pendingInstructions = _pendingInstructions.Where(i => i != null).ToList();
+        }
+
+        private bool ExecuteTransaction(Transaction transaction, bool notifyTransactionStatus)
+        {
+            string error;
+            bool succeeded = _equityManager.ExecuteTransaction(transaction, out error);
+
+            transaction.Succeeded = succeeded;
+            transaction.Error = error;
+
+            if (notifyTransactionStatus)
+            {
+                // notify transaction status
+                _strategy.NotifyTransactionStatus(transaction);
+            }
+
+            // add to history
+            _transactionHistory.Add(transaction);
+
+            return succeeded;
         }
 
         private Transaction BuildTransactionFromInstruction(Instruction instruction, DateTime time, Bar bar)
@@ -219,6 +276,7 @@ namespace TradingStrategy
                 Action = instruction.Action,
                 Commission = 0.0,
                 ExecutionTime = time,
+                InstructionId = instruction.ID,
                 Object = instruction.Object,
                 Price = CalculateTransactionPrice(bar, instruction),
                 Succeeded = false,

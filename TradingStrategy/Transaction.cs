@@ -8,6 +8,8 @@ namespace TradingStrategy
 {
     public sealed class Transaction
     {
+        public long InstructionId { get; set; }
+
         public bool Succeeded { get; set; }
 
         public DateTime SubmissionTime { get; set; }

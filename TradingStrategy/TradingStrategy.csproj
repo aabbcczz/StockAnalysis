@@ -40,6 +40,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ChinaStock.cs" />
+    <Compile Include="ChinaStockDataProvider.cs" />
     <Compile Include="Commission.cs" />
     <Compile Include="Equity.cs" />
     <Compile Include="EquityManager.cs" />

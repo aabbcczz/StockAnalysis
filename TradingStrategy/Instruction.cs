@@ -8,6 +8,7 @@ namespace TradingStrategy
 {
     public sealed class Instruction
     {
+        public long ID { get; set; }
         public ITradingObject Object { get; set; }
         public TradingAction Action { get; set; }
         public int Volume { get; set; }

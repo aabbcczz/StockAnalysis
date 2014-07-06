@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace MetricsDefinition
 {
-    internal sealed class CirculatedArray<T> 
+    public sealed class CirculatedArray<T> 
         where T : struct
 	{
         private T[] _storage;

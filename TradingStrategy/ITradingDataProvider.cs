@@ -15,16 +15,27 @@ namespace TradingStrategy
         IEnumerable<Bar> GetWarmUpData(string code);
 
         /// <summary>
-        /// Get valid bars for all trading objects in next period
+        /// Get bars for all trading objects in next period
         /// </summary>
         /// <param name="time">
         /// Output parameter to store the time of period
         /// </param>
         /// <returns>
-        /// All valid bars. 
+        /// All bars in an array, and the size of array equals to number of trading objects returned by
+        /// GetAllTradingObjects(), and the first bar is the data for the first trading object, the second bar
+        /// is the data for the second trading object, and so on. if there is no data for a trading object 
+        /// in the period, the bar returned will have Time=DateTime.MinValue.
         /// return null if there is no more period. 
-        /// return empty dictionary if there is no data for next period.
         /// </returns>
-        IDictionary<string, Bar> GetNextPeriodData(out DateTime time);
+        Bar[] GetNextPeriodData(out DateTime time);
+
+        /// <summary>
+        /// Get the last data before or equal given period for a given trading object that identified by code
+        /// </summary>
+        /// <param name="code">the code of trading object</param>
+        /// <param name="period">time of period that the data should not exceed</param>
+        /// <param name="bar">[OUT] returned data if any</param>
+        /// <returns>true if there is data for the trading object, otherwise false is returned</returns>
+        bool GetLastData(string code, DateTime period, out Bar bar);
     }
 }
