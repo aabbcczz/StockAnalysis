@@ -117,7 +117,7 @@ namespace GenerateMetrics
             }
 
             // calculate metrics
-            foreach (Bar bar in data.Data)
+            foreach (Bar bar in data.DataOrderedByTime)
             {
                 var metricValuesForOneBar = metricExpressions.SelectMany(m => m.MultipleOutputUpdate(bar)).ToArray();
                 metricValues.Add(metricValuesForOneBar);
@@ -132,7 +132,7 @@ namespace GenerateMetrics
 
                 outputter.WriteLine(header);
 
-                var times = data.Data.Select(d => d.Time).ToArray();
+                var times = data.DataOrderedByTime.Select(d => d.Time).ToArray();
 
                 for (int i = 0; i < times.Length; ++i)
                 {

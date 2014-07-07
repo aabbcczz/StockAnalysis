@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml;
 
 namespace TradingStrategy
 {
+    [Serializable]
     public sealed class TradingSettings
     {
         public SellingSequence SequenceOfSelling { get; set; }

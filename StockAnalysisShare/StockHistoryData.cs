@@ -10,13 +10,14 @@ namespace StockAnalysis.Share
 {
     public class StockHistoryData
     {
-        private List<Bar> _data = null;
+        private List<Bar> _dataOrderedByTime = null;
         private StockName _name;
         private long _intervalInSecond;
 
         public StockName Name { get{ return _name; } }
 
-        public IEnumerable<Bar> Data { get { return _data; } }
+        // ordered by time
+        public IEnumerable<Bar> DataOrderedByTime { get { return _dataOrderedByTime; } }
 
         public long IntervalInSecond { get { return _intervalInSecond; } }
 
@@ -24,7 +25,7 @@ namespace StockAnalysis.Share
         {
             _name = name;
             _intervalInSecond = intervalInSecond;
-            _data = data.ToList();
+            _dataOrderedByTime = data.OrderBy(b => b.Time).ToList();
         }
 
         public static StockHistoryData LoadFromFile(string file, DateTime startDate, DateTime endDate, long interval = 86400L)
@@ -72,7 +73,7 @@ namespace StockAnalysis.Share
                 }
             }
 
-            return new StockHistoryData(name, interval, data);
+            return new StockHistoryData(name, interval, data.OrderBy(b => b.Time));
         }
     }
 }

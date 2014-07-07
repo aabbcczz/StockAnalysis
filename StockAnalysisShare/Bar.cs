@@ -8,6 +8,8 @@ namespace StockAnalysis.Share
 {
     public struct Bar
     {
+        private static DateTime InvalidTime = DateTime.MinValue;
+
         public DateTime Time;  // transaction time
         public double OpenPrice; // price when openning market
         public double ClosePrice; // price when closing market
@@ -15,5 +17,15 @@ namespace StockAnalysis.Share
         public double LowestPrice; // lowest price in the whole day
         public double Volume; // total amount of volume in all transactions
         public double Amount; // total amount of money in all transaction
+
+        public bool Invalid()
+        {
+            return Time == Bar.InvalidTime;
+        }
+
+        public void Invalidate()
+        {
+            Time = Bar.InvalidTime;
+        }
     }
 }

@@ -16,7 +16,8 @@ namespace TradingStrategy
         private StandardTradingStrategyEvaluationContext _context;
         private TradingSettings _settings;
         private List<Transaction> _transactionHistory = new List<Transaction>();
-        private Dictionary<string, ITradingObject> _indexedTradingObjects = null;
+        private ITradingObject[] _allTradingObjects = null;
+        private Dictionary<string, int> _tradingObjectIndexByCode = new Dictionary<string,int>();
         private List<Instruction> _pendingInstructions = new List<Instruction>();
 
         private bool _evaluatable = true;
@@ -53,29 +54,35 @@ namespace TradingStrategy
             _strategy.Initialize(_context);
 
             // Get all trading objects
-            _indexedTradingObjects = _provider.GetAllTradingObjects().ToDictionary(t => t.Code);
+            _allTradingObjects = _provider.GetAllTradingObjects().ToArray();
+            for (int i = 0; i < _allTradingObjects.Length; ++i)
+            {
+                _tradingObjectIndexByCode.Add(_allTradingObjects[i].Code, i);
+            }
 
             // warm up
-            foreach (var code in _indexedTradingObjects.Keys)
+            foreach (var tradingObject in _allTradingObjects)
             {
-                ITradingObject tradingObject = _indexedTradingObjects[code];
-
-                foreach (var bar in _provider.GetWarmUpData(code))
+                var warmupData = _provider.GetWarmUpData(tradingObject.Code);
+                if (warmupData != null)
                 {
-                    _strategy.WarmUp(tradingObject, bar);
+                    foreach (var bar in _provider.GetWarmUpData(tradingObject.Code))
+                    {
+                        _strategy.WarmUp(tradingObject, bar);
+                    }
                 }
             }
 
             // evaluating
-            IDictionary<string, Bar> thisPeriodData = null;
+            Bar[] thisPeriodData = null;
             DateTime thisPeriodTime;
             DateTime lastPeriodTime = DateTime.MinValue;
 
             while ((thisPeriodData = _provider.GetNextPeriodData(out thisPeriodTime)) != null)
             {
-                if (thisPeriodData.Count == 0)
+                if (thisPeriodData.Length != _allTradingObjects.Length)
                 {
-                    continue;
+                    throw new InvalidOperationException("data length does not equal to trading object number");
                 }
                 
                 // start a new period
@@ -85,16 +92,20 @@ namespace TradingStrategy
                 RunPendingInstructions(thisPeriodData, thisPeriodTime, false);
 
                 // evaluate bar data
-                foreach (var kvp in thisPeriodData)
+                for (int i = 0; i < thisPeriodData.Length; ++i)
                 {
-                    ITradingObject tradingObject = _indexedTradingObjects[kvp.Key];
+                    Bar bar = thisPeriodData[i];
+                    ITradingObject tradingObject = _allTradingObjects[i];
 
-                    if (kvp.Value.Time != thisPeriodTime)
+                    if (!bar.Invalid())
                     {
-                        throw new InvalidOperationException("Time in bar data is different with the time returned by data provider");
-                    }
+                        if (bar.Time != thisPeriodTime)
+                        {
+                            throw new InvalidOperationException("Time in bar data is different with the time returned by data provider");
+                        }
 
-                    _strategy.Evaluate(tradingObject, kvp.Value);
+                        _strategy.Evaluate(tradingObject, bar);
+                    }
                 }
 
                 // get instructions and add them to pending instruction list
@@ -139,7 +150,7 @@ namespace TradingStrategy
                 }
 
                 Bar bar;
-                if (!_provider.GetLastData(code, lastPeriodTime, out bar))
+                if (!_provider.GetLastEffectiveData(code, lastPeriodTime, out bar))
                 {
                     throw new InvalidOperationException(
                         string.Format("failed to get last data for code {0}, logic error", code));
@@ -151,7 +162,7 @@ namespace TradingStrategy
                     Commission = 0.0,
                     ExecutionTime = lastPeriodTime,
                     InstructionId = long.MaxValue,
-                    Object = _indexedTradingObjects[code],
+                    Object = _allTradingObjects[_tradingObjectIndexByCode[code]],
                     Price = bar.ClosePrice,
                     Succeeded = false,
                     SubmissionTime = lastPeriodTime,
@@ -169,7 +180,7 @@ namespace TradingStrategy
         }
 
         private void RunPendingInstructions(
-            IDictionary<string, Bar> tradingData, 
+            Bar[] tradingData, 
             DateTime time, 
             bool forCurrentPeriod)
         {
@@ -207,12 +218,13 @@ namespace TradingStrategy
                     }
                 }
 
-                if (!tradingData.ContainsKey(instruction.Object.Code))
+                int tradingObjectIndex = _tradingObjectIndexByCode[instruction.Object.Code];
+                if (tradingData[tradingObjectIndex].Invalid())
                 {
                     if (forCurrentPeriod)
                     {
                         throw new InvalidOperationException(
-                            string.Format("the trading object {0} can't be found in today trading data", instruction.Object.Code));
+                            string.Format("the data for trading object {0} is invalid", instruction.Object.Code));
                     }
                     else
                     {
@@ -223,7 +235,7 @@ namespace TradingStrategy
                 Transaction transaction = BuildTransactionFromInstruction(
                     instruction,
                     time,
-                    tradingData[instruction.Object.Code]);
+                    tradingData[tradingObjectIndex]);
 
                 // execute transaction
                 ExecuteTransaction(transaction, true);

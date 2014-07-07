@@ -30,12 +30,12 @@ namespace TradingStrategy
         Bar[] GetNextPeriodData(out DateTime time);
 
         /// <summary>
-        /// Get the last data before or equal given period for a given trading object that identified by code
+        /// Get the last effective data before or equal given period for a given trading object that identified by code
         /// </summary>
         /// <param name="code">the code of trading object</param>
         /// <param name="period">time of period that the data should not exceed</param>
         /// <param name="bar">[OUT] returned data if any</param>
         /// <returns>true if there is data for the trading object, otherwise false is returned</returns>
-        bool GetLastData(string code, DateTime period, out Bar bar);
+        bool GetLastEffectiveData(string code, DateTime period, out Bar bar);
     }
 }
