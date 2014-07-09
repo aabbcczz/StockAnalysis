@@ -4,17 +4,16 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
+using System.Xml.Serialization;
 
 namespace TradingStrategy
 {
     [Serializable]
     public sealed class TradingSettings
     {
-        public SellingSequence SequenceOfSelling { get; set; }
+        public CommissionSettings BuyingCommission { get; set; }
 
-        public Commission BuyingCommission { get; set; }
-
-        public Commission SellingCommission { get; set; }
+        public CommissionSettings SellingCommission { get; set; }
 
         public int Spread { get; set; }
 

@@ -14,13 +14,10 @@ namespace TradingStrategy
 
         public double CurrentCapital { get; private set; }
 
-        public SellingSequence SequenceOfSelling { get; private set; }
-
-        public EquityManager(double initialCapital, SellingSequence sequenceOfSelling)
+        public EquityManager(double initialCapital)
         {
             InitialCapital = initialCapital;
             CurrentCapital = initialCapital;
-            SequenceOfSelling = sequenceOfSelling;
         }
 
         public bool ExecuteTransaction(Transaction transaction, out string error)
@@ -51,7 +48,7 @@ namespace TradingStrategy
             }
             else if (transaction.Action == TradingAction.CloseLong)
             {
-                string code = transaction.Object.Code;
+                string code = transaction.Code;
 
                 if (!_equities.ContainsKey(code))
                 {
@@ -60,11 +57,6 @@ namespace TradingStrategy
                 }
 
                 Equity[] equities = _equities[code].ToArray();
-
-                if (SequenceOfSelling == SellingSequence.LIFO)
-                {
-                    equities = equities.Reverse().ToArray();
-                }
 
                 int totalVolume = equities.Sum(e => e.Volume);
                 if (totalVolume < transaction.Volume)
@@ -104,11 +96,6 @@ namespace TradingStrategy
                     if (remainingEquities == null || remainingEquities.Count == 0)
                     {
                         throw new InvalidProgramException("Logic error");
-                    }
-
-                    if (SequenceOfSelling == SellingSequence.LIFO)
-                    {
-                        remainingEquities.Reverse();
                     }
 
                     _equities[code] = remainingEquities;

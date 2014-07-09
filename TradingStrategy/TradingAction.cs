@@ -8,9 +8,7 @@ namespace TradingStrategy
 {
     public enum TradingAction : int
     {
-//        OpenShort, // 做空，建空仓
-        OpenLong, // 做多，建多仓
-//        CloseShort, // 空头平仓
-        CloseLong // 多头平仓
+        OpenLong = 0, // 做多，建多仓
+        CloseLong = 1 // 多头平仓
     }
 }

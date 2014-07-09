@@ -6,12 +6,14 @@ using System.Threading.Tasks;
 
 namespace TradingStrategy
 {
-    public sealed class Commission
+    [Serializable]
+    public sealed class CommissionSettings
     {
-        public enum CommissionType
+        [Serializable]
+        public enum CommissionType : int
         {
-            ByAmount,
-            ByVolume,
+            ByAmount = 0,
+            ByVolume = 1,
         }
 
         public CommissionType Type { get; set; }

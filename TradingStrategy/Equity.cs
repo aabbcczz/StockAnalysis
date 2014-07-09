@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace TradingStrategy
 {
+    [Serializable]
     public sealed class Equity
     {
         public DateTime UpdateTime { get; set; }
@@ -25,7 +26,7 @@ namespace TradingStrategy
         public Equity(Transaction transaction)
         {
             UpdateTime = transaction.ExecutionTime;
-            Code = transaction.Object.Code;
+            Code = transaction.Code;
             Action = transaction.Action;
             Volume = transaction.Volume;
             Price = transaction.Price;

@@ -15,16 +15,16 @@ namespace TradingStrategy
         private EquityManager _equityManager;
         private StandardTradingStrategyEvaluationContext _context;
         private TradingSettings _settings;
-        private List<Transaction> _transactionHistory = new List<Transaction>();
+        private TradingHistory _tradingHistory = null;
         private ITradingObject[] _allTradingObjects = null;
         private Dictionary<string, int> _tradingObjectIndexByCode = new Dictionary<string,int>();
         private List<Instruction> _pendingInstructions = new List<Instruction>();
 
         private bool _evaluatable = true;
 
-        public IEnumerable<Transaction> TransactionHistory
+        public TradingHistory History
         {
-            get { return _transactionHistory; }
+            get { return _tradingHistory; }
         }
 
         public TradingStrategyEvaluator(ITradingStrategy strategy, ITradingDataProvider provider)
@@ -39,8 +39,9 @@ namespace TradingStrategy
             
             _settings = _strategy.GetTradingSettings();
 
-            _equityManager = new EquityManager(_strategy.GetInitialCapital(), _settings.SequenceOfSelling);
+            _equityManager = new EquityManager(_strategy.GetInitialCapital());
             _context = new StandardTradingStrategyEvaluationContext(_equityManager);
+            _tradingHistory = new TradingHistory(_strategy.GetInitialCapital());
         }
 
         public void Evaluate()
@@ -82,7 +83,7 @@ namespace TradingStrategy
             {
                 if (thisPeriodData.Length != _allTradingObjects.Length)
                 {
-                    throw new InvalidOperationException("data length does not equal to trading object number");
+                    throw new InvalidOperationException("the number of data returned does not match the number of trading object");
                 }
                 
                 // start a new period
@@ -162,14 +163,14 @@ namespace TradingStrategy
                     Commission = 0.0,
                     ExecutionTime = lastPeriodTime,
                     InstructionId = long.MaxValue,
-                    Object = _allTradingObjects[_tradingObjectIndexByCode[code]],
+                    Code = code,
                     Price = bar.ClosePrice,
                     Succeeded = false,
                     SubmissionTime = lastPeriodTime,
                     Volume = totalVolume
                 };
 
-                UpdateTransactionCommission(transaction);
+                UpdateTransactionCommission(transaction, _allTradingObjects[_tradingObjectIndexByCode[code]]);
 
                 if (!ExecuteTransaction(transaction, false))
                 {
@@ -263,7 +264,7 @@ namespace TradingStrategy
             }
 
             // add to history
-            _transactionHistory.Add(transaction);
+            _tradingHistory.AddTransaction(transaction);
 
             return succeeded;
         }
@@ -289,7 +290,7 @@ namespace TradingStrategy
                 Commission = 0.0,
                 ExecutionTime = time,
                 InstructionId = instruction.ID,
-                Object = instruction.Object,
+                Code = instruction.Object.Code,
                 Price = CalculateTransactionPrice(bar, instruction),
                 Succeeded = false,
                 SubmissionTime = instruction.SubmissionTime,
@@ -297,7 +298,7 @@ namespace TradingStrategy
             };
 
             // update commission
-            UpdateTransactionCommission(transaction);
+            UpdateTransactionCommission(transaction, instruction.Object);
 
             return transaction;
         }
@@ -359,9 +360,14 @@ namespace TradingStrategy
             return price;
         }
 
-        private void UpdateTransactionCommission(Transaction transaction)
+        private void UpdateTransactionCommission(Transaction transaction, ITradingObject tradingObject)
         {
-            Commission commission;
+            if (tradingObject.Code != transaction.Code)
+            {
+                throw new ArgumentException("Code in transaction and trading object are different");
+            }
+
+            CommissionSettings commission;
 
             if (transaction.Action == TradingAction.OpenLong)
             {
@@ -377,13 +383,13 @@ namespace TradingStrategy
                     string.Format("unsupported action {0}", transaction.Action));
             }
 
-            if (commission.Type == Commission.CommissionType.ByAmount)
+            if (commission.Type == CommissionSettings.CommissionType.ByAmount)
             {
                 transaction.Commission = transaction.Price * transaction.Volume * commission.Tariff;
             }
-            else if (commission.Type == Commission.CommissionType.ByVolume)
+            else if (commission.Type == CommissionSettings.CommissionType.ByVolume)
             {
-                double hands = Math.Ceiling((double)transaction.Volume / transaction.Object.VolumePerHand);
+                double hands = Math.Ceiling((double)transaction.Volume / tradingObject.VolumePerHand);
 
                 transaction.Commission = commission.Tariff * hands;
             }
