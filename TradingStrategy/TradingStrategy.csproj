@@ -52,6 +52,7 @@
     <Compile Include="StandardTradingStrategyEvaluationContext.cs" />
     <Compile Include="TradingAction.cs" />
     <Compile Include="ITradingObject.cs" />
+    <Compile Include="StatisticalCounter.cs" />
     <Compile Include="TradingPriceOption.cs" />
     <Compile Include="TradingSettings.cs" />
     <Compile Include="TradingStrategyEvaluator.cs" />

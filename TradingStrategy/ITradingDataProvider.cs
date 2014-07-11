@@ -24,7 +24,7 @@ namespace TradingStrategy
         /// All bars in an array, and the size of array equals to number of trading objects returned by
         /// GetAllTradingObjects(), and the first bar is the data for the first trading object, the second bar
         /// is the data for the second trading object, and so on. if there is no data for a trading object 
-        /// in the period, the bar returned will have Time=DateTime.MinValue.
+        /// in the period, the bar returned will be invalid, call bar.Invalid() will return true.
         /// return null if there is no more period. 
         /// </returns>
         Bar[] GetNextPeriodData(out DateTime time);

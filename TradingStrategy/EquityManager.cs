@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using StockAnalysis.Share;
+
 namespace TradingStrategy
 {
     public sealed class EquityManager
@@ -125,6 +127,34 @@ namespace TradingStrategy
         public bool ExistsEquity(string code)
         {
             return _equities.ContainsKey(code);
+        }
+
+        public double GetTotalEquityBasedOnMarketValue(ITradingDataProvider provider, DateTime time)
+        {
+            if (provider == null)
+            {
+                throw new ArgumentNullException("provider");
+            }
+
+            double totalEquity = CurrentCapital;
+
+            foreach (var kvp in _equities)
+            {
+                string code = kvp.Key;
+                int volume = kvp.Value.Sum(e => e.Volume);
+
+                Bar bar;
+                
+                if (!provider.GetLastEffectiveData(code, time, out bar))
+                {
+                    throw new InvalidOperationException(
+                        string.Format("Can't get data from data provider for code {0}, time {1}", code, time));
+                }
+
+                totalEquity += volume * bar.ClosePrice;
+            }
+
+            return totalEquity;
         }
     }
 }

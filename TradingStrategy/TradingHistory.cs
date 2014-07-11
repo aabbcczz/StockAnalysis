@@ -13,6 +13,10 @@ namespace TradingStrategy
 
         public double InitialCapital { get; private set; }
 
+        public DateTime MinTransactionTime { get; private set; }
+
+        public DateTime MaxTransactionTime { get; private set; }
+
         public IEnumerable<Transaction> History { get { return _history; } }
 
         public TradingHistory(double initialCapital)
@@ -23,11 +27,24 @@ namespace TradingStrategy
             }
 
             InitialCapital = initialCapital;
+
+            MinTransactionTime = DateTime.MaxValue;
+            MaxTransactionTime = DateTime.MinValue;
         }
 
         public void AddTransaction(Transaction transaction)
         {
             _history.Add(transaction);
+
+            if (transaction.ExecutionTime < MinTransactionTime)
+            {
+                MinTransactionTime = transaction.ExecutionTime;
+            }
+
+            if (transaction.ExecutionTime > MaxTransactionTime)
+            {
+                MaxTransactionTime = transaction.ExecutionTime;
+            }
         }
 
         public static void SaveToFile(TradingHistory history, string file)
@@ -57,6 +74,14 @@ namespace TradingStrategy
                         t.Error);
                 }
             }
+        }
+
+        public TradingHistory Clone()
+        {
+            TradingHistory history = new TradingHistory(InitialCapital);
+            history._history.AddRange(_history);
+
+            return history;
         }
 
         public TradingHistory LoadFromFile(string file)
