@@ -105,7 +105,7 @@ namespace CalcMarketValue
 
         private static string NormalizeCode(string code)
         {
-            StockName name = new StockName(code);
+            StockName name = StockName.Parse(code);
 
             string prefix = string.Empty;
             if (name.Market == StockExchangeMarket.ShengZhen)

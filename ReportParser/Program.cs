@@ -265,7 +265,7 @@ namespace ReportParser
 
         private static string GetNormalizedCode(string code)
         {
-            StockName name = new StockName(code);
+            StockName name = StockName.Parse(code);
 
             string prefix = string.Empty;
             if (name.Market == StockExchangeMarket.ShangHai)

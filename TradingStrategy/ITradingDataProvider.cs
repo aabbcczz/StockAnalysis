@@ -10,6 +10,8 @@ namespace TradingStrategy
 {
     public interface ITradingDataProvider
     {
+        IEnumerable<DateTime> GetAllPeriods();
+
         IEnumerable<ITradingObject> GetAllTradingObjects();
 
         IEnumerable<Bar> GetWarmUpData(string code);

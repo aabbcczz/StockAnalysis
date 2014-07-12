@@ -22,9 +22,21 @@ namespace TradingStrategy
             CurrentCapital = initialCapital;
         }
 
-        public bool ExecuteTransaction(Transaction transaction, out string error)
+        public bool ExecuteTransaction(
+            Transaction transaction, 
+            out string error)
+        {
+            CompletedTransaction completed;
+            return ExecuteTransaction(transaction, out completed, out error);
+        }
+
+        public bool ExecuteTransaction(
+            Transaction transaction, 
+            out CompletedTransaction completedTransaction, 
+            out string error)
         {
             error = string.Empty;
+            completedTransaction = null;
 
             if (transaction.Action == TradingAction.OpenLong)
             {
@@ -51,6 +63,7 @@ namespace TradingStrategy
             else if (transaction.Action == TradingAction.CloseLong)
             {
                 string code = transaction.Code;
+                double earn = transaction.Price * transaction.Volume - transaction.Commission;
 
                 if (!_equities.ContainsKey(code))
                 {
@@ -66,41 +79,76 @@ namespace TradingStrategy
                     error = "There is no enough volume for selling";
                     return false;
                 }
-                else if (totalVolume == transaction.Volume)
-                {
-                    _equities.Remove(code);
-                    return true;
-                }
                 else
                 {
-                    int remainingVolume = transaction.Volume;
-                    for (int i = 0; i < equities.Length && remainingVolume == 0; ++i)
+                    double buyCost = 0.0;
+                    double buyCommission = 0.0;
+
+                    if (totalVolume == transaction.Volume)
                     {
-                        if (equities[i].Volume <= remainingVolume)
+                        buyCost = equities.Sum(t => t.Price * t.Volume);
+                        buyCommission = equities.Sum(t => t.Commission);
+
+                        // update equities for given code
+                        _equities.Remove(code);
+                    }
+                    else
+                    {
+                        int remainingVolume = transaction.Volume;
+
+                        for (int i = 0; i < equities.Length && remainingVolume == 0; ++i)
                         {
-                            remainingVolume -= equities[i].Volume;
-                            equities[i] = null;
+                            if (equities[i].Volume <= remainingVolume)
+                            {
+                                buyCost += equities[i].Price * equities[i].Volume;
+                                buyCommission += equities[i].Commission;
+
+                                remainingVolume -= equities[i].Volume;
+                                equities[i] = null;
+                            }
+                            else
+                            {
+                                double commissionPerUnit = equities[i].Commission / equities[i].Volume;
+                                buyCost += equities[i].Price * remainingVolume;
+                                buyCommission += commissionPerUnit * remainingVolume;
+
+                                equities[i].Volume -= remainingVolume;
+                                equities[i].Commission = equities[i].Volume * commissionPerUnit;
+                                remainingVolume = 0;
+                            }
                         }
-                        else
+
+                        if (remainingVolume != 0)
                         {
-                            equities[i].Volume -= remainingVolume;
-                            remainingVolume = 0;
+                            throw new InvalidProgramException("Logic error");
                         }
+
+                        // update equities for given code
+                        var remainingEquities = equities.Where(e => e != null).ToList();
+
+                        if (remainingEquities == null || remainingEquities.Count == 0)
+                        {
+                            throw new InvalidProgramException("Logic error");
+                        }
+
+                        _equities[code] = remainingEquities;
                     }
 
-                    if (remainingVolume != 0)
+                    // update current capital
+                    CurrentCapital += earn;
+
+                    // create completed transaction object
+                    completedTransaction = new CompletedTransaction()
                     {
-                        throw new InvalidProgramException("Logic error");
-                    }
-
-                    var remainingEquities = equities.Where(e => e != null).ToList();
-
-                    if (remainingEquities == null || remainingEquities.Count == 0)
-                    {
-                        throw new InvalidProgramException("Logic error");
-                    }
-
-                    _equities[code] = remainingEquities;
+                        Code = code,
+                        ExecutionTime = transaction.ExecutionTime,
+                        Volume = transaction.Volume,
+                        BuyCost = buyCost,
+                        AverageBuyPrice = buyCost / transaction.Volume,
+                        SoldPrice = transaction.Price,
+                        SoldGain = transaction.Price * transaction.Volume,
+                        Commission = transaction.Commission + buyCommission,
+                    };
 
                     return true;
                 }
@@ -129,7 +177,7 @@ namespace TradingStrategy
             return _equities.ContainsKey(code);
         }
 
-        public double GetTotalEquityBasedOnMarketValue(ITradingDataProvider provider, DateTime time)
+        public double GetTotalEquityMarketValue(ITradingDataProvider provider, DateTime time)
         {
             if (provider == null)
             {
@@ -155,6 +203,33 @@ namespace TradingStrategy
             }
 
             return totalEquity;
+        }
+
+        public double GetEquityMarketValue(ITradingDataProvider provider, string code, DateTime time)
+        {
+            if (provider == null)
+            {
+                throw new ArgumentNullException("provider");
+            }
+
+            double equity = 0;
+
+            if (_equities.ContainsKey(code))
+            { 
+                int volume = _equities[code].Sum(e => e.Volume);
+
+                Bar bar;
+
+                if (!provider.GetLastEffectiveData(code, time, out bar))
+                {
+                    throw new InvalidOperationException(
+                        string.Format("Can't get data from data provider for code {0}, time {1}", code, time));
+                }
+
+                equity += volume * bar.ClosePrice;
+            }
+
+            return equity;
         }
     }
 }

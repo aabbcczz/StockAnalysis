@@ -19,6 +19,8 @@ namespace TradingStrategy
 
         public double Price { get; set; }
 
+        public double Commission { get; set; }
+
         public Equity()
         {
         }
@@ -30,6 +32,7 @@ namespace TradingStrategy
             Action = transaction.Action;
             Volume = transaction.Volume;
             Price = transaction.Price;
+            Commission = transaction.Commission;
         }
     }
 }

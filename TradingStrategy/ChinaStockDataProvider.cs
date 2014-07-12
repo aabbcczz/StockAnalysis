@@ -26,6 +26,11 @@ namespace TradingStrategy
 
         private int _currentPeriodIndex = -1;
 
+        public IEnumerable<DateTime> GetAllPeriods()
+        {
+            return _allPeriods;
+        }
+
         public IEnumerable<ITradingObject> GetAllTradingObjects()
         {
             return _stocks;
@@ -101,11 +106,16 @@ namespace TradingStrategy
             return false;
         }
 
-        public ChinaStockDataProvider(string listFile, DateTime start, DateTime end, int warmupDataSize)
+        public ChinaStockDataProvider(string stockNameFile, string listFile, DateTime start, DateTime end, int warmupDataSize)
         {
+            if (string.IsNullOrEmpty(stockNameFile))
+            {
+                throw new ArgumentNullException("stockNameFile");
+            }
+
             if (string.IsNullOrEmpty(listFile))
             {
-                throw new ArgumentNullException();
+                throw new ArgumentNullException("listFile");
             }
 
             if (start > end)
@@ -117,6 +127,9 @@ namespace TradingStrategy
             {
                 throw new ArgumentOutOfRangeException("warm up data size can't be negative");
             }
+
+            // get stock names
+            StockNameTable nameTable = new StockNameTable(stockNameFile);
 
             // Get all input files from list file
             string[] files = File.ReadAllLines(listFile, Encoding.UTF8);
@@ -131,7 +144,7 @@ namespace TradingStrategy
                 {
                     if (!String.IsNullOrWhiteSpace(file))
                     {
-                        StockHistoryData data = StockHistoryData.LoadFromFile(file, DateTime.MinValue, DateTime.MaxValue);
+                        StockHistoryData data = StockHistoryData.LoadFromFile(file, DateTime.MinValue, DateTime.MaxValue, nameTable);
 
                         var dataBeforeStart = data.DataOrderedByTime.Where(b => b.Time < start);
                         var dataInbetween = data.DataOrderedByTime.Where(b => b.Time >= start && b.Time <= end);

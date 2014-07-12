@@ -28,7 +28,12 @@ namespace StockAnalysis.Share
             _dataOrderedByTime = data.OrderBy(b => b.Time).ToList();
         }
 
-        public static StockHistoryData LoadFromFile(string file, DateTime startDate, DateTime endDate, long interval = 86400L)
+        public static StockHistoryData LoadFromFile(
+            string file, 
+            DateTime startDate, 
+            DateTime endDate, 
+            StockNameTable nameTable = null, 
+            long interval = 86400L)
         {
             if (string.IsNullOrEmpty(file))
             {
@@ -43,7 +48,11 @@ namespace StockAnalysis.Share
             }
 
             string code = inputData[0][0];
-            StockName name = new StockName(code);
+
+            StockName name = 
+                nameTable != null && nameTable.ContainsStock(code)
+                ? nameTable[code] 
+                : new StockName(code, string.Empty);
 
             // header is code,date,open,highest,lowest,close,volume,amount
 

@@ -10,12 +10,8 @@ namespace TradingStrategy
 {
     public interface ITradingStrategy
     {
-        TradingSettings GetTradingSettings();
-
-        double GetInitialCapital();
-
-        // initialize the strategy with evaluation context
-        void Initialize(ITradingStrategyEvaluationContext context);
+        // initialize the strategy with evaluation context and parameters.
+        void Initialize(ITradingStrategyEvaluationContext context, string parameters);
 
         // Warm up the strategy. this function will be called many times to traverse all warming up data
         void WarmUp(ITradingObject tradingObject, Bar bar);

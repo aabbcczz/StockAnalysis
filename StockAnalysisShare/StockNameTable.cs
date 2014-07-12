@@ -9,11 +9,19 @@ namespace StockAnalysis.Share
 {
     public sealed class StockNameTable
     {
-        private List<StockName> _stockNames = new List<StockName>();
+        private Dictionary<string, StockName> _stockNames = new Dictionary<string, StockName>();
 
-        public IEnumerable<StockName> StockNames { get { return _stockNames; } }
+        public IEnumerable<StockName> StockNames { get { return _stockNames.Values; } }
 
         public int Count { get { return _stockNames.Count; } }
+
+        public StockName this[string code]
+        {
+            get 
+            {
+                return _stockNames[code];
+            }
+        }
 
         public StockNameTable()
         {
@@ -21,7 +29,12 @@ namespace StockAnalysis.Share
 
         public void AddStock(StockName stock)
         {
-            _stockNames.Add(stock);
+            _stockNames.Add(stock.Code, stock);
+        }
+
+        public bool ContainsStock(string code)
+        {
+            return _stockNames.ContainsKey(code);
         }
 
         /// <summary>
@@ -46,8 +59,6 @@ namespace StockAnalysis.Share
 
             using (StreamReader reader = new StreamReader(fileName, Encoding.UTF8))
             {
-                HashSet<string> existingCodes = new HashSet<string>();
-
                 string line;
                 while ((line = reader.ReadLine()) != null)
                 {
@@ -59,12 +70,12 @@ namespace StockAnalysis.Share
                     StockName stockName = null;
                     try
                     {
-                        stockName = new StockName(line);
+                        stockName = StockName.Parse(line);
 
                         // avoid duplicated stock name (two stocks are treated as duplicated iff. their code are the same)
-                        if (existingCodes.Add(stockName.Code))
+                        if (!ContainsStock(stockName.Code))
                         {
-                            _stockNames.Add(stockName);
+                            AddStock(stockName);
                         }
                     }
                     catch

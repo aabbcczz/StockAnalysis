@@ -64,49 +64,71 @@ namespace ProcessDailyStockData
                 }
             }
 
+            StockNameTable table = null;
+            StockName name = null;
+
             if (!string.IsNullOrEmpty(options.InputFile))
             {
                 // single input file
-                ProcessOneFile(options.InputFile, options.StartDate, options.EndDate, folder);
+                name = ProcessOneFile(options.InputFile, options.StartDate, options.EndDate, folder);
+                table = new StockNameTable();
+
+                if (name != null)
+                {
+                    table.AddStock(name);
+                }
             }
             else
             {
-                ProcessListOfFiles(options.InputFileList, options.StartDate, options.EndDate, folder);
+                table = ProcessListOfFiles(options.InputFileList, options.StartDate, options.EndDate, folder);
             }
 
+            if (!string.IsNullOrEmpty(options.NameFile))
+            {
+                Console.WriteLine();
+                Console.WriteLine("Output name file: {0}", options.NameFile);
+
+                File.WriteAllLines(
+                    options.NameFile,
+                    table.StockNames.Select(sn => sn.ToString()).ToArray(),
+                    Encoding.UTF8);
+            }
 
             Console.WriteLine("Done.");
 
             return 0;
         }
 
-        static void ProcessOneFile(string file, DateTime startDate, DateTime endDate, string outputFileFolder)
+        static StockName ProcessOneFile(string file, DateTime startDate, DateTime endDate, string outputFileFolder)
         {
             if (string.IsNullOrEmpty(file) || string.IsNullOrEmpty(outputFileFolder))
             {
                 throw new ArgumentNullException();
             }
 
-            string[] lines = File.ReadAllLines(file);
+            string[] lines = File.ReadAllLines(file, Encoding.GetEncoding("GB2312"));
 
             // in general the file contains at least 3 lines, 2 lines of header and at least 1 line of data.
             if (lines.Length <= 2)
             {
                 Console.WriteLine("Input {0} contains less than 3 lines, ignore it", file);
 
-                return;
+                return null;
             }
 
-            // first line contains the stock code
+            // first line contains the stock code, name and '日线'
             string[] fields = lines[0].Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
-            if (fields.Length == 0)
+            if (fields.Length < 3)
             {
                 Console.WriteLine("Invalid first line in file {0}", file);
 
-                return;
+                return null;
             }
 
             string code = fields[0];
+            string name = string.Concat(fields.Skip(1).Take(fields.Length - 2).ToArray());
+
+            StockName stockName = new StockName(code, name);
 
             string fullDataFile = Path.Combine(outputFileFolder, code + ".day.csv");
             string deltaDataFile = Path.Combine(outputFileFolder, code + ".day.delta.csv");
@@ -163,6 +185,8 @@ namespace ProcessDailyStockData
             {
                 MergeFile(fullDataFile, deltaDataFile);
             }
+
+            return stockName;
         }
 
         static void MergeFile(string fullDataFile, string deltaDataFile)
@@ -227,12 +251,14 @@ namespace ProcessDailyStockData
             File.Delete(deltaDataFile);
         }
 
-        static void ProcessListOfFiles(string listFile, DateTime startDate, DateTime endDate, string outputFileFolder)
+        static StockNameTable ProcessListOfFiles(string listFile, DateTime startDate, DateTime endDate, string outputFileFolder)
         {
             if (string.IsNullOrEmpty(listFile) || string.IsNullOrEmpty(outputFileFolder))
             {
                 throw new ArgumentNullException();
             }
+
+            StockNameTable table = new StockNameTable();
 
             // Get all input files from list file
             string[] files = File.ReadAllLines(listFile, Encoding.UTF8);
@@ -243,11 +269,21 @@ namespace ProcessDailyStockData
                 {
                     if (!String.IsNullOrWhiteSpace(file))
                     {
-                        ProcessOneFile(file.Trim(), startDate, endDate, outputFileFolder);
+                        StockName stockName = ProcessOneFile(file.Trim(), startDate, endDate, outputFileFolder);
+
+                        if (stockName != null)
+                        {
+                            lock (table)
+                            {
+                                table.AddStock(stockName);
+                            }
+                        }
                     }
 
                     Console.Write(".");
                 });
+
+            return table;
         }
     }
 }

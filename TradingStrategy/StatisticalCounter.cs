@@ -65,10 +65,26 @@ namespace TradingStrategy
             }
         }
 
-        public IEnumerable<double> GetEquityCurve()
+        public IEnumerable<double> GetTotalEquityCurve()
         {
-            // order the transaction histories firstly.
-            Transaction[] transactions = History.History.OrderBy(t => t, new Transaction.DefaultComparer()).ToArray();
+            return GetEquityByReplayingTransactions(History.History);
+        }
+
+        public IEnumerable<double> GetEquityCurve(string code)
+        {
+            return GetEquityByReplayingTransactions(History.History.Where(t => t.Code == code));
+        }
+
+        private IEnumerable<double> GetEquityByReplayingTransactions(IEnumerable<Transaction> transactions)
+        {
+            if (transactions == null)
+            {
+                throw new ArgumentNullException("transactions");
+            }
+
+            Transaction[] orderedTransactions = transactions
+                .OrderBy(t => t, new Transaction.DefaultComparer())
+                .ToArray();
 
             EquityManager manager = new EquityManager(History.InitialCapital);
 
@@ -79,12 +95,12 @@ namespace TradingStrategy
             while (date <= EndDate)
             {
                 bool equityChanged = false;
-                while (transactionIndex < transactions.Length)
+                while (transactionIndex < orderedTransactions.Length)
                 {
                     string error;
-                    if (transactions[transactionIndex].ExecutionTime < date)
+                    if (orderedTransactions[transactionIndex].ExecutionTime < date)
                     {
-                        if (!manager.ExecuteTransaction(transactions[transactionIndex], out error))
+                        if (!manager.ExecuteTransaction(orderedTransactions[transactionIndex], out error))
                         {
                             throw new InvalidOperationException("Replay transaction failed: " + error);
                         }
@@ -102,7 +118,7 @@ namespace TradingStrategy
                 if (equityChanged)
                 {
                     // if any transaction is executed, update the total equity.
-                    currentEquity = manager.GetTotalEquityBasedOnMarketValue(DataProvider, date);
+                    currentEquity = manager.GetTotalEquityMarketValue(DataProvider, date);
                 }
 
                 // add one day each time

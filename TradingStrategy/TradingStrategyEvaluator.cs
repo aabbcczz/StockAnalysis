@@ -11,6 +11,7 @@ namespace TradingStrategy
     public sealed class TradingStrategyEvaluator
     {
         private ITradingStrategy _strategy;
+        private string _strategyParameters;
         private ITradingDataProvider _provider;
         private EquityManager _equityManager;
         private StandardTradingStrategyEvaluationContext _context;
@@ -27,21 +28,28 @@ namespace TradingStrategy
             get { return _tradingHistory; }
         }
 
-        public TradingStrategyEvaluator(ITradingStrategy strategy, ITradingDataProvider provider)
+        public TradingStrategyEvaluator(
+            double initalCapital, 
+            ITradingStrategy strategy, 
+            string strategyParameters, 
+            ITradingDataProvider provider, 
+            TradingSettings settings)
         {
-            if (strategy == null || provider == null)
+            if (strategy == null || provider == null || settings == null)
             {
                 throw new ArgumentNullException();
             }
 
             _strategy = strategy;
-            _provider = provider;
-            
-            _settings = _strategy.GetTradingSettings();
+            _strategyParameters = strategyParameters;
 
-            _equityManager = new EquityManager(_strategy.GetInitialCapital());
+            _provider = provider;
+           
+            _settings = settings;
+
+            _equityManager = new EquityManager(initalCapital);
             _context = new StandardTradingStrategyEvaluationContext(_equityManager);
-            _tradingHistory = new TradingHistory(_strategy.GetInitialCapital());
+            _tradingHistory = new TradingHistory(initalCapital);
         }
 
         public void Evaluate()
@@ -52,7 +60,7 @@ namespace TradingStrategy
             }
 
             // initialize context
-            _strategy.Initialize(_context);
+            _strategy.Initialize(_context, _strategyParameters);
 
             // Get all trading objects
             _allTradingObjects = _provider.GetAllTradingObjects().ToArray();
@@ -252,7 +260,10 @@ namespace TradingStrategy
         private bool ExecuteTransaction(Transaction transaction, bool notifyTransactionStatus)
         {
             string error;
-            bool succeeded = _equityManager.ExecuteTransaction(transaction, out error);
+
+            bool succeeded = _equityManager.ExecuteTransaction(
+                transaction, 
+                out error);
 
             transaction.Succeeded = succeeded;
             transaction.Error = error;

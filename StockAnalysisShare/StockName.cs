@@ -39,7 +39,28 @@ namespace StockAnalysis.Share
             }
         }
 
-        public StockName(string stockName)
+        private StockName()
+        {
+        }
+
+        public StockName(string code, string name)
+        {
+            Code = code;
+            Names = new string[1] { name };
+        }
+
+        public StockName(string code, string[] names)
+        {
+            Code = code;
+            Names = names;
+        }
+
+        public override string ToString()
+        {
+            return Code + "|" + String.Join("|", Names);
+        }
+
+        public static StockName Parse(string stockName)
         {
             if (string.IsNullOrWhiteSpace(stockName))
             {
@@ -50,12 +71,16 @@ namespace StockAnalysis.Share
 
             if (fields == null || fields.Length == 0)
             {
-                throw new ArgumentException(string.Format("stock name [{0}] is invalid", stockName));
+                throw new FormatException(string.Format("stock name [{0}] is invalid", stockName));
             }
 
-            Code = fields[0];
+            StockName name = new StockName();
 
-            Names = fields.Length > 1 ? fields.Skip(1).ToArray() : new string[0];
+            name.Code = fields[0];
+
+            name.Names = fields.Length > 1 ? fields.Skip(1).ToArray() : new string[1] { string.Empty } ;
+
+            return name;
         }
     }
 }
