@@ -45,6 +45,7 @@
     <Compile Include="CompletedTransaction.cs" />
     <Compile Include="Equity.cs" />
     <Compile Include="EquityManager.cs" />
+    <Compile Include="EquityPoint.cs" />
     <Compile Include="Instruction.cs" />
     <Compile Include="ITradingDataProvider.cs" />
     <Compile Include="ITradingStrategy.cs" />
@@ -53,8 +54,8 @@
     <Compile Include="StandardTradingStrategyEvaluationContext.cs" />
     <Compile Include="TradingAction.cs" />
     <Compile Include="ITradingObject.cs" />
-    <Compile Include="StatisticalCounter.cs" />
-    <Compile Include="TradeCounter.cs" />
+    <Compile Include="MetricCalculator.cs" />
+    <Compile Include="TradeMetric.cs" />
     <Compile Include="TradingPriceOption.cs" />
     <Compile Include="TradingSettings.cs" />
     <Compile Include="TradingStrategyEvaluator.cs" />

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace TradingStrategy
 {
-    public sealed class StatisticalCounter
+    public sealed class MetricCalculator
     {
         public TradingHistory History { get; private set; }
         public DateTime StartDate { get; private set; }
@@ -14,7 +14,11 @@ namespace TradingStrategy
 
         public ITradingDataProvider DataProvider { get; private set; }
 
-        public StatisticalCounter(TradingHistory history, ITradingDataProvider provider, DateTime startDate, DateTime endDate)
+        public MetricCalculator(
+            TradingHistory history, 
+            ITradingDataProvider provider, 
+            DateTime startDate, 
+            DateTime endDate)
         {
             if (history == null)
             {

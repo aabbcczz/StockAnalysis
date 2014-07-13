@@ -6,9 +6,11 @@ using System.Threading.Tasks;
 
 namespace TradingStrategy
 {
-    public sealed class TradeCounter
+    public sealed class TradeMetric
     {
-        public string Code { get; set; } // if Code is string.Empty, it represents all trading objects.
+        public const string CodeForAll = string.Empty;
+
+        public string Code { get; set; } // if Code is CodeForAll, it represents all trading objects.
         public DateTime StartDate { get; set; } // 统计起始日期
         public DateTime EndDate { get; set; }  // 统计结束日期
         public int TotalTradingDays { get; set; } // 总交易天数 = EndDate - StartDate + 1 { get; set; }
@@ -56,8 +58,58 @@ namespace TradingStrategy
         public double ProfitRatioWithoutMaxProfit { get; set; } // 扣除单次最大盈利后的收益率 = (NetProfit - MaxProfitInOneTransaction) / InitialEquity
         public double ProfitRatioWithoutMaxLoss { get; set; }  // 扣除单词最大亏损后的收益率 = (NetProfit + MaxLossInOneTransaction) / InitialEquity
 
-        public IEnumerable<DateTime> Periods { get; set; } // 所有周期，已排序
-        public IEnumerable<double> EquityPerPeriod { get; set; } // 所有权益（按日期）
-        public IEnumerable<CompletedTransaction> Transactions { get; set; } // all completed transactions
+        public IOrderedEnumerable<EquityPoint> EquitySequence { get; private set; } // 所有权益按周期排序
+        public IOrderedEnumerable<CompletedTransaction> TransactionSequence { get; private set; } // all completed transactions, ordered by execution time and code
+
+        public TradeMetric(
+            string code,
+            DateTime startDate,
+            DateTime endDate,
+            IOrderedEnumerable<EquityPoint> equitySequence, 
+            IOrderedEnumerable<CompletedTransaction> transactionSequence)
+        {
+            if (code == null)
+            {
+                throw new ArgumentNullException("code");
+            }
+
+            if (startDate.Date != startDate)
+            {
+                throw new ArgumentException("startDate is not a day");
+            }
+
+            if (endDate.Date != endDate)
+            {
+                throw new ArgumentException("endDate is not a day");
+            }
+
+            if (startDate >= endDate)
+            {
+                throw new ArgumentException("startDate must be earlier than endDate");
+            }
+
+            if (equitySequence == null)
+            {
+                throw new ArgumentNullException("equitySequence");
+            }
+
+            if (transactionSequence == null)
+            {
+                throw new ArgumentNullException("transactionSequence");
+            }
+
+            Code = code;
+            StartDate = startDate;
+            EndDate = endDate;
+            EquitySequence = equitySequence;
+            TransactionSequence = transactionSequence;
+
+            Initialize();
+        }
+
+        private void Initialize()
+        {
+
+        }
     }
 }
