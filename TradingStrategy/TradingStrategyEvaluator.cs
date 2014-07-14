@@ -159,7 +159,7 @@ namespace TradingStrategy
                 }
 
                 Bar bar;
-                if (!_provider.GetLastEffectiveData(code, lastPeriodTime, out bar))
+                if (!_provider.GetLastEffectiveBar(code, lastPeriodTime, out bar))
                 {
                     throw new InvalidOperationException(
                         string.Format("failed to get last data for code {0}, logic error", code));

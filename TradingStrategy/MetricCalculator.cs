@@ -4,15 +4,20 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using StockAnalysis.Share;
+
 namespace TradingStrategy
 {
     public sealed class MetricCalculator
     {
-        public TradingHistory History { get; private set; }
-        public DateTime StartDate { get; private set; }
-        public DateTime EndDate { get; private set; }
+        private IOrderedEnumerable<Transaction> _orderedHistory = null;
+        private double _initialCapital = 0.0;
 
-        public ITradingDataProvider DataProvider { get; private set; }
+        private DateTime _startDate;
+        private DateTime _endDate;
+
+        private ITradingDataProvider _dataProvider;
+        private DateTime[] _periods;
 
         public MetricCalculator(
             TradingHistory history, 
@@ -48,68 +53,89 @@ namespace TradingStrategy
                 throw new ArgumentOutOfRangeException("endDate is not larger than the maximum transaction time in trading history");
             }
 
-            // copy history object
-            History = history.Clone();
-            DataProvider = provider;
+            _dataProvider = provider;
 
-            StartDate = startDate;
-            EndDate = endDate;
+            _startDate = startDate;
+            _endDate = endDate;
+
+            _initialCapital = history.InitialCapital;
+            _orderedHistory = history.History.OrderBy(t => t, new Transaction.DefaultComparer());
+            _periods = _dataProvider.GetAllPeriods().Where(p => p >= _startDate && p <= _endDate).ToArray();
         }
 
-        public IEnumerable<DateTime> GetDateScale()
+        public IEnumerable<TradeMetric> Calculate()
         {
-            DateTime date = StartDate;
+            yield return GetTradeMetric(TradeMetric.CodeForAll, 0.0, 0.0);
 
-            while (date <= EndDate)
+            var codes = _orderedHistory
+                .Select(t => t.Code)
+                .GroupBy(c => c)
+                .Select(g => g.Key);
+
+            foreach (var code in codes)
             {
-                yield return date;
+                Bar bar;
 
-                // add one day each time
-                date.AddDays(1.0);
+                if (!_dataProvider.GetLastEffectiveBar(code, _periods.First(), out bar))
+                {
+                    throw new InvalidOperationException("logic error");
+                }
+
+                double startPrice = bar.ClosePrice;
+
+                if (!_dataProvider.GetLastEffectiveBar(code, _periods.Last(), out bar))
+                {
+                    throw new InvalidOperationException("logic error");
+                }
+
+                double endPrice = bar.ClosePrice;
+
+                yield return GetTradeMetric(code, startPrice, endPrice);
             }
         }
 
-        public IEnumerable<double> GetTotalEquityCurve()
+
+        private TradeMetric GetTradeMetric(string code, double startPrice, double endPrice)
         {
-            return GetEquityByReplayingTransactions(History.History);
-        }
+            Transaction[] transactions = 
+                code == TradeMetric.CodeForAll 
+                ? _orderedHistory.ToArray()
+                : _orderedHistory.Where(t => t.Code == code).ToArray();
 
-        public IEnumerable<double> GetEquityCurve(string code)
-        {
-            return GetEquityByReplayingTransactions(History.History.Where(t => t.Code == code));
-        }
+            EquityManager manager = new EquityManager(_initialCapital);
 
-        private IEnumerable<double> GetEquityByReplayingTransactions(IEnumerable<Transaction> transactions)
-        {
-            if (transactions == null)
-            {
-                throw new ArgumentNullException("transactions");
-            }
-
-            Transaction[] orderedTransactions = transactions
-                .OrderBy(t => t, new Transaction.DefaultComparer())
-                .ToArray();
-
-            EquityManager manager = new EquityManager(History.InitialCapital);
-
-            DateTime date = StartDate;
             int transactionIndex = 0;
             double currentEquity = manager.InitialCapital;
 
-            while (date <= EndDate)
+            List<CompletedTransaction> completedTransactions = new List<CompletedTransaction>(transactions.Length / 2 + 1);
+            List<EquityPoint> equityPoints = new List<EquityPoint>(_periods.Length);
+
+            for (int i = 0; i < _periods.Length; ++i)
             {
+                DateTime period = _periods[i];
+
                 bool equityChanged = false;
-                while (transactionIndex < orderedTransactions.Length)
+                CompletedTransaction completedTransaction = null;
+
+                while (transactionIndex < transactions.Length)
                 {
                     string error;
-                    if (orderedTransactions[transactionIndex].ExecutionTime < date)
+                    if (transactions[transactionIndex].ExecutionTime < period)
                     {
-                        if (!manager.ExecuteTransaction(orderedTransactions[transactionIndex], out error))
+                        if (!manager.ExecuteTransaction(
+                                transactions[transactionIndex], 
+                                out completedTransaction, 
+                                out error))
                         {
                             throw new InvalidOperationException("Replay transaction failed: " + error);
                         }
 
                         ++transactionIndex;
+                        
+                        if (completedTransaction != null)
+                        {
+                            completedTransactions.Add(completedTransaction);
+                        }
 
                         equityChanged = true;
                     }
@@ -122,14 +148,20 @@ namespace TradingStrategy
                 if (equityChanged)
                 {
                     // if any transaction is executed, update the total equity.
-                    currentEquity = manager.GetTotalEquityMarketValue(DataProvider, date);
+                    currentEquity = manager.GetTotalEquityMarketValue(_dataProvider, period);
                 }
 
-                // add one day each time
-                date.AddDays(1.0);
-
-                yield return currentEquity;
+                equityPoints.Add(new EquityPoint() { Equity = currentEquity, Time = period });
             }
+
+            return new TradeMetric(
+                code,
+                _startDate,
+                _endDate,
+                startPrice,
+                endPrice,
+                equityPoints.OrderBy(t => t.Time),
+                completedTransactions.OrderBy(ct => ct, new CompletedTransaction.DefaultComparer()));
         }
     }
 }

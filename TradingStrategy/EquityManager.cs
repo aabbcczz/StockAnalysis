@@ -193,7 +193,7 @@ namespace TradingStrategy
 
                 Bar bar;
                 
-                if (!provider.GetLastEffectiveData(code, time, out bar))
+                if (!provider.GetLastEffectiveBar(code, time, out bar))
                 {
                     throw new InvalidOperationException(
                         string.Format("Can't get data from data provider for code {0}, time {1}", code, time));
@@ -220,7 +220,7 @@ namespace TradingStrategy
 
                 Bar bar;
 
-                if (!provider.GetLastEffectiveData(code, time, out bar))
+                if (!provider.GetLastEffectiveBar(code, time, out bar))
                 {
                     throw new InvalidOperationException(
                         string.Format("Can't get data from data provider for code {0}, time {1}", code, time));

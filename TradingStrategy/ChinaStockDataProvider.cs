@@ -26,9 +26,9 @@ namespace TradingStrategy
 
         private int _currentPeriodIndex = -1;
 
-        public IEnumerable<DateTime> GetAllPeriods()
+        public IOrderedEnumerable<DateTime> GetAllPeriods()
         {
-            return _allPeriods;
+            return _allPeriods.OrderBy(dt => dt);
         }
 
         public IEnumerable<ITradingObject> GetAllTradingObjects()
@@ -58,7 +58,7 @@ namespace TradingStrategy
             }
         }
 
-        public bool GetLastEffectiveData(string code, DateTime period, out Bar bar)
+        public bool GetLastEffectiveBar(string code, DateTime period, out Bar bar)
         {
             bar = new Bar();
             bar.Invalidate();

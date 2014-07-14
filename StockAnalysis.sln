@@ -27,6 +27,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MetricsDefinitionTest", "Me
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TradingStrategy", "TradingStrategy\TradingStrategy.csproj", "{A02B6B9C-D37A-4C58-8F3D-79FC8749219A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EvaluatorClient", "EvaluatorClient\EvaluatorClient.csproj", "{47C70E18-0485-4D0E-9074-1D3C78E543CD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -81,6 +83,10 @@ Global
 		{A02B6B9C-D37A-4C58-8F3D-79FC8749219A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A02B6B9C-D37A-4C58-8F3D-79FC8749219A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A02B6B9C-D37A-4C58-8F3D-79FC8749219A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{47C70E18-0485-4D0E-9074-1D3C78E543CD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{47C70E18-0485-4D0E-9074-1D3C78E543CD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{47C70E18-0485-4D0E-9074-1D3C78E543CD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{47C70E18-0485-4D0E-9074-1D3C78E543CD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

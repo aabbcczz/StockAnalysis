@@ -17,7 +17,13 @@ namespace TradingStrategy
 
         public DateTime MaxTransactionTime { get; private set; }
 
-        public IEnumerable<Transaction> History { get { return _history; } }
+        public IEnumerable<Transaction> History 
+        { 
+            get 
+            {
+                return _history; 
+            } 
+        }
 
         public TradingHistory(double initialCapital)
         {
@@ -45,6 +51,7 @@ namespace TradingStrategy
             {
                 MaxTransactionTime = transaction.ExecutionTime;
             }
+
         }
 
         public static void SaveToFile(TradingHistory history, string file)
