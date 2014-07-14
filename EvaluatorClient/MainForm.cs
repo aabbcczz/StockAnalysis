@@ -16,5 +16,17 @@ namespace EvaluatorClient
         {
             InitializeComponent();
         }
+
+        private void conditionsTabControl_Selected(object sender, TabControlEventArgs e)
+        {
+            if (e.TabPage == resultPage)
+            {
+                exportButton.Visible = resultListView.Items.Count > 0;
+            }
+            else
+            {
+                exportButton.Visible = false;
+            }
+        }
     }
 }
