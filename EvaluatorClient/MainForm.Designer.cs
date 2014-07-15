@@ -28,7 +28,8 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.Windows.Forms.ListViewItem listViewItem3 = new System.Windows.Forms.ListViewItem(new string[] {
+            this.components = new System.ComponentModel.Container();
+            System.Windows.Forms.ListViewItem listViewItem14 = new System.Windows.Forms.ListViewItem(new string[] {
             "000000",
             "000000",
             "1",
@@ -43,69 +44,72 @@
             this.conditionsTabControl = new System.Windows.Forms.TabControl();
             this.settingsPage = new System.Windows.Forms.TabPage();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
-            this.comboBox2 = new System.Windows.Forms.ComboBox();
+            this.closeLongOptionComboBox = new System.Windows.Forms.ComboBox();
             this.label10 = new System.Windows.Forms.Label();
-            this.textBox4 = new System.Windows.Forms.TextBox();
+            this.spreadTextBox = new System.Windows.Forms.TextBox();
             this.label9 = new System.Windows.Forms.Label();
             this.label8 = new System.Windows.Forms.Label();
-            this.comboBox1 = new System.Windows.Forms.ComboBox();
+            this.openLongOptionComboBox = new System.Windows.Forms.ComboBox();
             this.label7 = new System.Windows.Forms.Label();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.label5 = new System.Windows.Forms.Label();
-            this.textBox3 = new System.Windows.Forms.TextBox();
+            this.tariffTextBox = new System.Windows.Forms.TextBox();
             this.label6 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
-            this.textBox2 = new System.Windows.Forms.TextBox();
+            this.sellCommissionTextBox = new System.Windows.Forms.TextBox();
             this.label4 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
-            this.textBox1 = new System.Windows.Forms.TextBox();
+            this.buyCommissionTextBox = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
             this.chargeByVolumeRadioButton = new System.Windows.Forms.RadioButton();
             this.chargeByAmountRadioButton = new System.Windows.Forms.RadioButton();
             this.selectionPage = new System.Windows.Forms.TabPage();
-            this.groupBox3 = new System.Windows.Forms.GroupBox();
-            this.label12 = new System.Windows.Forms.Label();
-            this.dateTimePicker1 = new System.Windows.Forms.DateTimePicker();
-            this.label11 = new System.Windows.Forms.Label();
-            this.resultPage = new System.Windows.Forms.TabPage();
-            this.evaluateButton = new System.Windows.Forms.Button();
-            this.dateTimePicker2 = new System.Windows.Forms.DateTimePicker();
-            this.label13 = new System.Windows.Forms.Label();
-            this.label14 = new System.Windows.Forms.Label();
-            this.textBox6 = new System.Windows.Forms.TextBox();
-            this.label15 = new System.Windows.Forms.Label();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
-            this.listView1 = new System.Windows.Forms.ListView();
-            this.columnHeader1 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.columnHeader2 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.button1 = new System.Windows.Forms.Button();
-            this.button2 = new System.Windows.Forms.Button();
-            this.listView2 = new System.Windows.Forms.ListView();
+            this.clearObjectButton = new System.Windows.Forms.Button();
+            this.label17 = new System.Windows.Forms.Label();
+            this.label16 = new System.Windows.Forms.Label();
+            this.availableObjectListView = new System.Windows.Forms.ListView();
             this.columnHeader3 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeader4 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.label16 = new System.Windows.Forms.Label();
-            this.label17 = new System.Windows.Forms.Label();
+            this.removeObjectButton = new System.Windows.Forms.Button();
+            this.addObjectButton = new System.Windows.Forms.Button();
+            this.selectedObjectListView = new System.Windows.Forms.ListView();
+            this.columnHeader1 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.columnHeader2 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.label15 = new System.Windows.Forms.Label();
+            this.warmupTextBox = new System.Windows.Forms.TextBox();
+            this.label14 = new System.Windows.Forms.Label();
+            this.label13 = new System.Windows.Forms.Label();
+            this.endDateTimePicker = new System.Windows.Forms.DateTimePicker();
+            this.label12 = new System.Windows.Forms.Label();
+            this.startDateTimePicker = new System.Windows.Forms.DateTimePicker();
+            this.label11 = new System.Windows.Forms.Label();
+            this.resultPage = new System.Windows.Forms.TabPage();
             this.resultListView = new System.Windows.Forms.ListView();
             this.columnHeader5 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeader6 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.columnHeader7 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeader8 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeader9 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.columnHeader7 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeader10 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeader11 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeader12 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeader13 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeader14 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeader15 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.evaluateButton = new System.Windows.Forms.Button();
             this.exportButton = new System.Windows.Forms.Button();
+            this.errorProvider1 = new System.Windows.Forms.ErrorProvider(this.components);
             this.conditionsTabControl.SuspendLayout();
             this.settingsPage.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.selectionPage.SuspendLayout();
+            this.groupBox4.SuspendLayout();
             this.groupBox3.SuspendLayout();
             this.resultPage.SuspendLayout();
-            this.groupBox4.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.errorProvider1)).BeginInit();
             this.SuspendLayout();
             // 
             // conditionsTabControl
@@ -137,12 +141,12 @@
             // 
             // groupBox2
             // 
-            this.groupBox2.Controls.Add(this.comboBox2);
+            this.groupBox2.Controls.Add(this.closeLongOptionComboBox);
             this.groupBox2.Controls.Add(this.label10);
-            this.groupBox2.Controls.Add(this.textBox4);
+            this.groupBox2.Controls.Add(this.spreadTextBox);
             this.groupBox2.Controls.Add(this.label9);
             this.groupBox2.Controls.Add(this.label8);
-            this.groupBox2.Controls.Add(this.comboBox1);
+            this.groupBox2.Controls.Add(this.openLongOptionComboBox);
             this.groupBox2.Controls.Add(this.label7);
             this.groupBox2.Location = new System.Drawing.Point(256, 16);
             this.groupBox2.Name = "groupBox2";
@@ -151,25 +155,15 @@
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "交易时机和价格";
             // 
-            // comboBox2
+            // closeLongOptionComboBox
             // 
-            this.comboBox2.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.comboBox2.FormattingEnabled = true;
-            this.comboBox2.Items.AddRange(new object[] {
-            "本周期开盘价",
-            "本周期收盘价",
-            "本周期中间价",
-            "本周期最高价",
-            "本周期最低价",
-            "次周期开盘价",
-            "次周期收盘价",
-            "次周期中间价",
-            "次周期最高价",
-            "次周期最低价"});
-            this.comboBox2.Location = new System.Drawing.Point(53, 53);
-            this.comboBox2.Name = "comboBox2";
-            this.comboBox2.Size = new System.Drawing.Size(134, 21);
-            this.comboBox2.TabIndex = 6;
+            this.closeLongOptionComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.closeLongOptionComboBox.FormattingEnabled = true;
+            this.closeLongOptionComboBox.Location = new System.Drawing.Point(53, 53);
+            this.closeLongOptionComboBox.MaxDropDownItems = 10;
+            this.closeLongOptionComboBox.Name = "closeLongOptionComboBox";
+            this.closeLongOptionComboBox.Size = new System.Drawing.Size(134, 21);
+            this.closeLongOptionComboBox.TabIndex = 6;
             // 
             // label10
             // 
@@ -180,14 +174,16 @@
             this.label10.TabIndex = 5;
             this.label10.Text = "最小变动单元";
             // 
-            // textBox4
+            // spreadTextBox
             // 
-            this.textBox4.Location = new System.Drawing.Point(53, 110);
-            this.textBox4.Name = "textBox4";
-            this.textBox4.Size = new System.Drawing.Size(49, 20);
-            this.textBox4.TabIndex = 5;
-            this.textBox4.Text = "0";
-            this.textBox4.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            this.spreadTextBox.Location = new System.Drawing.Point(53, 110);
+            this.spreadTextBox.Name = "spreadTextBox";
+            this.spreadTextBox.Size = new System.Drawing.Size(49, 20);
+            this.spreadTextBox.TabIndex = 5;
+            this.spreadTextBox.Text = "0";
+            this.spreadTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            this.spreadTextBox.Validating += new System.ComponentModel.CancelEventHandler(this.spreadTextBox_Validating);
+            this.spreadTextBox.Validated += new System.EventHandler(this.spreadTextBox_Validated);
             // 
             // label9
             // 
@@ -207,25 +203,17 @@
             this.label8.TabIndex = 2;
             this.label8.Text = "平仓";
             // 
-            // comboBox1
+            // openLongOptionComboBox
             // 
-            this.comboBox1.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.comboBox1.FormattingEnabled = true;
-            this.comboBox1.Items.AddRange(new object[] {
-            "本周期开盘价",
-            "本周期收盘价",
-            "本周期中间价",
-            "本周期最高价",
-            "本周期最低价",
-            "次周期开盘价",
-            "次周期收盘价",
-            "次周期中间价",
-            "次周期最高价",
-            "次周期最低价"});
-            this.comboBox1.Location = new System.Drawing.Point(53, 21);
-            this.comboBox1.Name = "comboBox1";
-            this.comboBox1.Size = new System.Drawing.Size(134, 21);
-            this.comboBox1.TabIndex = 1;
+            this.openLongOptionComboBox.DisplayMember = "Option";
+            this.openLongOptionComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.openLongOptionComboBox.FormattingEnabled = true;
+            this.openLongOptionComboBox.Location = new System.Drawing.Point(53, 21);
+            this.openLongOptionComboBox.MaxDropDownItems = 10;
+            this.openLongOptionComboBox.Name = "openLongOptionComboBox";
+            this.openLongOptionComboBox.Size = new System.Drawing.Size(134, 21);
+            this.openLongOptionComboBox.TabIndex = 1;
+            this.openLongOptionComboBox.ValueMember = "Option";
             // 
             // label7
             // 
@@ -239,13 +227,13 @@
             // groupBox1
             // 
             this.groupBox1.Controls.Add(this.label5);
-            this.groupBox1.Controls.Add(this.textBox3);
+            this.groupBox1.Controls.Add(this.tariffTextBox);
             this.groupBox1.Controls.Add(this.label6);
             this.groupBox1.Controls.Add(this.label3);
-            this.groupBox1.Controls.Add(this.textBox2);
+            this.groupBox1.Controls.Add(this.sellCommissionTextBox);
             this.groupBox1.Controls.Add(this.label4);
             this.groupBox1.Controls.Add(this.label2);
-            this.groupBox1.Controls.Add(this.textBox1);
+            this.groupBox1.Controls.Add(this.buyCommissionTextBox);
             this.groupBox1.Controls.Add(this.label1);
             this.groupBox1.Controls.Add(this.chargeByVolumeRadioButton);
             this.groupBox1.Controls.Add(this.chargeByAmountRadioButton);
@@ -265,14 +253,17 @@
             this.label5.TabIndex = 10;
             this.label5.Text = "元 / 手";
             // 
-            // textBox3
+            // tariffTextBox
             // 
-            this.textBox3.Location = new System.Drawing.Point(91, 134);
-            this.textBox3.Name = "textBox3";
-            this.textBox3.Size = new System.Drawing.Size(55, 20);
-            this.textBox3.TabIndex = 9;
-            this.textBox3.Text = "10";
-            this.textBox3.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            this.tariffTextBox.Enabled = false;
+            this.tariffTextBox.Location = new System.Drawing.Point(91, 134);
+            this.tariffTextBox.Name = "tariffTextBox";
+            this.tariffTextBox.Size = new System.Drawing.Size(55, 20);
+            this.tariffTextBox.TabIndex = 9;
+            this.tariffTextBox.Text = "10";
+            this.tariffTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            this.tariffTextBox.Validating += new System.ComponentModel.CancelEventHandler(this.tariffTextBox_Validating);
+            this.tariffTextBox.Validated += new System.EventHandler(this.tariffTextBox_Validated);
             // 
             // label6
             // 
@@ -292,14 +283,16 @@
             this.label3.TabIndex = 7;
             this.label3.Text = "% 成交额";
             // 
-            // textBox2
+            // sellCommissionTextBox
             // 
-            this.textBox2.Location = new System.Drawing.Point(91, 79);
-            this.textBox2.Name = "textBox2";
-            this.textBox2.Size = new System.Drawing.Size(55, 20);
-            this.textBox2.TabIndex = 6;
-            this.textBox2.Text = "0.05";
-            this.textBox2.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            this.sellCommissionTextBox.Location = new System.Drawing.Point(91, 79);
+            this.sellCommissionTextBox.Name = "sellCommissionTextBox";
+            this.sellCommissionTextBox.Size = new System.Drawing.Size(55, 20);
+            this.sellCommissionTextBox.TabIndex = 6;
+            this.sellCommissionTextBox.Text = "0.05";
+            this.sellCommissionTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            this.sellCommissionTextBox.Validating += new System.ComponentModel.CancelEventHandler(this.sellCommissionTextBox_Validating);
+            this.sellCommissionTextBox.Validated += new System.EventHandler(this.sellCommissionTextBox_Validated);
             // 
             // label4
             // 
@@ -319,14 +312,16 @@
             this.label2.TabIndex = 4;
             this.label2.Text = "% 成交额";
             // 
-            // textBox1
+            // buyCommissionTextBox
             // 
-            this.textBox1.Location = new System.Drawing.Point(91, 53);
-            this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(55, 20);
-            this.textBox1.TabIndex = 3;
-            this.textBox1.Text = "0.05";
-            this.textBox1.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            this.buyCommissionTextBox.Location = new System.Drawing.Point(91, 53);
+            this.buyCommissionTextBox.Name = "buyCommissionTextBox";
+            this.buyCommissionTextBox.Size = new System.Drawing.Size(55, 20);
+            this.buyCommissionTextBox.TabIndex = 3;
+            this.buyCommissionTextBox.Text = "0.05";
+            this.buyCommissionTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            this.buyCommissionTextBox.Validating += new System.ComponentModel.CancelEventHandler(this.buyCommissionTextBox_Validating);
+            this.buyCommissionTextBox.Validated += new System.EventHandler(this.buyCommissionTextBox_Validated);
             // 
             // label1
             // 
@@ -346,6 +341,7 @@
             this.chargeByVolumeRadioButton.TabIndex = 1;
             this.chargeByVolumeRadioButton.Text = "按成交量收手续费";
             this.chargeByVolumeRadioButton.UseVisualStyleBackColor = true;
+            this.chargeByVolumeRadioButton.CheckedChanged += new System.EventHandler(this.chargeByVolumeRadioButton_CheckedChanged);
             // 
             // chargeByAmountRadioButton
             // 
@@ -358,6 +354,7 @@
             this.chargeByAmountRadioButton.TabStop = true;
             this.chargeByAmountRadioButton.Text = "按成交额收手续费";
             this.chargeByAmountRadioButton.UseVisualStyleBackColor = true;
+            this.chargeByAmountRadioButton.CheckedChanged += new System.EventHandler(this.chargeByAmountRadioButton_CheckedChanged);
             // 
             // selectionPage
             // 
@@ -371,15 +368,120 @@
             this.selectionPage.Text = "交易范围";
             this.selectionPage.UseVisualStyleBackColor = true;
             // 
+            // groupBox4
+            // 
+            this.groupBox4.Controls.Add(this.clearObjectButton);
+            this.groupBox4.Controls.Add(this.label17);
+            this.groupBox4.Controls.Add(this.label16);
+            this.groupBox4.Controls.Add(this.availableObjectListView);
+            this.groupBox4.Controls.Add(this.removeObjectButton);
+            this.groupBox4.Controls.Add(this.addObjectButton);
+            this.groupBox4.Controls.Add(this.selectedObjectListView);
+            this.groupBox4.Location = new System.Drawing.Point(7, 98);
+            this.groupBox4.Name = "groupBox4";
+            this.groupBox4.Size = new System.Drawing.Size(659, 437);
+            this.groupBox4.TabIndex = 1;
+            this.groupBox4.TabStop = false;
+            this.groupBox4.Text = "交易对象";
+            // 
+            // clearObjectButton
+            // 
+            this.clearObjectButton.Location = new System.Drawing.Point(293, 215);
+            this.clearObjectButton.Name = "clearObjectButton";
+            this.clearObjectButton.Size = new System.Drawing.Size(75, 23);
+            this.clearObjectButton.TabIndex = 7;
+            this.clearObjectButton.Text = "清除所有";
+            this.clearObjectButton.UseVisualStyleBackColor = true;
+            // 
+            // label17
+            // 
+            this.label17.AutoSize = true;
+            this.label17.Location = new System.Drawing.Point(376, 24);
+            this.label17.Name = "label17";
+            this.label17.Size = new System.Drawing.Size(67, 13);
+            this.label17.TabIndex = 6;
+            this.label17.Text = "可选对象：";
+            // 
+            // label16
+            // 
+            this.label16.AutoSize = true;
+            this.label16.Location = new System.Drawing.Point(6, 24);
+            this.label16.Name = "label16";
+            this.label16.Size = new System.Drawing.Size(67, 13);
+            this.label16.TabIndex = 5;
+            this.label16.Text = "已选对象：";
+            // 
+            // availableObjectListView
+            // 
+            this.availableObjectListView.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+            this.columnHeader3,
+            this.columnHeader4});
+            this.availableObjectListView.Location = new System.Drawing.Point(379, 49);
+            this.availableObjectListView.Name = "availableObjectListView";
+            this.availableObjectListView.Size = new System.Drawing.Size(273, 382);
+            this.availableObjectListView.TabIndex = 4;
+            this.availableObjectListView.UseCompatibleStateImageBehavior = false;
+            this.availableObjectListView.View = System.Windows.Forms.View.Details;
+            // 
+            // columnHeader3
+            // 
+            this.columnHeader3.Text = "代码";
+            this.columnHeader3.Width = 116;
+            // 
+            // columnHeader4
+            // 
+            this.columnHeader4.Text = "名称";
+            this.columnHeader4.Width = 132;
+            // 
+            // removeObjectButton
+            // 
+            this.removeObjectButton.Location = new System.Drawing.Point(293, 127);
+            this.removeObjectButton.Name = "removeObjectButton";
+            this.removeObjectButton.Size = new System.Drawing.Size(75, 23);
+            this.removeObjectButton.TabIndex = 2;
+            this.removeObjectButton.Text = "> >";
+            this.removeObjectButton.UseVisualStyleBackColor = true;
+            // 
+            // addObjectButton
+            // 
+            this.addObjectButton.Location = new System.Drawing.Point(293, 77);
+            this.addObjectButton.Name = "addObjectButton";
+            this.addObjectButton.Size = new System.Drawing.Size(75, 23);
+            this.addObjectButton.TabIndex = 1;
+            this.addObjectButton.Text = "< <";
+            this.addObjectButton.UseVisualStyleBackColor = true;
+            // 
+            // selectedObjectListView
+            // 
+            this.selectedObjectListView.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+            this.columnHeader1,
+            this.columnHeader2});
+            this.selectedObjectListView.Location = new System.Drawing.Point(8, 49);
+            this.selectedObjectListView.Name = "selectedObjectListView";
+            this.selectedObjectListView.Size = new System.Drawing.Size(273, 382);
+            this.selectedObjectListView.TabIndex = 0;
+            this.selectedObjectListView.UseCompatibleStateImageBehavior = false;
+            this.selectedObjectListView.View = System.Windows.Forms.View.Details;
+            // 
+            // columnHeader1
+            // 
+            this.columnHeader1.Text = "代码";
+            this.columnHeader1.Width = 116;
+            // 
+            // columnHeader2
+            // 
+            this.columnHeader2.Text = "名称";
+            this.columnHeader2.Width = 132;
+            // 
             // groupBox3
             // 
             this.groupBox3.Controls.Add(this.label15);
-            this.groupBox3.Controls.Add(this.textBox6);
+            this.groupBox3.Controls.Add(this.warmupTextBox);
             this.groupBox3.Controls.Add(this.label14);
             this.groupBox3.Controls.Add(this.label13);
-            this.groupBox3.Controls.Add(this.dateTimePicker2);
+            this.groupBox3.Controls.Add(this.endDateTimePicker);
             this.groupBox3.Controls.Add(this.label12);
-            this.groupBox3.Controls.Add(this.dateTimePicker1);
+            this.groupBox3.Controls.Add(this.startDateTimePicker);
             this.groupBox3.Controls.Add(this.label11);
             this.groupBox3.Location = new System.Drawing.Point(7, 7);
             this.groupBox3.Name = "groupBox3";
@@ -387,6 +489,49 @@
             this.groupBox3.TabIndex = 0;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "评测时间段";
+            // 
+            // label15
+            // 
+            this.label15.AutoSize = true;
+            this.label15.Location = new System.Drawing.Point(503, 25);
+            this.label15.Name = "label15";
+            this.label15.Size = new System.Drawing.Size(127, 13);
+            this.label15.TabIndex = 3;
+            this.label15.Text = "个周期数据用于初始化";
+            // 
+            // warmupTextBox
+            // 
+            this.warmupTextBox.Location = new System.Drawing.Point(444, 22);
+            this.warmupTextBox.Name = "warmupTextBox";
+            this.warmupTextBox.Size = new System.Drawing.Size(53, 20);
+            this.warmupTextBox.TabIndex = 3;
+            this.warmupTextBox.Text = "100";
+            this.warmupTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            // 
+            // label14
+            // 
+            this.label14.AutoSize = true;
+            this.label14.Location = new System.Drawing.Point(395, 25);
+            this.label14.Name = "label14";
+            this.label14.Size = new System.Drawing.Size(43, 13);
+            this.label14.TabIndex = 2;
+            this.label14.Text = "向前取";
+            // 
+            // label13
+            // 
+            this.label13.AutoSize = true;
+            this.label13.Location = new System.Drawing.Point(6, 54);
+            this.label13.Name = "label13";
+            this.label13.Size = new System.Drawing.Size(175, 13);
+            this.label13.TabIndex = 1;
+            this.label13.Text = "评测结束后自动平仓并计入收益";
+            // 
+            // endDateTimePicker
+            // 
+            this.endDateTimePicker.Location = new System.Drawing.Point(242, 20);
+            this.endDateTimePicker.Name = "endDateTimePicker";
+            this.endDateTimePicker.Size = new System.Drawing.Size(124, 20);
+            this.endDateTimePicker.TabIndex = 2;
             // 
             // label12
             // 
@@ -397,12 +542,12 @@
             this.label12.Text = "-";
             this.label12.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
-            // dateTimePicker1
+            // startDateTimePicker
             // 
-            this.dateTimePicker1.Location = new System.Drawing.Point(79, 20);
-            this.dateTimePicker1.Name = "dateTimePicker1";
-            this.dateTimePicker1.Size = new System.Drawing.Size(124, 20);
-            this.dateTimePicker1.TabIndex = 1;
+            this.startDateTimePicker.Location = new System.Drawing.Point(79, 20);
+            this.startDateTimePicker.Name = "startDateTimePicker";
+            this.startDateTimePicker.Size = new System.Drawing.Size(124, 20);
+            this.startDateTimePicker.TabIndex = 1;
             // 
             // label11
             // 
@@ -424,154 +569,6 @@
             this.resultPage.Text = "评测结果";
             this.resultPage.UseVisualStyleBackColor = true;
             // 
-            // evaluateButton
-            // 
-            this.evaluateButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.evaluateButton.Location = new System.Drawing.Point(872, 586);
-            this.evaluateButton.Name = "evaluateButton";
-            this.evaluateButton.Size = new System.Drawing.Size(75, 32);
-            this.evaluateButton.TabIndex = 1;
-            this.evaluateButton.Text = "开始评测";
-            this.evaluateButton.UseVisualStyleBackColor = true;
-            // 
-            // dateTimePicker2
-            // 
-            this.dateTimePicker2.Location = new System.Drawing.Point(242, 20);
-            this.dateTimePicker2.Name = "dateTimePicker2";
-            this.dateTimePicker2.Size = new System.Drawing.Size(124, 20);
-            this.dateTimePicker2.TabIndex = 2;
-            // 
-            // label13
-            // 
-            this.label13.AutoSize = true;
-            this.label13.Location = new System.Drawing.Point(6, 54);
-            this.label13.Name = "label13";
-            this.label13.Size = new System.Drawing.Size(175, 13);
-            this.label13.TabIndex = 1;
-            this.label13.Text = "评测结束后自动平仓并计入收益";
-            // 
-            // label14
-            // 
-            this.label14.AutoSize = true;
-            this.label14.Location = new System.Drawing.Point(395, 25);
-            this.label14.Name = "label14";
-            this.label14.Size = new System.Drawing.Size(43, 13);
-            this.label14.TabIndex = 2;
-            this.label14.Text = "向前取";
-            // 
-            // textBox6
-            // 
-            this.textBox6.Location = new System.Drawing.Point(444, 22);
-            this.textBox6.Name = "textBox6";
-            this.textBox6.Size = new System.Drawing.Size(53, 20);
-            this.textBox6.TabIndex = 3;
-            this.textBox6.Text = "100";
-            this.textBox6.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
-            // 
-            // label15
-            // 
-            this.label15.AutoSize = true;
-            this.label15.Location = new System.Drawing.Point(503, 25);
-            this.label15.Name = "label15";
-            this.label15.Size = new System.Drawing.Size(127, 13);
-            this.label15.TabIndex = 3;
-            this.label15.Text = "个周期数据用于初始化";
-            // 
-            // groupBox4
-            // 
-            this.groupBox4.Controls.Add(this.label17);
-            this.groupBox4.Controls.Add(this.label16);
-            this.groupBox4.Controls.Add(this.listView2);
-            this.groupBox4.Controls.Add(this.button2);
-            this.groupBox4.Controls.Add(this.button1);
-            this.groupBox4.Controls.Add(this.listView1);
-            this.groupBox4.Location = new System.Drawing.Point(7, 98);
-            this.groupBox4.Name = "groupBox4";
-            this.groupBox4.Size = new System.Drawing.Size(659, 437);
-            this.groupBox4.TabIndex = 1;
-            this.groupBox4.TabStop = false;
-            this.groupBox4.Text = "交易对象";
-            // 
-            // listView1
-            // 
-            this.listView1.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-            this.columnHeader1,
-            this.columnHeader2});
-            this.listView1.Location = new System.Drawing.Point(8, 49);
-            this.listView1.Name = "listView1";
-            this.listView1.Size = new System.Drawing.Size(273, 382);
-            this.listView1.TabIndex = 0;
-            this.listView1.UseCompatibleStateImageBehavior = false;
-            this.listView1.View = System.Windows.Forms.View.Details;
-            // 
-            // columnHeader1
-            // 
-            this.columnHeader1.Text = "代码";
-            this.columnHeader1.Width = 116;
-            // 
-            // columnHeader2
-            // 
-            this.columnHeader2.Text = "名称";
-            this.columnHeader2.Width = 132;
-            // 
-            // button1
-            // 
-            this.button1.Location = new System.Drawing.Point(293, 77);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(75, 23);
-            this.button1.TabIndex = 1;
-            this.button1.Text = "< <";
-            this.button1.UseVisualStyleBackColor = true;
-            // 
-            // button2
-            // 
-            this.button2.Location = new System.Drawing.Point(293, 127);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(75, 23);
-            this.button2.TabIndex = 2;
-            this.button2.Text = "> >";
-            this.button2.UseVisualStyleBackColor = true;
-            // 
-            // listView2
-            // 
-            this.listView2.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-            this.columnHeader3,
-            this.columnHeader4});
-            this.listView2.Location = new System.Drawing.Point(379, 49);
-            this.listView2.Name = "listView2";
-            this.listView2.Size = new System.Drawing.Size(273, 382);
-            this.listView2.TabIndex = 4;
-            this.listView2.UseCompatibleStateImageBehavior = false;
-            this.listView2.View = System.Windows.Forms.View.Details;
-            // 
-            // columnHeader3
-            // 
-            this.columnHeader3.Text = "代码";
-            this.columnHeader3.Width = 116;
-            // 
-            // columnHeader4
-            // 
-            this.columnHeader4.Text = "名称";
-            this.columnHeader4.Width = 132;
-            // 
-            // label16
-            // 
-            this.label16.AutoSize = true;
-            this.label16.Location = new System.Drawing.Point(6, 24);
-            this.label16.Name = "label16";
-            this.label16.Size = new System.Drawing.Size(67, 13);
-            this.label16.TabIndex = 5;
-            this.label16.Text = "已选对象：";
-            // 
-            // label17
-            // 
-            this.label17.AutoSize = true;
-            this.label17.Location = new System.Drawing.Point(376, 24);
-            this.label17.Name = "label17";
-            this.label17.Size = new System.Drawing.Size(67, 13);
-            this.label17.TabIndex = 6;
-            this.label17.Text = "可选对象：";
-            // 
             // resultListView
             // 
             this.resultListView.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
@@ -587,7 +584,7 @@
             this.columnHeader14,
             this.columnHeader15});
             this.resultListView.Items.AddRange(new System.Windows.Forms.ListViewItem[] {
-            listViewItem3});
+            listViewItem14});
             this.resultListView.Location = new System.Drawing.Point(6, 6);
             this.resultListView.MultiSelect = false;
             this.resultListView.Name = "resultListView";
@@ -604,10 +601,6 @@
             // 
             this.columnHeader6.Text = "名称";
             // 
-            // columnHeader7
-            // 
-            this.columnHeader7.Text = "胜率 %";
-            // 
             // columnHeader8
             // 
             this.columnHeader8.Text = "盈利次数";
@@ -615,6 +608,10 @@
             // columnHeader9
             // 
             this.columnHeader9.Text = "总次数";
+            // 
+            // columnHeader7
+            // 
+            this.columnHeader7.Text = "胜率 %";
             // 
             // columnHeader10
             // 
@@ -645,6 +642,16 @@
             this.columnHeader15.Text = "最大回测比 %";
             this.columnHeader15.Width = 96;
             // 
+            // evaluateButton
+            // 
+            this.evaluateButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.evaluateButton.Location = new System.Drawing.Point(872, 586);
+            this.evaluateButton.Name = "evaluateButton";
+            this.evaluateButton.Size = new System.Drawing.Size(75, 32);
+            this.evaluateButton.TabIndex = 1;
+            this.evaluateButton.Text = "开始评测";
+            this.evaluateButton.UseVisualStyleBackColor = true;
+            // 
             // exportButton
             // 
             this.exportButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
@@ -656,6 +663,10 @@
             this.exportButton.UseVisualStyleBackColor = true;
             this.exportButton.Visible = false;
             // 
+            // errorProvider1
+            // 
+            this.errorProvider1.ContainerControl = this;
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -666,6 +677,8 @@
             this.Controls.Add(this.conditionsTabControl);
             this.Name = "MainForm";
             this.Text = "Evaluator";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
+            this.Load += new System.EventHandler(this.MainForm_Load);
             this.conditionsTabControl.ResumeLayout(false);
             this.settingsPage.ResumeLayout(false);
             this.groupBox2.ResumeLayout(false);
@@ -673,11 +686,12 @@
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
             this.selectionPage.ResumeLayout(false);
+            this.groupBox4.ResumeLayout(false);
+            this.groupBox4.PerformLayout();
             this.groupBox3.ResumeLayout(false);
             this.groupBox3.PerformLayout();
             this.resultPage.ResumeLayout(false);
-            this.groupBox4.ResumeLayout(false);
-            this.groupBox4.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.errorProvider1)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -691,40 +705,40 @@
         private System.Windows.Forms.Button evaluateButton;
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.Label label5;
-        private System.Windows.Forms.TextBox textBox3;
+        private System.Windows.Forms.TextBox tariffTextBox;
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.Label label3;
-        private System.Windows.Forms.TextBox textBox2;
+        private System.Windows.Forms.TextBox sellCommissionTextBox;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.TextBox textBox1;
+        private System.Windows.Forms.TextBox buyCommissionTextBox;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.RadioButton chargeByVolumeRadioButton;
         private System.Windows.Forms.RadioButton chargeByAmountRadioButton;
         private System.Windows.Forms.GroupBox groupBox2;
-        private System.Windows.Forms.ComboBox comboBox2;
+        private System.Windows.Forms.ComboBox closeLongOptionComboBox;
         private System.Windows.Forms.Label label10;
-        private System.Windows.Forms.TextBox textBox4;
+        private System.Windows.Forms.TextBox spreadTextBox;
         private System.Windows.Forms.Label label9;
         private System.Windows.Forms.Label label8;
-        private System.Windows.Forms.ComboBox comboBox1;
+        private System.Windows.Forms.ComboBox openLongOptionComboBox;
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.GroupBox groupBox3;
         private System.Windows.Forms.Label label12;
-        private System.Windows.Forms.DateTimePicker dateTimePicker1;
+        private System.Windows.Forms.DateTimePicker startDateTimePicker;
         private System.Windows.Forms.Label label11;
         private System.Windows.Forms.Label label15;
-        private System.Windows.Forms.TextBox textBox6;
+        private System.Windows.Forms.TextBox warmupTextBox;
         private System.Windows.Forms.Label label14;
         private System.Windows.Forms.Label label13;
-        private System.Windows.Forms.DateTimePicker dateTimePicker2;
+        private System.Windows.Forms.DateTimePicker endDateTimePicker;
         private System.Windows.Forms.GroupBox groupBox4;
-        private System.Windows.Forms.ListView listView1;
+        private System.Windows.Forms.ListView selectedObjectListView;
         private System.Windows.Forms.ColumnHeader columnHeader1;
         private System.Windows.Forms.ColumnHeader columnHeader2;
-        private System.Windows.Forms.Button button2;
-        private System.Windows.Forms.Button button1;
-        private System.Windows.Forms.ListView listView2;
+        private System.Windows.Forms.Button removeObjectButton;
+        private System.Windows.Forms.Button addObjectButton;
+        private System.Windows.Forms.ListView availableObjectListView;
         private System.Windows.Forms.ColumnHeader columnHeader3;
         private System.Windows.Forms.ColumnHeader columnHeader4;
         private System.Windows.Forms.Label label17;
@@ -742,6 +756,8 @@
         private System.Windows.Forms.ColumnHeader columnHeader14;
         private System.Windows.Forms.ColumnHeader columnHeader15;
         private System.Windows.Forms.Button exportButton;
+        private System.Windows.Forms.Button clearObjectButton;
+        private System.Windows.Forms.ErrorProvider errorProvider1;
     }
 }
 

@@ -106,16 +106,16 @@ namespace TradingStrategy
             return false;
         }
 
-        public ChinaStockDataProvider(string stockNameFile, string listFile, DateTime start, DateTime end, int warmupDataSize)
+        public ChinaStockDataProvider(string stockNameFile, string[] dataFiles, DateTime start, DateTime end, int warmupDataSize)
         {
             if (string.IsNullOrEmpty(stockNameFile))
             {
                 throw new ArgumentNullException("stockNameFile");
             }
 
-            if (string.IsNullOrEmpty(listFile))
+            if (dataFiles == null || dataFiles.Length == 0)
             {
-                throw new ArgumentNullException("listFile");
+                throw new ArgumentNullException("files");
             }
 
             if (start > end)
@@ -131,18 +131,15 @@ namespace TradingStrategy
             // get stock names
             StockNameTable nameTable = new StockNameTable(stockNameFile);
 
-            // Get all input files from list file
-            string[] files = File.ReadAllLines(listFile, Encoding.UTF8);
-
             // load data
-            List<StockHistoryData> allTradingData = new List<StockHistoryData>(files.Length);
+            List<StockHistoryData> allTradingData = new List<StockHistoryData>(dataFiles.Length);
             Dictionary<string, Bar[]> allWarmupData = new Dictionary<string, Bar[]>();
 
             Parallel.ForEach(
-                files,
+                dataFiles,
                 (string file) =>
                 {
-                    if (!String.IsNullOrWhiteSpace(file))
+                    if (!String.IsNullOrWhiteSpace(file) && File.Exists(file))
                     {
                         StockHistoryData data = StockHistoryData.LoadFromFile(file, DateTime.MinValue, DateTime.MaxValue, nameTable);
 

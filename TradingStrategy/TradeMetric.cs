@@ -8,7 +8,7 @@ namespace TradingStrategy
 {
     public sealed class TradeMetric
     {
-        public const string CodeForAll = "";
+        public const string CodeForAll = "-----";
 
         public string Code { get; private set; } // if Code is CodeForAll, it represents all trading objects.
         public DateTime StartDate { get; private set; } // 统计起始日期
