@@ -29,7 +29,7 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.ListViewItem listViewItem14 = new System.Windows.Forms.ListViewItem(new string[] {
+            System.Windows.Forms.ListViewItem listViewItem11 = new System.Windows.Forms.ListViewItem(new string[] {
             "000000",
             "000000",
             "1",
@@ -65,7 +65,6 @@
             this.chargeByAmountRadioButton = new System.Windows.Forms.RadioButton();
             this.selectionPage = new System.Windows.Forms.TabPage();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
-            this.clearObjectButton = new System.Windows.Forms.Button();
             this.label17 = new System.Windows.Forms.Label();
             this.label16 = new System.Windows.Forms.Label();
             this.availableObjectListView = new System.Windows.Forms.ListView();
@@ -183,7 +182,7 @@
             this.spreadTextBox.Text = "0";
             this.spreadTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             this.spreadTextBox.Validating += new System.ComponentModel.CancelEventHandler(this.spreadTextBox_Validating);
-            this.spreadTextBox.Validated += new System.EventHandler(this.spreadTextBox_Validated);
+            this.spreadTextBox.Validated += new System.EventHandler(this.control_Validated);
             // 
             // label9
             // 
@@ -263,7 +262,7 @@
             this.tariffTextBox.Text = "10";
             this.tariffTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             this.tariffTextBox.Validating += new System.ComponentModel.CancelEventHandler(this.tariffTextBox_Validating);
-            this.tariffTextBox.Validated += new System.EventHandler(this.tariffTextBox_Validated);
+            this.tariffTextBox.Validated += new System.EventHandler(this.control_Validated);
             // 
             // label6
             // 
@@ -292,7 +291,7 @@
             this.sellCommissionTextBox.Text = "0.05";
             this.sellCommissionTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             this.sellCommissionTextBox.Validating += new System.ComponentModel.CancelEventHandler(this.sellCommissionTextBox_Validating);
-            this.sellCommissionTextBox.Validated += new System.EventHandler(this.sellCommissionTextBox_Validated);
+            this.sellCommissionTextBox.Validated += new System.EventHandler(this.control_Validated);
             // 
             // label4
             // 
@@ -321,7 +320,7 @@
             this.buyCommissionTextBox.Text = "0.05";
             this.buyCommissionTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             this.buyCommissionTextBox.Validating += new System.ComponentModel.CancelEventHandler(this.buyCommissionTextBox_Validating);
-            this.buyCommissionTextBox.Validated += new System.EventHandler(this.buyCommissionTextBox_Validated);
+            this.buyCommissionTextBox.Validated += new System.EventHandler(this.control_Validated);
             // 
             // label1
             // 
@@ -370,7 +369,6 @@
             // 
             // groupBox4
             // 
-            this.groupBox4.Controls.Add(this.clearObjectButton);
             this.groupBox4.Controls.Add(this.label17);
             this.groupBox4.Controls.Add(this.label16);
             this.groupBox4.Controls.Add(this.availableObjectListView);
@@ -383,15 +381,6 @@
             this.groupBox4.TabIndex = 1;
             this.groupBox4.TabStop = false;
             this.groupBox4.Text = "交易对象";
-            // 
-            // clearObjectButton
-            // 
-            this.clearObjectButton.Location = new System.Drawing.Point(293, 215);
-            this.clearObjectButton.Name = "clearObjectButton";
-            this.clearObjectButton.Size = new System.Drawing.Size(75, 23);
-            this.clearObjectButton.TabIndex = 7;
-            this.clearObjectButton.Text = "清除所有";
-            this.clearObjectButton.UseVisualStyleBackColor = true;
             // 
             // label17
             // 
@@ -416,12 +405,16 @@
             this.availableObjectListView.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
             this.columnHeader3,
             this.columnHeader4});
+            this.availableObjectListView.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
             this.availableObjectListView.Location = new System.Drawing.Point(379, 49);
             this.availableObjectListView.Name = "availableObjectListView";
             this.availableObjectListView.Size = new System.Drawing.Size(273, 382);
+            this.availableObjectListView.Sorting = System.Windows.Forms.SortOrder.Ascending;
             this.availableObjectListView.TabIndex = 4;
             this.availableObjectListView.UseCompatibleStateImageBehavior = false;
             this.availableObjectListView.View = System.Windows.Forms.View.Details;
+            this.availableObjectListView.ItemSelectionChanged += new System.Windows.Forms.ListViewItemSelectionChangedEventHandler(this.availableObjectListView_ItemSelectionChanged);
+            this.availableObjectListView.KeyDown += new System.Windows.Forms.KeyEventHandler(this.listView_KeyDown);
             // 
             // columnHeader3
             // 
@@ -435,33 +428,41 @@
             // 
             // removeObjectButton
             // 
+            this.removeObjectButton.Enabled = false;
             this.removeObjectButton.Location = new System.Drawing.Point(293, 127);
             this.removeObjectButton.Name = "removeObjectButton";
             this.removeObjectButton.Size = new System.Drawing.Size(75, 23);
             this.removeObjectButton.TabIndex = 2;
             this.removeObjectButton.Text = "> >";
             this.removeObjectButton.UseVisualStyleBackColor = true;
+            this.removeObjectButton.Click += new System.EventHandler(this.removeObjectButton_Click);
             // 
             // addObjectButton
             // 
+            this.addObjectButton.Enabled = false;
             this.addObjectButton.Location = new System.Drawing.Point(293, 77);
             this.addObjectButton.Name = "addObjectButton";
             this.addObjectButton.Size = new System.Drawing.Size(75, 23);
             this.addObjectButton.TabIndex = 1;
             this.addObjectButton.Text = "< <";
             this.addObjectButton.UseVisualStyleBackColor = true;
+            this.addObjectButton.Click += new System.EventHandler(this.addObjectButton_Click);
             // 
             // selectedObjectListView
             // 
             this.selectedObjectListView.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
             this.columnHeader1,
             this.columnHeader2});
+            this.selectedObjectListView.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
             this.selectedObjectListView.Location = new System.Drawing.Point(8, 49);
             this.selectedObjectListView.Name = "selectedObjectListView";
             this.selectedObjectListView.Size = new System.Drawing.Size(273, 382);
+            this.selectedObjectListView.Sorting = System.Windows.Forms.SortOrder.Ascending;
             this.selectedObjectListView.TabIndex = 0;
             this.selectedObjectListView.UseCompatibleStateImageBehavior = false;
             this.selectedObjectListView.View = System.Windows.Forms.View.Details;
+            this.selectedObjectListView.ItemSelectionChanged += new System.Windows.Forms.ListViewItemSelectionChangedEventHandler(this.selectedObjectListView_ItemSelectionChanged);
+            this.selectedObjectListView.KeyDown += new System.Windows.Forms.KeyEventHandler(this.listView_KeyDown);
             // 
             // columnHeader1
             // 
@@ -507,6 +508,8 @@
             this.warmupTextBox.TabIndex = 3;
             this.warmupTextBox.Text = "100";
             this.warmupTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            this.warmupTextBox.Validating += new System.ComponentModel.CancelEventHandler(this.warmupTextBox_Validating);
+            this.warmupTextBox.Validated += new System.EventHandler(this.control_Validated);
             // 
             // label14
             // 
@@ -532,6 +535,8 @@
             this.endDateTimePicker.Name = "endDateTimePicker";
             this.endDateTimePicker.Size = new System.Drawing.Size(124, 20);
             this.endDateTimePicker.TabIndex = 2;
+            this.endDateTimePicker.Validating += new System.ComponentModel.CancelEventHandler(this.time_Validating);
+            this.endDateTimePicker.Validated += new System.EventHandler(this.control_Validated);
             // 
             // label12
             // 
@@ -548,6 +553,8 @@
             this.startDateTimePicker.Name = "startDateTimePicker";
             this.startDateTimePicker.Size = new System.Drawing.Size(124, 20);
             this.startDateTimePicker.TabIndex = 1;
+            this.startDateTimePicker.Validating += new System.ComponentModel.CancelEventHandler(this.time_Validating);
+            this.startDateTimePicker.Validated += new System.EventHandler(this.control_Validated);
             // 
             // label11
             // 
@@ -584,7 +591,7 @@
             this.columnHeader14,
             this.columnHeader15});
             this.resultListView.Items.AddRange(new System.Windows.Forms.ListViewItem[] {
-            listViewItem14});
+            listViewItem11});
             this.resultListView.Location = new System.Drawing.Point(6, 6);
             this.resultListView.MultiSelect = false;
             this.resultListView.Name = "resultListView";
@@ -756,7 +763,6 @@
         private System.Windows.Forms.ColumnHeader columnHeader14;
         private System.Windows.Forms.ColumnHeader columnHeader15;
         private System.Windows.Forms.Button exportButton;
-        private System.Windows.Forms.Button clearObjectButton;
         private System.Windows.Forms.ErrorProvider errorProvider1;
     }
 }

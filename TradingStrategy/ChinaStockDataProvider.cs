@@ -106,16 +106,16 @@ namespace TradingStrategy
             return false;
         }
 
-        public ChinaStockDataProvider(string stockNameFile, string[] dataFiles, DateTime start, DateTime end, int warmupDataSize)
+        public ChinaStockDataProvider(StockNameTable nameTable, string[] dataFiles, DateTime start, DateTime end, int warmupDataSize)
         {
-            if (string.IsNullOrEmpty(stockNameFile))
+            if (nameTable == null)
             {
-                throw new ArgumentNullException("stockNameFile");
+                throw new ArgumentNullException("nameTable");
             }
 
             if (dataFiles == null || dataFiles.Length == 0)
             {
-                throw new ArgumentNullException("files");
+                throw new ArgumentNullException("dataFiles");
             }
 
             if (start > end)
@@ -127,9 +127,6 @@ namespace TradingStrategy
             {
                 throw new ArgumentOutOfRangeException("warm up data size can't be negative");
             }
-
-            // get stock names
-            StockNameTable nameTable = new StockNameTable(stockNameFile);
 
             // load data
             List<StockHistoryData> allTradingData = new List<StockHistoryData>(dataFiles.Length);

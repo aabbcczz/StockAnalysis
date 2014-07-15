@@ -20,6 +20,7 @@ namespace EvaluatorClient
     {
         TradingSettings _tradingSettings;
         ChinaStockDataProvider _provider;
+        StockNameTable _stockNameTable = null;
 
         public MainForm()
         {
@@ -49,7 +50,53 @@ namespace EvaluatorClient
             closeLongOptionComboBox.DisplayMember = "Text";
             closeLongOptionComboBox.ValueMember = "Option";
 
+            // load and apply trading settings from configuration file if any;
             ApplyTradingSettings(LoadTradingSettings());
+
+            // initialize evaluation time span
+            startDateTimePicker.Value = DateTime.Today.AddYears(-1);
+            endDateTimePicker.Value = DateTime.Today;
+
+            // load all possible stocks
+            LoadStocks();
+        }
+
+        private void LoadStocks()
+        {
+            _stockNameTable = null;
+
+            string stockNameFile = Properties.Settings.Default.stockNameFile;
+
+            try
+            {
+                _stockNameTable = new StockNameTable(stockNameFile);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(
+                    string.Format("Failed to load file \"{0}\". Exception:\n{1}", stockNameFile, ex),
+                    "Load stock names",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
+            }
+
+            if (_stockNameTable != null)
+            {
+                availableObjectListView.BeginUpdate();
+
+                foreach (var stockName in _stockNameTable.StockNames)
+                {
+                    availableObjectListView.Items.Add(
+                        new ListViewItem(
+                            new string[] 
+                            { 
+                                stockName.Code, 
+                                stockName.Names[0] 
+                            }));
+                }
+
+                availableObjectListView.EndUpdate();
+            }
         }
 
         private TradingSettings LoadTradingSettings()
@@ -252,11 +299,6 @@ namespace EvaluatorClient
             }
         }
 
-        private void buyCommissionTextBox_Validated(object sender, EventArgs e)
-        {
-            this.errorProvider1.SetError(buyCommissionTextBox, "");
-        }
-
         private void sellCommissionTextBox_Validating(object sender, CancelEventArgs e)
         {
             double value;
@@ -270,11 +312,6 @@ namespace EvaluatorClient
                 // Set the ErrorProvider error with the text to display.  
                 this.errorProvider1.SetError(sellCommissionTextBox, "费率需要为非负数字");
             }
-        }
-
-        private void sellCommissionTextBox_Validated(object sender, EventArgs e)
-        {
-            this.errorProvider1.SetError(sellCommissionTextBox, "");
         }
 
         private void tariffTextBox_Validating(object sender, CancelEventArgs e)
@@ -292,11 +329,6 @@ namespace EvaluatorClient
             }
         }
 
-        private void tariffTextBox_Validated(object sender, EventArgs e)
-        {
-            this.errorProvider1.SetError(tariffTextBox, "");
-         }
-
         private void spreadTextBox_Validating(object sender, CancelEventArgs e)
         {
             int value;
@@ -311,11 +343,6 @@ namespace EvaluatorClient
                 this.errorProvider1.SetError(spreadTextBox, "滑点需要为非负整数");
             }
         }
-
-        private void spreadTextBox_Validated(object sender, EventArgs e)
-        {
-            this.errorProvider1.SetError(spreadTextBox, "");
-         }
 
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
         {
@@ -338,6 +365,93 @@ namespace EvaluatorClient
         private void chargeByVolumeRadioButton_CheckedChanged(object sender, EventArgs e)
         {
             tariffTextBox.Enabled = chargeByVolumeRadioButton.Checked;
+        }
+
+        private void warmupTextBox_Validating(object sender, CancelEventArgs e)
+        {
+            int value;
+
+            if (!int.TryParse(warmupTextBox.Text, out value) || value < 0.0)
+            {
+                // Cancel the event and select the text to be corrected by the user.
+                e.Cancel = true;
+                warmupTextBox.Select(0, spreadTextBox.Text.Length);
+
+                // Set the ErrorProvider error with the text to display.  
+                this.errorProvider1.SetError(warmupTextBox, "周期数需要为非负整数");
+            }
+        }
+
+        private void control_Validated(object sender, EventArgs e)
+        {
+            this.errorProvider1.SetError((Control)sender, "");
+        }
+
+        private void time_Validating(object sender, CancelEventArgs e)
+        {
+            if (startDateTimePicker.Value >= endDateTimePicker.Value)
+            {
+                e.Cancel = true;
+                startDateTimePicker.Value = endDateTimePicker.Value.AddYears(-1);
+
+                this.errorProvider1.SetError((Control)sender, "起始时间必须小于终止时间");
+            }
+        }
+
+        private void availableObjectListView_ItemSelectionChanged(object sender, ListViewItemSelectionChangedEventArgs e)
+        {
+            addObjectButton.Enabled = availableObjectListView.SelectedItems.Count > 0;
+        }
+
+        private void selectedObjectListView_ItemSelectionChanged(object sender, ListViewItemSelectionChangedEventArgs e)
+        {
+            removeObjectButton.Enabled = selectedObjectListView.SelectedItems.Count > 0;
+        }
+
+        private void addObjectButton_Click(object sender, EventArgs e)
+        {
+            selectedObjectListView.BeginUpdate();
+            availableObjectListView.BeginUpdate();
+
+            foreach (ListViewItem item in availableObjectListView.SelectedItems)
+            {
+                availableObjectListView.Items.Remove(item);
+                selectedObjectListView.Items.Add(item);
+            }
+
+            selectedObjectListView.EndUpdate();
+            availableObjectListView.EndUpdate();
+
+            selectedObjectListView.SelectedItems.Clear();
+        }
+
+        private void removeObjectButton_Click(object sender, EventArgs e)
+        {
+            selectedObjectListView.BeginUpdate();
+            availableObjectListView.BeginUpdate();
+
+            foreach (ListViewItem item in selectedObjectListView.SelectedItems)
+            {
+                selectedObjectListView.Items.Remove(item);
+                availableObjectListView.Items.Add(item);
+            }
+
+            selectedObjectListView.EndUpdate();
+            availableObjectListView.EndUpdate();
+
+            availableObjectListView.SelectedItems.Clear();
+        }
+
+        private void listView_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Control && e.KeyCode == Keys.A)
+            {
+                ListView view = (ListView)sender;
+                foreach (ListViewItem item in view.Items)
+                {
+                    item.Selected = true;
+                }
+            }
         }
     }
 }
