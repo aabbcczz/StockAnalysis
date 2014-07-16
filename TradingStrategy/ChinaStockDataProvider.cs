@@ -26,6 +26,8 @@ namespace TradingStrategy
 
         private int _currentPeriodIndex = -1;
 
+        public int PeriodCount { get { return _allPeriods.Length; } }
+
         public IOrderedEnumerable<DateTime> GetAllPeriods()
         {
             return _allPeriods.OrderBy(dt => dt);
@@ -192,6 +194,24 @@ namespace TradingStrategy
                     }
                 });
 
+            // get all periods.
+            _allPeriods = allTradingData
+                .SelectMany(s => s.DataOrderedByTime.Select(b => b.Time))
+                .GroupBy(dt => dt)
+                .Select(g => g.Key)
+                .OrderBy(dt => dt)
+                .ToArray();
+
+            if (_allPeriods.Length == 0)
+            {
+                throw new InvalidDataException("No any trading data are loaded, please adjust the time range");
+            }
+
+            for (int i = 0; i < _allPeriods.Length; ++i)
+            {
+                _periodIndices.Add(_allPeriods[i], i);
+            }
+
             // build trading objects
             _stocks = allTradingData
                 .Select(t => new ChinaStock(t.Name.Code, t.Name.Names[0]))
@@ -210,19 +230,6 @@ namespace TradingStrategy
                 _allWarmupData[i] = allWarmupData.ContainsKey(_stocks[i].Code) ? allWarmupData[_stocks[i].Code] : null;
             }
 
-            // get all periods.
-            _allPeriods = allTradingData
-                .SelectMany(s => s.DataOrderedByTime.Select(b => b.Time))
-                .GroupBy(dt => dt)
-                .Select(g => g.Key)
-                .OrderBy(dt => dt)
-                .ToArray();
-
-            for (int i = 0; i < _allPeriods.Length; ++i)
-            {
-                _periodIndices.Add(_allPeriods[i], i);
-            }
-            
             // expand data to #period * #stock
             _allTradingData = new Bar[_allPeriods.Length][];
             for (int i = 0; i < _allTradingData.Length; ++i)

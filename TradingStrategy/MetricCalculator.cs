@@ -23,9 +23,7 @@ namespace TradingStrategy
         public MetricCalculator(
             StockNameTable nameTable,
             TradingHistory history, 
-            ITradingDataProvider provider, 
-            DateTime startDate, 
-            DateTime endDate)
+            ITradingDataProvider provider)
         {
             if (history == null)
             {
@@ -37,22 +35,23 @@ namespace TradingStrategy
                 throw new ArgumentNullException("provider");
             }
 
-            startDate = startDate.Date;
-            endDate = endDate.Date;
+            var periods = provider.GetAllPeriods();
 
-            if (startDate >= endDate)
+            DateTime startDate = periods.First().Date;
+            DateTime endDate = periods.Last();
+            if (endDate.Date < endDate)
             {
-                throw new ArgumentException("startDate must be earlier than endDate");
+                endDate.AddDays(1);
             }
 
             if (history.MinTransactionTime < startDate)
             {
-                throw new ArgumentOutOfRangeException("startDate is not smaller than the minimum transaction time in trading history");
+                throw new ArgumentOutOfRangeException("the minimum transaction time in trading history is smaller than the start date of provider's data");
             }
 
-            if (history.MaxTransactionTime >= endDate)
+            if (history.MaxTransactionTime > endDate)
             {
-                throw new ArgumentOutOfRangeException("endDate is not larger than the maximum transaction time in trading history");
+                throw new ArgumentOutOfRangeException("the maximum transaction time in trading history is larger than the end date of provider's data");
             }
 
             _nameTable = nameTable;
@@ -63,7 +62,7 @@ namespace TradingStrategy
 
             _initialCapital = history.InitialCapital;
             _orderedHistory = history.History.OrderBy(t => t, new Transaction.DefaultComparer());
-            _periods = _dataProvider.GetAllPeriods().Where(p => p >= _startDate && p <= _endDate).ToArray();
+            _periods = _dataProvider.GetAllPeriods().ToArray();
         }
 
         public IEnumerable<TradeMetric> Calculate()

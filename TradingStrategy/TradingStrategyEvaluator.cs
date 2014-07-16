@@ -28,6 +28,8 @@ namespace TradingStrategy
             get { return _tradingHistory; }
         }
 
+        public EventHandler<EvaluationProgressEventArgs> OnEvaluationProgress = null;
+
         public TradingStrategyEvaluator(
             double initalCapital, 
             ITradingStrategy strategy, 
@@ -86,6 +88,7 @@ namespace TradingStrategy
             Bar[] thisPeriodData = null;
             DateTime thisPeriodTime;
             DateTime lastPeriodTime = DateTime.MinValue;
+            int finishedPeriodCount = 0;
 
             while ((thisPeriodData = _provider.GetNextPeriodData(out thisPeriodTime)) != null)
             {
@@ -130,6 +133,17 @@ namespace TradingStrategy
 
                 // update last period time
                 lastPeriodTime = thisPeriodTime;
+
+                // update progress event
+                ++finishedPeriodCount;
+                if (OnEvaluationProgress != null)
+                {
+                    OnEvaluationProgress(
+                        this, 
+                        new EvaluationProgressEventArgs(
+                            thisPeriodTime, 
+                            (double)finishedPeriodCount / _provider.PeriodCount));
+                }
             }
 
             // finish evaluation

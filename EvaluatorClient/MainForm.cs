@@ -332,7 +332,7 @@ namespace EvaluatorClient
         {
             int value;
 
-            if (!int.TryParse(spreadTextBox.Text, out value) || value < 0.0)
+            if (!int.TryParse(spreadTextBox.Text, out value) || value < 0)
             {
                 // Cancel the event and select the text to be corrected by the user.
                 e.Cancel = true;
@@ -340,6 +340,21 @@ namespace EvaluatorClient
 
                 // Set the ErrorProvider error with the text to display.  
                 this.errorProvider1.SetError(spreadTextBox, "滑点需要为非负整数");
+            }
+        }
+
+        private void initialCapitalTextBox_Validating(object sender, CancelEventArgs e)
+        {
+            int value;
+
+            if (!int.TryParse(initialCapitalTextBox.Text, out value) || value < 0)
+            {
+                // Cancel the event and select the text to be corrected by the user.
+                e.Cancel = true;
+                initialCapitalTextBox.Select(0, initialCapitalTextBox.Text.Length);
+
+                // Set the ErrorProvider error with the text to display.  
+                this.errorProvider1.SetError(initialCapitalTextBox, "初始资金需要为非负整数");
             }
         }
 
@@ -473,7 +488,7 @@ namespace EvaluatorClient
                 ShowError(string.Format("Stock data file name pattern does not contain {0}", Constants.StockCodePattern));
             }
 
-            if (selectedObjectListView.SelectedItems.Count == 0)
+            if (selectedObjectListView.Items.Count == 0)
             {
                 return;
             }
@@ -495,20 +510,56 @@ namespace EvaluatorClient
                     string fileName = stockDataFileNamePattern.Replace(Constants.StockCodePattern, code);
                     fileName = Path.Combine(stockDataFileFolder, fileName);
 
-                    files.Add(fileName);
+                    if (File.Exists(fileName))
+                    {
+                        files.Add(fileName);
+                    }
                 }
+
+                if (files.Count == 0)
+                {
+                    ShowError("No data file exists, please check the configuration");
+                }
+
+                DateTime startDate = startDateTimePicker.Value.Date;
+                DateTime endDate = endDateTimePicker.Value.Date;
 
                 ChinaStockDataProvider provider 
                     = new ChinaStockDataProvider(
                         _stockNameTable, 
                         files.ToArray(), 
-                        startDateTimePicker.Value.Date, 
-                        endDateTimePicker.Value.Date, 
+                        startDate, 
+                        endDate, 
                         int.Parse(warmupTextBox.Text));
 
-                TradingStrategyEvaluator evaluator = new TradingStrategyEvaluator(0, null, "", provider, settings);
+                TradingStrategyEvaluator evaluator 
+                    = new TradingStrategyEvaluator(
+                        0, 
+                        null, 
+                        "", 
+                        provider, 
+                        settings);
 
+                evaluationProgressBar.Visible = true;
+                evaluationProgressBar.Minimum = 0;
+                evaluationProgressBar.Maximum = 100;
 
+                evaluator.OnEvaluationProgress += UpdateEvaluationProgress;
+
+                evaluator.Evaluate();
+
+                MetricCalculator calculator 
+                    = new MetricCalculator(
+                        _stockNameTable,
+                        evaluator.History,
+                        provider);
+
+                var metrics = calculator.Calculate().Select(tm => new TradeMetricSlim(tm));
+
+                foreach (var metric in metrics)
+                {
+                    tradeMetricSlimBindingSource.Add(metric);
+                }
             }
             catch (Exception ex)
             {
@@ -516,6 +567,19 @@ namespace EvaluatorClient
             }
 
             evaluationProgressBar.Visible = false;
+        }
+
+        private void UpdateEvaluationProgress(object sender, EvaluationProgressEventArgs e)
+        {
+            evaluationProgressBar.Value = (int)(e.EvaluationPercentage * 100.0);
+        }
+
+        private void findButton_Click(object sender, EventArgs e)
+        {
+            if (openFileDialog1.ShowDialog() == DialogResult.OK)
+            {
+                assemblyLocationTextBox.Text = openFileDialog1.FileName;
+            }
         }
     }
 }

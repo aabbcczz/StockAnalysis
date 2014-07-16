@@ -21,6 +21,8 @@ namespace EvaluatorClient
         public double MaxDrawDown { get; private set; }
         public double MaxDrawDownRatio { get; private set; }
 
+        public TradeMetric Metric { get; private set; }
+
         public TradeMetricSlim(TradeMetric metric)
         {
             if (metric == null)
@@ -39,6 +41,8 @@ namespace EvaluatorClient
             AnnualProfitRatio = metric.AnnualProfitRatio * 100.0;
             MaxDrawDown = metric.MaxDrawDown;
             MaxDrawDownRatio = metric.MaxDrawDownRatio * 100.0;
+
+            Metric = metric;
         }
     }
 }

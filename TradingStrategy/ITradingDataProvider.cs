@@ -10,6 +10,8 @@ namespace TradingStrategy
 {
     public interface ITradingDataProvider
     {
+        int PeriodCount { get; }
+
         IOrderedEnumerable<DateTime> GetAllPeriods();
 
         IEnumerable<ITradingObject> GetAllTradingObjects();

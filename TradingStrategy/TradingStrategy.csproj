@@ -46,6 +46,7 @@
     <Compile Include="Equity.cs" />
     <Compile Include="EquityManager.cs" />
     <Compile Include="EquityPoint.cs" />
+    <Compile Include="EvaluationProgressEventArgs.cs" />
     <Compile Include="Instruction.cs" />
     <Compile Include="ITradingDataProvider.cs" />
     <Compile Include="ITradingStrategy.cs" />

@@ -10,6 +10,10 @@ namespace TradingStrategy
 {
     public interface ITradingStrategy
     {
+        string StrategyDescription { get; }
+
+        string ParameterDescription { get; }
+
         // initialize the strategy with evaluation context and parameters.
         void Initialize(ITradingStrategyEvaluationContext context, string parameters);
 
