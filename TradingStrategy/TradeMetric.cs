@@ -9,8 +9,10 @@ namespace TradingStrategy
     public sealed class TradeMetric
     {
         public const string CodeForAll = "-----";
+        public const string NameForAll = "全部对象";
 
         public string Code { get; private set; } // if Code is CodeForAll, it represents all trading objects.
+        public string Name { get; private set; }
         public DateTime StartDate { get; private set; } // 统计起始日期
         public DateTime EndDate { get; private set; }  // 统计结束日期
         public int TotalTradingDays { get; private set; } // 总交易天数 = EndDate - StartDate + 1 { get; private set; }
@@ -66,6 +68,7 @@ namespace TradingStrategy
 
         public TradeMetric(
             string code,
+            string name,
             DateTime startDate,
             DateTime endDate,
             double startPrice,
@@ -76,6 +79,11 @@ namespace TradingStrategy
             if (code == null)
             {
                 throw new ArgumentNullException("code");
+            }
+
+            if (name == null)
+            {
+                throw new ArgumentNullException("name");
             }
 
             if (startDate.Date != startDate)
@@ -119,6 +127,7 @@ namespace TradingStrategy
             }
 
             Code = code;
+            Name = name;
             StartDate = startDate;
             EndDate = endDate;
             EquitySequence = equitySequence;

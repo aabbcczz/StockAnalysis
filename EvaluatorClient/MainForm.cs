@@ -18,8 +18,6 @@ namespace EvaluatorClient
 {
     public partial class MainForm : Form
     {
-        TradingSettings _tradingSettings;
-        ChinaStockDataProvider _provider;
         StockNameTable _stockNameTable = null;
 
         public MainForm()
@@ -27,11 +25,22 @@ namespace EvaluatorClient
             InitializeComponent();
         }
 
+        private void ShowError(string error, Exception exception = null)
+        {
+            string message = exception == null ? error : error + string.Format("\nException: {0}", exception);
+
+            MessageBox.Show(
+                message,
+                "Error",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Error);
+        }
+
         private void conditionsTabControl_Selected(object sender, TabControlEventArgs e)
         {
             if (e.TabPage == resultPage)
             {
-                exportButton.Visible = resultListView.Items.Count > 0;
+                exportButton.Visible = resultDataGridView.RowCount > 0;
             }
             else
             {
@@ -73,11 +82,9 @@ namespace EvaluatorClient
             }
             catch (Exception ex)
             {
-                MessageBox.Show(
-                    string.Format("Failed to load file \"{0}\". Exception:\n{1}", stockNameFile, ex),
-                    "Load stock names",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Error);
+                ShowError(
+                    string.Format("Failed to load file \"{0}\".", stockNameFile), 
+                    ex);
             }
 
             if (_stockNameTable != null)
@@ -122,11 +129,9 @@ namespace EvaluatorClient
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show(
-                        string.Format("Failed to load file {0}. Exception:\n{1}", file, ex),
-                        "Load trading settings",
-                        MessageBoxButtons.OK,
-                        MessageBoxIcon.Error);
+                    ShowError(
+                        string.Format("Failed to load file {0}.", file),
+                        ex);
                 }
             }
 
@@ -238,11 +243,7 @@ namespace EvaluatorClient
             {
                 if (warning)
                 {
-                    MessageBox.Show(
-                        string.Format("Exception:\n{0}", ex),
-                        "Save trading settings",
-                        MessageBoxButtons.OK,
-                        MessageBoxIcon.Error);
+                    ShowError("", ex);
                 }
 
                 return null;
@@ -276,11 +277,9 @@ namespace EvaluatorClient
             }
             catch (Exception ex)
             {
-                MessageBox.Show(
-                    string.Format("Failed to save file {0}. Exception:\n{1}", file, ex),
-                    "Save trading settings",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Error);
+                ShowError(
+                    string.Format("Failed to save file {0}.", file),
+                    ex);
             }
         }
 
@@ -452,6 +451,71 @@ namespace EvaluatorClient
                     item.Selected = true;
                 }
             }
+        }
+
+        private void evaluateButton_Click(object sender, EventArgs e)
+        {
+            if (_stockNameTable == null)
+            {
+                ShowError("No stock name is loaded");
+                return;
+            }
+
+            string stockDataFileFolder = Properties.Settings.Default.stockDataFileFolder;
+            if (!Directory.Exists(stockDataFileFolder))
+            {
+                ShowError(string.Format("Stock data file folder \"{0}\" does not exist", stockDataFileFolder));
+            }
+
+            string stockDataFileNamePattern = Properties.Settings.Default.stockDataFileNamePattern;
+            if (stockDataFileNamePattern.IndexOf(Constants.StockCodePattern) < 0)
+            {
+                ShowError(string.Format("Stock data file name pattern does not contain {0}", Constants.StockCodePattern));
+            }
+
+            if (selectedObjectListView.SelectedItems.Count == 0)
+            {
+                return;
+            }
+
+            TradingSettings settings = BuildTradingSettings(true);
+            if (settings == null)
+            {
+                return;
+            }
+
+            try
+            {
+                List<string> files = new List<string>(selectedObjectListView.SelectedItems.Count);
+
+                foreach (ListViewItem item in selectedObjectListView.SelectedItems)
+                {
+                    string code = item.Text;
+
+                    string fileName = stockDataFileNamePattern.Replace(Constants.StockCodePattern, code);
+                    fileName = Path.Combine(stockDataFileFolder, fileName);
+
+                    files.Add(fileName);
+                }
+
+                ChinaStockDataProvider provider 
+                    = new ChinaStockDataProvider(
+                        _stockNameTable, 
+                        files.ToArray(), 
+                        startDateTimePicker.Value.Date, 
+                        endDateTimePicker.Value.Date, 
+                        int.Parse(warmupTextBox.Text));
+
+                TradingStrategyEvaluator evaluator = new TradingStrategyEvaluator(0, null, "", provider, settings);
+
+
+            }
+            catch (Exception ex)
+            {
+                ShowError("Evaluation failed", ex);
+            }
+
+            evaluationProgressBar.Visible = false;
         }
     }
 }

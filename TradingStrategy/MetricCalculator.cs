@@ -18,8 +18,10 @@ namespace TradingStrategy
 
         private ITradingDataProvider _dataProvider;
         private DateTime[] _periods;
+        private StockNameTable _nameTable;
 
         public MetricCalculator(
+            StockNameTable nameTable,
             TradingHistory history, 
             ITradingDataProvider provider, 
             DateTime startDate, 
@@ -53,6 +55,7 @@ namespace TradingStrategy
                 throw new ArgumentOutOfRangeException("endDate is not larger than the maximum transaction time in trading history");
             }
 
+            _nameTable = nameTable;
             _dataProvider = provider;
 
             _startDate = startDate;
@@ -65,7 +68,7 @@ namespace TradingStrategy
 
         public IEnumerable<TradeMetric> Calculate()
         {
-            yield return GetTradeMetric(TradeMetric.CodeForAll, 0.0, 0.0);
+            yield return GetTradeMetric(TradeMetric.CodeForAll, TradeMetric.NameForAll, 0.0, 0.0);
 
             var codes = _orderedHistory
                 .Select(t => t.Code)
@@ -90,12 +93,14 @@ namespace TradingStrategy
 
                 double endPrice = bar.ClosePrice;
 
-                yield return GetTradeMetric(code, startPrice, endPrice);
+                string name = _nameTable.ContainsStock(code) ? _nameTable[code].Names[0] : string.Empty;
+
+                yield return GetTradeMetric(code, name, startPrice, endPrice);
             }
         }
 
 
-        private TradeMetric GetTradeMetric(string code, double startPrice, double endPrice)
+        private TradeMetric GetTradeMetric(string code, string name, double startPrice, double endPrice)
         {
             Transaction[] transactions = 
                 code == TradeMetric.CodeForAll 
@@ -156,6 +161,7 @@ namespace TradingStrategy
 
             return new TradeMetric(
                 code,
+                name,
                 _startDate,
                 _endDate,
                 startPrice,

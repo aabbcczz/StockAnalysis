@@ -29,18 +29,6 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.ListViewItem listViewItem11 = new System.Windows.Forms.ListViewItem(new string[] {
-            "000000",
-            "000000",
-            "1",
-            "1",
-            "100",
-            "3",
-            "100",
-            "20",
-            "10",
-            "30",
-            "30"}, -1);
             this.conditionsTabControl = new System.Windows.Forms.TabControl();
             this.settingsPage = new System.Windows.Forms.TabPage();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
@@ -85,21 +73,23 @@
             this.startDateTimePicker = new System.Windows.Forms.DateTimePicker();
             this.label11 = new System.Windows.Forms.Label();
             this.resultPage = new System.Windows.Forms.TabPage();
-            this.resultListView = new System.Windows.Forms.ListView();
-            this.columnHeader5 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.columnHeader6 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.columnHeader8 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.columnHeader9 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.columnHeader7 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.columnHeader10 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.columnHeader11 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.columnHeader12 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.columnHeader13 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.columnHeader14 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.columnHeader15 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.resultDataGridView = new System.Windows.Forms.DataGridView();
+            this.codeDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.nameDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.profitTimesDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.totalTimesDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.winRatioDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.commissionDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.netProfitDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.profitRatioDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.annualProfitRatioDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.maxDrawDownDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.maxDrawDownRatioDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.tradeMetricSlimBindingSource = new System.Windows.Forms.BindingSource(this.components);
             this.evaluateButton = new System.Windows.Forms.Button();
             this.exportButton = new System.Windows.Forms.Button();
             this.errorProvider1 = new System.Windows.Forms.ErrorProvider(this.components);
+            this.evaluationProgressBar = new System.Windows.Forms.ProgressBar();
             this.conditionsTabControl.SuspendLayout();
             this.settingsPage.SuspendLayout();
             this.groupBox2.SuspendLayout();
@@ -108,6 +98,8 @@
             this.groupBox4.SuspendLayout();
             this.groupBox3.SuspendLayout();
             this.resultPage.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.resultDataGridView)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.tradeMetricSlimBindingSource)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.errorProvider1)).BeginInit();
             this.SuspendLayout();
             // 
@@ -567,7 +559,7 @@
             // 
             // resultPage
             // 
-            this.resultPage.Controls.Add(this.resultListView);
+            this.resultPage.Controls.Add(this.resultDataGridView);
             this.resultPage.Location = new System.Drawing.Point(4, 22);
             this.resultPage.Name = "resultPage";
             this.resultPage.Padding = new System.Windows.Forms.Padding(3);
@@ -576,78 +568,116 @@
             this.resultPage.Text = "评测结果";
             this.resultPage.UseVisualStyleBackColor = true;
             // 
-            // resultListView
+            // resultDataGridView
             // 
-            this.resultListView.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-            this.columnHeader5,
-            this.columnHeader6,
-            this.columnHeader8,
-            this.columnHeader9,
-            this.columnHeader7,
-            this.columnHeader10,
-            this.columnHeader11,
-            this.columnHeader12,
-            this.columnHeader13,
-            this.columnHeader14,
-            this.columnHeader15});
-            this.resultListView.Items.AddRange(new System.Windows.Forms.ListViewItem[] {
-            listViewItem11});
-            this.resultListView.Location = new System.Drawing.Point(6, 6);
-            this.resultListView.MultiSelect = false;
-            this.resultListView.Name = "resultListView";
-            this.resultListView.Size = new System.Drawing.Size(914, 529);
-            this.resultListView.TabIndex = 0;
-            this.resultListView.UseCompatibleStateImageBehavior = false;
-            this.resultListView.View = System.Windows.Forms.View.Details;
+            this.resultDataGridView.AllowUserToAddRows = false;
+            this.resultDataGridView.AllowUserToDeleteRows = false;
+            this.resultDataGridView.AllowUserToResizeRows = false;
+            this.resultDataGridView.AutoGenerateColumns = false;
+            this.resultDataGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.resultDataGridView.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.codeDataGridViewTextBoxColumn,
+            this.nameDataGridViewTextBoxColumn,
+            this.profitTimesDataGridViewTextBoxColumn,
+            this.totalTimesDataGridViewTextBoxColumn,
+            this.winRatioDataGridViewTextBoxColumn,
+            this.commissionDataGridViewTextBoxColumn,
+            this.netProfitDataGridViewTextBoxColumn,
+            this.profitRatioDataGridViewTextBoxColumn,
+            this.annualProfitRatioDataGridViewTextBoxColumn,
+            this.maxDrawDownDataGridViewTextBoxColumn,
+            this.maxDrawDownRatioDataGridViewTextBoxColumn});
+            this.resultDataGridView.DataSource = this.tradeMetricSlimBindingSource;
+            this.resultDataGridView.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.resultDataGridView.Location = new System.Drawing.Point(3, 3);
+            this.resultDataGridView.MultiSelect = false;
+            this.resultDataGridView.Name = "resultDataGridView";
+            this.resultDataGridView.ReadOnly = true;
+            this.resultDataGridView.RowHeadersWidth = 20;
+            this.resultDataGridView.RowHeadersWidthSizeMode = System.Windows.Forms.DataGridViewRowHeadersWidthSizeMode.DisableResizing;
+            this.resultDataGridView.Size = new System.Drawing.Size(920, 535);
+            this.resultDataGridView.TabIndex = 1;
             // 
-            // columnHeader5
+            // codeDataGridViewTextBoxColumn
             // 
-            this.columnHeader5.Text = "代码";
+            this.codeDataGridViewTextBoxColumn.DataPropertyName = "Code";
+            this.codeDataGridViewTextBoxColumn.HeaderText = "代码";
+            this.codeDataGridViewTextBoxColumn.Name = "codeDataGridViewTextBoxColumn";
+            this.codeDataGridViewTextBoxColumn.ReadOnly = true;
             // 
-            // columnHeader6
+            // nameDataGridViewTextBoxColumn
             // 
-            this.columnHeader6.Text = "名称";
+            this.nameDataGridViewTextBoxColumn.DataPropertyName = "Name";
+            this.nameDataGridViewTextBoxColumn.HeaderText = "名称";
+            this.nameDataGridViewTextBoxColumn.Name = "nameDataGridViewTextBoxColumn";
+            this.nameDataGridViewTextBoxColumn.ReadOnly = true;
             // 
-            // columnHeader8
+            // profitTimesDataGridViewTextBoxColumn
             // 
-            this.columnHeader8.Text = "盈利次数";
+            this.profitTimesDataGridViewTextBoxColumn.DataPropertyName = "ProfitTimes";
+            this.profitTimesDataGridViewTextBoxColumn.HeaderText = "盈利次数";
+            this.profitTimesDataGridViewTextBoxColumn.Name = "profitTimesDataGridViewTextBoxColumn";
+            this.profitTimesDataGridViewTextBoxColumn.ReadOnly = true;
             // 
-            // columnHeader9
+            // totalTimesDataGridViewTextBoxColumn
             // 
-            this.columnHeader9.Text = "总次数";
+            this.totalTimesDataGridViewTextBoxColumn.DataPropertyName = "TotalTimes";
+            this.totalTimesDataGridViewTextBoxColumn.HeaderText = "总次数";
+            this.totalTimesDataGridViewTextBoxColumn.Name = "totalTimesDataGridViewTextBoxColumn";
+            this.totalTimesDataGridViewTextBoxColumn.ReadOnly = true;
             // 
-            // columnHeader7
+            // winRatioDataGridViewTextBoxColumn
             // 
-            this.columnHeader7.Text = "胜率 %";
+            this.winRatioDataGridViewTextBoxColumn.DataPropertyName = "WinRatio";
+            this.winRatioDataGridViewTextBoxColumn.HeaderText = "胜率%";
+            this.winRatioDataGridViewTextBoxColumn.Name = "winRatioDataGridViewTextBoxColumn";
+            this.winRatioDataGridViewTextBoxColumn.ReadOnly = true;
             // 
-            // columnHeader10
+            // commissionDataGridViewTextBoxColumn
             // 
-            this.columnHeader10.Text = "手续费（元）";
-            this.columnHeader10.Width = 86;
+            this.commissionDataGridViewTextBoxColumn.DataPropertyName = "Commission";
+            this.commissionDataGridViewTextBoxColumn.HeaderText = "手续费";
+            this.commissionDataGridViewTextBoxColumn.Name = "commissionDataGridViewTextBoxColumn";
+            this.commissionDataGridViewTextBoxColumn.ReadOnly = true;
             // 
-            // columnHeader11
+            // netProfitDataGridViewTextBoxColumn
             // 
-            this.columnHeader11.Text = "净利润（元）";
-            this.columnHeader11.Width = 85;
+            this.netProfitDataGridViewTextBoxColumn.DataPropertyName = "NetProfit";
+            this.netProfitDataGridViewTextBoxColumn.HeaderText = "净利润";
+            this.netProfitDataGridViewTextBoxColumn.Name = "netProfitDataGridViewTextBoxColumn";
+            this.netProfitDataGridViewTextBoxColumn.ReadOnly = true;
             // 
-            // columnHeader12
+            // profitRatioDataGridViewTextBoxColumn
             // 
-            this.columnHeader12.Text = "收益率 %";
+            this.profitRatioDataGridViewTextBoxColumn.DataPropertyName = "ProfitRatio";
+            this.profitRatioDataGridViewTextBoxColumn.HeaderText = "收益率%";
+            this.profitRatioDataGridViewTextBoxColumn.Name = "profitRatioDataGridViewTextBoxColumn";
+            this.profitRatioDataGridViewTextBoxColumn.ReadOnly = true;
             // 
-            // columnHeader13
+            // annualProfitRatioDataGridViewTextBoxColumn
             // 
-            this.columnHeader13.Text = "年化收益率 %";
-            this.columnHeader13.Width = 90;
+            this.annualProfitRatioDataGridViewTextBoxColumn.DataPropertyName = "AnnualProfitRatio";
+            this.annualProfitRatioDataGridViewTextBoxColumn.HeaderText = "年华收益率%";
+            this.annualProfitRatioDataGridViewTextBoxColumn.Name = "annualProfitRatioDataGridViewTextBoxColumn";
+            this.annualProfitRatioDataGridViewTextBoxColumn.ReadOnly = true;
             // 
-            // columnHeader14
+            // maxDrawDownDataGridViewTextBoxColumn
             // 
-            this.columnHeader14.Text = "最大回撤值";
-            this.columnHeader14.Width = 79;
+            this.maxDrawDownDataGridViewTextBoxColumn.DataPropertyName = "MaxDrawDown";
+            this.maxDrawDownDataGridViewTextBoxColumn.HeaderText = "最大回撤值";
+            this.maxDrawDownDataGridViewTextBoxColumn.Name = "maxDrawDownDataGridViewTextBoxColumn";
+            this.maxDrawDownDataGridViewTextBoxColumn.ReadOnly = true;
             // 
-            // columnHeader15
+            // maxDrawDownRatioDataGridViewTextBoxColumn
             // 
-            this.columnHeader15.Text = "最大回测比 %";
-            this.columnHeader15.Width = 96;
+            this.maxDrawDownRatioDataGridViewTextBoxColumn.DataPropertyName = "MaxDrawDownRatio";
+            this.maxDrawDownRatioDataGridViewTextBoxColumn.HeaderText = "最大回撤比";
+            this.maxDrawDownRatioDataGridViewTextBoxColumn.Name = "maxDrawDownRatioDataGridViewTextBoxColumn";
+            this.maxDrawDownRatioDataGridViewTextBoxColumn.ReadOnly = true;
+            // 
+            // tradeMetricSlimBindingSource
+            // 
+            this.tradeMetricSlimBindingSource.DataSource = typeof(EvaluatorClient.TradeMetricSlim);
             // 
             // evaluateButton
             // 
@@ -658,6 +688,7 @@
             this.evaluateButton.TabIndex = 1;
             this.evaluateButton.Text = "开始评测";
             this.evaluateButton.UseVisualStyleBackColor = true;
+            this.evaluateButton.Click += new System.EventHandler(this.evaluateButton_Click);
             // 
             // exportButton
             // 
@@ -674,11 +705,20 @@
             // 
             this.errorProvider1.ContainerControl = this;
             // 
+            // evaluationProgressBar
+            // 
+            this.evaluationProgressBar.Location = new System.Drawing.Point(13, 594);
+            this.evaluationProgressBar.Name = "evaluationProgressBar";
+            this.evaluationProgressBar.Size = new System.Drawing.Size(759, 23);
+            this.evaluationProgressBar.TabIndex = 3;
+            this.evaluationProgressBar.Visible = false;
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(959, 629);
+            this.Controls.Add(this.evaluationProgressBar);
             this.Controls.Add(this.exportButton);
             this.Controls.Add(this.evaluateButton);
             this.Controls.Add(this.conditionsTabControl);
@@ -698,6 +738,8 @@
             this.groupBox3.ResumeLayout(false);
             this.groupBox3.PerformLayout();
             this.resultPage.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.resultDataGridView)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.tradeMetricSlimBindingSource)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.errorProvider1)).EndInit();
             this.ResumeLayout(false);
 
@@ -750,20 +792,22 @@
         private System.Windows.Forms.ColumnHeader columnHeader4;
         private System.Windows.Forms.Label label17;
         private System.Windows.Forms.Label label16;
-        private System.Windows.Forms.ListView resultListView;
-        private System.Windows.Forms.ColumnHeader columnHeader5;
-        private System.Windows.Forms.ColumnHeader columnHeader6;
-        private System.Windows.Forms.ColumnHeader columnHeader8;
-        private System.Windows.Forms.ColumnHeader columnHeader9;
-        private System.Windows.Forms.ColumnHeader columnHeader7;
-        private System.Windows.Forms.ColumnHeader columnHeader10;
-        private System.Windows.Forms.ColumnHeader columnHeader11;
-        private System.Windows.Forms.ColumnHeader columnHeader12;
-        private System.Windows.Forms.ColumnHeader columnHeader13;
-        private System.Windows.Forms.ColumnHeader columnHeader14;
-        private System.Windows.Forms.ColumnHeader columnHeader15;
         private System.Windows.Forms.Button exportButton;
         private System.Windows.Forms.ErrorProvider errorProvider1;
+        private System.Windows.Forms.DataGridView resultDataGridView;
+        private System.Windows.Forms.DataGridViewTextBoxColumn codeDataGridViewTextBoxColumn;
+        private System.Windows.Forms.DataGridViewTextBoxColumn nameDataGridViewTextBoxColumn;
+        private System.Windows.Forms.DataGridViewTextBoxColumn profitTimesDataGridViewTextBoxColumn;
+        private System.Windows.Forms.DataGridViewTextBoxColumn totalTimesDataGridViewTextBoxColumn;
+        private System.Windows.Forms.DataGridViewTextBoxColumn winRatioDataGridViewTextBoxColumn;
+        private System.Windows.Forms.DataGridViewTextBoxColumn commissionDataGridViewTextBoxColumn;
+        private System.Windows.Forms.DataGridViewTextBoxColumn netProfitDataGridViewTextBoxColumn;
+        private System.Windows.Forms.DataGridViewTextBoxColumn profitRatioDataGridViewTextBoxColumn;
+        private System.Windows.Forms.DataGridViewTextBoxColumn annualProfitRatioDataGridViewTextBoxColumn;
+        private System.Windows.Forms.DataGridViewTextBoxColumn maxDrawDownDataGridViewTextBoxColumn;
+        private System.Windows.Forms.DataGridViewTextBoxColumn maxDrawDownRatioDataGridViewTextBoxColumn;
+        private System.Windows.Forms.BindingSource tradeMetricSlimBindingSource;
+        private System.Windows.Forms.ProgressBar evaluationProgressBar;
     }
 }
 
