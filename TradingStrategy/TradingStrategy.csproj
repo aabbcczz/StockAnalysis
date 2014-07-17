@@ -53,6 +53,7 @@
     <Compile Include="ITradingStrategyEvaluationContext.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="StandardTradingStrategyEvaluationContext.cs" />
+    <Compile Include="Strategy\MovingAverage.cs" />
     <Compile Include="TradingAction.cs" />
     <Compile Include="ITradingObject.cs" />
     <Compile Include="MetricCalculator.cs" />

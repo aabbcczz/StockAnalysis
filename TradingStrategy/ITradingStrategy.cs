@@ -10,6 +10,8 @@ namespace TradingStrategy
 {
     public interface ITradingStrategy
     {
+        string Name { get; }
+
         string StrategyDescription { get; }
 
         string ParameterDescription { get; }

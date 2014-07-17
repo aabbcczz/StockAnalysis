@@ -54,6 +54,7 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Settings.cs" />
+    <Compile Include="StrategyLoader.cs" />
     <Compile Include="TradeMetricSlim.cs" />
     <Compile Include="TradingPriceOptionBinding.cs" />
     <EmbeddedResource Include="MainForm.resx">
@@ -69,6 +70,7 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <None Include="Properties\DataSources\TradeMetricSlim.datasource" />
+    <None Include="Properties\DataSources\TradingStrategy.ITradingStrategy.datasource" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>

@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml;
 using System.Xml.Serialization;
+using System.Reflection;
 
 using TradingStrategy;
 using StockAnalysis.Share;
@@ -50,24 +51,83 @@ namespace EvaluatorClient
 
         private void MainForm_Load(object sender, EventArgs e)
         {
-            // initialize data source bindings
-            openLongOptionComboBox.DataSource = TradingPriceOptionBinding.CreateBindings();
-            openLongOptionComboBox.DisplayMember = "Text";
-            openLongOptionComboBox.ValueMember = "Option";
+            // initialize strategy loader
+            try
+            {
+                LoadStrategies();
 
-            closeLongOptionComboBox.DataSource = TradingPriceOptionBinding.CreateBindings();
-            closeLongOptionComboBox.DisplayMember = "Text";
-            closeLongOptionComboBox.ValueMember = "Option";
+                // initialize data source bindings
+                openLongOptionComboBox.DataSource = TradingPriceOptionBinding.CreateBindings();
+                openLongOptionComboBox.DisplayMember = "Text";
+                openLongOptionComboBox.ValueMember = "Option";
 
-            // load and apply trading settings from configuration file if any;
-            ApplyTradingSettings(LoadTradingSettings());
+                closeLongOptionComboBox.DataSource = TradingPriceOptionBinding.CreateBindings();
+                closeLongOptionComboBox.DisplayMember = "Text";
+                closeLongOptionComboBox.ValueMember = "Option";
 
-            // initialize evaluation time span
-            startDateTimePicker.Value = DateTime.Today.AddYears(-1);
-            endDateTimePicker.Value = DateTime.Today;
+                // load and apply trading settings from configuration file if any;
+                ApplyTradingSettings(LoadTradingSettings());
 
-            // load all possible stocks
-            LoadStocks();
+                // initialize evaluation time span
+                startDateTimePicker.Value = DateTime.Today.AddYears(-1);
+                endDateTimePicker.Value = DateTime.Today;
+
+                // load all possible stocks
+                LoadStocks();
+            }
+            catch (Exception ex)
+            {
+                ShowError("Initialization failed, please fix the problem and restart the program", ex);
+            }
+        }
+
+        private void LoadStrategies()
+        {
+            StrategyLoader.Initialize();
+
+            foreach (var strategy in StrategyLoader.Strategies)
+            {
+                iTradingStrategyBindingSource.Add(strategy);
+            }
+
+            if (StrategyLoader.Strategies.Count() > 0)
+            {
+                strategyComboBox.SelectedIndex = 0;
+                // force update
+                strategyComboBox_SelectedIndexChanged(strategyComboBox, new EventArgs());
+            }
+        }
+
+        private ITradingStrategy BuildStrategy(bool warning)
+        {
+            if (strategyComboBox.SelectedIndex < 0)
+            {
+                if (warning)
+                {
+                    ShowError("Please select strategy.");
+                }
+
+                return null;
+            }
+
+            try
+            {
+                ITradingStrategy strategy = (ITradingStrategy)strategyComboBox.SelectedItem;
+
+                // create the copy of strategy
+                ITradingStrategy copyStrategy = (ITradingStrategy)Activator.CreateInstance(strategy.GetType());
+
+                return copyStrategy;
+            }
+            catch (Exception ex)
+            {
+                if (warning)
+                {
+                    ShowError("Build strategy failed", ex);
+                }
+
+                return null;
+            }
         }
 
         private void LoadStocks()
@@ -499,8 +559,16 @@ namespace EvaluatorClient
                 return;
             }
 
+            ITradingStrategy strategy = BuildStrategy(true);
+            if (strategy == null)
+            {
+                return;
+            }
+
             try
             {
+                int initialCapital = int.Parse(initialCapitalTextBox.Text);
+
                 List<string> files = new List<string>(selectedObjectListView.SelectedItems.Count);
 
                 foreach (ListViewItem item in selectedObjectListView.SelectedItems)
@@ -534,9 +602,9 @@ namespace EvaluatorClient
 
                 TradingStrategyEvaluator evaluator 
                     = new TradingStrategyEvaluator(
-                        0, 
-                        null, 
-                        "", 
+                        initialCapital, 
+                        strategy, 
+                        parameterTextBox.Text, 
                         provider, 
                         settings);
 
@@ -574,11 +642,28 @@ namespace EvaluatorClient
             evaluationProgressBar.Value = (int)(e.EvaluationPercentage * 100.0);
         }
 
-        private void findButton_Click(object sender, EventArgs e)
+        private void strategyComboBox_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (openFileDialog1.ShowDialog() == DialogResult.OK)
+            if (strategyComboBox.SelectedIndex >= 0)
             {
-                assemblyLocationTextBox.Text = openFileDialog1.FileName;
+                ITradingStrategy strategy = (ITradingStrategy)strategyComboBox.SelectedItem;
+
+                StringBuilder builder = new StringBuilder();
+
+                builder.Append("全类型名：\n");
+                builder.Append(strategy.GetType().FullName);
+                builder.Append("\n\n");
+                builder.Append("参数描述：\n");
+                builder.Append(strategy.ParameterDescription);
+                builder.Append("\n\n");
+                builder.Append("策略描述：\n");
+                builder.Append(strategy.StrategyDescription);
+
+                descriptionTextBox.Lines = builder.ToString().Split(new char[] {'\n'});
+            }
+            else
+            {
+                descriptionTextBox.Clear();
             }
         }
     }

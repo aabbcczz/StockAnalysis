@@ -73,23 +73,15 @@
             this.startDateTimePicker = new System.Windows.Forms.DateTimePicker();
             this.label11 = new System.Windows.Forms.Label();
             this.strategyTabPage = new System.Windows.Forms.TabPage();
-            this.assemblyLocationTextBox = new System.Windows.Forms.TextBox();
-            this.label18 = new System.Windows.Forms.Label();
+            this.parameterTextBox = new System.Windows.Forms.TextBox();
+            this.label20 = new System.Windows.Forms.Label();
+            this.descriptionTextBox = new System.Windows.Forms.TextBox();
+            this.strategyComboBox = new System.Windows.Forms.ComboBox();
+            this.iTradingStrategyBindingSource = new System.Windows.Forms.BindingSource(this.components);
             this.initialCapitalTextBox = new System.Windows.Forms.TextBox();
             this.label19 = new System.Windows.Forms.Label();
             this.resultPage = new System.Windows.Forms.TabPage();
             this.resultDataGridView = new System.Windows.Forms.DataGridView();
-            this.evaluateButton = new System.Windows.Forms.Button();
-            this.exportButton = new System.Windows.Forms.Button();
-            this.errorProvider1 = new System.Windows.Forms.ErrorProvider(this.components);
-            this.evaluationProgressBar = new System.Windows.Forms.ProgressBar();
-            this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
-            this.findButton = new System.Windows.Forms.Button();
-            this.loadButton = new System.Windows.Forms.Button();
-            this.strategyComboBox = new System.Windows.Forms.ComboBox();
-            this.explanationTextBox = new System.Windows.Forms.TextBox();
-            this.textBox2 = new System.Windows.Forms.TextBox();
-            this.label20 = new System.Windows.Forms.Label();
             this.codeDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.nameDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.profitTimesDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -102,6 +94,10 @@
             this.maxDrawDownDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.maxDrawDownRatioDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.tradeMetricSlimBindingSource = new System.Windows.Forms.BindingSource(this.components);
+            this.evaluateButton = new System.Windows.Forms.Button();
+            this.exportButton = new System.Windows.Forms.Button();
+            this.errorProvider1 = new System.Windows.Forms.ErrorProvider(this.components);
+            this.evaluationProgressBar = new System.Windows.Forms.ProgressBar();
             this.conditionsTabControl.SuspendLayout();
             this.settingsPage.SuspendLayout();
             this.groupBox2.SuspendLayout();
@@ -110,10 +106,11 @@
             this.groupBox4.SuspendLayout();
             this.groupBox3.SuspendLayout();
             this.strategyTabPage.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.iTradingStrategyBindingSource)).BeginInit();
             this.resultPage.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.resultDataGridView)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.errorProvider1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.tradeMetricSlimBindingSource)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.errorProvider1)).BeginInit();
             this.SuspendLayout();
             // 
             // conditionsTabControl
@@ -579,14 +576,10 @@
             // 
             // strategyTabPage
             // 
-            this.strategyTabPage.Controls.Add(this.textBox2);
+            this.strategyTabPage.Controls.Add(this.parameterTextBox);
             this.strategyTabPage.Controls.Add(this.label20);
-            this.strategyTabPage.Controls.Add(this.explanationTextBox);
+            this.strategyTabPage.Controls.Add(this.descriptionTextBox);
             this.strategyTabPage.Controls.Add(this.strategyComboBox);
-            this.strategyTabPage.Controls.Add(this.loadButton);
-            this.strategyTabPage.Controls.Add(this.findButton);
-            this.strategyTabPage.Controls.Add(this.assemblyLocationTextBox);
-            this.strategyTabPage.Controls.Add(this.label18);
             this.strategyTabPage.Controls.Add(this.initialCapitalTextBox);
             this.strategyTabPage.Controls.Add(this.label19);
             this.strategyTabPage.Location = new System.Drawing.Point(4, 22);
@@ -597,24 +590,57 @@
             this.strategyTabPage.Text = "策略选择";
             this.strategyTabPage.UseVisualStyleBackColor = true;
             // 
-            // assemblyLocationTextBox
+            // parameterTextBox
             // 
-            this.assemblyLocationTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.parameterTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.assemblyLocationTextBox.Location = new System.Drawing.Point(127, 44);
-            this.assemblyLocationTextBox.Name = "assemblyLocationTextBox";
-            this.assemblyLocationTextBox.Size = new System.Drawing.Size(697, 20);
-            this.assemblyLocationTextBox.TabIndex = 9;
-            this.assemblyLocationTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            this.parameterTextBox.Location = new System.Drawing.Point(119, 485);
+            this.parameterTextBox.Name = "parameterTextBox";
+            this.parameterTextBox.Size = new System.Drawing.Size(786, 20);
+            this.parameterTextBox.TabIndex = 16;
             // 
-            // label18
+            // label20
             // 
-            this.label18.AutoSize = true;
-            this.label18.Location = new System.Drawing.Point(10, 47);
-            this.label18.Name = "label18";
-            this.label18.Size = new System.Drawing.Size(111, 13);
-            this.label18.TabIndex = 8;
-            this.label18.Text = "策略所在Assembly：";
+            this.label20.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.label20.AutoSize = true;
+            this.label20.Location = new System.Drawing.Point(10, 488);
+            this.label20.Name = "label20";
+            this.label20.Size = new System.Drawing.Size(103, 13);
+            this.label20.TabIndex = 15;
+            this.label20.Text = "策略初始化参数：";
+            // 
+            // descriptionTextBox
+            // 
+            this.descriptionTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.descriptionTextBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.descriptionTextBox.Location = new System.Drawing.Point(13, 62);
+            this.descriptionTextBox.Multiline = true;
+            this.descriptionTextBox.Name = "descriptionTextBox";
+            this.descriptionTextBox.ReadOnly = true;
+            this.descriptionTextBox.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
+            this.descriptionTextBox.ShortcutsEnabled = false;
+            this.descriptionTextBox.Size = new System.Drawing.Size(892, 404);
+            this.descriptionTextBox.TabIndex = 13;
+            // 
+            // strategyComboBox
+            // 
+            this.strategyComboBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.strategyComboBox.DataSource = this.iTradingStrategyBindingSource;
+            this.strategyComboBox.DisplayMember = "Name";
+            this.strategyComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.strategyComboBox.FormattingEnabled = true;
+            this.strategyComboBox.Location = new System.Drawing.Point(13, 35);
+            this.strategyComboBox.Name = "strategyComboBox";
+            this.strategyComboBox.Size = new System.Drawing.Size(892, 21);
+            this.strategyComboBox.TabIndex = 12;
+            this.strategyComboBox.SelectedIndexChanged += new System.EventHandler(this.strategyComboBox_SelectedIndexChanged);
+            // 
+            // iTradingStrategyBindingSource
+            // 
+            this.iTradingStrategyBindingSource.DataSource = typeof(TradingStrategy.ITradingStrategy);
             // 
             // initialCapitalTextBox
             // 
@@ -677,113 +703,6 @@
             this.resultDataGridView.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.resultDataGridView.Size = new System.Drawing.Size(920, 535);
             this.resultDataGridView.TabIndex = 1;
-            // 
-            // evaluateButton
-            // 
-            this.evaluateButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.evaluateButton.Location = new System.Drawing.Point(872, 586);
-            this.evaluateButton.Name = "evaluateButton";
-            this.evaluateButton.Size = new System.Drawing.Size(75, 32);
-            this.evaluateButton.TabIndex = 1;
-            this.evaluateButton.Text = "开始评测";
-            this.evaluateButton.UseVisualStyleBackColor = true;
-            this.evaluateButton.Click += new System.EventHandler(this.evaluateButton_Click);
-            // 
-            // exportButton
-            // 
-            this.exportButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.exportButton.Location = new System.Drawing.Point(791, 586);
-            this.exportButton.Name = "exportButton";
-            this.exportButton.Size = new System.Drawing.Size(75, 32);
-            this.exportButton.TabIndex = 2;
-            this.exportButton.Text = "导出结果";
-            this.exportButton.UseVisualStyleBackColor = true;
-            this.exportButton.Visible = false;
-            // 
-            // errorProvider1
-            // 
-            this.errorProvider1.ContainerControl = this;
-            // 
-            // evaluationProgressBar
-            // 
-            this.evaluationProgressBar.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.evaluationProgressBar.Location = new System.Drawing.Point(13, 594);
-            this.evaluationProgressBar.Name = "evaluationProgressBar";
-            this.evaluationProgressBar.Size = new System.Drawing.Size(759, 23);
-            this.evaluationProgressBar.TabIndex = 3;
-            this.evaluationProgressBar.Visible = false;
-            // 
-            // openFileDialog1
-            // 
-            this.openFileDialog1.Filter = "*.dll|*.*";
-            this.openFileDialog1.Title = "查找策略所在Assembly";
-            // 
-            // findButton
-            // 
-            this.findButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.findButton.Location = new System.Drawing.Point(830, 41);
-            this.findButton.Name = "findButton";
-            this.findButton.Size = new System.Drawing.Size(75, 25);
-            this.findButton.TabIndex = 4;
-            this.findButton.Text = "查找";
-            this.findButton.UseVisualStyleBackColor = true;
-            this.findButton.Click += new System.EventHandler(this.findButton_Click);
-            // 
-            // loadButton
-            // 
-            this.loadButton.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.loadButton.Location = new System.Drawing.Point(13, 80);
-            this.loadButton.Name = "loadButton";
-            this.loadButton.Size = new System.Drawing.Size(892, 26);
-            this.loadButton.TabIndex = 10;
-            this.loadButton.Text = "加载";
-            this.loadButton.UseVisualStyleBackColor = true;
-            // 
-            // strategyComboBox
-            // 
-            this.strategyComboBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.strategyComboBox.FormattingEnabled = true;
-            this.strategyComboBox.Location = new System.Drawing.Point(13, 122);
-            this.strategyComboBox.Name = "strategyComboBox";
-            this.strategyComboBox.Size = new System.Drawing.Size(892, 21);
-            this.strategyComboBox.TabIndex = 12;
-            // 
-            // explanationTextBox
-            // 
-            this.explanationTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.explanationTextBox.Location = new System.Drawing.Point(13, 159);
-            this.explanationTextBox.Multiline = true;
-            this.explanationTextBox.Name = "explanationTextBox";
-            this.explanationTextBox.ReadOnly = true;
-            this.explanationTextBox.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.explanationTextBox.ShortcutsEnabled = false;
-            this.explanationTextBox.Size = new System.Drawing.Size(892, 307);
-            this.explanationTextBox.TabIndex = 13;
-            // 
-            // textBox2
-            // 
-            this.textBox2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.textBox2.Location = new System.Drawing.Point(119, 485);
-            this.textBox2.Name = "textBox2";
-            this.textBox2.Size = new System.Drawing.Size(786, 20);
-            this.textBox2.TabIndex = 16;
-            this.textBox2.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
-            // 
-            // label20
-            // 
-            this.label20.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.label20.AutoSize = true;
-            this.label20.Location = new System.Drawing.Point(10, 488);
-            this.label20.Name = "label20";
-            this.label20.Size = new System.Drawing.Size(103, 13);
-            this.label20.TabIndex = 15;
-            this.label20.Text = "策略初始化参数：";
             // 
             // codeDataGridViewTextBoxColumn
             // 
@@ -866,6 +785,42 @@
             // 
             this.tradeMetricSlimBindingSource.DataSource = typeof(EvaluatorClient.TradeMetricSlim);
             // 
+            // evaluateButton
+            // 
+            this.evaluateButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.evaluateButton.Location = new System.Drawing.Point(872, 586);
+            this.evaluateButton.Name = "evaluateButton";
+            this.evaluateButton.Size = new System.Drawing.Size(75, 32);
+            this.evaluateButton.TabIndex = 1;
+            this.evaluateButton.Text = "开始评测";
+            this.evaluateButton.UseVisualStyleBackColor = true;
+            this.evaluateButton.Click += new System.EventHandler(this.evaluateButton_Click);
+            // 
+            // exportButton
+            // 
+            this.exportButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.exportButton.Location = new System.Drawing.Point(791, 586);
+            this.exportButton.Name = "exportButton";
+            this.exportButton.Size = new System.Drawing.Size(75, 32);
+            this.exportButton.TabIndex = 2;
+            this.exportButton.Text = "导出结果";
+            this.exportButton.UseVisualStyleBackColor = true;
+            this.exportButton.Visible = false;
+            // 
+            // errorProvider1
+            // 
+            this.errorProvider1.ContainerControl = this;
+            // 
+            // evaluationProgressBar
+            // 
+            this.evaluationProgressBar.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.evaluationProgressBar.Location = new System.Drawing.Point(13, 594);
+            this.evaluationProgressBar.Name = "evaluationProgressBar";
+            this.evaluationProgressBar.Size = new System.Drawing.Size(759, 23);
+            this.evaluationProgressBar.TabIndex = 3;
+            this.evaluationProgressBar.Visible = false;
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -892,10 +847,11 @@
             this.groupBox3.PerformLayout();
             this.strategyTabPage.ResumeLayout(false);
             this.strategyTabPage.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.iTradingStrategyBindingSource)).EndInit();
             this.resultPage.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.resultDataGridView)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.errorProvider1)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.tradeMetricSlimBindingSource)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.errorProvider1)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -966,15 +922,11 @@
         private System.Windows.Forms.TabPage strategyTabPage;
         private System.Windows.Forms.TextBox initialCapitalTextBox;
         private System.Windows.Forms.Label label19;
-        private System.Windows.Forms.TextBox assemblyLocationTextBox;
-        private System.Windows.Forms.Label label18;
-        private System.Windows.Forms.OpenFileDialog openFileDialog1;
-        private System.Windows.Forms.Button findButton;
-        private System.Windows.Forms.TextBox textBox2;
+        private System.Windows.Forms.TextBox parameterTextBox;
         private System.Windows.Forms.Label label20;
-        private System.Windows.Forms.TextBox explanationTextBox;
+        private System.Windows.Forms.TextBox descriptionTextBox;
         private System.Windows.Forms.ComboBox strategyComboBox;
-        private System.Windows.Forms.Button loadButton;
+        private System.Windows.Forms.BindingSource iTradingStrategyBindingSource;
     }
 }
 
