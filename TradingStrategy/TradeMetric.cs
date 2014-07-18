@@ -29,7 +29,7 @@ namespace TradingStrategy
         public double TotalLoss { get; private set; } // 总亏损
         public double TotalCommission { get; private set; } // 总手续费
         public double NetProfit { get; private set; } // 净利润 = TotalProfit - TotalLoss - TotalCommission
-        public double ProfitRatio { get; private set; } // 收益率 = (NetProfit - InitialEquity) / InitialEquity { get; private set; }
+        public double ProfitRatio { get; private set; } // 收益率 = NetProfit / InitialEquity
         public double AnnualProfitRatio { get; private set; } // 年化收益率 = ProfitRatio / TotalTradingDays * 365
 
         public int TotalTradingTimes { get; private set; } // 总交易次数，每次卖出算做一次交易 = ProfitTradingTimes + LossTradingTimes
@@ -178,7 +178,7 @@ namespace TradingStrategy
             TotalLoss = TransactionSequence.Sum(ct => ct.SoldGain < ct.BuyCost ? ct.BuyCost - ct.SoldGain : 0.0);
             TotalCommission = TransactionSequence.Sum(ct => ct.Commission);
             NetProfit = TotalProfit - TotalLoss - TotalCommission;
-            ProfitRatio = (NetProfit - InitialEquity) / InitialEquity;
+            ProfitRatio = NetProfit / InitialEquity;
             AnnualProfitRatio = ProfitRatio * 365 / TotalTradingDays;
 
             // update trading times related metrics
@@ -201,8 +201,17 @@ namespace TradingStrategy
             CalcuateMaxDrawDownMetrics();
 
             // update max profit/loss related metrics
-            MaxProfitInOneTransaction = TransactionSequence.Max(ct => ct.SoldGain > ct.BuyCost ? ct.SoldGain - ct.BuyCost : 0.0);
-            MaxLossInOneTransaction = TransactionSequence.Min(ct => ct.SoldGain < ct.BuyCost ? ct.BuyCost - ct.SoldGain : 0.0);
+            if (TransactionSequence.Count() > 0)
+            {
+                MaxProfitInOneTransaction = TransactionSequence.Max(ct => ct.SoldGain > ct.BuyCost ? ct.SoldGain - ct.BuyCost : 0.0);
+                MaxLossInOneTransaction = TransactionSequence.Min(ct => ct.SoldGain < ct.BuyCost ? ct.BuyCost - ct.SoldGain : 0.0);
+            }
+            else
+            {
+                MaxProfitInOneTransaction = 0.0;
+                MaxLossInOneTransaction = 0.0;
+            }
+
             ProfitRatioWithoutMaxProfit = (NetProfit - MaxProfitInOneTransaction) / InitialEquity;
             ProfitRatioWithoutMaxLoss = (NetProfit + MaxProfitInOneTransaction) / InitialEquity;
         }

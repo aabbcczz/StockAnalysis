@@ -20,7 +20,7 @@ namespace TradingStrategy
 
         private DateTime[] _allPeriods = null;
 
-        private Dictionary<DateTime, int> _periodIndices = null;
+        private Dictionary<DateTime, int> _periodIndices = new Dictionary<DateTime,int>();
 
         private Bar[][] _allTradingData = null;
 

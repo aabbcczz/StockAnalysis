@@ -17,7 +17,7 @@ namespace TradingStrategy
         string ParameterDescription { get; }
 
         // initialize the strategy with evaluation context and parameters.
-        void Initialize(ITradingStrategyEvaluationContext context, string parameters);
+        void Initialize(IEvaluationContext context, string[] parameters);
 
         // Warm up the strategy. this function will be called many times to traverse all warming up data
         void WarmUp(ITradingObject tradingObject, Bar bar);

@@ -6,8 +6,10 @@ using System.Threading.Tasks;
 
 namespace TradingStrategy
 {
-    public interface ITradingStrategyEvaluationContext
+    public interface IEvaluationContext
     {
+        long GetUniqueInstructionId();
+
         double GetCurrentCapital();
 
         IEnumerable<string> GetAllEquityCodes();
@@ -15,5 +17,7 @@ namespace TradingStrategy
         bool ExistsEquity(string code);
 
         IEnumerable<Equity> GetEquityDetails(string code);
+
+        void Log(string log);
     }
 }

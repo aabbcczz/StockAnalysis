@@ -6,11 +6,13 @@ using System.Threading.Tasks;
 
 namespace TradingStrategy
 {
-    internal sealed class StandardTradingStrategyEvaluationContext : ITradingStrategyEvaluationContext
+    internal sealed class StandardEvaluationContext : IEvaluationContext
     {
+        private long _instructionId = 0;
         private EquityManager _equityManager;
+        private ILogger _logger;
 
-        public StandardTradingStrategyEvaluationContext(EquityManager manager)
+        public StandardEvaluationContext(EquityManager manager, ILogger logger)
         {
             if (manager == null)
             {
@@ -18,6 +20,12 @@ namespace TradingStrategy
             }
 
             _equityManager = manager;
+            _logger = logger;
+        }
+
+        public long GetUniqueInstructionId()
+        {
+            return _instructionId++;
         }
 
         public double GetCurrentCapital()
@@ -38,6 +46,14 @@ namespace TradingStrategy
         public IEnumerable<Equity> GetEquityDetails(string code)
         {
             return _equityManager.GetEquityDetails(code);
+        }
+
+        public void Log(string log)
+        {
+            if (_logger != null)
+            {
+                _logger.Log(log);
+            }
         }
     }
 }

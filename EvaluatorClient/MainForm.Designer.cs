@@ -29,7 +29,7 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            this.conditionsTabControl = new System.Windows.Forms.TabControl();
+            this.tabControl1 = new System.Windows.Forms.TabControl();
             this.settingsPage = new System.Windows.Forms.TabPage();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.closeLongOptionComboBox = new System.Windows.Forms.ComboBox();
@@ -94,11 +94,13 @@
             this.maxDrawDownDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.maxDrawDownRatioDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.tradeMetricSlimBindingSource = new System.Windows.Forms.BindingSource(this.components);
+            this.logPage = new System.Windows.Forms.TabPage();
+            this.logTextBox = new System.Windows.Forms.TextBox();
             this.evaluateButton = new System.Windows.Forms.Button();
             this.exportButton = new System.Windows.Forms.Button();
             this.errorProvider1 = new System.Windows.Forms.ErrorProvider(this.components);
             this.evaluationProgressBar = new System.Windows.Forms.ProgressBar();
-            this.conditionsTabControl.SuspendLayout();
+            this.tabControl1.SuspendLayout();
             this.settingsPage.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox1.SuspendLayout();
@@ -110,24 +112,26 @@
             this.resultPage.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.resultDataGridView)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.tradeMetricSlimBindingSource)).BeginInit();
+            this.logPage.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.errorProvider1)).BeginInit();
             this.SuspendLayout();
             // 
-            // conditionsTabControl
+            // tabControl1
             // 
-            this.conditionsTabControl.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            this.tabControl1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.conditionsTabControl.Controls.Add(this.settingsPage);
-            this.conditionsTabControl.Controls.Add(this.selectionPage);
-            this.conditionsTabControl.Controls.Add(this.strategyTabPage);
-            this.conditionsTabControl.Controls.Add(this.resultPage);
-            this.conditionsTabControl.Location = new System.Drawing.Point(13, 13);
-            this.conditionsTabControl.Name = "conditionsTabControl";
-            this.conditionsTabControl.SelectedIndex = 0;
-            this.conditionsTabControl.Size = new System.Drawing.Size(934, 567);
-            this.conditionsTabControl.TabIndex = 0;
-            this.conditionsTabControl.Selected += new System.Windows.Forms.TabControlEventHandler(this.conditionsTabControl_Selected);
+            this.tabControl1.Controls.Add(this.settingsPage);
+            this.tabControl1.Controls.Add(this.selectionPage);
+            this.tabControl1.Controls.Add(this.strategyTabPage);
+            this.tabControl1.Controls.Add(this.resultPage);
+            this.tabControl1.Controls.Add(this.logPage);
+            this.tabControl1.Location = new System.Drawing.Point(13, 13);
+            this.tabControl1.Name = "tabControl1";
+            this.tabControl1.SelectedIndex = 0;
+            this.tabControl1.Size = new System.Drawing.Size(934, 567);
+            this.tabControl1.TabIndex = 0;
+            this.tabControl1.Selected += new System.Windows.Forms.TabControlEventHandler(this.conditionsTabControl_Selected);
             // 
             // settingsPage
             // 
@@ -594,9 +598,9 @@
             // 
             this.parameterTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.parameterTextBox.Location = new System.Drawing.Point(119, 485);
+            this.parameterTextBox.Location = new System.Drawing.Point(251, 485);
             this.parameterTextBox.Name = "parameterTextBox";
-            this.parameterTextBox.Size = new System.Drawing.Size(786, 20);
+            this.parameterTextBox.Size = new System.Drawing.Size(654, 20);
             this.parameterTextBox.TabIndex = 16;
             // 
             // label20
@@ -605,9 +609,9 @@
             this.label20.AutoSize = true;
             this.label20.Location = new System.Drawing.Point(10, 488);
             this.label20.Name = "label20";
-            this.label20.Size = new System.Drawing.Size(103, 13);
+            this.label20.Size = new System.Drawing.Size(235, 13);
             this.label20.TabIndex = 15;
-            this.label20.Text = "策略初始化参数：";
+            this.label20.Text = "策略初始化参数（用逗号或者分号分割）：";
             // 
             // descriptionTextBox
             // 
@@ -763,7 +767,7 @@
             // annualProfitRatioDataGridViewTextBoxColumn
             // 
             this.annualProfitRatioDataGridViewTextBoxColumn.DataPropertyName = "AnnualProfitRatio";
-            this.annualProfitRatioDataGridViewTextBoxColumn.HeaderText = "年华收益率%";
+            this.annualProfitRatioDataGridViewTextBoxColumn.HeaderText = "年化收益率%";
             this.annualProfitRatioDataGridViewTextBoxColumn.Name = "annualProfitRatioDataGridViewTextBoxColumn";
             this.annualProfitRatioDataGridViewTextBoxColumn.ReadOnly = true;
             // 
@@ -784,6 +788,27 @@
             // tradeMetricSlimBindingSource
             // 
             this.tradeMetricSlimBindingSource.DataSource = typeof(EvaluatorClient.TradeMetricSlim);
+            // 
+            // logPage
+            // 
+            this.logPage.Controls.Add(this.logTextBox);
+            this.logPage.Location = new System.Drawing.Point(4, 22);
+            this.logPage.Name = "logPage";
+            this.logPage.Size = new System.Drawing.Size(926, 541);
+            this.logPage.TabIndex = 4;
+            this.logPage.Text = "评估日志";
+            this.logPage.UseVisualStyleBackColor = true;
+            // 
+            // logTextBox
+            // 
+            this.logTextBox.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.logTextBox.Location = new System.Drawing.Point(0, 0);
+            this.logTextBox.Multiline = true;
+            this.logTextBox.Name = "logTextBox";
+            this.logTextBox.ReadOnly = true;
+            this.logTextBox.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
+            this.logTextBox.Size = new System.Drawing.Size(926, 541);
+            this.logTextBox.TabIndex = 0;
             // 
             // evaluateButton
             // 
@@ -819,7 +844,6 @@
             this.evaluationProgressBar.Name = "evaluationProgressBar";
             this.evaluationProgressBar.Size = new System.Drawing.Size(759, 23);
             this.evaluationProgressBar.TabIndex = 3;
-            this.evaluationProgressBar.Visible = false;
             // 
             // MainForm
             // 
@@ -829,12 +853,12 @@
             this.Controls.Add(this.evaluationProgressBar);
             this.Controls.Add(this.exportButton);
             this.Controls.Add(this.evaluateButton);
-            this.Controls.Add(this.conditionsTabControl);
+            this.Controls.Add(this.tabControl1);
             this.Name = "MainForm";
             this.Text = "交易策略评估";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
             this.Load += new System.EventHandler(this.MainForm_Load);
-            this.conditionsTabControl.ResumeLayout(false);
+            this.tabControl1.ResumeLayout(false);
             this.settingsPage.ResumeLayout(false);
             this.groupBox2.ResumeLayout(false);
             this.groupBox2.PerformLayout();
@@ -851,6 +875,8 @@
             this.resultPage.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.resultDataGridView)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.tradeMetricSlimBindingSource)).EndInit();
+            this.logPage.ResumeLayout(false);
+            this.logPage.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.errorProvider1)).EndInit();
             this.ResumeLayout(false);
 
@@ -858,7 +884,7 @@
 
         #endregion
 
-        private System.Windows.Forms.TabControl conditionsTabControl;
+        private System.Windows.Forms.TabControl tabControl1;
         private System.Windows.Forms.TabPage settingsPage;
         private System.Windows.Forms.TabPage selectionPage;
         private System.Windows.Forms.TabPage resultPage;
@@ -906,6 +932,16 @@
         private System.Windows.Forms.Button exportButton;
         private System.Windows.Forms.ErrorProvider errorProvider1;
         private System.Windows.Forms.DataGridView resultDataGridView;
+        private System.Windows.Forms.BindingSource tradeMetricSlimBindingSource;
+        private System.Windows.Forms.ProgressBar evaluationProgressBar;
+        private System.Windows.Forms.TabPage strategyTabPage;
+        private System.Windows.Forms.TextBox initialCapitalTextBox;
+        private System.Windows.Forms.Label label19;
+        private System.Windows.Forms.TextBox parameterTextBox;
+        private System.Windows.Forms.Label label20;
+        private System.Windows.Forms.TextBox descriptionTextBox;
+        private System.Windows.Forms.ComboBox strategyComboBox;
+        private System.Windows.Forms.BindingSource iTradingStrategyBindingSource;
         private System.Windows.Forms.DataGridViewTextBoxColumn codeDataGridViewTextBoxColumn;
         private System.Windows.Forms.DataGridViewTextBoxColumn nameDataGridViewTextBoxColumn;
         private System.Windows.Forms.DataGridViewTextBoxColumn profitTimesDataGridViewTextBoxColumn;
@@ -917,16 +953,8 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn annualProfitRatioDataGridViewTextBoxColumn;
         private System.Windows.Forms.DataGridViewTextBoxColumn maxDrawDownDataGridViewTextBoxColumn;
         private System.Windows.Forms.DataGridViewTextBoxColumn maxDrawDownRatioDataGridViewTextBoxColumn;
-        private System.Windows.Forms.BindingSource tradeMetricSlimBindingSource;
-        private System.Windows.Forms.ProgressBar evaluationProgressBar;
-        private System.Windows.Forms.TabPage strategyTabPage;
-        private System.Windows.Forms.TextBox initialCapitalTextBox;
-        private System.Windows.Forms.Label label19;
-        private System.Windows.Forms.TextBox parameterTextBox;
-        private System.Windows.Forms.Label label20;
-        private System.Windows.Forms.TextBox descriptionTextBox;
-        private System.Windows.Forms.ComboBox strategyComboBox;
-        private System.Windows.Forms.BindingSource iTradingStrategyBindingSource;
+        private System.Windows.Forms.TabPage logPage;
+        private System.Windows.Forms.TextBox logTextBox;
     }
 }
 

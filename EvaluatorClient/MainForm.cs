@@ -235,15 +235,15 @@ namespace EvaluatorClient
                 chargeByAmountRadioButton.Checked = true;
                 chargeByVolumeRadioButton.Checked = false;
                 tariffTextBox.Text = "0";
-                buyCommissionTextBox.Text = string.Format("{0:0.0000}", settings.BuyingCommission.Tariff * 100);
-                sellCommissionTextBox.Text = string.Format("{0:0.0000}", settings.SellingCommission.Tariff * 100);
+                buyCommissionTextBox.Text = string.Format("{0:0.00}", settings.BuyingCommission.Tariff * 100);
+                sellCommissionTextBox.Text = string.Format("{0:0.00}", settings.SellingCommission.Tariff * 100);
                 
             }
             else
             {
                 chargeByAmountRadioButton.Checked = false;
                 chargeByVolumeRadioButton.Checked = true;
-                tariffTextBox.Text = string.Format("{0:0.0000}", settings.BuyingCommission.Tariff);
+                tariffTextBox.Text = string.Format("{0:0.00}", settings.BuyingCommission.Tariff);
                 buyCommissionTextBox.Text = "0.05";
                 sellCommissionTextBox.Text = "0.05";
             }
@@ -569,9 +569,9 @@ namespace EvaluatorClient
             {
                 int initialCapital = int.Parse(initialCapitalTextBox.Text);
 
-                List<string> files = new List<string>(selectedObjectListView.SelectedItems.Count);
+                List<string> files = new List<string>(selectedObjectListView.Items.Count);
 
-                foreach (ListViewItem item in selectedObjectListView.SelectedItems)
+                foreach (ListViewItem item in selectedObjectListView.Items)
                 {
                     string code = item.Text;
 
@@ -587,11 +587,13 @@ namespace EvaluatorClient
                 if (files.Count == 0)
                 {
                     ShowError("No data file exists, please check the configuration");
+                    return;
                 }
 
                 DateTime startDate = startDateTimePicker.Value.Date;
                 DateTime endDate = endDateTimePicker.Value.Date;
 
+                // create data provider
                 ChinaStockDataProvider provider 
                     = new ChinaStockDataProvider(
                         _stockNameTable, 
@@ -600,22 +602,34 @@ namespace EvaluatorClient
                         endDate, 
                         int.Parse(warmupTextBox.Text));
 
+                // clear logs and create new logger;
+                logTextBox.Clear();
+                
+                CallbackLogger logger = new CallbackLogger();
+                logger.OnLog = EvaluationLogHandler;
+
+                // create evaluator
+                string[] parameters = parameterTextBox.Text.Split(new char[] { ',', ';' });
+
                 TradingStrategyEvaluator evaluator 
                     = new TradingStrategyEvaluator(
                         initialCapital, 
                         strategy, 
-                        parameterTextBox.Text, 
+                        parameters, 
                         provider, 
-                        settings);
+                        settings,
+                        logger);
 
-                evaluationProgressBar.Visible = true;
+                // reset progress bar and register progress updater.
                 evaluationProgressBar.Minimum = 0;
                 evaluationProgressBar.Maximum = 100;
-
+                evaluationProgressBar.Value = 0;
                 evaluator.OnEvaluationProgress += UpdateEvaluationProgress;
 
+                // evalute strategy
                 evaluator.Evaluate();
 
+                // calculate metrics
                 MetricCalculator calculator 
                     = new MetricCalculator(
                         _stockNameTable,
@@ -624,17 +638,26 @@ namespace EvaluatorClient
 
                 var metrics = calculator.Calculate().Select(tm => new TradeMetricSlim(tm));
 
+                // show results
+                tradeMetricSlimBindingSource.Clear();
                 foreach (var metric in metrics)
                 {
                     tradeMetricSlimBindingSource.Add(metric);
                 }
+
+                // switch to result page
+                this.tabControl1.SelectedTab = resultPage; 
             }
             catch (Exception ex)
             {
                 ShowError("Evaluation failed", ex);
             }
+        }
 
-            evaluationProgressBar.Visible = false;
+        private void EvaluationLogHandler(string log)
+        {
+            logTextBox.AppendText("\n");
+            logTextBox.AppendText(log);
         }
 
         private void UpdateEvaluationProgress(object sender, EvaluationProgressEventArgs e)

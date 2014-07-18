@@ -34,7 +34,7 @@ namespace EvaluatorClient.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("stockname.txt")]
+        [global::System.Configuration.DefaultSettingValueAttribute("e:\\stock\\fullstockname.txt")]
         public string stockNameFile {
             get {
                 return ((string)(this["stockNameFile"]));
@@ -43,7 +43,7 @@ namespace EvaluatorClient.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("..\\processedLatestDailyData\\includeRight")]
+        [global::System.Configuration.DefaultSettingValueAttribute("e:\\stock\\processedFullDailyData\\includeRight")]
         public string stockDataFileFolder {
             get {
                 return ((string)(this["stockDataFileFolder"]));

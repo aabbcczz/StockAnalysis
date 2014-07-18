@@ -11,10 +11,10 @@ namespace TradingStrategy
     public sealed class TradingStrategyEvaluator
     {
         private ITradingStrategy _strategy;
-        private string _strategyParameters;
+        private string[] _strategyParameters;
         private ITradingDataProvider _provider;
         private EquityManager _equityManager;
-        private StandardTradingStrategyEvaluationContext _context;
+        private StandardEvaluationContext _context;
         private TradingSettings _settings;
         private TradingHistory _tradingHistory = null;
         private ITradingObject[] _allTradingObjects = null;
@@ -33,9 +33,10 @@ namespace TradingStrategy
         public TradingStrategyEvaluator(
             double initalCapital, 
             ITradingStrategy strategy, 
-            string strategyParameters, 
+            string[] strategyParameters, 
             ITradingDataProvider provider, 
-            TradingSettings settings)
+            TradingSettings settings,
+            ILogger logger)
         {
             if (strategy == null || provider == null || settings == null)
             {
@@ -50,7 +51,7 @@ namespace TradingStrategy
             _settings = settings;
 
             _equityManager = new EquityManager(initalCapital);
-            _context = new StandardTradingStrategyEvaluationContext(_equityManager);
+            _context = new StandardEvaluationContext(_equityManager, logger);
             _tradingHistory = new TradingHistory(initalCapital);
         }
 
