@@ -41,5 +41,12 @@ namespace TradingStrategy
         /// <param name="bar">[OUT] returned data if any</param>
         /// <returns>true if there is data for the trading object, otherwise false is returned</returns>
         bool GetLastEffectiveBar(string code, DateTime period, out Bar bar);
+
+        /// <summary>
+        /// Get all bar data for given trading object.
+        /// </summary>
+        /// <param name="code">code of trading object</param>
+        /// <returns>all bar data ordered by time ascending. if there is not data exists, null is returned</returns>
+        Bar[] GetAllBarsForTradingObject(string code);
     }
 }

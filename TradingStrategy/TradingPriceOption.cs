@@ -9,17 +9,14 @@ namespace TradingStrategy
     [Flags]
     public enum TradingPriceOption : int
     {
-        TimeMask = 0x01,
-        CurrentPeriod = 0x0,
-        NextPeriod = 0x1,
+        CurrentPeriod = 0x1,
+        NextPeriod = 0x2,
 
-        PriceMask = 0xFE,
-
-        OpenPrice = 0x2,
-        MiddlePrice = 0x4,
-        ClosePrice = 0x8,
-        HighestPrice = 0x10,
-        LowestPrice = 0x20,
+        OpenPrice = 0x4,
+        MiddlePrice = 0x8,
+        ClosePrice = 0x10,
+        HighestPrice = 0x20,
+        LowestPrice = 0x40,
         
         CurrentMiddlePrice = CurrentPeriod | MiddlePrice,
         CurrentHighestPrice = CurrentPeriod | HighestPrice,

@@ -59,6 +59,8 @@ namespace TradingStrategy
 
                 // charge money
                 CurrentCapital -= charge;
+
+                return true;
             }
             else if (transaction.Action == TradingAction.CloseLong)
             {
@@ -158,8 +160,6 @@ namespace TradingStrategy
                 throw new InvalidOperationException(
                     string.Format("unsupported action {0}", transaction.Action));
             }
-            
-            throw new InvalidProgramException();
         }
 
         public IEnumerable<Equity> GetEquityDetails(string code)

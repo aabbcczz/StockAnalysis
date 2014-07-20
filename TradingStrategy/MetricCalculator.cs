@@ -67,7 +67,15 @@ namespace TradingStrategy
 
         public IEnumerable<TradeMetric> Calculate()
         {
-            yield return GetTradeMetric(TradeMetric.CodeForAll, TradeMetric.NameForAll, 0.0, 0.0);
+            TradeMetric metric = GetTradeMetric(TradeMetric.CodeForAll, TradeMetric.NameForAll, 0.0, 0.0);
+            if (metric == null)
+            {
+                yield break;
+            }
+            else
+            {
+                yield return metric;
+            }
 
             var codes = _orderedHistory
                 .Select(t => t.Code)
@@ -76,25 +84,25 @@ namespace TradingStrategy
 
             foreach (var code in codes)
             {
-                Bar bar;
+                Bar[] bars = _dataProvider.GetAllBarsForTradingObject(code);
 
-                if (!_dataProvider.GetLastEffectiveBar(code, _periods.First(), out bar))
+                if (bars == null || bars.Length == 0)
                 {
                     throw new InvalidOperationException("logic error");
                 }
 
-                double startPrice = bar.ClosePrice;
+                double startPrice = bars.First().ClosePrice;
 
-                if (!_dataProvider.GetLastEffectiveBar(code, _periods.Last(), out bar))
-                {
-                    throw new InvalidOperationException("logic error");
-                }
-
-                double endPrice = bar.ClosePrice;
+                double endPrice = bars.Last().ClosePrice;
 
                 string name = _nameTable.ContainsStock(code) ? _nameTable[code].Names[0] : string.Empty;
 
-                yield return GetTradeMetric(code, name, startPrice, endPrice);
+                metric = GetTradeMetric(code, name, startPrice, endPrice);
+                
+                if (metric != null)
+                {
+                    yield return metric;
+                }
             }
         }
 
@@ -123,15 +131,20 @@ namespace TradingStrategy
 
                 while (transactionIndex < transactions.Length)
                 {
+                    Transaction transaction = transactions[transactionIndex];
+
                     string error;
-                    if (transactions[transactionIndex].ExecutionTime < period)
+                    if (transaction.ExecutionTime <= period)
                     {
-                        if (!manager.ExecuteTransaction(
-                                transactions[transactionIndex], 
-                                out completedTransaction, 
-                                out error))
+                        if (transaction.Succeeded)
                         {
-                            throw new InvalidOperationException("Replay transaction failed: " + error);
+                            if (!manager.ExecuteTransaction(
+                                    transaction,
+                                    out completedTransaction,
+                                    out error))
+                            {
+                                throw new InvalidOperationException("Replay transaction failed: " + error);
+                            }
                         }
 
                         ++transactionIndex;
@@ -156,6 +169,11 @@ namespace TradingStrategy
                 }
 
                 equityPoints.Add(new EquityPoint() { Equity = currentEquity, Time = period });
+            }
+
+            if (completedTransactions.Count == 0)
+            {
+                return null;
             }
 
             return new TradeMetric(

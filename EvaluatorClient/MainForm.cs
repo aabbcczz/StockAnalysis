@@ -405,9 +405,9 @@ namespace EvaluatorClient
 
         private void initialCapitalTextBox_Validating(object sender, CancelEventArgs e)
         {
-            int value;
+            double value;
 
-            if (!int.TryParse(initialCapitalTextBox.Text, out value) || value < 0)
+            if (!double.TryParse(initialCapitalTextBox.Text, out value) || value < 0.0)
             {
                 // Cancel the event and select the text to be corrected by the user.
                 e.Cancel = true;

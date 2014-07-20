@@ -67,18 +67,7 @@ namespace TradingStrategy
                 writer.WriteLine("InstructionId,SubmissionTime,ExecutionTime,Action,Code,Price,Volume,Commission,Succeeded,Error");
                 foreach (var t in history.History)
                 {
-                    writer.WriteLine(
-                        "{0},{1:yyyy-MM-dd HH:mm:ss},{2:yyyy-MM-dd HH:mm:ss}, {3}, {4}, {5:0.00}, {6:0.00}, {7:0.00}, {8}, {9}",
-                        t.InstructionId,
-                        t.SubmissionTime,
-                        t.ExecutionTime,
-                        (int)t.Action,
-                        t.Code,
-                        t.Price,
-                        t.Volume,
-                        t.Commission,
-                        t.Succeeded,
-                        t.Error);
+                    writer.WriteLine(t.ToString());
                 }
             }
         }
@@ -113,30 +102,10 @@ namespace TradingStrategy
 
             for (int i = 1; i < lines.Length; ++i)
             {
-                string[] fields = lines[i].Split(new char[] { ',' });
-                if (fields.Length < 10)
-                {
-                    // there should be 10 fields
-                    throw new InvalidDataException(
-                        string.Format("Data format error: there is no enough fields in line {0}\n{1}", i, lines[i]));
-
-                }
 
                 try
                 {
-                    Transaction transaction = new Transaction()
-                    {
-                        InstructionId = long.Parse(fields[0]),
-                        SubmissionTime = DateTime.Parse(fields[1]),
-                        ExecutionTime = DateTime.Parse(fields[2]),
-                        Action = (TradingAction)int.Parse(fields[3]),
-                        Code = fields[4],
-                        Price = double.Parse(fields[5]),
-                        Volume = int.Parse(fields[6]),
-                        Commission = double.Parse(fields[7]),
-                        Succeeded = bool.Parse(fields[8]),
-                        Error = string.Join(",", fields.Skip(9)) // all remained fields are error message.
-                    };
+                    Transaction transaction = Transaction.Parse(lines[i]);
 
                     // additional check
                     if (string.IsNullOrWhiteSpace(transaction.Code))

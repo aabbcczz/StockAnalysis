@@ -124,10 +124,13 @@ namespace TradingStrategy
                 // get instructions and add them to pending instruction list
                 var instructions = _strategy.GetInstructions();
 
-                _pendingInstructions.AddRange(instructions);
+                if (instructions != null && instructions.Count() > 0)
+                {
+                    _pendingInstructions.AddRange(instructions);
 
-                // run instructions for current period
-                RunPendingInstructions(thisPeriodData, thisPeriodTime, true);
+                    // run instructions for current period
+                    RunPendingInstructions(thisPeriodData, thisPeriodTime, true);
+                }
 
                 // end period
                 _strategy.EndPeriod();

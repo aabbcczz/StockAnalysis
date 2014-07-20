@@ -56,5 +56,50 @@ namespace TradingStrategy
                 return 0;
             }
         }
+
+        public override string ToString()
+        {
+            return string.Format(
+                "{0},{1:yyyy-MM-dd HH:mm:ss},{2:yyyy-MM-dd HH:mm:ss}, {3}, {4}, {5:0.00}, {6:0.00}, {7:0.00}, {8}, {9}",
+                InstructionId,
+                SubmissionTime,
+                ExecutionTime,
+                (int)Action,
+                Code,
+                Price,
+                Volume,
+                Commission,
+                Succeeded,
+                Error);
+        }
+
+        public static Transaction Parse(string s)
+        {
+            string[] fields = s.Split(new char[] { ',' });
+            if (fields.Length < 10)
+            {
+                // there should be 10 fields
+                throw new FormatException(
+                    string.Format("Data format error: there is no enough fields in \"{0}\"", s));
+
+            }
+
+
+            Transaction transaction = new Transaction()
+            {
+                InstructionId = long.Parse(fields[0]),
+                SubmissionTime = DateTime.Parse(fields[1]),
+                ExecutionTime = DateTime.Parse(fields[2]),
+                Action = (TradingAction)int.Parse(fields[3]),
+                Code = fields[4],
+                Price = double.Parse(fields[5]),
+                Volume = int.Parse(fields[6]),
+                Commission = double.Parse(fields[7]),
+                Succeeded = bool.Parse(fields[8]),
+                Error = string.Join(",", fields.Skip(9)) // all remained fields are error message.
+            };
+
+            return transaction;
+        }
     }
 }

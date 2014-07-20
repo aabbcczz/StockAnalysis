@@ -21,13 +21,5 @@ namespace MetricsDefinition
 
             _windowSize = windowSize;
         }
-
-
-        //public abstract double[][] Calculate(double[][] input);
-
-        //public double[] Calculate(double[] input)
-        //{
-        //    return Calculate(new double[1][] { input })[0];
-        //}
     }
 }

@@ -220,7 +220,7 @@ namespace TradingStrategy
         {
             EquityPoint[] equityPoints = EquitySequence.ToArray();
             
-            MaxDrawDownRatio = double.MaxValue;
+            MaxDrawDownRatio = double.MinValue;
             bool foundMaxDrawDown = false;
 
             int i = 0;
@@ -287,16 +287,16 @@ namespace TradingStrategy
                     {
                         throw new InvalidOperationException("logic error");
                     }
-                    else
-                    {
-                        // meet the end of sequence
-                        break;                        
-                    }
                 }
 
                 if (foundNextHigh)
                 {
                     i = nextHighIndex;
+                }
+                else
+                {
+                    // meet end of sequence
+                    break;
                 }
             }
 

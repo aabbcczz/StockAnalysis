@@ -108,6 +108,21 @@ namespace TradingStrategy
             return false;
         }
 
+        public Bar[] GetAllBarsForTradingObject(string code)
+        {
+            if (!_stockIndices.ContainsKey(code))
+            {
+                return null;
+            }
+
+            int stockIndex = _stockIndices[code];
+
+            return _allTradingData
+                .Select(x => x[stockIndex])
+                .Where(bar => !bar.Invalid())
+                .ToArray();
+        }
+
         public ChinaStockDataProvider(StockNameTable nameTable, string[] dataFiles, DateTime start, DateTime end, int warmupDataSize)
         {
             if (nameTable == null)

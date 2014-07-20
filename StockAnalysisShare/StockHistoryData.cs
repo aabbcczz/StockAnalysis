@@ -76,7 +76,11 @@ namespace StockAnalysis.Share
                 dailyData.Volume = double.Parse(row[6]);
                 dailyData.Amount = double.Parse(row[7]);
 
-                if (dailyData.Volume != 0.0)
+                if (dailyData.Volume != 0.0 
+                    && dailyData.OpenPrice > 0.0
+                    && dailyData.ClosePrice > 0.0
+                    && dailyData.HighestPrice > 0.0
+                    && dailyData.LowestPrice > 0.0)
                 {
                     data.Add(dailyData);
                 }
