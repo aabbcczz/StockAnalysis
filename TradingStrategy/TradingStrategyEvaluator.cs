@@ -280,7 +280,8 @@ namespace TradingStrategy
             string error;
 
             bool succeeded = _equityManager.ExecuteTransaction(
-                transaction, 
+                transaction,
+                false,
                 out error);
 
             transaction.Succeeded = succeeded;
@@ -384,6 +385,11 @@ namespace TradingStrategy
             else if (instruction.Action == TradingAction.CloseLong)
             {
                 price -= _settings.Spread * instruction.Object.MinPriceUnit;
+
+                if (price < instruction.Object.MinPriceUnit)
+                {
+                    price = instruction.Object.MinPriceUnit;
+                }
             }
 
             return price;

@@ -140,6 +140,7 @@ namespace TradingStrategy
                         {
                             if (!manager.ExecuteTransaction(
                                     transaction,
+                                    code != TradeMetric.CodeForAll,
                                     out completedTransaction,
                                     out error))
                             {

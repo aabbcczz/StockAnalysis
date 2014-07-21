@@ -23,15 +23,17 @@ namespace TradingStrategy
         }
 
         public bool ExecuteTransaction(
-            Transaction transaction, 
+            Transaction transaction,
+            bool allowNegativeCapital,
             out string error)
         {
             CompletedTransaction completed;
-            return ExecuteTransaction(transaction, out completed, out error);
+            return ExecuteTransaction(transaction, allowNegativeCapital, out completed, out error);
         }
 
         public bool ExecuteTransaction(
             Transaction transaction, 
+            bool allowNegativeCapital,
             out CompletedTransaction completedTransaction, 
             out string error)
         {
@@ -42,7 +44,7 @@ namespace TradingStrategy
             {
                 double charge = transaction.Price * transaction.Volume + transaction.Commission;
 
-                if (CurrentCapital < charge)
+                if (CurrentCapital < charge && !allowNegativeCapital)
                 {
                     error = "No enough capital for the transaction";
                     return false;

@@ -40,6 +40,7 @@ namespace TradingStrategy.Strategy
         private int _short;
         private int _long;
         private double _maxRiskOfTotalCapital = 0.02;
+        private int _maxVolumeUnitForSingleObject = 100;
         private double _initialCapital;
 
         private Dictionary<ITradingObject, RuntimeMetrics> _metrics = new Dictionary<ITradingObject, RuntimeMetrics>();
@@ -184,8 +185,11 @@ namespace TradingStrategy.Strategy
                 {
                     // buy
                     double risk = tradingObject.VolumePerBuyingUnit * atr;
-                    int unit = (int)(_initialCapital * _maxRiskOfTotalCapital / risk);
-                    int volume = unit * tradingObject.VolumePerBuyingUnit;
+                    
+                    int unitCount = (int)(_initialCapital * _maxRiskOfTotalCapital / risk);
+                    unitCount = Math.Min(unitCount, _maxVolumeUnitForSingleObject);
+
+                    int volume = unitCount * tradingObject.VolumePerBuyingUnit;
                     double cost = volume * bar.ClosePrice;
 
                     if (cost < _capitalInCurrentPeriod)
@@ -203,7 +207,7 @@ namespace TradingStrategy.Strategy
 
                         _context.Log(
                             string.Format(
-                                "{0} {1:yyyy-mm-dd HH:mm:ss}: try to buy {2} vol {3} [ps:{4:0.00}, pl:{5:0.00}, cs:{6:0.00}, cl:{7:0.00}]",
+                                "{0} {1:yyyy-MM-dd HH:mm:ss}: try to buy {2} vol {3} [ps:{4:0.00}, pl:{5:0.00}, cs:{6:0.00}, cl:{7:0.00}]",
                                 id,
                                 _period,
                                 tradingObject.Code,
