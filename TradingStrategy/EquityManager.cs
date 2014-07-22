@@ -164,6 +164,8 @@ namespace TradingStrategy
             }
         }
 
+        public int EquityCount { get { return _equities.Count; } }
+
         public IEnumerable<Equity> GetEquityDetails(string code)
         {
             return _equities[code];

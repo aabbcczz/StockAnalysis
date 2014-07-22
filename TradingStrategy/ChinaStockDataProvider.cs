@@ -155,7 +155,7 @@ namespace TradingStrategy
                 {
                     if (!String.IsNullOrWhiteSpace(file) && File.Exists(file))
                     {
-                        StockHistoryData data = StockHistoryData.LoadFromFile(file, DateTime.MinValue, DateTime.MaxValue, nameTable);
+                        StockHistoryData data = ChinaStockDataAccessor.Load(file, nameTable);
 
                         var dataBeforeStart = data.DataOrderedByTime.Where(b => b.Time < start);
                         var dataInbetween = data.DataOrderedByTime.Where(b => b.Time >= start && b.Time <= end);

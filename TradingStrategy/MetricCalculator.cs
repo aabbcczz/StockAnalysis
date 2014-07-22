@@ -106,6 +106,64 @@ namespace TradingStrategy
             }
         }
 
+        private double EstimateUsedCapital(Transaction[] transactions)
+        {
+            if (transactions == null)
+            {
+                throw new ArgumentNullException("transactions");
+            }
+
+            if (transactions.Length == 0)
+            {
+                return 0.0;
+            }
+
+            if (transactions[0].Action != TradingAction.OpenLong)
+            {
+                throw new ArgumentException("First transaction is not openning long");
+            }
+
+            double usedCapital = 0.0;
+            double currentCapital = 0.0;
+
+            for (int i = 0; i < transactions.Length; ++i)
+            {
+                Transaction transaction = transactions[i];
+                if (!transaction.Succeeded)
+                {
+                    continue;
+                }
+
+                if (transaction.Action == TradingAction.OpenLong)
+                {
+                    double capitalForThisTransaction = 
+                        transaction.Price * transaction.Volume + transaction.Commission;
+
+                    if (capitalForThisTransaction > currentCapital)
+                    {
+                        usedCapital += capitalForThisTransaction - currentCapital;
+                        currentCapital = 0.0;
+                    }
+                    else
+                    {
+                        currentCapital -= capitalForThisTransaction;
+                    }
+                }
+                else if (transaction.Action == TradingAction.CloseLong)
+                {
+                    double capitalForThisTransaction = 
+                        transaction.Price * transaction.Volume - transaction.Commission;
+
+                    currentCapital += capitalForThisTransaction;
+                }
+                else
+                {
+                    throw new InvalidProgramException("Logic error");
+                }
+            }
+
+            return usedCapital + 1.0; // add 1.0 to avoid accumulated precision loss.
+        }
 
         private TradeMetric GetTradeMetric(string code, string name, double startPrice, double endPrice)
         {
@@ -114,10 +172,12 @@ namespace TradingStrategy
                 ? _orderedHistory.ToArray()
                 : _orderedHistory.Where(t => t.Code == code).ToArray();
 
-            EquityManager manager = new EquityManager(_initialCapital);
+            double usedCapital = EstimateUsedCapital(transactions);
+
+            EquityManager manager = new EquityManager(usedCapital);
 
             int transactionIndex = 0;
-            double currentEquity = manager.InitialCapital;
+            double currentEquity = usedCapital; 
 
             List<CompletedTransaction> completedTransactions = new List<CompletedTransaction>(transactions.Length / 2 + 1);
             List<EquityPoint> equityPoints = new List<EquityPoint>(_periods.Length);
@@ -126,7 +186,6 @@ namespace TradingStrategy
             {
                 DateTime period = _periods[i];
 
-                bool equityChanged = false;
                 CompletedTransaction completedTransaction = null;
 
                 while (transactionIndex < transactions.Length)
@@ -154,8 +213,6 @@ namespace TradingStrategy
                         {
                             completedTransactions.Add(completedTransaction);
                         }
-
-                        equityChanged = true;
                     }
                     else
                     {
@@ -163,7 +220,7 @@ namespace TradingStrategy
                     }
                 }
 
-                if (equityChanged)
+                if (manager.EquityCount > 0)
                 {
                     // if any transaction is executed, update the total equity.
                     currentEquity = manager.GetTotalEquityMarketValue(_dataProvider, period);

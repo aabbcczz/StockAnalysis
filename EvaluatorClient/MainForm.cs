@@ -24,6 +24,21 @@ namespace EvaluatorClient
         public MainForm()
         {
             InitializeComponent();
+
+            resultDataGridView.AutoGenerateColumns = false;
+
+            codeResultDataGridViewColumn.DataPropertyName = "Code";
+            nameResultDataGridViewColumn.DataPropertyName = "Name";
+            profitTimesResultDataGridViewColumn.DataPropertyName = "ProfitTimes";
+            totalTimesResultDataGridViewColumn.DataPropertyName = "TotalTimes";
+            winRatioResultDataGridViewColumn.DataPropertyName = "WinRatio";
+            commissionResultDataGridViewColumn.DataPropertyName = "Commission";
+            netProfitResultDataGridViewColumn.DataPropertyName = "NetProfit";
+            profitRatioResultDataGridViewColumn.DataPropertyName = "ProfitRatio";
+            annualProfitRatioResultDataGridViewColumn.DataPropertyName = "AnnualProfitRatio";
+            maxDrawDownResultDataGridViewColumn.DataPropertyName = "MaxDrawDown";
+            maxDrawDownRatioResultDataGridViewColumn.DataPropertyName = "MaxDrawDownRatio";
+
         }
 
         private void ShowError(string error, Exception exception = null)
@@ -639,11 +654,8 @@ namespace EvaluatorClient
                 var metrics = calculator.Calculate().Select(tm => new TradeMetricSlim(tm));
 
                 // show results
-                tradeMetricSlimBindingSource.Clear();
-                foreach (var metric in metrics)
-                {
-                    tradeMetricSlimBindingSource.Add(metric);
-                }
+                SortableBindingList<TradeMetricSlim> results = new SortableBindingList<TradeMetricSlim>(metrics);
+                resultDataGridView.DataSource = results;
 
                 // switch to result page
                 this.tabControl1.SelectedTab = resultPage; 
