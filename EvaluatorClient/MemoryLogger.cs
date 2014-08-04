@@ -8,18 +8,18 @@ using TradingStrategy;
 
 namespace EvaluatorClient
 {
-    class CallbackLogger : ILogger
+    class MemoryLogger : ILogger
     {
-        public delegate void LogHandler(string log);
+        private List<string> _logs = new List<string>();
 
-        public LogHandler OnLog { get; set; }
+        public IEnumerable<string> Logs
+        {
+            get { return _logs; }
+        }
 
         public void Log(string log)
         {
-            if (OnLog != null)
-            {
-                OnLog(log);
-            }
+            _logs.Add(log);
         }
     }
 }

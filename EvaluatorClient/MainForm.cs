@@ -582,7 +582,7 @@ namespace EvaluatorClient
 
             try
             {
-                int initialCapital = int.Parse(initialCapitalTextBox.Text);
+                double initialCapital = double.Parse(initialCapitalTextBox.Text);
 
                 List<string> files = new List<string>(selectedObjectListView.Items.Count);
 
@@ -620,8 +620,7 @@ namespace EvaluatorClient
                 // clear logs and create new logger;
                 logTextBox.Clear();
                 
-                CallbackLogger logger = new CallbackLogger();
-                logger.OnLog = EvaluationLogHandler;
+                MemoryLogger logger = new MemoryLogger();
 
                 // create evaluator
                 string[] parameters = parameterTextBox.Text.Split(new char[] { ',', ';' });
@@ -644,6 +643,10 @@ namespace EvaluatorClient
                 // evalute strategy
                 evaluator.Evaluate();
 
+                // update log
+                logTextBox.Clear();
+                logTextBox.Lines = logger.Logs.ToArray();
+
                 // calculate metrics
                 MetricCalculator calculator 
                     = new MetricCalculator(
@@ -664,12 +667,6 @@ namespace EvaluatorClient
             {
                 ShowError("Evaluation failed", ex);
             }
-        }
-
-        private void EvaluationLogHandler(string log)
-        {
-            logTextBox.AppendText("\n");
-            logTextBox.AppendText(log);
         }
 
         private void UpdateEvaluationProgress(object sender, EvaluationProgressEventArgs e)

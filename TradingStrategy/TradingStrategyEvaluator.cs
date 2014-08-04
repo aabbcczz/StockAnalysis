@@ -72,16 +72,31 @@ namespace TradingStrategy
                 _tradingObjectIndexByCode.Add(_allTradingObjects[i].Code, i);
             }
 
-            // warm up
-            foreach (var tradingObject in _allTradingObjects)
-            {
-                var warmupData = _provider.GetWarmUpData(tradingObject.Code);
-                if (warmupData != null)
+            Action<ITradingObject> warmupAction = 
+                (ITradingObject obj) =>
                 {
-                    foreach (var bar in _provider.GetWarmUpData(tradingObject.Code))
+                    var warmupData = _provider.GetWarmUpData(obj.Code);
+                    if (warmupData != null)
                     {
-                        _strategy.WarmUp(tradingObject, bar);
+                        foreach (var bar in _provider.GetWarmUpData(obj.Code))
+                        {
+                            _strategy.WarmUp(obj, bar);
+                        }
                     }
+                };
+
+            // warm up
+            if (_strategy.SupportParallelization)
+            {
+                Parallel.ForEach(
+                    _allTradingObjects,
+                    warmupAction);
+            }
+            else
+            {
+                foreach (var tradingObject in _allTradingObjects)
+                {
+                    warmupAction(tradingObject);
                 }
             }
 
@@ -104,20 +119,33 @@ namespace TradingStrategy
                 // run pending instructions left over from previous period
                 RunPendingInstructions(thisPeriodData, thisPeriodTime, false);
 
-                // evaluate bar data
-                for (int i = 0; i < thisPeriodData.Length; ++i)
-                {
-                    Bar bar = thisPeriodData[i];
-                    ITradingObject tradingObject = _allTradingObjects[i];
-
-                    if (!bar.Invalid())
+                Action<int> evaluationAction =
+                    (int i) =>
                     {
-                        if (bar.Time != thisPeriodTime)
-                        {
-                            throw new InvalidOperationException("Time in bar data is different with the time returned by data provider");
-                        }
+                        Bar bar = thisPeriodData[i];
+                        ITradingObject tradingObject = _allTradingObjects[i];
 
-                        _strategy.Evaluate(tradingObject, bar);
+                        if (!bar.Invalid())
+                        {
+                            if (bar.Time != thisPeriodTime)
+                            {
+                                throw new InvalidOperationException("Time in bar data is different with the time returned by data provider");
+                            }
+
+                            _strategy.Evaluate(tradingObject, bar);
+                        }
+                    };
+
+                // evaluate bar data
+                if (_strategy.SupportParallelization)
+                {
+                    Parallel.For(0, thisPeriodData.Length, evaluationAction);
+                }
+                else
+                {
+                    for (int i = 0; i < thisPeriodData.Length; ++i)
+                    {
+                        evaluationAction(i);
                     }
                 }
 

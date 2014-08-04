@@ -20,6 +20,7 @@ namespace TradingStrategy
             }
 
             StockHistoryData data = StockHistoryData.LoadFromFile(file, DateTime.MinValue, DateTime.MaxValue, nameTable);
+
             _cache.Add(file, data);
 
             return data;

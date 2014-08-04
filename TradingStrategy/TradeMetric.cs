@@ -63,8 +63,8 @@ namespace TradingStrategy
         public double EndPrice { get; private set; } // 品种结束价格
         public double Rise { get; private set; } // 区间涨幅 = (EndPrice - StartPrice) / StartPrice 
 
-        public IOrderedEnumerable<EquityPoint> EquitySequence { get; private set; } // 所有权益按周期排序
-        public IOrderedEnumerable<CompletedTransaction> TransactionSequence { get; private set; } // all completed transactions, ordered by execution time and code
+        public EquityPoint[] OrderedEquitySequence { get; private set; } // 所有权益按周期排序
+        public CompletedTransaction[] OrderedTransactionSequence { get; private set; } // all completed transactions, ordered by execution time and code
 
         public TradeMetric(
             string code,
@@ -73,8 +73,8 @@ namespace TradingStrategy
             DateTime endDate,
             double startPrice,
             double endPrice,
-            IOrderedEnumerable<EquityPoint> equitySequence, 
-            IOrderedEnumerable<CompletedTransaction> transactionSequence)
+            EquityPoint[] orderedEquitySequence, 
+            CompletedTransaction[] orderedTransactionSequence)
         {
             if (code == null)
             {
@@ -101,27 +101,27 @@ namespace TradingStrategy
                 throw new ArgumentException("startDate must be earlier than endDate");
             }
 
-            if (equitySequence == null)
+            if (orderedEquitySequence == null)
             {
                 throw new ArgumentNullException("equitySequence");
             }
 
-            if (transactionSequence == null)
+            if (orderedTransactionSequence == null)
             {
                 throw new ArgumentNullException("transactionSequence");
             }
 
-            if (equitySequence.Count() == 0)
+            if (orderedEquitySequence.Length == 0)
             {
                 throw new ArgumentException("equitySequence does not contain data");
             }
 
-            if (equitySequence.First().Time < startDate)
+            if (orderedEquitySequence[0].Time < startDate)
             {
                 throw new ArgumentOutOfRangeException("the smallest time in equitySequence is eariler than startDate");
             }
 
-            if (equitySequence.Last().Time > endDate)
+            if (orderedEquitySequence[orderedEquitySequence.Length - 1].Time > endDate)
             {
                 throw new ArgumentOutOfRangeException("the largest time in equitySequence is later than endDate");
             }
@@ -130,8 +130,8 @@ namespace TradingStrategy
             Name = name;
             StartDate = startDate;
             EndDate = endDate;
-            EquitySequence = equitySequence;
-            TransactionSequence = transactionSequence;
+            OrderedEquitySequence = orderedEquitySequence;
+            OrderedTransactionSequence = orderedTransactionSequence;
             StartPrice = startPrice;
             EndPrice = endPrice;
             Rise = startPrice == 0.0 ? 0.0 : (endPrice - startPrice) / startPrice;
@@ -145,15 +145,15 @@ namespace TradingStrategy
             TotalTradingDays = (int)(EndDate.Subtract(StartDate).TotalDays + 1.0);
 
             // update initial/final equity
-            InitialEquity = EquitySequence.First().Equity;
-            FinalEquity = EquitySequence.Last().Equity;
+            InitialEquity = OrderedEquitySequence[0].Equity;
+            FinalEquity = OrderedEquitySequence[OrderedEquitySequence.Length - 1].Equity;
 
             // update total/profit/loss periods and profit/loss period ratio
-            TotalPeriods = EquitySequence.Count();
+            TotalPeriods = OrderedEquitySequence.Length;
             ProfitPeriods = 0;
             LossPeriods = 0;
             double previousEquity = double.NaN;
-            foreach (var e in EquitySequence)
+            foreach (var e in OrderedEquitySequence)
             {
                 if (!double.IsNaN(previousEquity))
                 {
@@ -174,26 +174,26 @@ namespace TradingStrategy
 
 
             // update profit related metrics
-            TotalProfit = TransactionSequence.Sum(ct => ct.SoldGain > ct.BuyCost ? ct.SoldGain - ct.BuyCost : 0.0);
-            TotalLoss = TransactionSequence.Sum(ct => ct.SoldGain < ct.BuyCost ? ct.BuyCost - ct.SoldGain : 0.0);
-            TotalCommission = TransactionSequence.Sum(ct => ct.Commission);
+            TotalProfit = OrderedTransactionSequence.Sum(ct => ct.SoldGain > ct.BuyCost ? ct.SoldGain - ct.BuyCost : 0.0);
+            TotalLoss = OrderedTransactionSequence.Sum(ct => ct.SoldGain < ct.BuyCost ? ct.BuyCost - ct.SoldGain : 0.0);
+            TotalCommission = OrderedTransactionSequence.Sum(ct => ct.Commission);
             NetProfit = TotalProfit - TotalLoss - TotalCommission;
             ProfitRatio = NetProfit / InitialEquity;
             AnnualProfitRatio = ProfitRatio * 365 / TotalTradingDays;
 
             // update trading times related metrics
-            TotalTradingTimes = TransactionSequence.Count();
-            ProfitTradingTimes = TransactionSequence.Count(ct => ct.SoldGain > ct.BuyCost);
-            LossTradingTimes = TransactionSequence.Count(ct => ct.SoldGain < ct.BuyCost);
+            TotalTradingTimes = OrderedTransactionSequence.Count();
+            ProfitTradingTimes = OrderedTransactionSequence.Count(ct => ct.SoldGain > ct.BuyCost);
+            LossTradingTimes = OrderedTransactionSequence.Count(ct => ct.SoldGain < ct.BuyCost);
             ProfitCoefficient = TotalTradingTimes == 0 ? 0.0 : (double)(ProfitTradingTimes - LossTradingTimes) / TotalTradingTimes;
             ProfitTimesRatio = TotalTradingTimes == 0 ? 0.0 : (double)ProfitTradingTimes / TotalTradingTimes;
             LossTimesRatio = TotalTradingTimes == 0 ? 0.0 : (double)LossTradingTimes / TotalTradingTimes;
             ProfitLossTimesRatio = LossTradingTimes == 0 ? 0.0 : (double)ProfitTradingTimes / LossTradingTimes;
 
             // update trading volume related metrics
-            TotalVolume = TransactionSequence.Sum(ct => ct.Volume);
-            ProfitVolume = TransactionSequence.Sum(ct => ct.SoldGain > ct.BuyCost ? ct.Volume : 0);
-            LossVolume = TransactionSequence.Sum(ct => ct.SoldGain < ct.BuyCost ? ct.Volume : 0);
+            TotalVolume = OrderedTransactionSequence.Sum(ct => ct.Volume);
+            ProfitVolume = OrderedTransactionSequence.Sum(ct => ct.SoldGain > ct.BuyCost ? ct.Volume : 0);
+            LossVolume = OrderedTransactionSequence.Sum(ct => ct.SoldGain < ct.BuyCost ? ct.Volume : 0);
             AverageProfit = ProfitVolume == 0 ? 0.0 : TotalProfit / ProfitVolume;
             AverageLoss = LossVolume == 0 ? 0.0 : TotalLoss / LossVolume;
 
@@ -201,10 +201,10 @@ namespace TradingStrategy
             CalcuateMaxDrawDownMetrics();
 
             // update max profit/loss related metrics
-            if (TransactionSequence.Count() > 0)
+            if (OrderedTransactionSequence.Count() > 0)
             {
-                MaxProfitInOneTransaction = TransactionSequence.Max(ct => ct.SoldGain > ct.BuyCost ? ct.SoldGain - ct.BuyCost : 0.0);
-                MaxLossInOneTransaction = TransactionSequence.Min(ct => ct.SoldGain < ct.BuyCost ? ct.BuyCost - ct.SoldGain : 0.0);
+                MaxProfitInOneTransaction = OrderedTransactionSequence.Max(ct => ct.SoldGain > ct.BuyCost ? ct.SoldGain - ct.BuyCost : 0.0);
+                MaxLossInOneTransaction = OrderedTransactionSequence.Min(ct => ct.SoldGain < ct.BuyCost ? ct.BuyCost - ct.SoldGain : 0.0);
             }
             else
             {
@@ -218,7 +218,7 @@ namespace TradingStrategy
 
         private void CalcuateMaxDrawDownMetrics()
         {
-            EquityPoint[] equityPoints = EquitySequence.ToArray();
+            EquityPoint[] equityPoints = OrderedEquitySequence.ToArray();
             
             MaxDrawDownRatio = double.MinValue;
             bool foundMaxDrawDown = false;
@@ -304,9 +304,9 @@ namespace TradingStrategy
             {
                 MaxDrawDown = 0.0;
                 MaxDrawDownRatio = 0.0;
-                MaxDrawDownStartTime = EquitySequence.First().Time;
+                MaxDrawDownStartTime = OrderedEquitySequence.First().Time;
                 MaxDrawDownStartEquity = InitialEquity;
-                MaxDrawDownEndTime = EquitySequence.Last().Time;
+                MaxDrawDownEndTime = OrderedEquitySequence.Last().Time;
                 MaxDrawDownEndEquity = FinalEquity;
             }
 

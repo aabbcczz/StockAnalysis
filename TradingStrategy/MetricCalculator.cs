@@ -10,7 +10,7 @@ namespace TradingStrategy
 {
     public sealed class MetricCalculator
     {
-        private IOrderedEnumerable<Transaction> _orderedHistory = null;
+        private Transaction[] _orderedHistory = null;
         private double _initialCapital = 0.0;
 
         private DateTime _startDate;
@@ -61,20 +61,24 @@ namespace TradingStrategy
             _endDate = endDate;
 
             _initialCapital = history.InitialCapital;
-            _orderedHistory = history.History.OrderBy(t => t, new Transaction.DefaultComparer());
+            _orderedHistory = history.History
+                .OrderBy(t => t, new Transaction.DefaultComparer())
+                .ToArray();
             _periods = _dataProvider.GetAllPeriods().ToArray();
         }
 
         public IEnumerable<TradeMetric> Calculate()
         {
+            List<TradeMetric> metrics = new List<TradeMetric>();
+
             TradeMetric metric = GetTradeMetric(TradeMetric.CodeForAll, TradeMetric.NameForAll, 0.0, 0.0);
             if (metric == null)
             {
-                yield break;
+                return metrics;
             }
             else
             {
-                yield return metric;
+                metrics.Add(metric);
             }
 
             var codes = _orderedHistory
@@ -82,28 +86,35 @@ namespace TradingStrategy
                 .GroupBy(c => c)
                 .Select(g => g.Key);
 
-            foreach (var code in codes)
-            {
-                Bar[] bars = _dataProvider.GetAllBarsForTradingObject(code);
-
-                if (bars == null || bars.Length == 0)
+            Parallel.ForEach(
+                codes,
+                (string code) =>
                 {
-                    throw new InvalidOperationException("logic error");
-                }
+                    Bar[] bars = _dataProvider.GetAllBarsForTradingObject(code);
 
-                double startPrice = bars.First().ClosePrice;
+                    if (bars == null || bars.Length == 0)
+                    {
+                        throw new InvalidOperationException("logic error");
+                    }
 
-                double endPrice = bars.Last().ClosePrice;
+                    double startPrice = bars.First().ClosePrice;
 
-                string name = _nameTable.ContainsStock(code) ? _nameTable[code].Names[0] : string.Empty;
+                    double endPrice = bars.Last().ClosePrice;
 
-                metric = GetTradeMetric(code, name, startPrice, endPrice);
+                    string name = _nameTable.ContainsStock(code) ? _nameTable[code].Names[0] : string.Empty;
+
+                    metric = GetTradeMetric(code, name, startPrice, endPrice);
                 
-                if (metric != null)
-                {
-                    yield return metric;
-                }
-            }
+                    if (metric != null)
+                    {
+                        lock (metrics)
+                        {
+                            metrics.Add(metric);
+                        }
+                    }
+                });
+
+            return metrics;   
         }
 
         private double EstimateUsedCapital(Transaction[] transactions)
@@ -169,7 +180,7 @@ namespace TradingStrategy
         {
             Transaction[] transactions = 
                 code == TradeMetric.CodeForAll 
-                ? _orderedHistory.ToArray()
+                ? _orderedHistory
                 : _orderedHistory.Where(t => t.Code == code).ToArray();
 
             double usedCapital = EstimateUsedCapital(transactions);
@@ -241,8 +252,8 @@ namespace TradingStrategy
                 _endDate,
                 startPrice,
                 endPrice,
-                equityPoints.OrderBy(t => t.Time),
-                completedTransactions.OrderBy(ct => ct, new CompletedTransaction.DefaultComparer()));
+                equityPoints.OrderBy(t => t.Time).ToArray(),
+                completedTransactions.OrderBy(ct => ct, new CompletedTransaction.DefaultComparer()).ToArray());
         }
     }
 }

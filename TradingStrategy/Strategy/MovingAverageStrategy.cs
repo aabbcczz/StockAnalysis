@@ -64,6 +64,11 @@ namespace TradingStrategy.Strategy
             get { return "本策略需要两个参数： <短期均线周期数> 和 <长期均线周期数>, 例如： 30, 60"; }
         }
 
+        public bool SupportParallelization
+        {
+            get { return true; }
+        }
+
         public void Initialize(IEvaluationContext context, string[] parameters)
         {
             if (context == null)
@@ -96,7 +101,11 @@ namespace TradingStrategy.Strategy
         public void WarmUp(ITradingObject tradingObject, Bar bar)
         {
             var runtimeMetrics = GetOrCreateRuntimeMetrics(tradingObject);
-            runtimeMetrics.Update(bar);
+
+            lock (runtimeMetrics)
+            {
+                runtimeMetrics.Update(bar);
+            }
         }
 
         private RuntimeMetrics GetOrCreateRuntimeMetrics(ITradingObject tradingObject)
@@ -108,7 +117,13 @@ namespace TradingStrategy.Strategy
 
             if (!_metrics.ContainsKey(tradingObject))
             {
-                _metrics.Add(tradingObject, new RuntimeMetrics(_short, _long));
+                lock (_metrics)
+                {
+                    if (!_metrics.ContainsKey(tradingObject))
+                    {
+                        _metrics.Add(tradingObject, new RuntimeMetrics(_short, _long));
+                    }
+                }
             }
 
             return _metrics[tradingObject];
@@ -140,65 +155,37 @@ namespace TradingStrategy.Strategy
 
             var runtimeMetrics = GetOrCreateRuntimeMetrics(tradingObject);
 
-            double previousShortMA = runtimeMetrics.ShortMA;
-            double previousLongMA = runtimeMetrics.LongMA;
+            double previousShortMA;
+            double previousLongMA;
+            double currentShortMA;
+            double currentLongMA;
+            double atr;
 
-            runtimeMetrics.Update(bar);
+            lock (runtimeMetrics)
+            {
+                previousShortMA = runtimeMetrics.ShortMA;
+                previousLongMA = runtimeMetrics.LongMA;
 
-            double currentShortMA = runtimeMetrics.ShortMA;
-            double currentLongMA = runtimeMetrics.LongMA;
-            double atr = runtimeMetrics.Atr;
+                runtimeMetrics.Update(bar);
+
+                currentShortMA = runtimeMetrics.ShortMA;
+                currentLongMA = runtimeMetrics.LongMA;
+                atr = runtimeMetrics.Atr;
+            }
 
             if (previousShortMA > previousLongMA && currentShortMA < currentLongMA)
             {
                 // sell
-                if (_context.ExistsEquity(tradingObject.Code))
+                lock (_context)
                 {
-                    int volume = _context.GetEquityDetails(tradingObject.Code).Sum(e => e.Volume);
-                    long id = _context.GetUniqueInstructionId();
-                    _instructions.Add(
-                        new Instruction()
-                        {
-                            Action = TradingAction.CloseLong,
-                            ID = id,
-                            Object = tradingObject,
-                            SubmissionTime = _period,
-                            Volume = volume
-                        });
-
-                    _context.Log(
-                        string.Format(
-                            "{0} {1:yyyy-MM-dd HH:mm:ss}: try to sell {2} vol {3} [ps:{4:0.00}, pl:{5:0.00}, cs:{6:0.00}, cl:{7:0.00}]",
-                            id,
-                            _period,
-                            tradingObject.Code,
-                            volume,
-                            previousShortMA,
-                            previousLongMA,
-                            currentShortMA,
-                            currentLongMA));
-                }
-            }
-            else if (previousShortMA < previousLongMA && currentShortMA > currentLongMA)
-            {
-                if (!_context.ExistsEquity(tradingObject.Code))
-                {
-                    // buy
-                    double risk = tradingObject.VolumePerBuyingUnit * atr;
-                    
-                    int unitCount = (int)(_initialCapital * _maxRiskOfTotalCapital / risk);
-                    unitCount = Math.Min(unitCount, _maxVolumeUnitForSingleObject);
-
-                    int volume = unitCount * tradingObject.VolumePerBuyingUnit;
-                    double cost = volume * bar.ClosePrice;
-
-                    if (cost < _capitalInCurrentPeriod)
+                    if (_context.ExistsEquity(tradingObject.Code))
                     {
+                        int volume = _context.GetEquityDetails(tradingObject.Code).Sum(e => e.Volume);
                         long id = _context.GetUniqueInstructionId();
                         _instructions.Add(
                             new Instruction()
                             {
-                                Action = TradingAction.OpenLong,
+                                Action = TradingAction.CloseLong,
                                 ID = id,
                                 Object = tradingObject,
                                 SubmissionTime = _period,
@@ -207,7 +194,7 @@ namespace TradingStrategy.Strategy
 
                         _context.Log(
                             string.Format(
-                                "{0} {1:yyyy-MM-dd HH:mm:ss}: try to buy {2} vol {3} [ps:{4:0.00}, pl:{5:0.00}, cs:{6:0.00}, cl:{7:0.00}]",
+                                "{0} {1:yyyy-MM-dd HH:mm:ss}: try to sell {2} vol {3} [ps:{4:0.00}, pl:{5:0.00}, cs:{6:0.00}, cl:{7:0.00}]",
                                 id,
                                 _period,
                                 tradingObject.Code,
@@ -216,6 +203,49 @@ namespace TradingStrategy.Strategy
                                 previousLongMA,
                                 currentShortMA,
                                 currentLongMA));
+                    }
+                }
+            }
+            else if (previousShortMA < previousLongMA && currentShortMA > currentLongMA)
+            {
+                // buy
+                lock (_context)
+                {
+                    if (!_context.ExistsEquity(tradingObject.Code))
+                    {
+                        double risk = tradingObject.VolumePerBuyingUnit * atr;
+                    
+                        int unitCount = (int)(_initialCapital * _maxRiskOfTotalCapital / risk);
+                        unitCount = Math.Min(unitCount, _maxVolumeUnitForSingleObject);
+
+                        int volume = unitCount * tradingObject.VolumePerBuyingUnit;
+                        double cost = volume * bar.ClosePrice;
+
+                        if (cost < _capitalInCurrentPeriod)
+                        {
+                            long id = _context.GetUniqueInstructionId();
+                            _instructions.Add(
+                                new Instruction()
+                                {
+                                    Action = TradingAction.OpenLong,
+                                    ID = id,
+                                    Object = tradingObject,
+                                    SubmissionTime = _period,
+                                    Volume = volume
+                                });
+
+                            _context.Log(
+                                string.Format(
+                                    "{0} {1:yyyy-MM-dd HH:mm:ss}: try to buy {2} vol {3} [ps:{4:0.00}, pl:{5:0.00}, cs:{6:0.00}, cl:{7:0.00}]",
+                                    id,
+                                    _period,
+                                    tradingObject.Code,
+                                    volume,
+                                    previousShortMA,
+                                    previousLongMA,
+                                    currentShortMA,
+                                    currentLongMA));
+                        }
                     }
                 }
             }

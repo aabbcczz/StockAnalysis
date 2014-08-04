@@ -16,10 +16,13 @@ namespace TradingStrategy
 
         string ParameterDescription { get; }
 
+        bool SupportParallelization { get; }
+
         // initialize the strategy with evaluation context and parameters.
         void Initialize(IEvaluationContext context, string[] parameters);
 
         // Warm up the strategy. this function will be called many times to traverse all warming up data
+        // this function could be called in parallel if SupportParallelization is true
         void WarmUp(ITradingObject tradingObject, Bar bar);
 
         // finish evaluation, chance of cleaning up resources and do some other works
@@ -41,6 +44,9 @@ namespace TradingStrategy
 
         void NotifyTransactionStatus(Transaction transaction);
 
+        // Evaluate bar for a given trading object. the strategy should generate and keep Instruction objects
+        // and return it in GetInstructions() call.
+        // this function could be called in parallel if SupportParallelization is true
         void Evaluate(ITradingObject tradingObject, Bar bar);
 
         IEnumerable<Instruction> GetInstructions();
