@@ -605,6 +605,13 @@ namespace EvaluatorClient
                     return;
                 }
 
+                // clear previous log and results
+                logTextBox.Clear();
+                resultDataGridView.DataSource = null;
+
+                // force GC for fun
+                GC.Collect();
+
                 DateTime startDate = startDateTimePicker.Value.Date;
                 DateTime endDate = endDateTimePicker.Value.Date;
 
@@ -617,9 +624,7 @@ namespace EvaluatorClient
                         endDate, 
                         int.Parse(warmupTextBox.Text));
 
-                // clear logs and create new logger;
-                logTextBox.Clear();
-                
+                // create new logger;
                 MemoryLogger logger = new MemoryLogger();
 
                 // create evaluator
