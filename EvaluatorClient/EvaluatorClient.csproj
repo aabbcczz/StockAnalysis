@@ -34,6 +34,7 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Windows.Forms.DataVisualization" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -54,10 +55,17 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="MetricForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="MetricForm.Designer.cs">
+      <DependentUpon>MetricForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Settings.cs" />
     <Compile Include="StrategyLoader.cs" />
     <Compile Include="TradeMetricSlim.cs" />
     <Compile Include="TradingPriceOptionBinding.cs" />
+    <Compile Include="TransactionSlim.cs" />
     <EmbeddedResource Include="MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
     </EmbeddedResource>
@@ -70,6 +78,9 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <EmbeddedResource Include="MetricForm.resx">
+      <DependentUpon>MetricForm.cs</DependentUpon>
+    </EmbeddedResource>
     <None Include="Properties\DataSources\TradeMetricSlim.datasource" />
     <None Include="Properties\DataSources\TradingStrategy.ITradingStrategy.datasource" />
     <None Include="Properties\Settings.settings">

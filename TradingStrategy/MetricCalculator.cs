@@ -253,7 +253,8 @@ namespace TradingStrategy
                 startPrice,
                 endPrice,
                 equityPoints.OrderBy(t => t.Time).ToArray(),
-                completedTransactions.OrderBy(ct => ct, new CompletedTransaction.DefaultComparer()).ToArray());
+                completedTransactions.OrderBy(ct => ct, new CompletedTransaction.DefaultComparer()).ToArray(),
+                transactions);
         }
     }
 }

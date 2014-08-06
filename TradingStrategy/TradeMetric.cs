@@ -64,7 +64,9 @@ namespace TradingStrategy
         public double Rise { get; private set; } // 区间涨幅 = (EndPrice - StartPrice) / StartPrice 
 
         public EquityPoint[] OrderedEquitySequence { get; private set; } // 所有权益按周期排序
-        public CompletedTransaction[] OrderedTransactionSequence { get; private set; } // all completed transactions, ordered by execution time and code
+        public CompletedTransaction[] OrderedCompletedTransactionSequence { get; private set; } // all completed transactions, ordered by execution time and code
+
+        public Transaction[] OrderedTransactionSequence { get; private set; }
 
         public TradeMetric(
             string code,
@@ -74,7 +76,8 @@ namespace TradingStrategy
             double startPrice,
             double endPrice,
             EquityPoint[] orderedEquitySequence, 
-            CompletedTransaction[] orderedTransactionSequence)
+            CompletedTransaction[] orderedCompletedTransactionSequence,
+            Transaction[] orderedTransactionSequence)
         {
             if (code == null)
             {
@@ -103,12 +106,17 @@ namespace TradingStrategy
 
             if (orderedEquitySequence == null)
             {
-                throw new ArgumentNullException("equitySequence");
+                throw new ArgumentNullException("orderedEquitySequence");
+            }
+
+            if (orderedCompletedTransactionSequence == null)
+            {
+                throw new ArgumentNullException("orderedCompletedTransactionSequence");
             }
 
             if (orderedTransactionSequence == null)
             {
-                throw new ArgumentNullException("transactionSequence");
+                throw new ArgumentNullException("orderedTransactionSequence");
             }
 
             if (orderedEquitySequence.Length == 0)
@@ -131,6 +139,7 @@ namespace TradingStrategy
             StartDate = startDate;
             EndDate = endDate;
             OrderedEquitySequence = orderedEquitySequence;
+            OrderedCompletedTransactionSequence = orderedCompletedTransactionSequence;
             OrderedTransactionSequence = orderedTransactionSequence;
             StartPrice = startPrice;
             EndPrice = endPrice;
@@ -174,26 +183,26 @@ namespace TradingStrategy
 
 
             // update profit related metrics
-            TotalProfit = OrderedTransactionSequence.Sum(ct => ct.SoldGain > ct.BuyCost ? ct.SoldGain - ct.BuyCost : 0.0);
-            TotalLoss = OrderedTransactionSequence.Sum(ct => ct.SoldGain < ct.BuyCost ? ct.BuyCost - ct.SoldGain : 0.0);
-            TotalCommission = OrderedTransactionSequence.Sum(ct => ct.Commission);
+            TotalProfit = OrderedCompletedTransactionSequence.Sum(ct => ct.SoldGain > ct.BuyCost ? ct.SoldGain - ct.BuyCost : 0.0);
+            TotalLoss = OrderedCompletedTransactionSequence.Sum(ct => ct.SoldGain < ct.BuyCost ? ct.BuyCost - ct.SoldGain : 0.0);
+            TotalCommission = OrderedCompletedTransactionSequence.Sum(ct => ct.Commission);
             NetProfit = TotalProfit - TotalLoss - TotalCommission;
             ProfitRatio = NetProfit / InitialEquity;
             AnnualProfitRatio = ProfitRatio * 365 / TotalTradingDays;
 
             // update trading times related metrics
-            TotalTradingTimes = OrderedTransactionSequence.Count();
-            ProfitTradingTimes = OrderedTransactionSequence.Count(ct => ct.SoldGain > ct.BuyCost);
-            LossTradingTimes = OrderedTransactionSequence.Count(ct => ct.SoldGain < ct.BuyCost);
+            TotalTradingTimes = OrderedCompletedTransactionSequence.Count();
+            ProfitTradingTimes = OrderedCompletedTransactionSequence.Count(ct => ct.SoldGain > ct.BuyCost);
+            LossTradingTimes = OrderedCompletedTransactionSequence.Count(ct => ct.SoldGain < ct.BuyCost);
             ProfitCoefficient = TotalTradingTimes == 0 ? 0.0 : (double)(ProfitTradingTimes - LossTradingTimes) / TotalTradingTimes;
             ProfitTimesRatio = TotalTradingTimes == 0 ? 0.0 : (double)ProfitTradingTimes / TotalTradingTimes;
             LossTimesRatio = TotalTradingTimes == 0 ? 0.0 : (double)LossTradingTimes / TotalTradingTimes;
             ProfitLossTimesRatio = LossTradingTimes == 0 ? 0.0 : (double)ProfitTradingTimes / LossTradingTimes;
 
             // update trading volume related metrics
-            TotalVolume = OrderedTransactionSequence.Sum(ct => ct.Volume);
-            ProfitVolume = OrderedTransactionSequence.Sum(ct => ct.SoldGain > ct.BuyCost ? ct.Volume : 0);
-            LossVolume = OrderedTransactionSequence.Sum(ct => ct.SoldGain < ct.BuyCost ? ct.Volume : 0);
+            TotalVolume = OrderedCompletedTransactionSequence.Sum(ct => ct.Volume);
+            ProfitVolume = OrderedCompletedTransactionSequence.Sum(ct => ct.SoldGain > ct.BuyCost ? ct.Volume : 0);
+            LossVolume = OrderedCompletedTransactionSequence.Sum(ct => ct.SoldGain < ct.BuyCost ? ct.Volume : 0);
             AverageProfit = ProfitVolume == 0 ? 0.0 : TotalProfit / ProfitVolume;
             AverageLoss = LossVolume == 0 ? 0.0 : TotalLoss / LossVolume;
 
@@ -201,10 +210,10 @@ namespace TradingStrategy
             CalcuateMaxDrawDownMetrics();
 
             // update max profit/loss related metrics
-            if (OrderedTransactionSequence.Count() > 0)
+            if (OrderedCompletedTransactionSequence.Count() > 0)
             {
-                MaxProfitInOneTransaction = OrderedTransactionSequence.Max(ct => ct.SoldGain > ct.BuyCost ? ct.SoldGain - ct.BuyCost : 0.0);
-                MaxLossInOneTransaction = OrderedTransactionSequence.Min(ct => ct.SoldGain < ct.BuyCost ? ct.BuyCost - ct.SoldGain : 0.0);
+                MaxProfitInOneTransaction = OrderedCompletedTransactionSequence.Max(ct => ct.SoldGain > ct.BuyCost ? ct.SoldGain - ct.BuyCost : 0.0);
+                MaxLossInOneTransaction = OrderedCompletedTransactionSequence.Min(ct => ct.SoldGain < ct.BuyCost ? ct.BuyCost - ct.SoldGain : 0.0);
             }
             else
             {

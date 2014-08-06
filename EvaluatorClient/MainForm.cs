@@ -21,6 +21,10 @@ namespace EvaluatorClient
     {
         StockNameTable _stockNameTable = null;
 
+        ITradingDataProvider _activeDataProvider = null;
+
+        MetricForm _metricForm;
+
         public MainForm()
         {
             InitializeComponent();
@@ -39,6 +43,9 @@ namespace EvaluatorClient
             maxDrawDownResultDataGridViewColumn.DataPropertyName = "MaxDrawDown";
             maxDrawDownRatioResultDataGridViewColumn.DataPropertyName = "MaxDrawDownRatio";
 
+            // create metric form
+            _metricForm = new MetricForm();
+            _metricForm.Visible = false;
         }
 
         private void ShowError(string error, Exception exception = null)
@@ -609,6 +616,9 @@ namespace EvaluatorClient
                 logTextBox.Clear();
                 resultDataGridView.DataSource = null;
 
+                // clear data provider
+                _activeDataProvider = null;
+
                 // force GC for fun
                 GC.Collect();
 
@@ -667,6 +677,12 @@ namespace EvaluatorClient
 
                 // switch to result page
                 this.tabControl1.SelectedTab = resultPage; 
+
+                // set active data provider
+                if (metrics.Count() > 0)
+                {
+                    _activeDataProvider = provider;
+                }
             }
             catch (Exception ex)
             {
@@ -702,6 +718,17 @@ namespace EvaluatorClient
             {
                 descriptionTextBox.Clear();
             }
+        }
+
+        private void resultDataGridView_CellMouseDoubleClick(object sender, DataGridViewCellMouseEventArgs e)
+        {
+            TradeMetricSlim obj = resultDataGridView.Rows[e.RowIndex].DataBoundItem as TradeMetricSlim;
+            if (obj != null)
+            {
+                _metricForm.SetMetric(obj.Metric, _activeDataProvider);
+            }
+
+            _metricForm.Visible = true;
         }
     }
 }

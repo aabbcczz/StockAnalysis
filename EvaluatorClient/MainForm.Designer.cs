@@ -91,12 +91,6 @@
             this.label19 = new System.Windows.Forms.Label();
             this.resultPage = new System.Windows.Forms.TabPage();
             this.resultDataGridView = new System.Windows.Forms.DataGridView();
-            this.logPage = new System.Windows.Forms.TabPage();
-            this.logTextBox = new System.Windows.Forms.TextBox();
-            this.evaluateButton = new System.Windows.Forms.Button();
-            this.exportButton = new System.Windows.Forms.Button();
-            this.errorProvider1 = new System.Windows.Forms.ErrorProvider(this.components);
-            this.evaluationProgressBar = new System.Windows.Forms.ProgressBar();
             this.codeResultDataGridViewColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.nameResultDataGridViewColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.profitTimesResultDataGridViewColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -108,6 +102,12 @@
             this.annualProfitRatioResultDataGridViewColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.maxDrawDownResultDataGridViewColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.maxDrawDownRatioResultDataGridViewColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.logPage = new System.Windows.Forms.TabPage();
+            this.logTextBox = new System.Windows.Forms.TextBox();
+            this.evaluateButton = new System.Windows.Forms.Button();
+            this.exportButton = new System.Windows.Forms.Button();
+            this.errorProvider1 = new System.Windows.Forms.ErrorProvider(this.components);
+            this.evaluationProgressBar = new System.Windows.Forms.ProgressBar();
             this.tabControl1.SuspendLayout();
             this.settingsPage.SuspendLayout();
             this.groupBox2.SuspendLayout();
@@ -712,62 +712,7 @@
             this.resultDataGridView.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.resultDataGridView.Size = new System.Drawing.Size(920, 535);
             this.resultDataGridView.TabIndex = 1;
-            // 
-            // logPage
-            // 
-            this.logPage.Controls.Add(this.logTextBox);
-            this.logPage.Location = new System.Drawing.Point(4, 22);
-            this.logPage.Name = "logPage";
-            this.logPage.Size = new System.Drawing.Size(926, 541);
-            this.logPage.TabIndex = 4;
-            this.logPage.Text = "评估日志";
-            this.logPage.UseVisualStyleBackColor = true;
-            // 
-            // logTextBox
-            // 
-            this.logTextBox.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.logTextBox.Location = new System.Drawing.Point(0, 0);
-            this.logTextBox.Multiline = true;
-            this.logTextBox.Name = "logTextBox";
-            this.logTextBox.ReadOnly = true;
-            this.logTextBox.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.logTextBox.Size = new System.Drawing.Size(926, 541);
-            this.logTextBox.TabIndex = 0;
-            // 
-            // evaluateButton
-            // 
-            this.evaluateButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.evaluateButton.Location = new System.Drawing.Point(872, 586);
-            this.evaluateButton.Name = "evaluateButton";
-            this.evaluateButton.Size = new System.Drawing.Size(75, 32);
-            this.evaluateButton.TabIndex = 1;
-            this.evaluateButton.Text = "开始评测";
-            this.evaluateButton.UseVisualStyleBackColor = true;
-            this.evaluateButton.Click += new System.EventHandler(this.evaluateButton_Click);
-            // 
-            // exportButton
-            // 
-            this.exportButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.exportButton.Location = new System.Drawing.Point(791, 586);
-            this.exportButton.Name = "exportButton";
-            this.exportButton.Size = new System.Drawing.Size(75, 32);
-            this.exportButton.TabIndex = 2;
-            this.exportButton.Text = "导出结果";
-            this.exportButton.UseVisualStyleBackColor = true;
-            this.exportButton.Visible = false;
-            // 
-            // errorProvider1
-            // 
-            this.errorProvider1.ContainerControl = this;
-            // 
-            // evaluationProgressBar
-            // 
-            this.evaluationProgressBar.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.evaluationProgressBar.Location = new System.Drawing.Point(13, 594);
-            this.evaluationProgressBar.Name = "evaluationProgressBar";
-            this.evaluationProgressBar.Size = new System.Drawing.Size(759, 23);
-            this.evaluationProgressBar.TabIndex = 3;
+            this.resultDataGridView.CellMouseDoubleClick += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.resultDataGridView_CellMouseDoubleClick);
             // 
             // codeResultDataGridViewColumn
             // 
@@ -861,6 +806,62 @@
             this.maxDrawDownRatioResultDataGridViewColumn.HeaderText = "最大回撤比%";
             this.maxDrawDownRatioResultDataGridViewColumn.Name = "maxDrawDownRatioResultDataGridViewColumn";
             this.maxDrawDownRatioResultDataGridViewColumn.ReadOnly = true;
+            // 
+            // logPage
+            // 
+            this.logPage.Controls.Add(this.logTextBox);
+            this.logPage.Location = new System.Drawing.Point(4, 22);
+            this.logPage.Name = "logPage";
+            this.logPage.Size = new System.Drawing.Size(926, 541);
+            this.logPage.TabIndex = 4;
+            this.logPage.Text = "评估日志";
+            this.logPage.UseVisualStyleBackColor = true;
+            // 
+            // logTextBox
+            // 
+            this.logTextBox.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.logTextBox.Location = new System.Drawing.Point(0, 0);
+            this.logTextBox.Multiline = true;
+            this.logTextBox.Name = "logTextBox";
+            this.logTextBox.ReadOnly = true;
+            this.logTextBox.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
+            this.logTextBox.Size = new System.Drawing.Size(926, 541);
+            this.logTextBox.TabIndex = 0;
+            // 
+            // evaluateButton
+            // 
+            this.evaluateButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.evaluateButton.Location = new System.Drawing.Point(872, 586);
+            this.evaluateButton.Name = "evaluateButton";
+            this.evaluateButton.Size = new System.Drawing.Size(75, 32);
+            this.evaluateButton.TabIndex = 1;
+            this.evaluateButton.Text = "开始评测";
+            this.evaluateButton.UseVisualStyleBackColor = true;
+            this.evaluateButton.Click += new System.EventHandler(this.evaluateButton_Click);
+            // 
+            // exportButton
+            // 
+            this.exportButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.exportButton.Location = new System.Drawing.Point(791, 586);
+            this.exportButton.Name = "exportButton";
+            this.exportButton.Size = new System.Drawing.Size(75, 32);
+            this.exportButton.TabIndex = 2;
+            this.exportButton.Text = "导出结果";
+            this.exportButton.UseVisualStyleBackColor = true;
+            this.exportButton.Visible = false;
+            // 
+            // errorProvider1
+            // 
+            this.errorProvider1.ContainerControl = this;
+            // 
+            // evaluationProgressBar
+            // 
+            this.evaluationProgressBar.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.evaluationProgressBar.Location = new System.Drawing.Point(13, 594);
+            this.evaluationProgressBar.Name = "evaluationProgressBar";
+            this.evaluationProgressBar.Size = new System.Drawing.Size(759, 23);
+            this.evaluationProgressBar.TabIndex = 3;
             // 
             // MainForm
             // 
