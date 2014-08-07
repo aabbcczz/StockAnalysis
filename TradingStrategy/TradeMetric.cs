@@ -17,7 +17,7 @@ namespace TradingStrategy
         public DateTime EndDate { get; private set; }  // 统计结束日期
         public int TotalTradingDays { get; private set; } // 总交易天数 = EndDate - StartDate + 1 { get; private set; }
 
-        public double InitialEquity { get; private set; } // 初始权益
+        public double InitialEquity { get; private set; } // 期初权益
         public double FinalEquity { get; private set; } // 期末权益
 
         public int TotalPeriods { get; private set; } // 总周期数
@@ -50,8 +50,8 @@ namespace TradingStrategy
         public double MaxDrawDownRatio { get; private set; } // 最大回测比率 =（前期高点-低点）/前期高点
         public DateTime MaxDrawDownStartTime { get; private set; } // 最大回撤发生的起始时间
         public DateTime MaxDrawDownEndTime { get; private set;  } // 最大回撤发生的结束时间
-        public double MaxDrawDownStartEquity { get; private set; } // 最大回撤发生的起始权益
-        public double MaxDrawDownEndEquity { get; private set; } // 最大回撤发生的结束权益
+        public double MaxDrawDownStartEquity { get; private set; } // 最大回撤发生的期初权益
+        public double MaxDrawDownEndEquity { get; private set; } // 最大回撤发生的期末权益
         public double MAR { get; private set; } // = AnnualProfitRatio / MaxDrawDownRatio
 
         public double MaxProfitInOneTransaction { get; private set; } // 单次最大盈利
@@ -213,7 +213,7 @@ namespace TradingStrategy
             if (OrderedCompletedTransactionSequence.Count() > 0)
             {
                 MaxProfitInOneTransaction = OrderedCompletedTransactionSequence.Max(ct => ct.SoldGain > ct.BuyCost ? ct.SoldGain - ct.BuyCost : 0.0);
-                MaxLossInOneTransaction = OrderedCompletedTransactionSequence.Min(ct => ct.SoldGain < ct.BuyCost ? ct.BuyCost - ct.SoldGain : 0.0);
+                MaxLossInOneTransaction = OrderedCompletedTransactionSequence.Max(ct => ct.SoldGain < ct.BuyCost ? ct.BuyCost - ct.SoldGain : 0.0);
             }
             else
             {

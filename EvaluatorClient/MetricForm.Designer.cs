@@ -28,26 +28,26 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea2 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Series series3 = new System.Windows.Forms.DataVisualization.Charting.Series();
-            System.Windows.Forms.DataVisualization.Charting.Series series4 = new System.Windows.Forms.DataVisualization.Charting.Series();
-            System.Windows.Forms.DataVisualization.Charting.DataPoint dataPoint3 = new System.Windows.Forms.DataVisualization.Charting.DataPoint(5478D, "100,90,80,70");
-            System.Windows.Forms.DataVisualization.Charting.DataPoint dataPoint4 = new System.Windows.Forms.DataVisualization.Charting.DataPoint(13148D, "110,120,100,90");
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle5 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle6 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Series series1 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.Series series2 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.DataPoint dataPoint1 = new System.Windows.Forms.DataVisualization.Charting.DataPoint(5478D, "100,90,80,70");
+            System.Windows.Forms.DataVisualization.Charting.DataPoint dataPoint2 = new System.Windows.Forms.DataVisualization.Charting.DataPoint(13148D, "110,120,100,90");
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.chart1 = new System.Windows.Forms.DataVisualization.Charting.Chart();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.transactionDataGridView = new System.Windows.Forms.DataGridView();
-            this.tabPage2 = new System.Windows.Forms.TabPage();
-            this.detailsTextBox = new System.Windows.Forms.TextBox();
             this.timeTransactionDataGridColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.codeTransactionDataGridColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.actionTransactionDataGridColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.priceTransactionDataGridColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.volumeTransactionDataGridColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.tabPage2 = new System.Windows.Forms.TabPage();
+            this.detailsTextBox = new System.Windows.Forms.TextBox();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -79,38 +79,38 @@
             // 
             // chart1
             // 
-            chartArea2.AxisX.IsStartedFromZero = false;
-            chartArea2.AxisX.MajorGrid.Enabled = false;
-            chartArea2.AxisX.ScaleBreakStyle.BreakLineStyle = System.Windows.Forms.DataVisualization.Charting.BreakLineStyle.Straight;
-            chartArea2.AxisX.ScaleBreakStyle.Enabled = true;
-            chartArea2.AxisX.ScaleBreakStyle.LineColor = System.Drawing.Color.Maroon;
-            chartArea2.AxisX2.Enabled = System.Windows.Forms.DataVisualization.Charting.AxisEnabled.False;
-            chartArea2.AxisY.IsStartedFromZero = false;
-            chartArea2.AxisY.MajorGrid.Enabled = false;
-            chartArea2.AxisY2.IsStartedFromZero = false;
-            chartArea2.AxisY2.MajorGrid.Enabled = false;
-            chartArea2.BackColor = System.Drawing.Color.Black;
-            chartArea2.Name = "ChartArea1";
-            this.chart1.ChartAreas.Add(chartArea2);
+            chartArea1.AxisX.IsStartedFromZero = false;
+            chartArea1.AxisX.MajorGrid.Enabled = false;
+            chartArea1.AxisX.ScaleBreakStyle.BreakLineStyle = System.Windows.Forms.DataVisualization.Charting.BreakLineStyle.Straight;
+            chartArea1.AxisX.ScaleBreakStyle.Enabled = true;
+            chartArea1.AxisX.ScaleBreakStyle.LineColor = System.Drawing.Color.Maroon;
+            chartArea1.AxisX2.Enabled = System.Windows.Forms.DataVisualization.Charting.AxisEnabled.False;
+            chartArea1.AxisY.IsStartedFromZero = false;
+            chartArea1.AxisY.MajorGrid.Enabled = false;
+            chartArea1.AxisY2.IsStartedFromZero = false;
+            chartArea1.AxisY2.MajorGrid.Enabled = false;
+            chartArea1.BackColor = System.Drawing.Color.Black;
+            chartArea1.Name = "ChartArea1";
+            this.chart1.ChartAreas.Add(chartArea1);
             this.chart1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.chart1.Location = new System.Drawing.Point(0, 0);
             this.chart1.Name = "chart1";
-            series3.ChartArea = "ChartArea1";
-            series3.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
-            series3.Name = "equitySeries";
-            series3.XValueType = System.Windows.Forms.DataVisualization.Charting.ChartValueType.DateTime;
-            series3.YValueType = System.Windows.Forms.DataVisualization.Charting.ChartValueType.Double;
-            series4.ChartArea = "ChartArea1";
-            series4.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Candlestick;
-            series4.CustomProperties = "PriceDownColor=Red, PriceUpColor=Lime";
-            series4.Name = "priceSeries";
-            series4.Points.Add(dataPoint3);
-            series4.Points.Add(dataPoint4);
-            series4.XValueType = System.Windows.Forms.DataVisualization.Charting.ChartValueType.DateTime;
-            series4.YAxisType = System.Windows.Forms.DataVisualization.Charting.AxisType.Secondary;
-            series4.YValuesPerPoint = 4;
-            this.chart1.Series.Add(series3);
-            this.chart1.Series.Add(series4);
+            series1.ChartArea = "ChartArea1";
+            series1.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
+            series1.Name = "equitySeries";
+            series1.XValueType = System.Windows.Forms.DataVisualization.Charting.ChartValueType.DateTime;
+            series1.YValueType = System.Windows.Forms.DataVisualization.Charting.ChartValueType.Double;
+            series2.ChartArea = "ChartArea1";
+            series2.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Candlestick;
+            series2.CustomProperties = "PriceDownColor=Red, PriceUpColor=Lime";
+            series2.Name = "priceSeries";
+            series2.Points.Add(dataPoint1);
+            series2.Points.Add(dataPoint2);
+            series2.XValueType = System.Windows.Forms.DataVisualization.Charting.ChartValueType.DateTime;
+            series2.YAxisType = System.Windows.Forms.DataVisualization.Charting.AxisType.Secondary;
+            series2.YValuesPerPoint = 4;
+            this.chart1.Series.Add(series1);
+            this.chart1.Series.Add(series2);
             this.chart1.Size = new System.Drawing.Size(848, 419);
             this.chart1.TabIndex = 0;
             this.chart1.Text = "chart1";
@@ -157,33 +157,11 @@
             this.transactionDataGridView.Size = new System.Drawing.Size(834, 364);
             this.transactionDataGridView.TabIndex = 0;
             // 
-            // tabPage2
-            // 
-            this.tabPage2.Controls.Add(this.detailsTextBox);
-            this.tabPage2.Location = new System.Drawing.Point(4, 22);
-            this.tabPage2.Name = "tabPage2";
-            this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage2.Size = new System.Drawing.Size(840, 370);
-            this.tabPage2.TabIndex = 1;
-            this.tabPage2.Text = "详细";
-            this.tabPage2.UseVisualStyleBackColor = true;
-            // 
-            // detailsTextBox
-            // 
-            this.detailsTextBox.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.detailsTextBox.Location = new System.Drawing.Point(3, 3);
-            this.detailsTextBox.Multiline = true;
-            this.detailsTextBox.Name = "detailsTextBox";
-            this.detailsTextBox.ReadOnly = true;
-            this.detailsTextBox.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.detailsTextBox.Size = new System.Drawing.Size(834, 364);
-            this.detailsTextBox.TabIndex = 0;
-            // 
             // timeTransactionDataGridColumn
             // 
-            dataGridViewCellStyle4.Format = "d";
-            dataGridViewCellStyle4.NullValue = null;
-            this.timeTransactionDataGridColumn.DefaultCellStyle = dataGridViewCellStyle4;
+            dataGridViewCellStyle1.Format = "d";
+            dataGridViewCellStyle1.NullValue = null;
+            this.timeTransactionDataGridColumn.DefaultCellStyle = dataGridViewCellStyle1;
             this.timeTransactionDataGridColumn.HeaderText = "时间";
             this.timeTransactionDataGridColumn.Name = "timeTransactionDataGridColumn";
             this.timeTransactionDataGridColumn.ReadOnly = true;
@@ -204,9 +182,9 @@
             // priceTransactionDataGridColumn
             // 
             this.priceTransactionDataGridColumn.DataPropertyName = "Price";
-            dataGridViewCellStyle5.Format = "N2";
-            dataGridViewCellStyle5.NullValue = null;
-            this.priceTransactionDataGridColumn.DefaultCellStyle = dataGridViewCellStyle5;
+            dataGridViewCellStyle2.Format = "N2";
+            dataGridViewCellStyle2.NullValue = null;
+            this.priceTransactionDataGridColumn.DefaultCellStyle = dataGridViewCellStyle2;
             this.priceTransactionDataGridColumn.HeaderText = "价格";
             this.priceTransactionDataGridColumn.Name = "priceTransactionDataGridColumn";
             this.priceTransactionDataGridColumn.ReadOnly = true;
@@ -214,11 +192,35 @@
             // volumeTransactionDataGridColumn
             // 
             this.volumeTransactionDataGridColumn.DataPropertyName = "Volume";
-            dataGridViewCellStyle6.NullValue = null;
-            this.volumeTransactionDataGridColumn.DefaultCellStyle = dataGridViewCellStyle6;
+            dataGridViewCellStyle3.NullValue = null;
+            this.volumeTransactionDataGridColumn.DefaultCellStyle = dataGridViewCellStyle3;
             this.volumeTransactionDataGridColumn.HeaderText = "数量";
             this.volumeTransactionDataGridColumn.Name = "volumeTransactionDataGridColumn";
             this.volumeTransactionDataGridColumn.ReadOnly = true;
+            // 
+            // tabPage2
+            // 
+            this.tabPage2.Controls.Add(this.detailsTextBox);
+            this.tabPage2.Location = new System.Drawing.Point(4, 22);
+            this.tabPage2.Name = "tabPage2";
+            this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPage2.Size = new System.Drawing.Size(840, 370);
+            this.tabPage2.TabIndex = 1;
+            this.tabPage2.Text = "详细";
+            this.tabPage2.UseVisualStyleBackColor = true;
+            // 
+            // detailsTextBox
+            // 
+            this.detailsTextBox.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.detailsTextBox.Font = new System.Drawing.Font("Arial Narrow", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.detailsTextBox.Location = new System.Drawing.Point(3, 3);
+            this.detailsTextBox.Multiline = true;
+            this.detailsTextBox.Name = "detailsTextBox";
+            this.detailsTextBox.ReadOnly = true;
+            this.detailsTextBox.ScrollBars = System.Windows.Forms.ScrollBars.Both;
+            this.detailsTextBox.Size = new System.Drawing.Size(834, 364);
+            this.detailsTextBox.TabIndex = 0;
+            this.detailsTextBox.Text = "收益率     ：\r\n年华收益率   ：";
             // 
             // MetricForm
             // 
