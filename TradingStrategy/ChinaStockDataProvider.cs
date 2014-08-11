@@ -149,6 +149,8 @@ namespace TradingStrategy
             List<StockHistoryData> allTradingData = new List<StockHistoryData>(dataFiles.Length);
             Dictionary<string, Bar[]> allWarmupData = new Dictionary<string, Bar[]>();
 
+            ChinaStockDataAccessor.Initialize();
+
             Parallel.ForEach(
                 dataFiles,
                 (string file) =>

@@ -37,7 +37,7 @@
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
-            this.chart1 = new System.Windows.Forms.DataVisualization.Charting.Chart();
+            this.metricChart = new System.Windows.Forms.DataVisualization.Charting.Chart();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.transactionDataGridView = new System.Windows.Forms.DataGridView();
@@ -52,7 +52,7 @@
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
             this.splitContainer1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.chart1)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.metricChart)).BeginInit();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.transactionDataGridView)).BeginInit();
@@ -68,7 +68,7 @@
             // 
             // splitContainer1.Panel1
             // 
-            this.splitContainer1.Panel1.Controls.Add(this.chart1);
+            this.splitContainer1.Panel1.Controls.Add(this.metricChart);
             // 
             // splitContainer1.Panel2
             // 
@@ -77,7 +77,7 @@
             this.splitContainer1.SplitterDistance = 419;
             this.splitContainer1.TabIndex = 0;
             // 
-            // chart1
+            // metricChart
             // 
             chartArea1.AxisX.IsStartedFromZero = false;
             chartArea1.AxisX.MajorGrid.Enabled = false;
@@ -91,10 +91,10 @@
             chartArea1.AxisY2.MajorGrid.Enabled = false;
             chartArea1.BackColor = System.Drawing.Color.Black;
             chartArea1.Name = "ChartArea1";
-            this.chart1.ChartAreas.Add(chartArea1);
-            this.chart1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.chart1.Location = new System.Drawing.Point(0, 0);
-            this.chart1.Name = "chart1";
+            this.metricChart.ChartAreas.Add(chartArea1);
+            this.metricChart.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.metricChart.Location = new System.Drawing.Point(0, 0);
+            this.metricChart.Name = "metricChart";
             series1.ChartArea = "ChartArea1";
             series1.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
             series1.Name = "equitySeries";
@@ -109,11 +109,11 @@
             series2.XValueType = System.Windows.Forms.DataVisualization.Charting.ChartValueType.DateTime;
             series2.YAxisType = System.Windows.Forms.DataVisualization.Charting.AxisType.Secondary;
             series2.YValuesPerPoint = 4;
-            this.chart1.Series.Add(series1);
-            this.chart1.Series.Add(series2);
-            this.chart1.Size = new System.Drawing.Size(848, 419);
-            this.chart1.TabIndex = 0;
-            this.chart1.Text = "chart1";
+            this.metricChart.Series.Add(series1);
+            this.metricChart.Series.Add(series2);
+            this.metricChart.Size = new System.Drawing.Size(848, 419);
+            this.metricChart.TabIndex = 0;
+            this.metricChart.Text = "chart1";
             // 
             // tabControl1
             // 
@@ -235,7 +235,7 @@
             this.splitContainer1.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
             this.splitContainer1.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.chart1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.metricChart)).EndInit();
             this.tabControl1.ResumeLayout(false);
             this.tabPage1.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.transactionDataGridView)).EndInit();
@@ -248,7 +248,7 @@
         #endregion
 
         private System.Windows.Forms.SplitContainer splitContainer1;
-        private System.Windows.Forms.DataVisualization.Charting.Chart chart1;
+        private System.Windows.Forms.DataVisualization.Charting.Chart metricChart;
         private System.Windows.Forms.DataGridView transactionDataGridView;
         private System.Windows.Forms.TabControl tabControl1;
         private System.Windows.Forms.TabPage tabPage1;
