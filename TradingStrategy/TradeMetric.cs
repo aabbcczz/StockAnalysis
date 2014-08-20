@@ -188,7 +188,9 @@ namespace TradingStrategy
             TotalCommission = OrderedCompletedTransactionSequence.Sum(ct => ct.Commission);
             NetProfit = TotalProfit - TotalLoss - TotalCommission;
             ProfitRatio = NetProfit / InitialEquity;
-            AnnualProfitRatio = ProfitRatio * 365 / TotalTradingDays;
+
+            double reciprocal_years = 365.0 / TotalTradingDays;
+            AnnualProfitRatio = Math.Pow(1.0 + ProfitRatio, reciprocal_years) - 1.0 ;
 
             // update trading times related metrics
             TotalTradingTimes = OrderedCompletedTransactionSequence.Count();

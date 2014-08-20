@@ -22,14 +22,20 @@ namespace TradingStrategy
 
         public static StockHistoryData Load(string file, StockNameTable nameTable)
         {
-            if (_cache.ContainsKey(file))
+            lock (_cache)
             {
-                return _cache[file];
+                if (_cache.ContainsKey(file))
+                {
+                    return _cache[file];
+                }
             }
 
             StockHistoryData data = StockHistoryData.LoadFromFile(file, DateTime.MinValue, DateTime.MaxValue, nameTable);
 
-            _cache.Add(file, data);
+            lock (_cache)
+            {
+                _cache.Add(file, data);
+            }
 
             return data;
         }
