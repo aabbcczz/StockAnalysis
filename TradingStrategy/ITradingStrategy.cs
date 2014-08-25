@@ -14,19 +14,14 @@ namespace TradingStrategy
 
         string StrategyDescription { get; }
 
-        string ParameterDescription { get; }
-
         bool SupportParallelization { get; }
 
         // initialize the strategy with evaluation context and parameters.
-        void Initialize(IEvaluationContext context, string[] parameters);
+        void Initialize(IEvaluationContext context, IDictionary<string, object> parameterValues);
 
         // Warm up the strategy. this function will be called many times to traverse all warming up data
         // this function could be called in parallel if SupportParallelization is true
         void WarmUp(ITradingObject tradingObject, Bar bar);
-
-        // finish evaluation, chance of cleaning up resources and do some other works
-        void Finish();
 
         // Call sequence for one period:
         // StartPeriod()
@@ -53,5 +48,7 @@ namespace TradingStrategy
 
         void EndPeriod();
 
+        // finish evaluation, chance of cleaning up resources and do some other works
+        void Finish();
     }
 }

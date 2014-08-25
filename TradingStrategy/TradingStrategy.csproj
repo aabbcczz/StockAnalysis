@@ -53,6 +53,7 @@
     <Compile Include="ITradingDataProvider.cs" />
     <Compile Include="ITradingStrategy.cs" />
     <Compile Include="IEvaluationContext.cs" />
+    <Compile Include="ParameterHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="StandardEvaluationContext.cs" />
     <Compile Include="Strategy\MovingAverageStrategy.cs" />
@@ -63,6 +64,7 @@
     <Compile Include="TradingPriceOption.cs" />
     <Compile Include="TradingSettings.cs" />
     <Compile Include="TradingStrategyEvaluator.cs" />
+    <Compile Include="ParameterAttribute.cs" />
     <Compile Include="Transaction.cs" />
     <Compile Include="TradingHistory.cs" />
   </ItemGroup>
