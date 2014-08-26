@@ -94,6 +94,10 @@ namespace GenerateMetrics
             }
 
             StockHistoryData data = StockHistoryData.LoadFromFile(file, startDate, endDate);
+            if (data == null)
+            {
+                return;
+            }
 
             List<double[]> metricValues = new List<double[]>();
             List<string> allFieldNames = new List<string>();
