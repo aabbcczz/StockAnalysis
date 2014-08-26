@@ -29,15 +29,15 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle5 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle6 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle7 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle8 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle9 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle19 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle20 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle21 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle22 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle23 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle24 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle25 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle26 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle27 = new System.Windows.Forms.DataGridViewCellStyle();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.settingsPage = new System.Windows.Forms.TabPage();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
@@ -82,7 +82,12 @@
             this.startDateTimePicker = new System.Windows.Forms.DateTimePicker();
             this.label11 = new System.Windows.Forms.Label();
             this.strategyTabPage = new System.Windows.Forms.TabPage();
-            this.parameterTextBox = new System.Windows.Forms.TextBox();
+            this.parameterDataGridView = new System.Windows.Forms.DataGridView();
+            this.nameParameterDataGridViewColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.valueParameterDataGridViewColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.typeParameterDataGridViewColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.descriptionParameterDataGridViewColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.label18 = new System.Windows.Forms.Label();
             this.label20 = new System.Windows.Forms.Label();
             this.descriptionTextBox = new System.Windows.Forms.TextBox();
             this.strategyComboBox = new System.Windows.Forms.ComboBox();
@@ -116,6 +121,7 @@
             this.groupBox4.SuspendLayout();
             this.groupBox3.SuspendLayout();
             this.strategyTabPage.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.parameterDataGridView)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.iTradingStrategyBindingSource)).BeginInit();
             this.resultPage.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.resultDataGridView)).BeginInit();
@@ -587,7 +593,8 @@
             // 
             // strategyTabPage
             // 
-            this.strategyTabPage.Controls.Add(this.parameterTextBox);
+            this.strategyTabPage.Controls.Add(this.parameterDataGridView);
+            this.strategyTabPage.Controls.Add(this.label18);
             this.strategyTabPage.Controls.Add(this.label20);
             this.strategyTabPage.Controls.Add(this.descriptionTextBox);
             this.strategyTabPage.Controls.Add(this.strategyComboBox);
@@ -601,24 +608,68 @@
             this.strategyTabPage.Text = "策略选择";
             this.strategyTabPage.UseVisualStyleBackColor = true;
             // 
-            // parameterTextBox
+            // parameterDataGridView
             // 
-            this.parameterTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            this.parameterDataGridView.AllowUserToAddRows = false;
+            this.parameterDataGridView.AllowUserToDeleteRows = false;
+            this.parameterDataGridView.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.parameterTextBox.Location = new System.Drawing.Point(251, 485);
-            this.parameterTextBox.Name = "parameterTextBox";
-            this.parameterTextBox.Size = new System.Drawing.Size(654, 20);
-            this.parameterTextBox.TabIndex = 16;
+            this.parameterDataGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.parameterDataGridView.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.nameParameterDataGridViewColumn,
+            this.valueParameterDataGridViewColumn,
+            this.typeParameterDataGridViewColumn,
+            this.descriptionParameterDataGridViewColumn});
+            this.parameterDataGridView.EditMode = System.Windows.Forms.DataGridViewEditMode.EditOnEnter;
+            this.parameterDataGridView.Location = new System.Drawing.Point(474, 82);
+            this.parameterDataGridView.Name = "parameterDataGridView";
+            this.parameterDataGridView.RowHeadersVisible = false;
+            this.parameterDataGridView.Size = new System.Drawing.Size(446, 459);
+            this.parameterDataGridView.TabIndex = 17;
+            this.parameterDataGridView.CellValidating += new System.Windows.Forms.DataGridViewCellValidatingEventHandler(this.parameterDataGridView_CellValidating);
+            // 
+            // nameParameterDataGridViewColumn
+            // 
+            this.nameParameterDataGridViewColumn.HeaderText = "参数名";
+            this.nameParameterDataGridViewColumn.Name = "nameParameterDataGridViewColumn";
+            this.nameParameterDataGridViewColumn.ReadOnly = true;
+            // 
+            // valueParameterDataGridViewColumn
+            // 
+            this.valueParameterDataGridViewColumn.HeaderText = "参数值";
+            this.valueParameterDataGridViewColumn.Name = "valueParameterDataGridViewColumn";
+            // 
+            // typeParameterDataGridViewColumn
+            // 
+            this.typeParameterDataGridViewColumn.HeaderText = "数据类型";
+            this.typeParameterDataGridViewColumn.Name = "typeParameterDataGridViewColumn";
+            this.typeParameterDataGridViewColumn.ReadOnly = true;
+            // 
+            // descriptionParameterDataGridViewColumn
+            // 
+            this.descriptionParameterDataGridViewColumn.HeaderText = "描述";
+            this.descriptionParameterDataGridViewColumn.Name = "descriptionParameterDataGridViewColumn";
+            this.descriptionParameterDataGridViewColumn.ReadOnly = true;
+            this.descriptionParameterDataGridViewColumn.Width = 200;
+            // 
+            // label18
+            // 
+            this.label18.AutoSize = true;
+            this.label18.Location = new System.Drawing.Point(10, 62);
+            this.label18.Name = "label18";
+            this.label18.Size = new System.Drawing.Size(91, 13);
+            this.label18.TabIndex = 16;
+            this.label18.Text = "策略基本信息：";
             // 
             // label20
             // 
-            this.label20.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.label20.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.label20.AutoSize = true;
-            this.label20.Location = new System.Drawing.Point(10, 488);
+            this.label20.Location = new System.Drawing.Point(471, 62);
             this.label20.Name = "label20";
-            this.label20.Size = new System.Drawing.Size(235, 13);
+            this.label20.Size = new System.Drawing.Size(103, 13);
             this.label20.TabIndex = 15;
-            this.label20.Text = "策略初始化参数（用逗号或者分号分割）：";
+            this.label20.Text = "策略初始化参数：";
             // 
             // descriptionTextBox
             // 
@@ -626,13 +677,13 @@
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.descriptionTextBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.descriptionTextBox.Location = new System.Drawing.Point(13, 62);
+            this.descriptionTextBox.Location = new System.Drawing.Point(13, 82);
             this.descriptionTextBox.Multiline = true;
             this.descriptionTextBox.Name = "descriptionTextBox";
             this.descriptionTextBox.ReadOnly = true;
             this.descriptionTextBox.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
             this.descriptionTextBox.ShortcutsEnabled = false;
-            this.descriptionTextBox.Size = new System.Drawing.Size(892, 404);
+            this.descriptionTextBox.Size = new System.Drawing.Size(455, 453);
             this.descriptionTextBox.TabIndex = 13;
             // 
             // strategyComboBox
@@ -728,81 +779,81 @@
             // 
             // profitTimesResultDataGridViewColumn
             // 
-            dataGridViewCellStyle1.Format = "N0";
-            dataGridViewCellStyle1.NullValue = null;
-            this.profitTimesResultDataGridViewColumn.DefaultCellStyle = dataGridViewCellStyle1;
+            dataGridViewCellStyle19.Format = "N0";
+            dataGridViewCellStyle19.NullValue = null;
+            this.profitTimesResultDataGridViewColumn.DefaultCellStyle = dataGridViewCellStyle19;
             this.profitTimesResultDataGridViewColumn.HeaderText = "盈利次数";
             this.profitTimesResultDataGridViewColumn.Name = "profitTimesResultDataGridViewColumn";
             this.profitTimesResultDataGridViewColumn.ReadOnly = true;
             // 
             // totalTimesResultDataGridViewColumn
             // 
-            dataGridViewCellStyle2.Format = "N0";
-            dataGridViewCellStyle2.NullValue = null;
-            this.totalTimesResultDataGridViewColumn.DefaultCellStyle = dataGridViewCellStyle2;
+            dataGridViewCellStyle20.Format = "N0";
+            dataGridViewCellStyle20.NullValue = null;
+            this.totalTimesResultDataGridViewColumn.DefaultCellStyle = dataGridViewCellStyle20;
             this.totalTimesResultDataGridViewColumn.HeaderText = "总次数";
             this.totalTimesResultDataGridViewColumn.Name = "totalTimesResultDataGridViewColumn";
             this.totalTimesResultDataGridViewColumn.ReadOnly = true;
             // 
             // winRatioResultDataGridViewColumn
             // 
-            dataGridViewCellStyle3.Format = "N2";
-            dataGridViewCellStyle3.NullValue = null;
-            this.winRatioResultDataGridViewColumn.DefaultCellStyle = dataGridViewCellStyle3;
+            dataGridViewCellStyle21.Format = "N2";
+            dataGridViewCellStyle21.NullValue = null;
+            this.winRatioResultDataGridViewColumn.DefaultCellStyle = dataGridViewCellStyle21;
             this.winRatioResultDataGridViewColumn.HeaderText = "胜率%";
             this.winRatioResultDataGridViewColumn.Name = "winRatioResultDataGridViewColumn";
             this.winRatioResultDataGridViewColumn.ReadOnly = true;
             // 
             // commissionResultDataGridViewColumn
             // 
-            dataGridViewCellStyle4.Format = "N2";
-            dataGridViewCellStyle4.NullValue = null;
-            this.commissionResultDataGridViewColumn.DefaultCellStyle = dataGridViewCellStyle4;
+            dataGridViewCellStyle22.Format = "N2";
+            dataGridViewCellStyle22.NullValue = null;
+            this.commissionResultDataGridViewColumn.DefaultCellStyle = dataGridViewCellStyle22;
             this.commissionResultDataGridViewColumn.HeaderText = "手续费";
             this.commissionResultDataGridViewColumn.Name = "commissionResultDataGridViewColumn";
             this.commissionResultDataGridViewColumn.ReadOnly = true;
             // 
             // netProfitResultDataGridViewColumn
             // 
-            dataGridViewCellStyle5.Format = "N2";
-            dataGridViewCellStyle5.NullValue = null;
-            this.netProfitResultDataGridViewColumn.DefaultCellStyle = dataGridViewCellStyle5;
+            dataGridViewCellStyle23.Format = "N2";
+            dataGridViewCellStyle23.NullValue = null;
+            this.netProfitResultDataGridViewColumn.DefaultCellStyle = dataGridViewCellStyle23;
             this.netProfitResultDataGridViewColumn.HeaderText = "净利润";
             this.netProfitResultDataGridViewColumn.Name = "netProfitResultDataGridViewColumn";
             this.netProfitResultDataGridViewColumn.ReadOnly = true;
             // 
             // profitRatioResultDataGridViewColumn
             // 
-            dataGridViewCellStyle6.Format = "N2";
-            dataGridViewCellStyle6.NullValue = null;
-            this.profitRatioResultDataGridViewColumn.DefaultCellStyle = dataGridViewCellStyle6;
+            dataGridViewCellStyle24.Format = "N2";
+            dataGridViewCellStyle24.NullValue = null;
+            this.profitRatioResultDataGridViewColumn.DefaultCellStyle = dataGridViewCellStyle24;
             this.profitRatioResultDataGridViewColumn.HeaderText = "收益率%";
             this.profitRatioResultDataGridViewColumn.Name = "profitRatioResultDataGridViewColumn";
             this.profitRatioResultDataGridViewColumn.ReadOnly = true;
             // 
             // annualProfitRatioResultDataGridViewColumn
             // 
-            dataGridViewCellStyle7.Format = "N2";
-            dataGridViewCellStyle7.NullValue = null;
-            this.annualProfitRatioResultDataGridViewColumn.DefaultCellStyle = dataGridViewCellStyle7;
+            dataGridViewCellStyle25.Format = "N2";
+            dataGridViewCellStyle25.NullValue = null;
+            this.annualProfitRatioResultDataGridViewColumn.DefaultCellStyle = dataGridViewCellStyle25;
             this.annualProfitRatioResultDataGridViewColumn.HeaderText = "年化收益率%";
             this.annualProfitRatioResultDataGridViewColumn.Name = "annualProfitRatioResultDataGridViewColumn";
             this.annualProfitRatioResultDataGridViewColumn.ReadOnly = true;
             // 
             // maxDrawDownResultDataGridViewColumn
             // 
-            dataGridViewCellStyle8.Format = "N2";
-            dataGridViewCellStyle8.NullValue = null;
-            this.maxDrawDownResultDataGridViewColumn.DefaultCellStyle = dataGridViewCellStyle8;
+            dataGridViewCellStyle26.Format = "N2";
+            dataGridViewCellStyle26.NullValue = null;
+            this.maxDrawDownResultDataGridViewColumn.DefaultCellStyle = dataGridViewCellStyle26;
             this.maxDrawDownResultDataGridViewColumn.HeaderText = "最大回撤值";
             this.maxDrawDownResultDataGridViewColumn.Name = "maxDrawDownResultDataGridViewColumn";
             this.maxDrawDownResultDataGridViewColumn.ReadOnly = true;
             // 
             // maxDrawDownRatioResultDataGridViewColumn
             // 
-            dataGridViewCellStyle9.Format = "N2";
-            dataGridViewCellStyle9.NullValue = null;
-            this.maxDrawDownRatioResultDataGridViewColumn.DefaultCellStyle = dataGridViewCellStyle9;
+            dataGridViewCellStyle27.Format = "N2";
+            dataGridViewCellStyle27.NullValue = null;
+            this.maxDrawDownRatioResultDataGridViewColumn.DefaultCellStyle = dataGridViewCellStyle27;
             this.maxDrawDownRatioResultDataGridViewColumn.HeaderText = "最大回撤比%";
             this.maxDrawDownRatioResultDataGridViewColumn.Name = "maxDrawDownRatioResultDataGridViewColumn";
             this.maxDrawDownRatioResultDataGridViewColumn.ReadOnly = true;
@@ -889,6 +940,7 @@
             this.groupBox3.PerformLayout();
             this.strategyTabPage.ResumeLayout(false);
             this.strategyTabPage.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.parameterDataGridView)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.iTradingStrategyBindingSource)).EndInit();
             this.resultPage.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.resultDataGridView)).EndInit();
@@ -953,7 +1005,6 @@
         private System.Windows.Forms.TabPage strategyTabPage;
         private System.Windows.Forms.TextBox initialCapitalTextBox;
         private System.Windows.Forms.Label label19;
-        private System.Windows.Forms.TextBox parameterTextBox;
         private System.Windows.Forms.Label label20;
         private System.Windows.Forms.TextBox descriptionTextBox;
         private System.Windows.Forms.ComboBox strategyComboBox;
@@ -971,6 +1022,12 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn annualProfitRatioResultDataGridViewColumn;
         private System.Windows.Forms.DataGridViewTextBoxColumn maxDrawDownResultDataGridViewColumn;
         private System.Windows.Forms.DataGridViewTextBoxColumn maxDrawDownRatioResultDataGridViewColumn;
+        private System.Windows.Forms.DataGridView parameterDataGridView;
+        private System.Windows.Forms.Label label18;
+        private System.Windows.Forms.DataGridViewTextBoxColumn nameParameterDataGridViewColumn;
+        private System.Windows.Forms.DataGridViewTextBoxColumn valueParameterDataGridViewColumn;
+        private System.Windows.Forms.DataGridViewTextBoxColumn typeParameterDataGridViewColumn;
+        private System.Windows.Forms.DataGridViewTextBoxColumn descriptionParameterDataGridViewColumn;
     }
 }
 

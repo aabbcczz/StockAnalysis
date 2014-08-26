@@ -11,7 +11,7 @@ namespace TradingStrategy
     public sealed class TradingStrategyEvaluator
     {
         private ITradingStrategy _strategy;
-        private string[] _strategyParameters;
+        private IDictionary<string, object> _strategyParameterValues;
         private ITradingDataProvider _provider;
         private EquityManager _equityManager;
         private StandardEvaluationContext _context;
@@ -33,7 +33,7 @@ namespace TradingStrategy
         public TradingStrategyEvaluator(
             double initalCapital, 
             ITradingStrategy strategy, 
-            string[] strategyParameters, 
+            IDictionary<string, object> strategyParameters, 
             ITradingDataProvider provider, 
             TradingSettings settings,
             ILogger logger)
@@ -44,7 +44,7 @@ namespace TradingStrategy
             }
 
             _strategy = strategy;
-            _strategyParameters = strategyParameters;
+            _strategyParameterValues = strategyParameters;
 
             _provider = provider;
            
@@ -63,7 +63,7 @@ namespace TradingStrategy
             }
 
             // initialize context
-            _strategy.Initialize(_context, _strategyParameters);
+            _strategy.Initialize(_context, _strategyParameterValues);
 
             // Get all trading objects
             _allTradingObjects = _provider.GetAllTradingObjects().ToArray();

@@ -24,13 +24,13 @@ namespace TradingStrategy
                 {
                     attribute.SetName(property.Name);
                     attribute.SetType(property.PropertyType);
-                }
 
-                yield return attribute;
+                    yield return attribute;
+                }
             }
         }
 
-        public static void SetParameterValue(ITradingStrategy strategy, IDictionary<string, object> parameterValues)
+        public static void SetParameterValues(ITradingStrategy strategy, IDictionary<string, object> parameterValues)
         {
             if (strategy == null)
             {
@@ -78,6 +78,60 @@ namespace TradingStrategy
 
                 property.SetValue(strategy, attribute.DefaultValue);
             }
+        }
+
+        public static bool IsValidValue(ParameterAttribute attribute, string value)
+        {
+            bool valid = true;
+            if (attribute.ParameterType == typeof(int))
+            {
+                int result;
+                if (!int.TryParse(value, out result))
+                {
+                    valid = false;
+                }
+            }
+            else if (attribute.ParameterType == typeof(double))
+            {
+                double result;
+                if (!double.TryParse(value, out result))
+                {
+                    valid = false;
+                }
+            }
+            else if (attribute.ParameterType == typeof(string))
+            {
+                // nothing to do
+            }
+            else
+            {
+                throw new InvalidProgramException();
+            }
+
+            return valid;
+        }
+
+        public static object ConvertStringToValue(ParameterAttribute attribute, string value)
+        {
+            object objValue;
+            if (attribute.ParameterType == typeof(int))
+            {
+                objValue = int.Parse(value);
+            }
+            else if (attribute.ParameterType == typeof(double))
+            {
+                objValue = double.Parse(value);
+            }
+            else if (attribute.ParameterType == typeof(string))
+            {
+                objValue = value;
+            }
+            else
+            {
+                throw new InvalidProgramException();
+            }
+
+            return objValue;
         }
     }
 }

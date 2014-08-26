@@ -29,6 +29,7 @@ namespace EvaluatorClient
         {
             InitializeComponent();
 
+            // initialize resultDataGridView
             resultDataGridView.AutoGenerateColumns = false;
 
             codeResultDataGridViewColumn.DataPropertyName = "Code";
@@ -42,6 +43,13 @@ namespace EvaluatorClient
             annualProfitRatioResultDataGridViewColumn.DataPropertyName = "AnnualProfitRatio";
             maxDrawDownResultDataGridViewColumn.DataPropertyName = "MaxDrawDown";
             maxDrawDownRatioResultDataGridViewColumn.DataPropertyName = "MaxDrawDownRatio";
+
+            // initialize parameterDataGridView
+            parameterDataGridView.AutoGenerateColumns = false;
+            nameParameterDataGridViewColumn.DataPropertyName = "Name";
+            descriptionParameterDataGridViewColumn.DataPropertyName = "Description";
+            typeParameterDataGridViewColumn.DataPropertyName = "ParameterType";
+            valueParameterDataGridViewColumn.DataPropertyName = "Value";
 
             // create metric form
             _metricForm = new MetricForm();
@@ -638,13 +646,13 @@ namespace EvaluatorClient
                 MemoryLogger logger = new MemoryLogger();
 
                 // create evaluator
-                string[] parameters = parameterTextBox.Text.Split(new char[] { ',', ';' });
+                IDictionary<string, object> parameterValues = CollectParameterValues();
 
-                TradingStrategyEvaluator evaluator 
+                TradingStrategyEvaluator evaluator
                     = new TradingStrategyEvaluator(
                         initialCapital, 
                         strategy, 
-                        parameters, 
+                        parameterValues, 
                         provider, 
                         settings,
                         logger);
@@ -690,6 +698,21 @@ namespace EvaluatorClient
             }
         }
 
+        private IDictionary<string, object> CollectParameterValues()
+        {
+            Dictionary<string, object> parameterValues = new Dictionary<string, object>();
+
+            var attributes = parameterDataGridView.DataSource as List<ParameterAttributeSlim>;
+            foreach (var attribute in attributes)
+            {
+                object value = ParameterHelper.ConvertStringToValue(attribute.Attribute, attribute.Value);
+
+                parameterValues.Add(attribute.Name, value);
+            }
+
+            return parameterValues;
+        }
+
         private void UpdateEvaluationProgress(object sender, EvaluationProgressEventArgs e)
         {
             evaluationProgressBar.Value = (int)(e.EvaluationPercentage * 100.0);
@@ -706,13 +729,16 @@ namespace EvaluatorClient
                 builder.Append("全类型名：\n");
                 builder.Append(strategy.GetType().FullName);
                 builder.Append("\n\n");
-                builder.Append("参数描述：\n");
-                builder.Append(strategy.ParameterDescription);
-                builder.Append("\n\n");
                 builder.Append("策略描述：\n");
                 builder.Append(strategy.StrategyDescription);
 
                 descriptionTextBox.Lines = builder.ToString().Split(new char[] {'\n'});
+
+                var parameters = ParameterHelper.GetParameterAttributes(strategy)
+                    .Select(p => new ParameterAttributeSlim(p))
+                    .ToList();
+
+                parameterDataGridView.DataSource = parameters;
             }
             else
             {
@@ -722,6 +748,11 @@ namespace EvaluatorClient
 
         private void resultDataGridView_CellMouseDoubleClick(object sender, DataGridViewCellMouseEventArgs e)
         {
+            if (e.RowIndex < 0)
+            {
+                return;
+            }
+
             TradeMetricSlim obj = resultDataGridView.Rows[e.RowIndex].DataBoundItem as TradeMetricSlim;
             if (obj != null)
             {
@@ -729,6 +760,30 @@ namespace EvaluatorClient
             }
 
             _metricForm.Visible = true;
+        }
+
+        private void parameterDataGridView_CellValidating(object sender, DataGridViewCellValidatingEventArgs e)
+        {
+            e.Cancel = false;
+
+            if (e.RowIndex < 0 || e.ColumnIndex < 0)
+            {
+                return;
+            }
+
+            var column = parameterDataGridView.Columns[e.ColumnIndex];
+
+            if (column != valueParameterDataGridViewColumn)
+            {
+                return;
+            }
+
+            ParameterAttributeSlim obj = parameterDataGridView.Rows[e.RowIndex].DataBoundItem as ParameterAttributeSlim;
+
+            if (!ParameterHelper.IsValidValue(obj.Attribute, (string)e.FormattedValue))
+            {
+                e.Cancel = true;
+            }
         }
     }
 }

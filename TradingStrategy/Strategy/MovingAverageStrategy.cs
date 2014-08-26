@@ -14,7 +14,9 @@ namespace TradingStrategy.Strategy
         private class RuntimeMetrics
         {
             public double Atr { get; private set; }
+
             public double ShortMA { get; private set; }
+
             public double LongMA { get; private set; }
 
             private MovingAverage _short;
@@ -36,9 +38,13 @@ namespace TradingStrategy.Strategy
             }
         }
 
+        [Parameter(10, "短期均线")]
+        public int Short{ get; set; }
+
+        [Parameter(20, "长期均线")]
+        public int Long { get; set; }
+
         private IEvaluationContext _context;
-        private int _short;
-        private int _long;
         private double _maxRiskOfTotalCapital = 0.02;
         private int _maxVolumeUnitForSingleObject = 100;
         private double _initialCapital;
@@ -59,37 +65,26 @@ namespace TradingStrategy.Strategy
             get { return "本策略使用两条均线，当短期均线向上交叉长期均线时买入，当短期均线向下交叉长期均线时卖出"; }
         }
 
-        public string ParameterDescription
-        {
-            get { return "本策略需要两个参数： <短期均线周期数> 和 <长期均线周期数>, 例如： 30, 60"; }
-        }
-
         public bool SupportParallelization
         {
             get { return true; }
         }
 
-        public void Initialize(IEvaluationContext context, string[] parameters)
+        public void Initialize(IEvaluationContext context, IDictionary<string, object> parameterValues)
         {
             if (context == null)
             {
                 throw new ArgumentNullException("context");
             }
 
-            if (parameters == null)
+            if (parameterValues == null)
             {
-                throw new ArgumentNullException("parameters");
+                throw new ArgumentNullException("parameterValues");
             }
 
-            if (parameters.Length < 2)
-            {
-                throw new ArgumentException("Parameter string should include at least two fields: short and long");
-            }
+            ParameterHelper.SetParameterValues(this, parameterValues);
 
-            _short = int.Parse(parameters[0]);
-            _long = int.Parse(parameters[1]);
-
-            if (_short >= _long)
+            if (Short >= Long)
             {
                 throw new ArgumentException("short parameter is not smaller than long parameter");
             }
@@ -121,7 +116,7 @@ namespace TradingStrategy.Strategy
                 {
                     if (!_metrics.ContainsKey(tradingObject))
                     {
-                        _metrics.Add(tradingObject, new RuntimeMetrics(_short, _long));
+                        _metrics.Add(tradingObject, new RuntimeMetrics(Short, Long));
                     }
                 }
             }
