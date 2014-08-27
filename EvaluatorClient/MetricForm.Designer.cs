@@ -31,8 +31,8 @@
             System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
             System.Windows.Forms.DataVisualization.Charting.Series series1 = new System.Windows.Forms.DataVisualization.Charting.Series();
             System.Windows.Forms.DataVisualization.Charting.Series series2 = new System.Windows.Forms.DataVisualization.Charting.Series();
-            System.Windows.Forms.DataVisualization.Charting.DataPoint dataPoint1 = new System.Windows.Forms.DataVisualization.Charting.DataPoint(5478D, "100,90,80,70");
-            System.Windows.Forms.DataVisualization.Charting.DataPoint dataPoint2 = new System.Windows.Forms.DataVisualization.Charting.DataPoint(13148D, "110,120,100,90");
+            System.Windows.Forms.DataVisualization.Charting.DataPoint dataPoint1 = new System.Windows.Forms.DataVisualization.Charting.DataPoint(5478D, "100,0,0,0");
+            System.Windows.Forms.DataVisualization.Charting.DataPoint dataPoint2 = new System.Windows.Forms.DataVisualization.Charting.DataPoint(13148D, "110,0,0,0");
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
@@ -109,6 +109,7 @@
             series2.XValueType = System.Windows.Forms.DataVisualization.Charting.ChartValueType.DateTime;
             series2.YAxisType = System.Windows.Forms.DataVisualization.Charting.AxisType.Secondary;
             series2.YValuesPerPoint = 4;
+            series2.YValueType = System.Windows.Forms.DataVisualization.Charting.ChartValueType.Double;
             this.metricChart.Series.Add(series1);
             this.metricChart.Series.Add(series2);
             this.metricChart.Size = new System.Drawing.Size(848, 419);

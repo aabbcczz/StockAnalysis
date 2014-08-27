@@ -9,14 +9,14 @@ namespace TradingStrategy
 {
     public static class ParameterHelper
     {
-        public static IEnumerable<ParameterAttribute> GetParameterAttributes(ITradingStrategy strategy)
+        public static IEnumerable<ParameterAttribute> GetParameterAttributes(object obj)
         {
-            if (strategy == null)
+            if (obj == null)
             {
-                throw new ArgumentNullException("strategy");
+                throw new ArgumentNullException("obj");
             }
 
-            foreach (var property in strategy.GetType().GetProperties())
+            foreach (var property in obj.GetType().GetProperties())
             {
                 ParameterAttribute attribute = property.GetCustomAttribute<ParameterAttribute>();
 
@@ -24,17 +24,18 @@ namespace TradingStrategy
                 {
                     attribute.SetName(property.Name);
                     attribute.SetType(property.PropertyType);
+                    attribute.SetTarget(obj, property);
 
                     yield return attribute;
                 }
             }
         }
 
-        public static void SetParameterValues(ITradingStrategy strategy, IDictionary<string, object> parameterValues)
+        public static void SetParameterValues(object obj, IDictionary<ParameterAttribute, object> parameterValues)
         {
-            if (strategy == null)
+            if (obj == null)
             {
-                throw new ArgumentNullException("strategy");
+                throw new ArgumentNullException("obj");
             }
 
             if (parameterValues == null)
@@ -42,41 +43,33 @@ namespace TradingStrategy
                 throw new ArgumentNullException("parameterValues");
             }
 
-            var parameterAttributes = GetParameterAttributes(strategy).ToDictionary(p => p.Name);
+            var parameterAttributes = GetParameterAttributes(obj).ToDictionary(p => p.Name);
 
             // set parameter values specified in parameterValues
             foreach (var kvp in parameterValues)
             {
-                if (!parameterAttributes.ContainsKey(kvp.Key))
+                if (kvp.Key.TargetObject.GetType() != obj.GetType())
                 {
-                    throw new InvalidOperationException(string.Format("unknown or duplicated parameter {0}", kvp.Key));
+                    continue;
                 }
 
-                ParameterAttribute attribute = parameterAttributes[kvp.Key];
-                PropertyInfo property = strategy.GetType().GetProperty(attribute.Name);
-                if (property == null)
+                if (!parameterAttributes.ContainsKey(kvp.Key.Name))
                 {
-                    throw new InvalidProgramException(
-                        string.Format("There is no property named as {0} in class {1}", attribute.Name, strategy.GetType().FullName));
+                    throw new InvalidOperationException(string.Format("unknown or duplicated parameter {0}", kvp.Key.Name));
                 }
 
-                property.SetValue(strategy, kvp.Value);
+                ParameterAttribute attribute = parameterAttributes[kvp.Key.Name];
+
+                attribute.TargetProperty.SetValue(obj, kvp.Value);
 
                 // remove parameter that has been set value
-                parameterAttributes.Remove(kvp.Key);
+                parameterAttributes.Remove(kvp.Key.Name);
             }
 
             // set parameter values to default according to ParameterAttribute
             foreach (var attribute in parameterAttributes.Values)
             {
-                PropertyInfo property = strategy.GetType().GetProperty(attribute.Name);
-                if (property == null)
-                {
-                    throw new InvalidProgramException(
-                        string.Format("There is no property named as {0} in class {1}", attribute.Name, strategy.GetType().FullName));
-                }
-
-                property.SetValue(strategy, attribute.DefaultValue);
+                attribute.TargetProperty.SetValue(obj, attribute.DefaultValue);
             }
         }
 

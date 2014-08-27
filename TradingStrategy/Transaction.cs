@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using StockAnalysis.Share;
 
 namespace TradingStrategy
 {
@@ -27,6 +28,8 @@ namespace TradingStrategy
         public double Commission { get; set; }
 
         public string Error { get; set; }
+
+        public string Comments { get; set; }
 
         public class DefaultComparer : IComparer<Transaction>
         {
@@ -60,7 +63,7 @@ namespace TradingStrategy
         public override string ToString()
         {
             return string.Format(
-                "{0},{1:yyyy-MM-dd HH:mm:ss},{2:yyyy-MM-dd HH:mm:ss}, {3}, {4}, {5:0.00}, {6:0.00}, {7:0.00}, {8}, {9}",
+                "{0},{1:yyyy-MM-dd HH:mm:ss},{2:yyyy-MM-dd HH:mm:ss}, {3}, {4}, {5:0.00}, {6:0.00}, {7:0.00}, {8}, {9},{10}",
                 InstructionId,
                 SubmissionTime,
                 ExecutionTime,
@@ -70,15 +73,16 @@ namespace TradingStrategy
                 Volume,
                 Commission,
                 Succeeded,
-                Error);
+                Error.Escape(),
+                Comments.Escape());
         }
 
         public static Transaction Parse(string s)
         {
             string[] fields = s.Split(new char[] { ',' });
-            if (fields.Length < 10)
+            if (fields.Length != 11)
             {
-                // there should be 10 fields
+                // there should be 11 fields
                 throw new FormatException(
                     string.Format("Data format error: there is no enough fields in \"{0}\"", s));
 
@@ -96,7 +100,8 @@ namespace TradingStrategy
                 Volume = int.Parse(fields[6]),
                 Commission = double.Parse(fields[7]),
                 Succeeded = bool.Parse(fields[8]),
-                Error = string.Join(",", fields.Skip(9)) // all remained fields are error message.
+                Error = fields[9].Unescape(),
+                Comments = fields[10].Unescape()
             };
 
             return transaction;

@@ -16,8 +16,10 @@ namespace TradingStrategy
 
         bool SupportParallelization { get; }
 
+        IEnumerable<ParameterAttribute> GetParameterDefinitions();
+
         // initialize the strategy with evaluation context and parameters.
-        void Initialize(IEvaluationContext context, IDictionary<string, object> parameterValues);
+        void Initialize(IEvaluationContext context, IDictionary<ParameterAttribute, object> parameterValues);
 
         // Warm up the strategy. this function will be called many times to traverse all warming up data
         // this function could be called in parallel if SupportParallelization is true

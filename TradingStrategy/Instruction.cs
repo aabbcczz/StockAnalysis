@@ -13,5 +13,6 @@ namespace TradingStrategy
         public TradingAction Action { get; set; }
         public int Volume { get; set; }
         public DateTime SubmissionTime { get; set; }
+        public string Comments { get; set; }
     }
 }

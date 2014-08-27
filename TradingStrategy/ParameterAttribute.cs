@@ -18,6 +18,10 @@ namespace TradingStrategy
 
         public object DefaultValue { get; set; }
 
+        public object TargetObject { get; private set; }
+
+        public PropertyInfo TargetProperty {get; private set;}
+
         public ParameterAttribute(object defaultValue = null, string description = "")
         {
             DefaultValue = defaultValue;
@@ -59,6 +63,17 @@ namespace TradingStrategy
             }
         }
         
+        public void SetTarget(object obj, PropertyInfo property)
+        {
+            if (obj == null || property == null)
+            {
+                throw new ArgumentNullException();
+            }
+
+            TargetObject = obj;
+            TargetProperty = property;
+        }
+
         public static bool IsSupportedType(Type type)
         {
             return (type == typeof(int)

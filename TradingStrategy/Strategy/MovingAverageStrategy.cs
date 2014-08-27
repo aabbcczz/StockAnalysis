@@ -70,7 +70,12 @@ namespace TradingStrategy.Strategy
             get { return true; }
         }
 
-        public void Initialize(IEvaluationContext context, IDictionary<string, object> parameterValues)
+        public IEnumerable<ParameterAttribute> GetParameterDefinitions()
+        {
+            return ParameterHelper.GetParameterAttributes(this);
+        }
+
+        public void Initialize(IEvaluationContext context, IDictionary<ParameterAttribute, object> parameterValues)
         {
             if (context == null)
             {
@@ -91,6 +96,8 @@ namespace TradingStrategy.Strategy
 
             _context = context;
             _initialCapital = context.GetCurrentCapital();
+
+            _context.Log(string.Format("Short: {0}, Long: {1}", Short, Long));
         }
 
         public void WarmUp(ITradingObject tradingObject, Bar bar)
@@ -184,20 +191,14 @@ namespace TradingStrategy.Strategy
                                 ID = id,
                                 Object = tradingObject,
                                 SubmissionTime = _period,
-                                Volume = volume
+                                Volume = volume,
+                                Comments = string.Format(
+                                    "prevShort:{0:0.00}; prevLong:{1:0.00}; curShort:{2:0.00}; curLong:{3:0.00}",
+                                    previousShortMA,
+                                    previousLongMA,
+                                    currentShortMA,
+                                    currentLongMA)
                             });
-
-                        _context.Log(
-                            string.Format(
-                                "{0} {1:yyyy-MM-dd HH:mm:ss}: try to sell {2} vol {3} [ps:{4:0.00}, pl:{5:0.00}, cs:{6:0.00}, cl:{7:0.00}]",
-                                id,
-                                _period,
-                                tradingObject.Code,
-                                volume,
-                                previousShortMA,
-                                previousLongMA,
-                                currentShortMA,
-                                currentLongMA));
                     }
                 }
             }
@@ -226,20 +227,14 @@ namespace TradingStrategy.Strategy
                                     ID = id,
                                     Object = tradingObject,
                                     SubmissionTime = _period,
-                                    Volume = volume
+                                    Volume = volume,
+                                    Comments = string.Format(
+                                        "prevShort:{0:0.00}; prevLong:{1:0.00}; curShort:{2:0.00}; curLong:{3:0.00}",
+                                        previousShortMA,
+                                        previousLongMA,
+                                        currentShortMA,
+                                        currentLongMA)
                                 });
-
-                            _context.Log(
-                                string.Format(
-                                    "{0} {1:yyyy-MM-dd HH:mm:ss}: try to buy {2} vol {3} [ps:{4:0.00}, pl:{5:0.00}, cs:{6:0.00}, cl:{7:0.00}]",
-                                    id,
-                                    _period,
-                                    tradingObject.Code,
-                                    volume,
-                                    previousShortMA,
-                                    previousLongMA,
-                                    currentShortMA,
-                                    currentLongMA));
                         }
                     }
                 }

@@ -646,7 +646,7 @@ namespace EvaluatorClient
                 MemoryLogger logger = new MemoryLogger();
 
                 // create evaluator
-                IDictionary<string, object> parameterValues = CollectParameterValues();
+                IDictionary<ParameterAttribute, object> parameterValues = CollectParameterValues();
 
                 TradingStrategyEvaluator evaluator
                     = new TradingStrategyEvaluator(
@@ -698,16 +698,16 @@ namespace EvaluatorClient
             }
         }
 
-        private IDictionary<string, object> CollectParameterValues()
+        private IDictionary<ParameterAttribute, object> CollectParameterValues()
         {
-            Dictionary<string, object> parameterValues = new Dictionary<string, object>();
+            Dictionary<ParameterAttribute, object> parameterValues = new Dictionary<ParameterAttribute, object>();
 
             var attributes = parameterDataGridView.DataSource as List<ParameterAttributeSlim>;
             foreach (var attribute in attributes)
             {
                 object value = ParameterHelper.ConvertStringToValue(attribute.Attribute, attribute.Value);
 
-                parameterValues.Add(attribute.Name, value);
+                parameterValues.Add(attribute.Attribute, value);
             }
 
             return parameterValues;

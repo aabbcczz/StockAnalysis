@@ -11,7 +11,7 @@ namespace TradingStrategy
     public sealed class TradingStrategyEvaluator
     {
         private ITradingStrategy _strategy;
-        private IDictionary<string, object> _strategyParameterValues;
+        private IDictionary<ParameterAttribute, object> _strategyParameterValues;
         private ITradingDataProvider _provider;
         private EquityManager _equityManager;
         private StandardEvaluationContext _context;
@@ -33,7 +33,7 @@ namespace TradingStrategy
         public TradingStrategyEvaluator(
             double initalCapital, 
             ITradingStrategy strategy, 
-            IDictionary<string, object> strategyParameters, 
+            IDictionary<ParameterAttribute, object> strategyParameters, 
             ITradingDataProvider provider, 
             TradingSettings settings,
             ILogger logger)
@@ -352,7 +352,8 @@ namespace TradingStrategy
                 Price = CalculateTransactionPrice(bar, instruction),
                 Succeeded = false,
                 SubmissionTime = instruction.SubmissionTime,
-                Volume = instruction.Volume
+                Volume = instruction.Volume,
+                Comments = instruction.Comments,
             };
 
             // update commission
