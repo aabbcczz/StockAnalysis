@@ -41,13 +41,14 @@
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.transactionDataGridView = new System.Windows.Forms.DataGridView();
+            this.tabPage2 = new System.Windows.Forms.TabPage();
+            this.detailsTextBox = new System.Windows.Forms.TextBox();
             this.timeTransactionDataGridColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.codeTransactionDataGridColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.actionTransactionDataGridColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.priceTransactionDataGridColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.volumeTransactionDataGridColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.tabPage2 = new System.Windows.Forms.TabPage();
-            this.detailsTextBox = new System.Windows.Forms.TextBox();
+            this.commentsTransactionDataGridColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -148,7 +149,8 @@
             this.codeTransactionDataGridColumn,
             this.actionTransactionDataGridColumn,
             this.priceTransactionDataGridColumn,
-            this.volumeTransactionDataGridColumn});
+            this.volumeTransactionDataGridColumn,
+            this.commentsTransactionDataGridColumn});
             this.transactionDataGridView.Dock = System.Windows.Forms.DockStyle.Fill;
             this.transactionDataGridView.Location = new System.Drawing.Point(3, 3);
             this.transactionDataGridView.Name = "transactionDataGridView";
@@ -157,6 +159,30 @@
             this.transactionDataGridView.RowHeadersWidth = 4;
             this.transactionDataGridView.Size = new System.Drawing.Size(834, 364);
             this.transactionDataGridView.TabIndex = 0;
+            // 
+            // tabPage2
+            // 
+            this.tabPage2.Controls.Add(this.detailsTextBox);
+            this.tabPage2.Location = new System.Drawing.Point(4, 22);
+            this.tabPage2.Name = "tabPage2";
+            this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPage2.Size = new System.Drawing.Size(840, 370);
+            this.tabPage2.TabIndex = 1;
+            this.tabPage2.Text = "详细";
+            this.tabPage2.UseVisualStyleBackColor = true;
+            // 
+            // detailsTextBox
+            // 
+            this.detailsTextBox.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.detailsTextBox.Font = new System.Drawing.Font("Arial Narrow", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.detailsTextBox.Location = new System.Drawing.Point(3, 3);
+            this.detailsTextBox.Multiline = true;
+            this.detailsTextBox.Name = "detailsTextBox";
+            this.detailsTextBox.ReadOnly = true;
+            this.detailsTextBox.ScrollBars = System.Windows.Forms.ScrollBars.Both;
+            this.detailsTextBox.Size = new System.Drawing.Size(834, 364);
+            this.detailsTextBox.TabIndex = 0;
+            this.detailsTextBox.Text = "收益率     ：\r\n年华收益率   ：";
             // 
             // timeTransactionDataGridColumn
             // 
@@ -199,29 +225,12 @@
             this.volumeTransactionDataGridColumn.Name = "volumeTransactionDataGridColumn";
             this.volumeTransactionDataGridColumn.ReadOnly = true;
             // 
-            // tabPage2
+            // commentsTransactionDataGridColumn
             // 
-            this.tabPage2.Controls.Add(this.detailsTextBox);
-            this.tabPage2.Location = new System.Drawing.Point(4, 22);
-            this.tabPage2.Name = "tabPage2";
-            this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage2.Size = new System.Drawing.Size(840, 370);
-            this.tabPage2.TabIndex = 1;
-            this.tabPage2.Text = "详细";
-            this.tabPage2.UseVisualStyleBackColor = true;
-            // 
-            // detailsTextBox
-            // 
-            this.detailsTextBox.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.detailsTextBox.Font = new System.Drawing.Font("Arial Narrow", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.detailsTextBox.Location = new System.Drawing.Point(3, 3);
-            this.detailsTextBox.Multiline = true;
-            this.detailsTextBox.Name = "detailsTextBox";
-            this.detailsTextBox.ReadOnly = true;
-            this.detailsTextBox.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.detailsTextBox.Size = new System.Drawing.Size(834, 364);
-            this.detailsTextBox.TabIndex = 0;
-            this.detailsTextBox.Text = "收益率     ：\r\n年华收益率   ：";
+            this.commentsTransactionDataGridColumn.HeaderText = "注释";
+            this.commentsTransactionDataGridColumn.Name = "commentsTransactionDataGridColumn";
+            this.commentsTransactionDataGridColumn.ReadOnly = true;
+            this.commentsTransactionDataGridColumn.Width = 400;
             // 
             // MetricForm
             // 
@@ -260,6 +269,7 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn actionTransactionDataGridColumn;
         private System.Windows.Forms.DataGridViewTextBoxColumn priceTransactionDataGridColumn;
         private System.Windows.Forms.DataGridViewTextBoxColumn volumeTransactionDataGridColumn;
+        private System.Windows.Forms.DataGridViewTextBoxColumn commentsTransactionDataGridColumn;
 
     }
 }

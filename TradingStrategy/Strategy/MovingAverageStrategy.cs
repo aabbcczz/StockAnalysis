@@ -44,12 +44,16 @@ namespace TradingStrategy.Strategy
         [Parameter(20, "长期均线")]
         public int Long { get; set; }
 
+        [Parameter(3.0, "ATR止损系数")]
+        public double AtrCoefficent { get; set; }
+
         private IEvaluationContext _context;
         private double _maxRiskOfTotalCapital = 0.02;
         private int _maxVolumeUnitForSingleObject = 100;
         private double _initialCapital;
 
         private Dictionary<ITradingObject, RuntimeMetrics> _metrics = new Dictionary<ITradingObject, RuntimeMetrics>();
+        private Dictionary<string, double> _stopLoss = new Dictionary<string, double>();
 
         private List<Instruction> _instructions;
         private DateTime _period;
@@ -117,18 +121,17 @@ namespace TradingStrategy.Strategy
                 throw new ArgumentNullException("tradingObject");
             }
 
-            if (!_metrics.ContainsKey(tradingObject))
+            lock (_metrics)
             {
-                lock (_metrics)
+                if (!_metrics.ContainsKey(tradingObject))
                 {
                     if (!_metrics.ContainsKey(tradingObject))
                     {
                         _metrics.Add(tradingObject, new RuntimeMetrics(Short, Long));
                     }
                 }
+                return _metrics[tradingObject];
             }
-
-            return _metrics[tradingObject];
         }
 
         public void Finish()
@@ -146,6 +149,32 @@ namespace TradingStrategy.Strategy
         public void NotifyTransactionStatus(Transaction transaction)
         {
             _context.Log(transaction.ToString());
+
+            if (transaction.Succeeded)
+            {
+                if (transaction.Action == TradingAction.OpenLong)
+                {
+                    if (_stopLoss.ContainsKey(transaction.Code))
+                    {
+                        double lossPrice = transaction.Price - _stopLoss[transaction.Code];
+                        _stopLoss[transaction.Code] = lossPrice;
+                    }
+                }
+                else if (transaction.Action == TradingAction.CloseLong)
+                {
+                    _stopLoss.Remove(transaction.Code);
+                }
+            }
+            else
+            {
+                if (transaction.Action == TradingAction.OpenLong)
+                {
+                    if (_stopLoss.ContainsKey(transaction.Code))
+                    {
+                        _stopLoss.Remove(transaction.Code);
+                    }
+               }
+            }
         }
 
         public void Evaluate(ITradingObject tradingObject, Bar bar)
@@ -175,43 +204,52 @@ namespace TradingStrategy.Strategy
                 atr = runtimeMetrics.Atr;
             }
 
-            if (previousShortMA > previousLongMA && currentShortMA < currentLongMA)
+            bool shouldStopLoss = false;
+            double loss = 0.0;
+
+            lock (_stopLoss)
             {
-                // sell
-                lock (_context)
+                if (_stopLoss.TryGetValue(tradingObject.Code, out loss))
                 {
-                    if (_context.ExistsEquity(tradingObject.Code))
+                    if (loss > bar.ClosePrice)
                     {
-                        int volume = _context.GetEquityDetails(tradingObject.Code).Sum(e => e.Volume);
-                        long id = _context.GetUniqueInstructionId();
-                        _instructions.Add(
-                            new Instruction()
-                            {
-                                Action = TradingAction.CloseLong,
-                                ID = id,
-                                Object = tradingObject,
-                                SubmissionTime = _period,
-                                Volume = volume,
-                                Comments = string.Format(
-                                    "prevShort:{0:0.00}; prevLong:{1:0.00}; curShort:{2:0.00}; curLong:{3:0.00}",
-                                    previousShortMA,
-                                    previousLongMA,
-                                    currentShortMA,
-                                    currentLongMA)
-                            });
+                        shouldStopLoss = true;
                     }
                 }
+            }
+
+            if (shouldStopLoss)
+            {
+                TryToSell(tradingObject, string.Format("stop loss at {0:0.00}", loss));
+                return;
+            }
+
+            if (previousShortMA > previousLongMA && currentShortMA < currentLongMA)
+            {
+                string comments =
+                    string.Format(
+                        "prevShort:{0:0.00}; prevLong:{1:0.00}; curShort:{2:0.00}; curLong:{3:0.00}",
+                        previousShortMA,
+                        previousLongMA,
+                        currentShortMA,
+                        currentLongMA);
+
+                TryToSell(tradingObject, comments);
             }
             else if (previousShortMA < previousLongMA && currentShortMA > currentLongMA)
             {
                 // buy
+                Instruction buyInstruction = null;
+                double riskPerShare = 0.0;
+
                 lock (_context)
                 {
                     if (!_context.ExistsEquity(tradingObject.Code))
                     {
-                        double risk = tradingObject.VolumePerBuyingUnit * atr;
+                        riskPerShare = atr * AtrCoefficent;
+                        double riskPerUnit = tradingObject.VolumePerBuyingUnit * riskPerShare;
                     
-                        int unitCount = (int)(_initialCapital * _maxRiskOfTotalCapital / risk);
+                        int unitCount = (int)(_initialCapital * _maxRiskOfTotalCapital / riskPerUnit);
                         unitCount = Math.Min(unitCount, _maxVolumeUnitForSingleObject);
 
                         int volume = unitCount * tradingObject.VolumePerBuyingUnit;
@@ -220,7 +258,7 @@ namespace TradingStrategy.Strategy
                         if (cost < _capitalInCurrentPeriod)
                         {
                             long id = _context.GetUniqueInstructionId();
-                            _instructions.Add(
+                            buyInstruction = 
                                 new Instruction()
                                 {
                                     Action = TradingAction.OpenLong,
@@ -234,9 +272,42 @@ namespace TradingStrategy.Strategy
                                         previousLongMA,
                                         currentShortMA,
                                         currentLongMA)
-                                });
+                                };
+
+                            _instructions.Add(buyInstruction);
                         }
                     }
+                }
+
+                if (buyInstruction != null)
+                {
+                    lock (_stopLoss)
+                    {
+                        _stopLoss.Add(tradingObject.Code, riskPerShare);
+                    }
+                }
+            }
+        }
+
+        private void TryToSell(ITradingObject tradingObject, string comments)
+        {
+            // sell
+            lock (_context)
+            {
+                if (_context.ExistsEquity(tradingObject.Code))
+                {
+                    int volume = _context.GetEquityDetails(tradingObject.Code).Sum(e => e.Volume);
+                    long id = _context.GetUniqueInstructionId();
+                    _instructions.Add(
+                        new Instruction()
+                        {
+                            Action = TradingAction.CloseLong,
+                            ID = id,
+                            Object = tradingObject,
+                            SubmissionTime = _period,
+                            Volume = volume,
+                            Comments = comments
+                        });
                 }
             }
         }

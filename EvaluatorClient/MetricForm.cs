@@ -28,6 +28,7 @@ namespace EvaluatorClient
             actionTransactionDataGridColumn.DataPropertyName = "Action";
             priceTransactionDataGridColumn.DataPropertyName = "Price";
             volumeTransactionDataGridColumn.DataPropertyName = "Volume";
+            commentsTransactionDataGridColumn.DataPropertyName = "Comments";
         }
 
         public void SetMetric(TradeMetric metric, ITradingDataProvider provider)

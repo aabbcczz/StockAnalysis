@@ -16,6 +16,7 @@ namespace EvaluatorClient
         public string Action { get; private set; }
         public double Price { get; private set; }
         public int Volume { get; private set; }
+        public string Comments { get; private set; }
 
         public TransactionSlim(Transaction transaction)
         {
@@ -36,6 +37,7 @@ namespace EvaluatorClient
 
             Price = transaction.Price;
             Volume = transaction.Volume;
+            Comments = transaction.Comments;
         }
     }
 }

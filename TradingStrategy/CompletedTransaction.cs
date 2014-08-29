@@ -19,7 +19,6 @@ namespace TradingStrategy
 
         public class DefaultComparer : IComparer<CompletedTransaction>
         {
-
             public int Compare(CompletedTransaction x, CompletedTransaction y)
             {
                 if (x.ExecutionTime != y.ExecutionTime)
