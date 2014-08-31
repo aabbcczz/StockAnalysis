@@ -86,18 +86,9 @@ namespace TradingStrategy
                 };
 
             // warm up
-            if (_strategy.SupportParallelization)
+            foreach (var tradingObject in _allTradingObjects)
             {
-                Parallel.ForEach(
-                    _allTradingObjects,
-                    warmupAction);
-            }
-            else
-            {
-                foreach (var tradingObject in _allTradingObjects)
-                {
-                    warmupAction(tradingObject);
-                }
+                warmupAction(tradingObject);
             }
 
             // evaluating
@@ -137,16 +128,9 @@ namespace TradingStrategy
                     };
 
                 // evaluate bar data
-                if (_strategy.SupportParallelization)
+                for (int i = 0; i < thisPeriodData.Length; ++i)
                 {
-                    Parallel.For(0, thisPeriodData.Length, evaluationAction);
-                }
-                else
-                {
-                    for (int i = 0; i < thisPeriodData.Length; ++i)
-                    {
-                        evaluationAction(i);
-                    }
+                    evaluationAction(i);
                 }
 
                 // get instructions and add them to pending instruction list
@@ -221,7 +205,8 @@ namespace TradingStrategy
                     Price = bar.ClosePrice,
                     Succeeded = false,
                     SubmissionTime = lastPeriodTime,
-                    Volume = totalVolume
+                    Volume = totalVolume,
+                    Comments = "clear forcibly"
                 };
 
                 UpdateTransactionCommission(transaction, _allTradingObjects[_tradingObjectIndexByCode[code]]);
@@ -323,6 +308,9 @@ namespace TradingStrategy
 
             // add to history
             _tradingHistory.AddTransaction(transaction);
+
+            // log transaction
+            _context.Log(transaction.ToString());
 
             return succeeded;
         }

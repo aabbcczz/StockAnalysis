@@ -730,7 +730,7 @@ namespace EvaluatorClient
                 builder.Append(strategy.GetType().FullName);
                 builder.Append("\n\n");
                 builder.Append("策略描述：\n");
-                builder.Append(strategy.StrategyDescription);
+                builder.Append(strategy.Description);
 
                 descriptionTextBox.Lines = builder.ToString().Split(new char[] {'\n'});
 

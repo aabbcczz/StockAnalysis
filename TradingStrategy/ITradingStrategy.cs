@@ -8,23 +8,8 @@ using StockAnalysis.Share;
 
 namespace TradingStrategy
 {
-    public interface ITradingStrategy
+    public interface ITradingStrategy : ITradingStrategyComponent
     {
-        string Name { get; }
-
-        string StrategyDescription { get; }
-
-        bool SupportParallelization { get; }
-
-        IEnumerable<ParameterAttribute> GetParameterDefinitions();
-
-        // initialize the strategy with evaluation context and parameters.
-        void Initialize(IEvaluationContext context, IDictionary<ParameterAttribute, object> parameterValues);
-
-        // Warm up the strategy. this function will be called many times to traverse all warming up data
-        // this function could be called in parallel if SupportParallelization is true
-        void WarmUp(ITradingObject tradingObject, Bar bar);
-
         // Call sequence for one period:
         // StartPeriod()
         // NotifyTransactionStatus() for the transactions submitted in previous period
@@ -35,10 +20,6 @@ namespace TradingStrategy
         //      executed in the next period and the status will be updated in the next UpdateTransactionStatus() call in the next period.
         // EndPeriod()
 
-        // start a new period.
-        // The value of parameter 'time' will be in ascending order for each call of this function.
-        void StartPeriod(DateTime time);
-
         void NotifyTransactionStatus(Transaction transaction);
 
         // Evaluate bar for a given trading object. the strategy should generate and keep Instruction objects
@@ -47,10 +28,5 @@ namespace TradingStrategy
         void Evaluate(ITradingObject tradingObject, Bar bar);
 
         IEnumerable<Instruction> GetInstructions();
-
-        void EndPeriod();
-
-        // finish evaluation, chance of cleaning up resources and do some other works
-        void Finish();
     }
 }

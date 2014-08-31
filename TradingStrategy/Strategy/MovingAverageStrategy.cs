@@ -64,14 +64,9 @@ namespace TradingStrategy.Strategy
             get { return "移动均线策略"; }
         }
 
-        public string StrategyDescription
+        public string Description
         {
             get { return "本策略使用两条均线，当短期均线向上交叉长期均线时买入，当短期均线向下交叉长期均线时卖出"; }
-        }
-
-        public bool SupportParallelization
-        {
-            get { return true; }
         }
 
         public IEnumerable<ParameterAttribute> GetParameterDefinitions()
@@ -108,10 +103,7 @@ namespace TradingStrategy.Strategy
         {
             var runtimeMetrics = GetOrCreateRuntimeMetrics(tradingObject);
 
-            lock (runtimeMetrics)
-            {
-                runtimeMetrics.Update(bar);
-            }
+            runtimeMetrics.Update(bar);
         }
 
         private RuntimeMetrics GetOrCreateRuntimeMetrics(ITradingObject tradingObject)
@@ -121,17 +113,12 @@ namespace TradingStrategy.Strategy
                 throw new ArgumentNullException("tradingObject");
             }
 
-            lock (_metrics)
+            if (!_metrics.ContainsKey(tradingObject))
             {
-                if (!_metrics.ContainsKey(tradingObject))
-                {
-                    if (!_metrics.ContainsKey(tradingObject))
-                    {
-                        _metrics.Add(tradingObject, new RuntimeMetrics(Short, Long));
-                    }
-                }
-                return _metrics[tradingObject];
+                _metrics.Add(tradingObject, new RuntimeMetrics(Short, Long));
             }
+
+            return _metrics[tradingObject];
         }
 
         public void Finish()
@@ -148,8 +135,6 @@ namespace TradingStrategy.Strategy
 
         public void NotifyTransactionStatus(Transaction transaction)
         {
-            _context.Log(transaction.ToString());
-
             if (transaction.Succeeded)
             {
                 if (transaction.Action == TradingAction.OpenLong)
@@ -204,24 +189,15 @@ namespace TradingStrategy.Strategy
                 atr = runtimeMetrics.Atr;
             }
 
-            bool shouldStopLoss = false;
+            // process stop loss
             double loss = 0.0;
-
-            lock (_stopLoss)
+            if (_stopLoss.TryGetValue(tradingObject.Code, out loss))
             {
-                if (_stopLoss.TryGetValue(tradingObject.Code, out loss))
+                if (loss > bar.ClosePrice)
                 {
-                    if (loss > bar.ClosePrice)
-                    {
-                        shouldStopLoss = true;
-                    }
+                    TryToSell(tradingObject, string.Format("stop loss at {0:0.00}", loss));
+                    return;
                 }
-            }
-
-            if (shouldStopLoss)
-            {
-                TryToSell(tradingObject, string.Format("stop loss at {0:0.00}", loss));
-                return;
             }
 
             if (previousShortMA > previousLongMA && currentShortMA < currentLongMA)
@@ -242,49 +218,43 @@ namespace TradingStrategy.Strategy
                 Instruction buyInstruction = null;
                 double riskPerShare = 0.0;
 
-                lock (_context)
+                if (!_context.ExistsEquity(tradingObject.Code))
                 {
-                    if (!_context.ExistsEquity(tradingObject.Code))
+                    riskPerShare = atr * AtrCoefficent;
+                    double riskPerUnit = tradingObject.VolumePerBuyingUnit * riskPerShare;
+
+                    int unitCount = (int)(_initialCapital * _maxRiskOfTotalCapital / riskPerUnit);
+                    unitCount = Math.Min(unitCount, _maxVolumeUnitForSingleObject);
+
+                    int volume = unitCount * tradingObject.VolumePerBuyingUnit;
+                    double cost = volume * bar.ClosePrice;
+
+                    if (cost < _capitalInCurrentPeriod)
                     {
-                        riskPerShare = atr * AtrCoefficent;
-                        double riskPerUnit = tradingObject.VolumePerBuyingUnit * riskPerShare;
-                    
-                        int unitCount = (int)(_initialCapital * _maxRiskOfTotalCapital / riskPerUnit);
-                        unitCount = Math.Min(unitCount, _maxVolumeUnitForSingleObject);
+                        long id = _context.GetUniqueInstructionId();
+                        buyInstruction =
+                            new Instruction()
+                            {
+                                Action = TradingAction.OpenLong,
+                                ID = id,
+                                Object = tradingObject,
+                                SubmissionTime = _period,
+                                Volume = volume,
+                                Comments = string.Format(
+                                    "prevShort:{0:0.00}; prevLong:{1:0.00}; curShort:{2:0.00}; curLong:{3:0.00}",
+                                    previousShortMA,
+                                    previousLongMA,
+                                    currentShortMA,
+                                    currentLongMA)
+                            };
 
-                        int volume = unitCount * tradingObject.VolumePerBuyingUnit;
-                        double cost = volume * bar.ClosePrice;
-
-                        if (cost < _capitalInCurrentPeriod)
-                        {
-                            long id = _context.GetUniqueInstructionId();
-                            buyInstruction = 
-                                new Instruction()
-                                {
-                                    Action = TradingAction.OpenLong,
-                                    ID = id,
-                                    Object = tradingObject,
-                                    SubmissionTime = _period,
-                                    Volume = volume,
-                                    Comments = string.Format(
-                                        "prevShort:{0:0.00}; prevLong:{1:0.00}; curShort:{2:0.00}; curLong:{3:0.00}",
-                                        previousShortMA,
-                                        previousLongMA,
-                                        currentShortMA,
-                                        currentLongMA)
-                                };
-
-                            _instructions.Add(buyInstruction);
-                        }
+                        _instructions.Add(buyInstruction);
                     }
                 }
 
                 if (buyInstruction != null)
                 {
-                    lock (_stopLoss)
-                    {
-                        _stopLoss.Add(tradingObject.Code, riskPerShare);
-                    }
+                    _stopLoss.Add(tradingObject.Code, riskPerShare);
                 }
             }
         }
@@ -292,23 +262,20 @@ namespace TradingStrategy.Strategy
         private void TryToSell(ITradingObject tradingObject, string comments)
         {
             // sell
-            lock (_context)
+            if (_context.ExistsEquity(tradingObject.Code))
             {
-                if (_context.ExistsEquity(tradingObject.Code))
-                {
-                    int volume = _context.GetEquityDetails(tradingObject.Code).Sum(e => e.Volume);
-                    long id = _context.GetUniqueInstructionId();
-                    _instructions.Add(
-                        new Instruction()
-                        {
-                            Action = TradingAction.CloseLong,
-                            ID = id,
-                            Object = tradingObject,
-                            SubmissionTime = _period,
-                            Volume = volume,
-                            Comments = comments
-                        });
-                }
+                int volume = _context.GetEquityDetails(tradingObject.Code).Sum(e => e.Volume);
+                long id = _context.GetUniqueInstructionId();
+                _instructions.Add(
+                    new Instruction()
+                    {
+                        Action = TradingAction.CloseLong,
+                        ID = id,
+                        Object = tradingObject,
+                        SubmissionTime = _period,
+                        Volume = volume,
+                        Comments = comments
+                    });
             }
         }
 

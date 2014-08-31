@@ -56,6 +56,12 @@
     <Compile Include="ParameterHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="StandardEvaluationContext.cs" />
+    <Compile Include="Strategy\IPositionManagementComponent.cs" />
+    <Compile Include="Strategy\PositionTracer.cs" />
+    <Compile Include="Strategy\IMarketEnteringComponent.cs" />
+    <Compile Include="ITradingStrategyComponent.cs" />
+    <Compile Include="Strategy\IMarketExitingComponent.cs" />
+    <Compile Include="Strategy\IStopLossComponent.cs" />
     <Compile Include="Strategy\MovingAverageStrategy.cs" />
     <Compile Include="TradingAction.cs" />
     <Compile Include="ITradingObject.cs" />
