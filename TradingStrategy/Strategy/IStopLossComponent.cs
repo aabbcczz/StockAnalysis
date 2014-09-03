@@ -10,27 +10,24 @@ namespace TradingStrategy.Strategy
 {
     interface IStopLossComponent : ITradingStrategyComponent
     {
-        /// <summary>
-        /// Estimate the stop loss price for trading object based on input price.
-        /// </summary>
-        /// <param name="tradingObject">trading object</param>
-        /// <param name="price">assumed price</param>
-        /// <returns>estimated stop loss price</returns>
-        double EstimateStopLoss(ITradingObject tradingObject, double price);
+        // Evaluate bar for a given trading object. 
+        void Evaluate(ITradingObject tradingObject, Bar bar);
 
         /// <summary>
-        /// Add a position to position manager and update stop loss for all related positions that share the same code.
+        /// Estimate the stop loss gap for trading object based on input price.
         /// </summary>
-        /// <param name="positionManager">position manager object</param>
-        /// <param name="position">position to be added</param>
-        void AddPositionAndUpdateStopLoss(IPositionManagementComponent positionManager, PositionTracer.Position position);
-
-        /// <summary>
-        /// Update stop loss for existing positions if applicable according trading data
-        /// </summary>
-        /// <param name="positionManager">position manager object</param>
         /// <param name="tradingObject">trading object</param>
-        /// <param name="bar">bar data for the trading object in current period</param>
-        void UpdateStopLoss(IPositionManagementComponent positionManager, ITradingObject tradingObject, Bar bar);
+        /// <param name="assumedPrice">assumed price</param>
+        /// <returns>estimated stop loss gap, must be smaller than zero. 
+        /// actural price + stop loss gap = stop loss price</returns>
+        double EstimateStopLossGap(ITradingObject tradingObject, double assumedPrice, out object obj);
+
+         /// <summary>
+        /// Update stop loss for all positions associated with the trading object if necessary. 
+        /// This function will be called each time when a buy transaction is executed successfully.
+        /// </summary>
+        /// <param name="tradingObject">trading object</param>
+        /// <param name="obj">the object returned by EstimateStopLossGap() function</param>
+        void UpdateStopLoss(ITradingObject tradingObject, object obj);
     }
 }

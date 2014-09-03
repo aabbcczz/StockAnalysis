@@ -33,19 +33,19 @@ namespace TradingStrategy
             return _equityManager.CurrentCapital;
         }
 
-        public IEnumerable<string> GetAllEquityCodes()
+        public IEnumerable<string> GetAllPositionCodes()
         {
             return _equityManager.GetAllEquityCodes();
         }
 
-        public bool ExistsEquity(string code)
+        public bool ExistsPosition(string code)
         {
-            return _equityManager.ExistsEquity(code);
+            return _equityManager.ExistsPosition(code);
         }
 
-        public IEnumerable<Equity> GetEquityDetails(string code)
+        public IEnumerable<Position> GetPositionDetails(string code)
         {
-            return _equityManager.GetEquityDetails(code);
+            return _equityManager.GetPositionDetails(code);
         }
 
         public void Log(string log)

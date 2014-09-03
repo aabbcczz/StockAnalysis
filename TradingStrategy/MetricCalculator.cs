@@ -231,7 +231,7 @@ namespace TradingStrategy
                     }
                 }
 
-                if (manager.EquityCount > 0)
+                if (manager.PositionCount > 0)
                 {
                     // if any transaction is executed, update the total equity.
                     currentEquity = manager.GetTotalEquityMarketValue(_dataProvider, period);

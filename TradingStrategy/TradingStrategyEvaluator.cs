@@ -180,7 +180,7 @@ namespace TradingStrategy
             var codes = _equityManager.GetAllEquityCodes();
             foreach (var code in codes)
             {
-                var equities = _equityManager.GetEquityDetails(code);
+                var equities = _equityManager.GetPositionDetails(code);
                 int totalVolume = equities.Sum(e => e.Volume);
 
                 if (totalVolume <= 0)

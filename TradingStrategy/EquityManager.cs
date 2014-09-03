@@ -10,11 +10,15 @@ namespace TradingStrategy
 {
     public sealed class EquityManager
     {
-        private Dictionary<string, List<Equity>> _equities = new Dictionary<string, List<Equity>>();
+        private Dictionary<string, List<Position>> _activePositions = new Dictionary<string, List<Position>>();
+
+        private List<Position> _closedPositions = new List<Position>();
 
         public double InitialCapital { get; private set; }
 
         public double CurrentCapital { get; private set; }
+
+        public IEnumerable<Position> ClosedPositions { get { return _closedPositions; } }
 
         public EquityManager(double initialCapital)
         {
@@ -50,14 +54,14 @@ namespace TradingStrategy
                     return false;
                 }
 
-                Equity equity = new Equity(transaction);
+                Position position = new Position(transaction);
 
-                if (!_equities.ContainsKey(equity.Code))
+                if (!_activePositions.ContainsKey(position.Code))
                 {
-                    _equities.Add(equity.Code, new List<Equity>());
+                    _activePositions.Add(position.Code, new List<Position>());
                 }
 
-                _equities[equity.Code].Add(equity);
+                _activePositions[position.Code].Add(position);
 
                 // charge money
                 CurrentCapital -= charge;
@@ -69,93 +73,95 @@ namespace TradingStrategy
                 string code = transaction.Code;
                 double earn = transaction.Price * transaction.Volume - transaction.Commission;
 
-                if (!_equities.ContainsKey(code))
+                if (!_activePositions.ContainsKey(code))
                 {
                     error = string.Format("Transaction object {0} does not exists", code);
                     return false;
                 }
 
-                Equity[] equities = _equities[code].ToArray();
+                Position[] positions = _activePositions[code].ToArray();
 
-                int totalVolume = equities.Sum(e => e.Volume);
+                int totalVolume = positions.Sum(e => e.Volume);
                 if (totalVolume < transaction.Volume)
                 {
                     error = "There is no enough volume for selling";
                     return false;
                 }
-                else
+
+                double buyCost = 0.0;
+                double buyCommission = 0.0;
+
+                int remainingVolume = transaction.Volume;
+
+                for (int i = 0; i < positions.Length && remainingVolume != 0; ++i)
                 {
-                    double buyCost = 0.0;
-                    double buyCommission = 0.0;
-
-                    if (totalVolume == transaction.Volume)
+                    if (positions[i].Volume <= remainingVolume)
                     {
-                        buyCost = equities.Sum(t => t.Price * t.Volume);
-                        buyCommission = equities.Sum(t => t.Commission);
+                        buyCost += positions[i].BuyPrice * positions[i].Volume;
+                        buyCommission += positions[i].BuyCommission;
 
-                        // update equities for given code
-                        _equities.Remove(code);
+                        remainingVolume -= positions[i].Volume;
+
+                        positions[i].Close(
+                            new Transaction()
+                            {
+                                Action = transaction.Action,
+                                Code = transaction.Code,
+                                Comments = transaction.Comments,
+                                Commission = transaction.Commission / transaction.Volume * positions[i].Volume,
+                                Error = transaction.Error,
+                                ExecutionTime = transaction.ExecutionTime,
+                                InstructionId = transaction.InstructionId,
+                                Price = transaction.Price,
+                                SubmissionTime = transaction.SubmissionTime,
+                                Succeeded = transaction.Succeeded,
+                                Volume = positions[i].Volume
+                            });
+
+                        // move closed position to history
+                        _closedPositions.Add(positions[i]);
+
+                        // set to null for cleaning up.
+                        positions[i] = null;
                     }
                     else
                     {
-                        int remainingVolume = transaction.Volume;
-
-                        for (int i = 0; i < equities.Length && remainingVolume == 0; ++i)
-                        {
-                            if (equities[i].Volume <= remainingVolume)
-                            {
-                                buyCost += equities[i].Price * equities[i].Volume;
-                                buyCommission += equities[i].Commission;
-
-                                remainingVolume -= equities[i].Volume;
-                                equities[i] = null;
-                            }
-                            else
-                            {
-                                double commissionPerUnit = equities[i].Commission / equities[i].Volume;
-                                buyCost += equities[i].Price * remainingVolume;
-                                buyCommission += commissionPerUnit * remainingVolume;
-
-                                equities[i].Volume -= remainingVolume;
-                                equities[i].Commission = equities[i].Volume * commissionPerUnit;
-                                remainingVolume = 0;
-                            }
-                        }
-
-                        if (remainingVolume != 0)
-                        {
-                            throw new InvalidProgramException("Logic error");
-                        }
-
-                        // update equities for given code
-                        var remainingEquities = equities.Where(e => e != null).ToList();
-
-                        if (remainingEquities == null || remainingEquities.Count == 0)
-                        {
-                            throw new InvalidProgramException("Logic error");
-                        }
-
-                        _equities[code] = remainingEquities;
+                        throw new InvalidOperationException("can't partially process a position");
                     }
-
-                    // update current capital
-                    CurrentCapital += earn;
-
-                    // create completed transaction object
-                    completedTransaction = new CompletedTransaction()
-                    {
-                        Code = code,
-                        ExecutionTime = transaction.ExecutionTime,
-                        Volume = transaction.Volume,
-                        BuyCost = buyCost,
-                        AverageBuyPrice = buyCost / transaction.Volume,
-                        SoldPrice = transaction.Price,
-                        SoldGain = transaction.Price * transaction.Volume,
-                        Commission = transaction.Commission + buyCommission,
-                    };
-
-                    return true;
                 }
+
+                if (remainingVolume != 0)
+                {
+                    throw new InvalidProgramException("Logic error");
+                }
+
+                // update equities for given code
+                var remainingPositions = positions.Where(e => e != null).ToList();
+
+                if (remainingPositions == null || remainingPositions.Count == 0)
+                {
+                    throw new InvalidProgramException("Logic error");
+                }
+
+                _activePositions[code] = remainingPositions;
+
+                // update current capital
+                CurrentCapital += earn;
+
+                // create completed transaction object
+                completedTransaction = new CompletedTransaction()
+                {
+                    Code = code,
+                    ExecutionTime = transaction.ExecutionTime,
+                    Volume = transaction.Volume,
+                    BuyCost = buyCost,
+                    AverageBuyPrice = buyCost / transaction.Volume,
+                    SoldPrice = transaction.Price,
+                    SoldGain = transaction.Price * transaction.Volume,
+                    Commission = transaction.Commission + buyCommission,
+                };
+
+                return true;
             }
             else
             {
@@ -164,21 +170,21 @@ namespace TradingStrategy
             }
         }
 
-        public int EquityCount { get { return _equities.Count; } }
+        public int PositionCount { get { return _activePositions.Count; } }
 
-        public IEnumerable<Equity> GetEquityDetails(string code)
+        public IEnumerable<Position> GetPositionDetails(string code)
         {
-            return _equities[code];
+            return _activePositions[code];
         }
 
         public IEnumerable<string> GetAllEquityCodes()
         {
-            return _equities.Keys.ToArray();
+            return _activePositions.Keys.ToArray();
         }
 
-        public bool ExistsEquity(string code)
+        public bool ExistsPosition(string code)
         {
-            return _equities.ContainsKey(code);
+            return _activePositions.ContainsKey(code);
         }
 
         public double GetTotalEquityMarketValue(ITradingDataProvider provider, DateTime time)
@@ -190,7 +196,7 @@ namespace TradingStrategy
 
             double totalEquity = CurrentCapital;
 
-            foreach (var kvp in _equities)
+            foreach (var kvp in _activePositions)
             {
                 string code = kvp.Key;
                 int volume = kvp.Value.Sum(e => e.Volume);
@@ -218,9 +224,9 @@ namespace TradingStrategy
 
             double equity = 0;
 
-            if (_equities.ContainsKey(code))
+            if (_activePositions.ContainsKey(code))
             { 
-                int volume = _equities[code].Sum(e => e.Volume);
+                int volume = _activePositions[code].Sum(e => e.Volume);
 
                 Bar bar;
 

@@ -12,11 +12,11 @@ namespace TradingStrategy
 
         double GetCurrentCapital();
 
-        IEnumerable<string> GetAllEquityCodes();
+        IEnumerable<string> GetAllPositionCodes();
 
-        bool ExistsEquity(string code);
+        bool ExistsPosition(string code);
 
-        IEnumerable<Equity> GetEquityDetails(string code);
+        IEnumerable<Position> GetPositionDetails(string code);
 
         void Log(string log);
     }

@@ -24,7 +24,6 @@ namespace TradingStrategy
 
         // Evaluate bar for a given trading object. the strategy should generate and keep Instruction objects
         // and return it in GetInstructions() call.
-        // this function could be called in parallel if SupportParallelization is true
         void Evaluate(ITradingObject tradingObject, Bar bar);
 
         IEnumerable<Instruction> GetInstructions();

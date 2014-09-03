@@ -44,7 +44,7 @@
     <Compile Include="ChinaStockDataProvider.cs" />
     <Compile Include="CommissionSettings.cs" />
     <Compile Include="CompletedTransaction.cs" />
-    <Compile Include="Equity.cs" />
+    <Compile Include="Position.cs" />
     <Compile Include="EquityManager.cs" />
     <Compile Include="EquityPoint.cs" />
     <Compile Include="EvaluationProgressEventArgs.cs" />
@@ -56,8 +56,7 @@
     <Compile Include="ParameterHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="StandardEvaluationContext.cs" />
-    <Compile Include="Strategy\IPositionManagementComponent.cs" />
-    <Compile Include="Strategy\PositionTracer.cs" />
+    <Compile Include="Strategy\IEquityManagementComponent.cs" />
     <Compile Include="Strategy\IMarketEnteringComponent.cs" />
     <Compile Include="ITradingStrategyComponent.cs" />
     <Compile Include="Strategy\IMarketExitingComponent.cs" />

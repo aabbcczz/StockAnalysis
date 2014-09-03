@@ -218,7 +218,7 @@ namespace TradingStrategy.Strategy
                 Instruction buyInstruction = null;
                 double riskPerShare = 0.0;
 
-                if (!_context.ExistsEquity(tradingObject.Code))
+                if (!_context.ExistsPosition(tradingObject.Code))
                 {
                     riskPerShare = atr * AtrCoefficent;
                     double riskPerUnit = tradingObject.VolumePerBuyingUnit * riskPerShare;
@@ -262,9 +262,9 @@ namespace TradingStrategy.Strategy
         private void TryToSell(ITradingObject tradingObject, string comments)
         {
             // sell
-            if (_context.ExistsEquity(tradingObject.Code))
+            if (_context.ExistsPosition(tradingObject.Code))
             {
-                int volume = _context.GetEquityDetails(tradingObject.Code).Sum(e => e.Volume);
+                int volume = _context.GetPositionDetails(tradingObject.Code).Sum(e => e.Volume);
                 long id = _context.GetUniqueInstructionId();
                 _instructions.Add(
                     new Instruction()
