@@ -15,16 +15,15 @@ namespace TradingStrategy
         // NotifyTransactionStatus() for the transactions submitted in previous period
         //      but that need to be executed in this period.
         // Evaluate(). this function will be called for each valid trading object.
+        // AfterEvaluation(). this function provide an opportunity for the strategy to create instructions 
+        //      after knowing all required information.
         // GetInstructions() to get all required transactions from the bar in this period.
         // NotifyTransactionStatus() for the transactions submitted AND executed in this period. Some transactions will be
         //      executed in the next period and the status will be updated in the next UpdateTransactionStatus() call in the next period.
         // EndPeriod()
+        void AfterEvaluation();
 
         void NotifyTransactionStatus(Transaction transaction);
-
-        // Evaluate bar for a given trading object. the strategy should generate and keep Instruction objects
-        // and return it in GetInstructions() call.
-        void Evaluate(ITradingObject tradingObject, Bar bar);
 
         IEnumerable<Instruction> GetInstructions();
     }

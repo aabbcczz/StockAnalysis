@@ -177,7 +177,7 @@ namespace TradingStrategy
 
         private void ClearEquityForcibly(DateTime lastPeriodTime)
         {
-            var codes = _equityManager.GetAllEquityCodes();
+            var codes = _equityManager.GetAllPositionCodes();
             foreach (var code in codes)
             {
                 var equities = _equityManager.GetPositionDetails(code);
@@ -258,13 +258,13 @@ namespace TradingStrategy
                     }
                 }
 
-                int tradingObjectIndex = _tradingObjectIndexByCode[instruction.Object.Code];
+                int tradingObjectIndex = _tradingObjectIndexByCode[instruction.TradingObject.Code];
                 if (tradingData[tradingObjectIndex].Invalid())
                 {
                     if (forCurrentPeriod)
                     {
                         throw new InvalidOperationException(
-                            string.Format("the data for trading object {0} is invalid", instruction.Object.Code));
+                            string.Format("the data for trading object {0} is invalid", instruction.TradingObject.Code));
                     }
                     else
                     {
@@ -323,9 +323,9 @@ namespace TradingStrategy
             }
 
             if ((instruction.Action == TradingAction.OpenLong 
-                    && instruction.Volume % instruction.Object.VolumePerBuyingUnit != 0)
+                    && instruction.Volume % instruction.TradingObject.VolumePerBuyingUnit != 0)
                 || (instruction.Action == TradingAction.CloseLong
-                    && instruction.Volume % instruction.Object.VolumePerSellingUnit != 0))
+                    && instruction.Volume % instruction.TradingObject.VolumePerSellingUnit != 0))
             {
                 throw new InvalidOperationException("The volume of transaction does not meet trading object's requirement");
             }
@@ -336,16 +336,17 @@ namespace TradingStrategy
                 Commission = 0.0,
                 ExecutionTime = time,
                 InstructionId = instruction.ID,
-                Code = instruction.Object.Code,
+                Code = instruction.TradingObject.Code,
                 Price = CalculateTransactionPrice(bar, instruction),
                 Succeeded = false,
                 SubmissionTime = instruction.SubmissionTime,
                 Volume = instruction.Volume,
+                StopLossPriceForSell = instruction.StopLossPriceForSell,
                 Comments = instruction.Comments,
             };
 
             // update commission
-            UpdateTransactionCommission(transaction, instruction.Object);
+            UpdateTransactionCommission(transaction, instruction.TradingObject);
 
             return transaction;
         }
@@ -397,15 +398,15 @@ namespace TradingStrategy
             // count the spread now
             if (instruction.Action == TradingAction.OpenLong)
             {
-                price += _settings.Spread * instruction.Object.MinPriceUnit;
+                price += _settings.Spread * instruction.TradingObject.MinPriceUnit;
             }
             else if (instruction.Action == TradingAction.CloseLong)
             {
-                price -= _settings.Spread * instruction.Object.MinPriceUnit;
+                price -= _settings.Spread * instruction.TradingObject.MinPriceUnit;
 
-                if (price < instruction.Object.MinPriceUnit)
+                if (price < instruction.TradingObject.MinPriceUnit)
                 {
-                    price = instruction.Object.MinPriceUnit;
+                    price = instruction.TradingObject.MinPriceUnit;
                 }
             }
 

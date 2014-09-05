@@ -10,6 +10,6 @@ namespace TradingStrategy.Strategy
 {
     interface IMarketExitingComponent : ITradingStrategyComponent
     {
-        bool ShouldExit(ITradingObject tradingObject, Bar bar);
+        bool ShouldExit(ITradingObject tradingObject, out string comments);
     }
 }

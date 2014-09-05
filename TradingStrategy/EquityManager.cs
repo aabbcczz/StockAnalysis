@@ -95,7 +95,8 @@ namespace TradingStrategy
 
                 for (int i = 0; i < positions.Length && remainingVolume != 0; ++i)
                 {
-                    if (positions[i].Volume <= remainingVolume)
+                    if (positions[i].StopLossPrice > transaction.StopLossPriceForSell
+                        && positions[i].Volume <= remainingVolume)
                     {
                         buyCost += positions[i].BuyPrice * positions[i].Volume;
                         buyCommission += positions[i].BuyCommission;
@@ -177,7 +178,7 @@ namespace TradingStrategy
             return _activePositions[code];
         }
 
-        public IEnumerable<string> GetAllEquityCodes()
+        public IEnumerable<string> GetAllPositionCodes()
         {
             return _activePositions.Keys.ToArray();
         }

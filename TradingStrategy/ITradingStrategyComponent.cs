@@ -25,11 +25,16 @@ namespace TradingStrategy
 
         // Call sequence for one period:
         // StartPeriod()
+        // Evaluate() for all bars
         // EndPeriod()
 
         // start a new period.
         // The value of parameter 'time' will be in ascending order for each call of this function.
         void StartPeriod(DateTime time);
+
+        // Evaluate bar for a given trading object. the strategy should generate and keep Instruction objects
+        // and return it in GetInstructions() call.
+        void Evaluate(ITradingObject tradingObject, Bar bar);
 
         void EndPeriod();
 

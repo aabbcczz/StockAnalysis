@@ -25,6 +25,12 @@ namespace TradingStrategy
 
         public double Price { get; set; }
 
+        /// <summary>
+        /// the stop loss price for sell, all positions that has stop loss price higher than this should be sold.
+        /// this field is used only when Action is CloseLong.
+        /// </summary>
+        public double StopLossPriceForSell { get; set; }
+
         public double Commission { get; set; }
 
         public string Error { get; set; }

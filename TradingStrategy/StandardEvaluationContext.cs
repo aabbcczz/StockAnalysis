@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace TradingStrategy
@@ -25,7 +26,7 @@ namespace TradingStrategy
 
         public long GetUniqueInstructionId()
         {
-            return _instructionId++;
+            return Interlocked.Increment(ref _instructionId);
         }
 
         public double GetCurrentCapital()
@@ -35,7 +36,7 @@ namespace TradingStrategy
 
         public IEnumerable<string> GetAllPositionCodes()
         {
-            return _equityManager.GetAllEquityCodes();
+            return _equityManager.GetAllPositionCodes();
         }
 
         public bool ExistsPosition(string code)
