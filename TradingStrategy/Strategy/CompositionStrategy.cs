@@ -165,18 +165,21 @@ namespace TradingStrategy.Strategy
                 double stopLossGap = _stopLoss.EstimateStopLossGap(tradingObject, bar.ClosePrice, out payload);
                 int volume = _positionSizing.EstimatePositionSize(tradingObject, bar.ClosePrice, stopLossGap);
 
-                _instructions.Add(
-                    new Instruction()
-                    {
-                        Action = TradingAction.OpenLong,
-                        Comments = "Entering market. " + comments,
-                        ID = _context.GetUniqueInstructionId(),
-                        Payload = null,
-                        StopLossPriceForSell = double.NaN,
-                        SubmissionTime = _period,
-                        TradingObject = tradingObject,
-                        Volume = volume
-                    });
+                if (volume > 0)
+                {
+                    _instructions.Add(
+                        new Instruction()
+                        {
+                            Action = TradingAction.OpenLong,
+                            Comments = "Entering market. " + comments,
+                            ID = _context.GetUniqueInstructionId(),
+                            Payload = null,
+                            StopLossPriceForSell = double.NaN,
+                            SubmissionTime = _period,
+                            TradingObject = tradingObject,
+                            Volume = volume
+                        });
+                }
             }
         }
 
@@ -250,18 +253,21 @@ namespace TradingStrategy.Strategy
                         double stopLossGap = _stopLoss.EstimateStopLossGap(tradingObject, bar.ClosePrice, out payload);
                         int volume = _positionSizing.EstimatePositionSize(tradingObject, bar.ClosePrice, stopLossGap);
 
-                        _instructions.Add(
-                            new Instruction()
-                            {
-                                Action = TradingAction.OpenLong,
-                                Comments = "Adding position. ",
-                                ID = _context.GetUniqueInstructionId(),
-                                Payload = null,
-                                StopLossPriceForSell = double.NaN,
-                                SubmissionTime = _period,
-                                TradingObject = tradingObject,
-                                Volume = volume
-                            });
+                        if (volume > 0)
+                        {
+                            _instructions.Add(
+                                new Instruction()
+                                {
+                                    Action = TradingAction.OpenLong,
+                                    Comments = "Adding position. ",
+                                    ID = _context.GetUniqueInstructionId(),
+                                    Payload = null,
+                                    StopLossPriceForSell = double.NaN,
+                                    SubmissionTime = _period,
+                                    TradingObject = tradingObject,
+                                    Volume = volume
+                                });
+                        }
                     }
                 }
 

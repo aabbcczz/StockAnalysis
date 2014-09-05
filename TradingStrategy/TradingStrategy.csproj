@@ -61,7 +61,15 @@
     <Compile Include="Strategy\IMarketEnteringComponent.cs" />
     <Compile Include="ITradingStrategyComponent.cs" />
     <Compile Include="Strategy\IMarketExitingComponent.cs" />
+    <Compile Include="Strategy\IRuntimeMetric.cs" />
     <Compile Include="Strategy\IStopLossComponent.cs" />
+    <Compile Include="Strategy\MetricBasedTradingStrategyComponentBase.cs" />
+    <Compile Include="Strategy\MovingAverageBase.cs" />
+    <Compile Include="Strategy\MovingAverageMarketExiting.cs" />
+    <Compile Include="Strategy\MovingAverageMarketEntering.cs" />
+    <Compile Include="Strategy\MovingAverageMarketEnteringExiting.cs" />
+    <Compile Include="Strategy\MovingAverageRuntimeMetric.cs" />
+    <Compile Include="Strategy\RuntimeMetricManager.cs" />
     <Compile Include="TradingAction.cs" />
     <Compile Include="ITradingObject.cs" />
     <Compile Include="MetricCalculator.cs" />
