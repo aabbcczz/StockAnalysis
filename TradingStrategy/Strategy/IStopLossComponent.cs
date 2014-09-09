@@ -28,7 +28,7 @@ namespace TradingStrategy.Strategy
         /// This function will be called each time when a buy transaction is executed successfully.
         /// </summary>
         /// <param name="tradingObject">trading object</param>
-        /// <param name="obj">the object returned by EstimateStopLossGap() function</param>
-        void UpdateStopLossAndRisk(ITradingObject tradingObject, object obj);
+        /// <param name="payload">the object returned by EstimateStopLossGap() function</param>
+        void UpdateStopLossAndRisk(ITradingObject tradingObject, object payload);
     }
 }
