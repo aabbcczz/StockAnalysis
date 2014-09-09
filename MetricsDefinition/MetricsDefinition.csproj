@@ -41,6 +41,7 @@
   <ItemGroup>
     <Compile Include="BarInputSerialMetric.cs" />
     <Compile Include="CirculatedArray.cs" />
+    <Compile Include="Metrics\StopAndReverse.cs" />
     <Compile Include="Metrics\BollingerBand.cs" />
     <Compile Include="Metrics\EfficiencyRatio.cs" />
     <Compile Include="Metrics\Lowest.cs" />

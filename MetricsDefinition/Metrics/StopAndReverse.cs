@@ -7,13 +7,13 @@ using System.Reflection;
 
 namespace MetricsDefinition
 {
-    [Metric("AD")]
-    public sealed class AccumulationDistribution : SingleOutputBarInputSerialMetric
+    [Metric("SAR")]
+    public sealed class StopAndReverse : SingleOutputBarInputSerialMetric
     {
         private MovingSum _sumCost;
         private MovingSum _sumVolume;
 
-        public AccumulationDistribution(int windowSize)
+        public StopAndReverse(int windowSize)
             : base(1)
         {
             _sumCost = new MovingSum(windowSize);
