@@ -19,7 +19,8 @@ namespace TradingStrategy.Strategy
         private string _description;
 
         private IEvaluationContext _context;
-        private List<Instruction> _instructions;
+        private List<Instruction> _instructionsInCurrentPeriod;
+        private Dictionary<long, Instruction> _activeInstructions = new Dictionary<long, Instruction>();
         private DateTime _period;
         private Dictionary<ITradingObject, Bar> _barsInPeriod;
         private Dictionary<string, ITradingObject> _codeToTradingObjectMap;
@@ -70,7 +71,7 @@ namespace TradingStrategy.Strategy
                 component.StartPeriod(time);
             }
 
-            _instructions = new List<Instruction>();
+            _instructionsInCurrentPeriod = new List<Instruction>();
             _barsInPeriod = new Dictionary<ITradingObject, Bar>();
             _codeToTradingObjectMap = new Dictionary<string, ITradingObject>();
             _period = time;
@@ -102,7 +103,7 @@ namespace TradingStrategy.Strategy
             {
                 if (_marketExiting.ShouldExit(tradingObject, out comments))
                 {
-                    _instructions.Add(
+                    _instructionsInCurrentPeriod.Add(
                         new Instruction()
                         {
                             Action = TradingAction.CloseLong,
@@ -141,7 +142,7 @@ namespace TradingStrategy.Strategy
 
             if (totalVolume > 0)
             {
-                _instructions.Add(
+                _instructionsInCurrentPeriod.Add(
                     new Instruction()
                     {
                         Action = TradingAction.CloseLong,
@@ -167,7 +168,7 @@ namespace TradingStrategy.Strategy
 
                 if (volume > 0)
                 {
-                    _instructions.Add(
+                    _instructionsInCurrentPeriod.Add(
                         new Instruction()
                         {
                             Action = TradingAction.OpenLong,
@@ -213,7 +214,7 @@ namespace TradingStrategy.Strategy
 
                         var positions = _context.GetPositionDetails(code);
 
-                        _instructions.Add(
+                        _instructionsInCurrentPeriod.Add(
                             new Instruction()
                             {
                                 Action = TradingAction.CloseLong,
@@ -255,7 +256,7 @@ namespace TradingStrategy.Strategy
 
                         if (volume > 0)
                         {
-                            _instructions.Add(
+                            _instructionsInCurrentPeriod.Add(
                                 new Instruction()
                                 {
                                     Action = TradingAction.OpenLong,
@@ -276,22 +277,45 @@ namespace TradingStrategy.Strategy
 
         public void NotifyTransactionStatus(Transaction transaction)
         {
+            Instruction instruction;
+            if (!_activeInstructions.TryGetValue(transaction.InstructionId, out instruction))
+            {
+                throw new InvalidOperationException(
+                    string.Format("can't find instruction {0} associated with the transaction.", transaction.InstructionId));
+            }
+
             if (transaction.Succeeded)
             {
-                Instruction instruction = _instructions.Find(i => i.ID == transaction.InstructionId);
-
-                if (instruction == null)
-                {
-                    throw new InvalidProgramException("can't find instruction id specified in transaction");
-                }
-
-                _stopLoss.UpdateStopLoss(instruction.TradingObject, instruction.Payload);
+                _stopLoss.UpdateStopLossAndRisk(instruction.TradingObject, instruction.Payload);
             }
+            else
+            {
+                // do nothing now
+            }
+
+            // remove the instruction from active instruction collection.
+            _activeInstructions.Remove(instruction.ID);
         }
 
-        public IEnumerable<Instruction> GetInstructions()
+        public IEnumerable<Instruction> RetrieveInstructions()
         {
-            return _instructions;
+            if (_instructionsInCurrentPeriod != null)
+            {
+                var temp = _instructionsInCurrentPeriod;
+
+                foreach (var instruction in _instructionsInCurrentPeriod)
+                {
+                    _activeInstructions.Add(instruction.ID, instruction);
+                }
+
+                _instructionsInCurrentPeriod = null;
+
+                return temp;
+            }
+            else
+            {
+                return null;
+            }
         }
 
         public void EndPeriod()
@@ -301,7 +325,7 @@ namespace TradingStrategy.Strategy
                 component.EndPeriod();
             }
 
-            _instructions = null;
+            _instructionsInCurrentPeriod = null;
             _barsInPeriod = null;
         }
 
@@ -310,6 +334,14 @@ namespace TradingStrategy.Strategy
             foreach (var component in _components)
             {
                 component.Finish();
+            }
+
+            if (_activeInstructions.Count > 0)
+            {
+                foreach (var id in _activeInstructions.Keys)
+                {
+                    _context.Log(string.Format("unexecuted instruction {0}.", id));
+                }
             }
         }
 

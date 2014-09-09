@@ -24,11 +24,11 @@ namespace TradingStrategy.Strategy
         double EstimateStopLossGap(ITradingObject tradingObject, double assumedPrice, out object payload);
 
          /// <summary>
-        /// Update stop loss for all positions associated with the trading object if necessary. 
+        /// Update stop loss and corresponding risk for all positions associated with the trading object if necessary. 
         /// This function will be called each time when a buy transaction is executed successfully.
         /// </summary>
         /// <param name="tradingObject">trading object</param>
         /// <param name="obj">the object returned by EstimateStopLossGap() function</param>
-        void UpdateStopLoss(ITradingObject tradingObject, object obj);
+        void UpdateStopLossAndRisk(ITradingObject tradingObject, object obj);
     }
 }

@@ -70,6 +70,7 @@
     <Compile Include="Strategy\MovingAverageMarketEnteringExiting.cs" />
     <Compile Include="Strategy\MovingAverageRuntimeMetric.cs" />
     <Compile Include="Strategy\RuntimeMetricManager.cs" />
+    <Compile Include="Strategy\TimeoutMarketExiting.cs" />
     <Compile Include="TradingAction.cs" />
     <Compile Include="ITradingObject.cs" />
     <Compile Include="MetricCalculator.cs" />

@@ -25,6 +25,6 @@ namespace TradingStrategy
 
         void NotifyTransactionStatus(Transaction transaction);
 
-        IEnumerable<Instruction> GetInstructions();
+        IEnumerable<Instruction> RetrieveInstructions();
     }
 }

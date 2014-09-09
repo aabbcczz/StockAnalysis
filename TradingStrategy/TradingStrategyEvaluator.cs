@@ -134,7 +134,7 @@ namespace TradingStrategy
                 }
 
                 // get instructions and add them to pending instruction list
-                var instructions = _strategy.GetInstructions();
+                var instructions = _strategy.RetrieveInstructions();
 
                 if (instructions != null && instructions.Count() > 0)
                 {

@@ -9,7 +9,7 @@ using StockAnalysis.Share;
 
 namespace TradingStrategy.Strategy
 {
-    public class MovingAverageMarketExiting : MovingAverageBase, IMarketExitingComponent
+    public sealed class MovingAverageMarketExiting : MovingAverageBase, IMarketExitingComponent
     {
         public override string Name
         {
