@@ -22,7 +22,5 @@ namespace TradingStrategy
         public DateTime SubmissionTime { get; set; }
 
         public string Comments { get; set; }
-
-        public object Payload { get; set; }
     }
 }

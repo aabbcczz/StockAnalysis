@@ -109,7 +109,6 @@ namespace TradingStrategy.Strategy
                             Action = TradingAction.CloseLong,
                             Comments = "market exiting condition triggered. " + comments,
                             ID = _context.GetUniqueInstructionId(),
-                            Payload = null,
                             SubmissionTime = _period,
                             TradingObject = tradingObject,
                             Volume = positions.Sum(p => p.Volume),
@@ -121,19 +120,9 @@ namespace TradingStrategy.Strategy
             }
 
             // decide if we need to stop loss for some positions
-            double maxStopLossPrice = double.MinValue;
             int totalVolume = 0;
             foreach (var position in positions)
             {
-                if (position.StopLossPrice >= maxStopLossPrice)
-                {
-                    maxStopLossPrice = position.StopLossPrice;
-                }
-                else
-                {
-                    throw new InvalidOperationException("positions' stop loss price is decreasing");
-                }
-
                 if (position.StopLossPrice > bar.ClosePrice)
                 {
                     totalVolume += position.Volume;
@@ -148,7 +137,6 @@ namespace TradingStrategy.Strategy
                         Action = TradingAction.CloseLong,
                         Comments = string.Format("stop loss @{0:0.000}", bar.ClosePrice),
                         ID = _context.GetUniqueInstructionId(),
-                        Payload = null,
                         SubmissionTime = _period,
                         TradingObject = tradingObject,
                         Volume = totalVolume,
@@ -162,8 +150,12 @@ namespace TradingStrategy.Strategy
             if (positions.Count() == 0 
                 && _marketEntering.CanEnter(tradingObject, out comments))
             {
-                object payload;
-                double stopLossGap = _stopLoss.EstimateStopLossGap(tradingObject, bar.ClosePrice, out payload);
+                double stopLossGap = _stopLoss.EstimateStopLossGap(tradingObject, bar.ClosePrice);
+                if (stopLossGap >= 0.0)
+                {
+                    throw new InvalidProgramException("the stop loss gap returned by the stop loss component is greater than zero");
+                }
+
                 int volume = _positionSizing.EstimatePositionSize(tradingObject, bar.ClosePrice, stopLossGap);
 
                 if (volume > 0)
@@ -174,7 +166,6 @@ namespace TradingStrategy.Strategy
                             Action = TradingAction.OpenLong,
                             Comments = "Entering market. " + comments,
                             ID = _context.GetUniqueInstructionId(),
-                            Payload = null,
                             StopLossPriceForSell = double.NaN,
                             SubmissionTime = _period,
                             TradingObject = tradingObject,
@@ -220,7 +211,6 @@ namespace TradingStrategy.Strategy
                                 Action = TradingAction.CloseLong,
                                 Comments = "adjust position triggered. ",
                                 ID = _context.GetUniqueInstructionId(),
-                                Payload = null,
                                 SubmissionTime = _period,
                                 TradingObject = tradingObject,
                                 Volume = positions.Sum(p => p.Volume),
@@ -250,8 +240,12 @@ namespace TradingStrategy.Strategy
 
                         Bar bar = _barsInPeriod[tradingObject];
 
-                        object payload;
-                        double stopLossGap = _stopLoss.EstimateStopLossGap(tradingObject, bar.ClosePrice, out payload);
+                        double stopLossGap = _stopLoss.EstimateStopLossGap(tradingObject, bar.ClosePrice);
+                        if (stopLossGap >= 0.0)
+                        {
+                            throw new InvalidProgramException("the stop loss gap returned by the stop loss component is greater than zero");
+                        }
+                        
                         int volume = _positionSizing.EstimatePositionSize(tradingObject, bar.ClosePrice, stopLossGap);
 
                         if (volume > 0)
@@ -262,7 +256,6 @@ namespace TradingStrategy.Strategy
                                     Action = TradingAction.OpenLong,
                                     Comments = "Adding position. ",
                                     ID = _context.GetUniqueInstructionId(),
-                                    Payload = null,
                                     StopLossPriceForSell = double.NaN,
                                     SubmissionTime = _period,
                                     TradingObject = tradingObject,
@@ -284,9 +277,30 @@ namespace TradingStrategy.Strategy
                     string.Format("can't find instruction {0} associated with the transaction.", transaction.InstructionId));
             }
 
-            if (transaction.Succeeded)
+            if (transaction.Succeeded && transaction.Action == TradingAction.OpenLong)
             {
-                _stopLoss.UpdateStopLossAndRisk(instruction.TradingObject, instruction.Payload);
+                // update the stop loss and risk for new positions
+                string code = transaction.Code;
+                if (!_context.ExistsPosition(code))
+                {
+                    throw new InvalidOperationException(
+                        string.Format("There is no position for {0} when calling this function", code));
+                }
+
+                var positions = _context.GetPositionDetails(code);
+
+                // set stop loss and initial risk for all new postions
+                foreach (var position in positions)
+                {
+                    if (!position.IsStopLossPriceInitialized())
+                    {
+                        double stopLossGap = _stopLoss.EstimateStopLossGap(instruction.TradingObject, position.BuyPrice);
+
+                        double stopLossPrice = Math.Max(0.0, position.BuyPrice + stopLossGap);
+
+                        position.SetStopLossPrice(stopLossPrice);
+                    }
+                }
             }
             else
             {

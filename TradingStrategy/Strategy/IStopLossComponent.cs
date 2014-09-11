@@ -17,18 +17,8 @@ namespace TradingStrategy.Strategy
         /// </summary>
         /// <param name="tradingObject">trading object</param>
         /// <param name="assumedPrice">assumed price</param>
-        /// <param name="payload">the payload object output by the function which will be used
-        /// int UpdateStopLoss() function</param>
         /// <returns>estimated stop loss gap, must be smaller than zero. 
-        /// actural price + stop loss gap = stop loss price</returns>
-        double EstimateStopLossGap(ITradingObject tradingObject, double assumedPrice, out object payload);
-
-         /// <summary>
-        /// Update stop loss and corresponding risk for all positions associated with the trading object if necessary. 
-        /// This function will be called each time when a buy transaction is executed successfully.
-        /// </summary>
-        /// <param name="tradingObject">trading object</param>
-        /// <param name="payload">the object returned by EstimateStopLossGap() function</param>
-        void UpdateStopLossAndRisk(ITradingObject tradingObject, object payload);
+        /// actual price + stop loss gap = stop loss price</returns>
+        double EstimateStopLossGap(ITradingObject tradingObject, double assumedPrice);
     }
 }

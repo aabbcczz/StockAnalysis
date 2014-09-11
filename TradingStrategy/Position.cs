@@ -8,6 +8,8 @@ namespace TradingStrategy
 {
     public sealed class Position
     {
+        public const double UninitializedStopLossPrice = double.MinValue;
+
         public bool IsInitialized { get; private set; }
 
         public string Code { get; private set; }
@@ -31,13 +33,15 @@ namespace TradingStrategy
         public double SellCommission { get; private set; }
 
         // 初始风险，即 R
-        public double InitialRisk { get; set; }
+        public double InitialRisk { get; private set; }
 
         // 止损价格
-        public double StopLossPrice { get; set; }
+        public double StopLossPrice { get; private set; }
 
         public Position()
         {
+            InitialRisk = 0.0;
+            StopLossPrice = UninitializedStopLossPrice;
         }
 
         public Position(Transaction transaction)
@@ -60,7 +64,10 @@ namespace TradingStrategy
                     break;
                 default:
                     throw new ArgumentException(string.Format("unsupported action {0}", transaction.Action));
-            } 
+            }
+
+            InitialRisk = 0.0;
+            StopLossPrice = UninitializedStopLossPrice;
         }
 
         public void Close(Transaction transaction)
@@ -102,6 +109,35 @@ namespace TradingStrategy
 
                 default:
                     throw new ArgumentException(string.Format("unsupported action {0}", transaction.Action));
+            }
+        }
+
+        public bool IsStopLossPriceInitialized()
+        {
+            return StopLossPrice == UninitializedStopLossPrice;
+        }
+
+        public void SetStopLossPrice(double stopLossPrice)
+        {
+            if (stopLossPrice < 0.0 || stopLossPrice > BuyPrice)
+            {
+                throw new ArgumentOutOfRangeException();
+            }
+
+            if (!IsStopLossPriceInitialized())
+            { 
+                StopLossPrice = stopLossPrice;
+
+                InitialRisk = (BuyPrice - StopLossPrice) * Volume;
+            }
+            else
+            {
+                if (stopLossPrice < StopLossPrice)
+                {
+                    throw new InvalidOperationException("Can't reset stop loss price to smaller value");
+                }
+
+                StopLossPrice = stopLossPrice;
             }
         }
     }
