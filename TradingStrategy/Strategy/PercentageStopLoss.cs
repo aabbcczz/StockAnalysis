@@ -7,8 +7,7 @@ using System.Threading.Tasks;
 namespace TradingStrategy.Strategy
 {
     public sealed class PercentageStopLoss 
-        : GeneralTradingStrategyComponentBase
-        , IStopLossComponent
+        : GeneralStopLossBase
     {
         [Parameter(5.0, "最大损失的百分比")]
         public double MaxPercentageOfLoss { get; set; }
@@ -23,7 +22,7 @@ namespace TradingStrategy.Strategy
             get { return "如果当前价格低于买入价的一定百分比则触发停价"; }
         }
 
-        public double EstimateStopLossGap(ITradingObject tradingObject, double assumedPrice)
+        public override double EstimateStopLossGap(ITradingObject tradingObject, double assumedPrice)
         {
             return -(assumedPrice * MaxPercentageOfLoss / 100.0);
         }

@@ -8,7 +8,6 @@ namespace TradingStrategy.Strategy
 {
     public sealed class AtrTraceStopLossMarketExiting 
         : MetricBasedTraceStopLossMarketExiting<AtrRuntimeMetric>
-        , IMarketExitingComponent
     {
         [Parameter(10, "ATR计算窗口大小")]
         public int AtrWindowSize { get; set; }

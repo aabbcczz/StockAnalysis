@@ -9,8 +9,30 @@ using StockAnalysis.Share;
 
 namespace TradingStrategy.Strategy
 {
-    public sealed class MovingAverageMarketExiting : MovingAverageBase, IMarketExitingComponent
+    public sealed class MovingAverageMarketExiting 
+        : MetricBasedMarketExitingBase<MovingAverageRuntimeMetric>
     {
+        [Parameter(5, "短期移动平均周期")]
+        public int Short { get; set; }
+
+        [Parameter(20, "长期移动平均周期")]
+        public int Long { get; set; }
+
+        public override Func<MovingAverageRuntimeMetric> Creator
+        {
+            get { return (() => new MovingAverageRuntimeMetric(Short, Long)); }
+        }
+
+        protected override void ValidateParameterValues()
+        {
+            base.ValidateParameterValues();
+
+            if (Short >= Long)
+            {
+                throw new ArgumentException("Short parameter value must be smaller than Long parameter value");
+            }
+        }
+
         public override string Name
         {
             get { return "移动平均出市"; }
@@ -21,7 +43,7 @@ namespace TradingStrategy.Strategy
             get { return "当短期平均向下交叉长期平均时出市"; }
         }
 
-        public bool ShouldExit(ITradingObject tradingObject, out string comments)
+        public override bool ShouldExit(ITradingObject tradingObject, out string comments)
         {
             comments = string.Empty;
             var runtimeMetric = base.MetricManager.GetOrCreateRuntimeMetric(tradingObject);

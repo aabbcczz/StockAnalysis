@@ -7,8 +7,7 @@ using System.Threading.Tasks;
 namespace TradingStrategy.Strategy
 {
     public sealed class NoEnoughProfitMarketExiting 
-        : GeneralTradingStrategyComponentBase
-        , IMarketExitingComponent
+        : GeneralMarketExitingBase
     {
         private Dictionary<string, int> _activePositionHoldingPeriods = new Dictionary<string, int>();
         private HashSet<string> _codesShouldExit = new HashSet<string>();
@@ -99,7 +98,7 @@ namespace TradingStrategy.Strategy
             _activePositionHoldingPeriods.Clear();
         }
 
-        public bool ShouldExit(ITradingObject tradingObject, out string comments)
+        public override bool ShouldExit(ITradingObject tradingObject, out string comments)
         {
             comments = string.Empty;
 

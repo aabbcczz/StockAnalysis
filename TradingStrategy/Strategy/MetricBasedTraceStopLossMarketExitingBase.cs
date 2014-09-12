@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace TradingStrategy.Strategy
 {
     public abstract class MetricBasedTraceStopLossMarketExiting<T>
-        : MetricBasedTradingStrategyComponentBase<T>
+        : MetricBasedMarketExitingBase<T>
         where T : IRuntimeMetric
     {
         protected abstract double CalculateStopLossPrice(ITradingObject tradingObject, double currentPrice);
@@ -34,7 +34,7 @@ namespace TradingStrategy.Strategy
             }
         }
 
-        public virtual bool ShouldExit(ITradingObject tradingObject, out string comments)
+        public override bool ShouldExit(ITradingObject tradingObject, out string comments)
         {
             comments = string.Empty;
             return false;

@@ -7,8 +7,7 @@ using System.Threading.Tasks;
 namespace TradingStrategy.Strategy
 {
     public sealed class AtrStopLoss 
-        : MetricBasedTradingStrategyComponentBase<AtrRuntimeMetric>
-        , IStopLossComponent
+        : MetricBasedStopLossBase<AtrRuntimeMetric>
     {
         [Parameter(10, "ATR计算窗口大小")]
         public int AtrWindowSize { get; set; }
@@ -45,7 +44,7 @@ namespace TradingStrategy.Strategy
             }
         }
 
-        public double EstimateStopLossGap(ITradingObject tradingObject, double assumedPrice)
+        public override double EstimateStopLossGap(ITradingObject tradingObject, double assumedPrice)
         {
             AtrRuntimeMetric metric = MetricManager.GetOrCreateRuntimeMetric(tradingObject);
             return -metric.Atr * AtrStopLossFactor;

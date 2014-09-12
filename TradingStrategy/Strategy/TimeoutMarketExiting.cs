@@ -7,8 +7,7 @@ using System.Threading.Tasks;
 namespace TradingStrategy.Strategy
 {
     public sealed class TimeoutMarketExiting 
-        : GeneralTradingStrategyComponentBase
-        , IMarketExitingComponent
+        : GeneralMarketExitingBase
     {
         private Dictionary<string, int> _activePositionHoldingPeriods = new Dictionary<string, int>();
         private Dictionary<string, DateTime> _activePostionLatestBuyTime = new Dictionary<string, DateTime>();
@@ -82,7 +81,7 @@ namespace TradingStrategy.Strategy
             _activePositionHoldingPeriods.Add(code, periodCount);
         }
 
-        public bool ShouldExit(ITradingObject tradingObject, out string comments)
+        public override bool ShouldExit(ITradingObject tradingObject, out string comments)
         {
             comments = string.Empty;
 

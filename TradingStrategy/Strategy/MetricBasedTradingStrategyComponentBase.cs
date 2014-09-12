@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 
 namespace TradingStrategy.Strategy
 {
-    public abstract class MetricBasedTradingStrategyComponentBase<T> : GeneralTradingStrategyComponentBase
+    public abstract class MetricBasedTradingStrategyComponentBase<T> 
+        : GeneralTradingStrategyComponentBase
         where T : IRuntimeMetric
     {
         protected RuntimeMetricManager<T> MetricManager { get; private set; }

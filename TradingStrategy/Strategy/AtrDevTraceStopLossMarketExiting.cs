@@ -6,9 +6,8 @@ using System.Threading.Tasks;
 
 namespace TradingStrategy.Strategy
 {
-    public sealed class AtrDevStopLoss 
-        : MetricBasedStopLossBase<AtrDevRuntimeMetric>
-        , IStopLossComponent
+    public sealed class AtrDevTraceStopLossMarketExiting
+        : MetricBasedTraceStopLossMarketExiting<AtrDevRuntimeMetric>
     {
         [Parameter(10, "ATR计算窗口大小")]
         public int AtrWindowSize { get; set; }
@@ -44,10 +43,10 @@ namespace TradingStrategy.Strategy
             }
         }
 
-        public override double EstimateStopLossGap(ITradingObject tradingObject, double assumedPrice)
+        protected override double CalculateStopLossPrice(ITradingObject tradingObject, double currentPrice)
         {
             AtrDevRuntimeMetric metric = MetricManager.GetOrCreateRuntimeMetric(tradingObject);
-            return -metric.Atr * AtrDevStopLossFactor * (1.0 + AdjustmentPercentage / 100.0);
+            return currentPrice - metric.Atr * AtrDevStopLossFactor * (1.0 + AdjustmentPercentage / 100.0);
         }
     }
 }

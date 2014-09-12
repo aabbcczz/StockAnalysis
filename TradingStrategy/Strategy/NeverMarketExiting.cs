@@ -7,8 +7,7 @@ using System.Threading.Tasks;
 namespace TradingStrategy.Strategy
 {
     public sealed class NeverMarketExiting 
-        : GeneralTradingStrategyComponentBase
-        , IMarketExitingComponent
+        : GeneralMarketExitingBase
     {
         public override string Name
         {
@@ -20,7 +19,7 @@ namespace TradingStrategy.Strategy
             get { return "从不退市，依赖于初始止损或者其他模块退市"; }
         }
 
-        public bool ShouldExit(ITradingObject tradingObject, out string comments)
+        public override bool ShouldExit(ITradingObject tradingObject, out string comments)
         {
             comments = string.Empty;
             return false;
