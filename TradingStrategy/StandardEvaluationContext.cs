@@ -9,7 +9,6 @@ namespace TradingStrategy
 {
     internal sealed class StandardEvaluationContext : IEvaluationContext
     {
-        private long _instructionId = 0;
         private EquityManager _equityManager;
         private ILogger _logger;
 
@@ -22,11 +21,6 @@ namespace TradingStrategy
 
             _equityManager = manager;
             _logger = logger;
-        }
-
-        public long GetUniqueInstructionId()
-        {
-            return Interlocked.Increment(ref _instructionId);
         }
 
         public double GetCurrentCapital()

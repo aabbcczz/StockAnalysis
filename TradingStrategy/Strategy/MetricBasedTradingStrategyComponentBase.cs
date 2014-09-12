@@ -6,27 +6,38 @@ using System.Threading.Tasks;
 
 namespace TradingStrategy.Strategy
 {
-    public class MetricBasedTradingStrategyComponentBase<T>
+    public abstract class MetricBasedTradingStrategyComponentBase<T> : GeneralTradingStrategyComponentBase
         where T : IRuntimeMetric
     {
         protected RuntimeMetricManager<T> MetricManager { get; private set; }
 
-        protected void Initialize(Func<T> creator)
+        public abstract Func<T> Creator { get; }
+
+        public override void Initialize(
+            IEvaluationContext context, 
+            IDictionary<ParameterAttribute, object> parameterValues)
         {
-            MetricManager = new RuntimeMetricManager<T>(creator);
+            base.Initialize(context, parameterValues);
+
+            if (Creator == null)
+            {
+                throw new InvalidProgramException("Creator property must not be null");
+            }
+
+            MetricManager = new RuntimeMetricManager<T>(Creator);
         }
 
-        protected void WarmUp(ITradingObject tradingObject, StockAnalysis.Share.Bar bar)
+        public override void WarmUp(ITradingObject tradingObject, StockAnalysis.Share.Bar bar)
         {
             MetricManager.Update(tradingObject, bar);
         }
 
-        protected void Evaluate(ITradingObject tradingObject, StockAnalysis.Share.Bar bar)
+        public override void Evaluate(ITradingObject tradingObject, StockAnalysis.Share.Bar bar)
         {
             MetricManager.Update(tradingObject, bar);
         }
 
-        protected void Finish()
+        public override void Finish()
         {
             MetricManager = null;
         }

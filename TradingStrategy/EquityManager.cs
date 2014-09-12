@@ -71,7 +71,6 @@ namespace TradingStrategy
             else if (transaction.Action == TradingAction.CloseLong)
             {
                 string code = transaction.Code;
-                double earn = transaction.Price * transaction.Volume - transaction.Commission;
 
                 if (!_activePositions.ContainsKey(code))
                 {
@@ -81,59 +80,46 @@ namespace TradingStrategy
 
                 Position[] positions = _activePositions[code].ToArray();
 
-                int totalVolume = positions.Sum(e => e.Volume);
-                if (totalVolume < transaction.Volume)
+                var indiceOfPositionToBeSold = IdentifyPositionToBeSold(positions, transaction);
+
+                if (indiceOfPositionToBeSold == null || indiceOfPositionToBeSold.Count() == 0)
                 {
-                    error = "There is no enough volume for selling";
-                    return false;
+                    return true;
                 }
 
                 double buyCost = 0.0;
                 double buyCommission = 0.0;
 
-                int remainingVolume = transaction.Volume;
-
-                for (int i = 0; i < positions.Length && remainingVolume != 0; ++i)
+                foreach (var index in indiceOfPositionToBeSold)
                 {
-                    if (positions[i].StopLossPrice > transaction.StopLossPriceForSell
-                        && positions[i].Volume <= remainingVolume)
-                    {
-                        buyCost += positions[i].BuyPrice * positions[i].Volume;
-                        buyCommission += positions[i].BuyCommission;
-
-                        remainingVolume -= positions[i].Volume;
-
-                        positions[i].Close(
-                            new Transaction()
-                            {
-                                Action = transaction.Action,
-                                Code = transaction.Code,
-                                Comments = transaction.Comments,
-                                Commission = transaction.Commission / transaction.Volume * positions[i].Volume,
-                                Error = transaction.Error,
-                                ExecutionTime = transaction.ExecutionTime,
-                                InstructionId = transaction.InstructionId,
-                                Price = transaction.Price,
-                                SubmissionTime = transaction.SubmissionTime,
-                                Succeeded = transaction.Succeeded,
-                                Volume = positions[i].Volume
-                            });
-
-                        // move closed position to history
-                        _closedPositions.Add(positions[i]);
-
-                        // set to null for cleaning up.
-                        positions[i] = null;
-                    }
-                    else
-                    {
-                        throw new InvalidOperationException("can't partially process a position");
-                    }
+                    buyCost += positions[index].BuyPrice * positions[index].Volume;
+                    buyCommission += positions[index].BuyCommission;
                 }
 
-                if (remainingVolume != 0)
+                foreach (var index in indiceOfPositionToBeSold)
                 {
-                    throw new InvalidProgramException("Logic error");
+                    positions[index].Close(
+                        new Transaction()
+                        {
+                            Action = transaction.Action,
+                            Code = transaction.Code,
+                            Comments = transaction.Comments,
+                            Commission = transaction.Commission / transaction.Volume * positions[index].Volume,
+                            Error = transaction.Error,
+                            ExecutionTime = transaction.ExecutionTime,
+                            InstructionId = transaction.InstructionId,
+                            Price = transaction.Price,
+                            SubmissionTime = transaction.SubmissionTime,
+                            Succeeded = transaction.Succeeded,
+                            Volume = positions[index].Volume
+                        });
+
+                    // move closed position to history
+                    _closedPositions.Add(positions[index]);
+
+                    // set to null for cleaning up.
+                    positions[index] = null;
+
                 }
 
                 // update equities for given code
@@ -141,12 +127,15 @@ namespace TradingStrategy
 
                 if (remainingPositions == null || remainingPositions.Count == 0)
                 {
-                    throw new InvalidProgramException("Logic error");
+                    _activePositions.Remove(code);
+                }
+                else
+                {
+                    _activePositions[code] = remainingPositions;
                 }
 
-                _activePositions[code] = remainingPositions;
-
                 // update current capital
+                double earn = transaction.Price * transaction.Volume - transaction.Commission;
                 CurrentCapital += earn;
 
                 // create completed transaction object
@@ -168,6 +157,67 @@ namespace TradingStrategy
             {
                 throw new InvalidOperationException(
                     string.Format("unsupported action {0}", transaction.Action));
+            }
+        }
+
+        private IEnumerable<int> IdentifyPositionToBeSold(Position[] positions, Transaction transaction)
+        {
+            System.Diagnostics.Debug.Assert(positions != null);
+            System.Diagnostics.Debug.Assert(transaction != null);
+            System.Diagnostics.Debug.Assert(positions.Length > 0);
+            System.Diagnostics.Debug.Assert(transaction.Action == TradingAction.CloseLong);
+
+            int remainingVolume = transaction.Volume;
+            switch (transaction.SellingType)
+            {
+                case SellingType.ByPositionId:
+                    for (int i = 0; i < positions.Length; ++i)
+                    {
+                        if (positions[i].ID == transaction.PositionIdForSell)
+                        {
+                            remainingVolume -= positions[i].Volume;
+                            yield return i;
+                            yield break;
+                        }
+                    }
+                    break;
+                case SellingType.ByStopLossPrice:
+                    for (int i = 0; i < positions.Length; ++i)
+                    {
+                        if (positions[i].StopLossPrice > transaction.StopLossPriceForSell)
+                        {
+                            remainingVolume -= positions[i].Volume;
+
+                            yield return i;
+                        }
+                    }
+                    break;
+                case SellingType.ByVolume:
+                    int totalVolume = positions.Sum(e => e.Volume);
+                    if (totalVolume < transaction.Volume)
+                    {
+                        throw new InvalidOperationException("There is no enough volume for selling");
+                    }
+
+                    for (int i = 0; i < positions.Length && remainingVolume > 0; ++i)
+                    {
+                        if (positions[i].Volume <= remainingVolume)
+                        {
+                            remainingVolume -= positions[i].Volume;
+                            yield return i;
+                        }
+                        else
+                        {
+                            throw new InvalidOperationException("Can't partially sell a position");
+                        }
+                    }
+
+                    break;
+            }
+
+            if (remainingVolume != 0)
+            {
+                throw new InvalidOperationException("The volume specified in transaction does not match the positions affected by the transaction");
             }
         }
 

@@ -8,8 +8,6 @@ namespace TradingStrategy
 {
     public interface IEvaluationContext
     {
-        long GetUniqueInstructionId();
-
         double GetCurrentCapital();
 
         IEnumerable<string> GetAllPositionCodes();

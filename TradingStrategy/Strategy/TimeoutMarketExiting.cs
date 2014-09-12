@@ -6,20 +6,19 @@ using System.Threading.Tasks;
 
 namespace TradingStrategy.Strategy
 {
-    public sealed class TimeoutMarketExiting : IMarketExitingComponent
+    public sealed class TimeoutMarketExiting 
+        : GeneralTradingStrategyComponentBase
+        , IMarketExitingComponent
     {
         private Dictionary<string, int> _activePositionHoldingPeriods = new Dictionary<string, int>();
         private Dictionary<string, DateTime> _activePostionLatestBuyTime = new Dictionary<string, DateTime>();
 
-        private IEvaluationContext _context;
-        private DateTime _period;
-
-        public string Name
+        public override string Name
         {
             get { return "定时退出"; }
         }
 
-        public string Description
+        public override string Description
         {
             get { return "当头寸持有超过一段时间后立即退出市场"; }
         }
@@ -27,44 +26,22 @@ namespace TradingStrategy.Strategy
         [Parameter(20, "头寸持有周期数")]
         public int HoldingPeriods { get; set; }
 
-        public IEnumerable<ParameterAttribute> GetParameterDefinitions()
+        protected override void ValidateParameterValues()
         {
-            return ParameterHelper.GetParameterAttributes(this);
-        }
-
-        public void Initialize(IEvaluationContext context, IDictionary<ParameterAttribute, object> parameterValues)
-        {
-            if (context == null || parameterValues == null)
-            {
-                throw new ArgumentNullException();
-            }
-
-            ParameterHelper.SetParameterValues(this, parameterValues);
+ 	        base.ValidateParameterValues();
 
             if (HoldingPeriods <= 0)
             {
                 throw new ArgumentOutOfRangeException("HoldingPeriods must be great than 0");
             }
-
-            _context = context;
         }
 
-        public void WarmUp(ITradingObject tradingObject, StockAnalysis.Share.Bar bar)
-        {
-            // do nothing
-        }
-
-        public void StartPeriod(DateTime time)
-        {
-            _period = time;
-        }
-
-        public void Evaluate(ITradingObject tradingObject, StockAnalysis.Share.Bar bar)
+        public override void Evaluate(ITradingObject tradingObject, StockAnalysis.Share.Bar bar)
         {
             string code = tradingObject.Code;
-            if (_context.ExistsPosition(code))
+            if (Context.ExistsPosition(code))
             {
-                DateTime latestBuyTime = _context.GetPositionDetails(code).Max(p => p.BuyTime);
+                DateTime latestBuyTime = Context.GetPositionDetails(code).Max(p => p.BuyTime);
 
                 if (!_activePostionLatestBuyTime.ContainsKey(code))
                 {
@@ -75,7 +52,7 @@ namespace TradingStrategy.Strategy
                     if (latestBuyTime > _activePostionLatestBuyTime[code])
                     {
                         // new postion has been created, we need to reset record
-                        int periodCount = latestBuyTime < _period ? 1 : 0;
+                        int periodCount = latestBuyTime < Period ? 1 : 0;
 
                         _activePositionHoldingPeriods[code] = periodCount;
                     }
@@ -100,20 +77,9 @@ namespace TradingStrategy.Strategy
         {
             // create new record
             _activePostionLatestBuyTime.Add(code, latestBuyTime);
-            int periodCount = latestBuyTime < _period ? 1 : 0;
+            int periodCount = latestBuyTime < Period ? 1 : 0;
 
             _activePositionHoldingPeriods.Add(code, periodCount);
-        }
-
-
-        public void EndPeriod()
-        {
-            // do nothing
-        }
-
-        public void Finish()
-        {
-            _activePositionHoldingPeriods.Clear();
         }
 
         public bool ShouldExit(ITradingObject tradingObject, out string comments)

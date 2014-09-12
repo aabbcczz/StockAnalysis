@@ -21,6 +21,8 @@ namespace TradingStrategy
 
         public TradingAction Action { get; set; }
 
+        public SellingType SellingType { get; set; }
+
         public int Volume { get; set; }
 
         public double Price { get; set; }
@@ -30,6 +32,12 @@ namespace TradingStrategy
         /// this field is used only when Action is CloseLong.
         /// </summary>
         public double StopLossPriceForSell { get; set; }
+
+        /// <summary>
+        /// the id of position for sell. 
+        /// this field is used only one Action is CloseLong.
+        /// </summary>
+        public long PositionIdForSell { get; set; }
 
         public double Commission { get; set; }
 
@@ -69,11 +77,12 @@ namespace TradingStrategy
         public override string ToString()
         {
             return string.Format(
-                "{0},{1:yyyy-MM-dd HH:mm:ss},{2:yyyy-MM-dd HH:mm:ss}, {3}, {4}, {5:0.00}, {6:0.00}, {7:0.00}, {8}, {9},{10}",
+                "{0},{1:yyyy-MM-dd HH:mm:ss},{2:yyyy-MM-dd HH:mm:ss}, {3}, {4}, {5}, {6:0.00}, {7:0.00}, {8:0.00}, {9:0.00}, {10},{11}",
                 InstructionId,
                 SubmissionTime,
                 ExecutionTime,
                 (int)Action,
+                (int)SellingType,
                 Code,
                 Price,
                 Volume,
@@ -86,7 +95,7 @@ namespace TradingStrategy
         public static Transaction Parse(string s)
         {
             string[] fields = s.Split(new char[] { ',' });
-            if (fields.Length != 11)
+            if (fields.Length != 12)
             {
                 // there should be 11 fields
                 throw new FormatException(
@@ -94,20 +103,21 @@ namespace TradingStrategy
 
             }
 
-
+            int fid = 0;
             Transaction transaction = new Transaction()
             {
-                InstructionId = long.Parse(fields[0]),
-                SubmissionTime = DateTime.Parse(fields[1]),
-                ExecutionTime = DateTime.Parse(fields[2]),
-                Action = (TradingAction)int.Parse(fields[3]),
-                Code = fields[4],
-                Price = double.Parse(fields[5]),
-                Volume = int.Parse(fields[6]),
-                Commission = double.Parse(fields[7]),
-                Succeeded = bool.Parse(fields[8]),
-                Error = fields[9].Unescape(),
-                Comments = fields[10].Unescape()
+                InstructionId = long.Parse(fields[fid++]),
+                SubmissionTime = DateTime.Parse(fields[fid++]),
+                ExecutionTime = DateTime.Parse(fields[fid++]),
+                Action = (TradingAction)int.Parse(fields[fid++]),
+                SellingType = (SellingType)int.Parse(fields[fid++]),
+                Code = fields[fid++],
+                Price = double.Parse(fields[fid++]),
+                Volume = int.Parse(fields[fid++]),
+                Commission = double.Parse(fields[fid++]),
+                Succeeded = bool.Parse(fields[fid++]),
+                Error = fields[fid++].Unescape(),
+                Comments = fields[fid++].Unescape()
             };
 
             return transaction;

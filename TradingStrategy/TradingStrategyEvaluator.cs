@@ -203,6 +203,7 @@ namespace TradingStrategy
                     InstructionId = long.MaxValue,
                     Code = code,
                     Price = bar.ClosePrice,
+                    SellingType = SellingType.ByVolume,
                     Succeeded = false,
                     SubmissionTime = lastPeriodTime,
                     Volume = totalVolume,
@@ -341,7 +342,9 @@ namespace TradingStrategy
                 Succeeded = false,
                 SubmissionTime = instruction.SubmissionTime,
                 Volume = instruction.Volume,
+                SellingType = instruction.SellingType,
                 StopLossPriceForSell = instruction.StopLossPriceForSell,
+                PositionIdForSell = instruction.PositionIdForSell,
                 Comments = instruction.Comments,
             };
 

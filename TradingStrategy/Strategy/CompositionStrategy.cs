@@ -5,14 +5,16 @@ using System.Text;
 using System.Threading.Tasks;
 using StockAnalysis.Share;
 
+using TradingStrategy;
+
 namespace TradingStrategy.Strategy
 {
     public sealed class CompositionStrategy : ITradingStrategy
     {
         private ITradingStrategyComponent[] _components = null;
         private IPositionSizingComponent _positionSizing = null;
-        private IMarketEnteringComponent _marketEntering = null;
-        private IMarketExitingComponent _marketExiting = null;
+        private List<IMarketEnteringComponent> _marketEntering = new List<IMarketEnteringComponent>();
+        private List<IMarketExitingComponent> _marketExiting = new List<IMarketExitingComponent>();
         private IStopLossComponent _stopLoss = null;
 
         private string _name;
@@ -84,16 +86,17 @@ namespace TradingStrategy.Strategy
                 return;
             }
 
-            // remember the trading object and bar even if bar is invalid
-            // because the object could be used in AfterEvaulation
+            // remember the trading object and bar because the object could be used in AfterEvaulation
             _barsInPeriod.Add(tradingObject, bar);
             _codeToTradingObjectMap.Add(tradingObject.Code, tradingObject);
+
+            // evaluate all components
             foreach (var component in _components)
             {
                 component.Evaluate(tradingObject, bar);
             }
 
-            string comments;
+            string comments = string.Empty;
             var positions = _context.ExistsPosition(tradingObject.Code)
                 ? _context.GetPositionDetails(tradingObject.Code)
                 : (IEnumerable<Position>)new List<Position>();
@@ -101,21 +104,23 @@ namespace TradingStrategy.Strategy
             // decide if we need to exit market for this trading object. This is the first priorty work
             if (positions.Count() > 0)
             {
-                if (_marketExiting.ShouldExit(tradingObject, out comments))
+                foreach (var component in _marketExiting)
                 {
-                    _instructionsInCurrentPeriod.Add(
-                        new Instruction()
-                        {
-                            Action = TradingAction.CloseLong,
-                            Comments = "market exiting condition triggered. " + comments,
-                            ID = _context.GetUniqueInstructionId(),
-                            SubmissionTime = _period,
-                            TradingObject = tradingObject,
-                            Volume = positions.Sum(p => p.Volume),
-                            StopLossPriceForSell = double.MinValue,
-                        });
+                    if (component.ShouldExit(tradingObject, out comments))
+                    {
+                        _instructionsInCurrentPeriod.Add(
+                            new Instruction()
+                            {
+                                Action = TradingAction.CloseLong,
+                                Comments = "market exiting condition triggered. " + comments,
+                                SubmissionTime = _period,
+                                TradingObject = tradingObject,
+                                SellingType = SellingType.ByVolume,
+                                Volume = positions.Sum(p => p.Volume),
+                            });
 
-                    return;
+                        return;
+                    }
                 }
             }
 
@@ -136,41 +141,58 @@ namespace TradingStrategy.Strategy
                     {
                         Action = TradingAction.CloseLong,
                         Comments = string.Format("stop loss @{0:0.000}", bar.ClosePrice),
-                        ID = _context.GetUniqueInstructionId(),
                         SubmissionTime = _period,
                         TradingObject = tradingObject,
-                        Volume = totalVolume,
-                        StopLossPriceForSell = bar.ClosePrice
+                        SellingType = SellingType.ByStopLossPrice,
+                        StopLossPriceForSell = bar.ClosePrice,
+                        Volume = totalVolume
                     });
 
                 return;
             }
 
             // decide if we should enter market
-            if (positions.Count() == 0 
-                && _marketEntering.CanEnter(tradingObject, out comments))
+            if (positions.Count() == 0) 
             {
-                double stopLossGap = _stopLoss.EstimateStopLossGap(tradingObject, bar.ClosePrice);
-                if (stopLossGap >= 0.0)
+                List<string> allComments = new List<string>(_marketEntering.Count + 1);
+                allComments.Add("Entering market. ");
+
+                bool canEnter = true;
+                foreach (var component in _marketEntering)
                 {
-                    throw new InvalidProgramException("the stop loss gap returned by the stop loss component is greater than zero");
+                    string subComments;
+
+                    if (!component.CanEnter(tradingObject, out subComments))
+                    {
+                        canEnter = false;
+                        break;
+                    }
+
+                    allComments.Add(subComments); 
                 }
 
-                int volume = _positionSizing.EstimatePositionSize(tradingObject, bar.ClosePrice, stopLossGap);
-
-                if (volume > 0)
+                if (canEnter)
                 {
-                    _instructionsInCurrentPeriod.Add(
-                        new Instruction()
-                        {
-                            Action = TradingAction.OpenLong,
-                            Comments = "Entering market. " + comments,
-                            ID = _context.GetUniqueInstructionId(),
-                            StopLossPriceForSell = double.NaN,
-                            SubmissionTime = _period,
-                            TradingObject = tradingObject,
-                            Volume = volume
-                        });
+                    double stopLossGap = _stopLoss.EstimateStopLossGap(tradingObject, bar.ClosePrice);
+                    if (stopLossGap >= 0.0)
+                    {
+                        throw new InvalidProgramException("the stop loss gap returned by the stop loss component is greater than zero");
+                    }
+
+                    int volume = _positionSizing.EstimatePositionSize(tradingObject, bar.ClosePrice, stopLossGap);
+
+                    if (volume > 0)
+                    {
+                        _instructionsInCurrentPeriod.Add(
+                            new Instruction()
+                            {
+                                Action = TradingAction.OpenLong,
+                                Comments = string.Join(";", allComments),
+                                SubmissionTime = _period,
+                                TradingObject = tradingObject,
+                                Volume = volume
+                            });
+                    }
                 }
             }
         }
@@ -179,42 +201,51 @@ namespace TradingStrategy.Strategy
         {
             // decide if existing position should be adjusted
             string[] codesForAddingPosition;
-            string[] codesForRemovingPosition;
+            PositionIdentifier[] positionsForRemoving;
 
-            if (_positionSizing.ShouldAdjustPosition(out codesForAddingPosition, out codesForRemovingPosition))
+            if (_positionSizing.ShouldAdjustPosition(out codesForAddingPosition, out positionsForRemoving))
             {
-                if (codesForRemovingPosition != null
-                    && codesForRemovingPosition.Length > 0)
+                if (positionsForRemoving != null
+                    && positionsForRemoving.Length > 0)
                 {
                     // remove positions
-                    foreach (var code in codesForRemovingPosition)
+                    foreach (var identifier in positionsForRemoving)
                     {
-                        if (!_context.ExistsPosition(code))
+                        if (!_context.ExistsPosition(identifier.Code))
                         {
-                            throw new InvalidOperationException("There is no position for code " + code);
+                            throw new InvalidOperationException("There is no position for code " + identifier.Code);
                         }
 
                         ITradingObject tradingObject;
-                        
-                        if (!_codeToTradingObjectMap.TryGetValue(code, out tradingObject))
+
+                        if (!_codeToTradingObjectMap.TryGetValue(identifier.Code, out tradingObject))
                         {
                             // ignore the request of removing position because the trading object has 
                             // no valid bar this period.
                             continue;
                         }
 
-                        var positions = _context.GetPositionDetails(code);
+                        var positions = _context.GetPositionDetails(identifier.Code)
+                            .Where(p => p.ID == identifier.PositionId);
+
+                        if (positions == null || positions.Count() == 0)
+                        {
+                            throw new InvalidOperationException(
+                                string.Format("position id {0} does not exist.", identifier.PositionId));
+                        }
+
+                        System.Diagnostics.Debug.Assert(positions.Count() == 1);
 
                         _instructionsInCurrentPeriod.Add(
                             new Instruction()
                             {
                                 Action = TradingAction.CloseLong,
                                 Comments = "adjust position triggered. ",
-                                ID = _context.GetUniqueInstructionId(),
                                 SubmissionTime = _period,
                                 TradingObject = tradingObject,
+                                SellingType = SellingType.ByPositionId,
+                                PositionIdForSell = identifier.PositionId,
                                 Volume = positions.Sum(p => p.Volume),
-                                StopLossPriceForSell = double.MinValue,
                             });
                     }
                 }
@@ -255,8 +286,6 @@ namespace TradingStrategy.Strategy
                                 {
                                     Action = TradingAction.OpenLong,
                                     Comments = "Adding position. ",
-                                    ID = _context.GetUniqueInstructionId(),
-                                    StopLossPriceForSell = double.NaN,
                                     SubmissionTime = _period,
                                     TradingObject = tradingObject,
                                     Volume = volume
@@ -374,27 +403,26 @@ namespace TradingStrategy.Strategy
                 {
                     SetComponent(component, ref _positionSizing);
                 }
-                else if (component is IMarketEnteringComponent)
+                
+                if (component is IMarketEnteringComponent)
                 {
-                    SetComponent(component, ref _marketEntering);
+                    _marketEntering.Add((IMarketEnteringComponent)component);
                 }
-                else if (component is IMarketExitingComponent)
+
+                if (component is IMarketExitingComponent)
                 {
-                    SetComponent(component, ref _marketExiting);
+                    _marketExiting.Add((IMarketExitingComponent)component);
                 }
-                else if (component is IStopLossComponent)
+                
+                if (component is IStopLossComponent)
                 {
                     SetComponent(component, ref _stopLoss);
-                }
-                else
-                {
-                    throw new ArgumentException(string.Format("unsupported component type {0}", component.GetType()));
                 }
             }
 
             if (_positionSizing == null
-                || _marketExiting == null
-                || _marketEntering == null
+                || _marketExiting.Count == 0
+                || _marketEntering.Count == 0
                 || _stopLoss == null)
             {
                 throw new ArgumentException("Missing at least one type of component");

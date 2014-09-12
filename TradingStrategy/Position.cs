@@ -10,6 +10,8 @@ namespace TradingStrategy
     {
         public const double UninitializedStopLossPrice = double.MinValue;
 
+        public long ID { get; private set; }
+
         public bool IsInitialized { get; private set; }
 
         public string Code { get; private set; }
@@ -40,6 +42,8 @@ namespace TradingStrategy
 
         public Position()
         {
+            ID = IdGenerator.Next;
+
             InitialRisk = 0.0;
             StopLossPrice = UninitializedStopLossPrice;
         }
@@ -50,6 +54,8 @@ namespace TradingStrategy
             {
                 throw new ArgumentNullException();
             }
+
+            ID = IdGenerator.Next;
 
             switch (transaction.Action)
             {
