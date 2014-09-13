@@ -8,7 +8,9 @@ namespace TradingStrategy
 {
     public interface IEvaluationContext
     {
-        double GetCurrentCapital();
+        double GetInitialEquity();
+
+        double GetCurrentEquity(DateTime period, EquityEvaluationMethod method);
 
         IEnumerable<string> GetAllPositionCodes();
 

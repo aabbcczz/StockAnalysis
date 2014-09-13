@@ -44,6 +44,7 @@
     <Compile Include="ChinaStockDataProvider.cs" />
     <Compile Include="CommissionSettings.cs" />
     <Compile Include="CompletedTransaction.cs" />
+    <Compile Include="EquityEvaluationMethod.cs" />
     <Compile Include="IdGenerator.cs" />
     <Compile Include="Position.cs" />
     <Compile Include="EquityManager.cs" />
@@ -62,6 +63,10 @@
     <Compile Include="Strategy\AtrDevRuntimeMetric.cs" />
     <Compile Include="Strategy\AtrDevTraceStopLossMarketExiting.cs" />
     <Compile Include="Strategy\AtrDevStopLoss.cs" />
+    <Compile Include="Strategy\RiskPercentagePositionSizing.cs" />
+    <Compile Include="Strategy\VolatilityPercentagePositionSizing.cs" />
+    <Compile Include="Strategy\EqualValuePositionSizing.cs" />
+    <Compile Include="Strategy\SarTraceStopLossMarketExiting.cs" />
     <Compile Include="Strategy\GeneralTraceStopLossMarketExitingBase.cs" />
     <Compile Include="Strategy\GeneralPositionSizingBase.cs" />
     <Compile Include="Strategy\GeneralStopLossBase.cs" />
@@ -94,6 +99,7 @@
     <Compile Include="Strategy\PercentageStopLoss.cs" />
     <Compile Include="Strategy\RuntimeMetricManager.cs" />
     <Compile Include="Strategy\NoEnoughProfitMarketExiting.cs" />
+    <Compile Include="Strategy\SarRuntimeMetric.cs" />
     <Compile Include="Strategy\TimeoutMarketExiting.cs" />
     <Compile Include="TradingAction.cs" />
     <Compile Include="ITradingObject.cs" />

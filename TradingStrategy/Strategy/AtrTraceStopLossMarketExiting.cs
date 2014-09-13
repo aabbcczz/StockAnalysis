@@ -31,6 +31,16 @@ namespace TradingStrategy.Strategy
             get { return (() => { return new AtrRuntimeMetric(AtrWindowSize); }); }
         }
 
+        protected override void ValidateParameterValues()
+        {
+            base.ValidateParameterValues();
+
+            if (AtrWindowSize <= 1 || AtrStopLossFactor <= 0.0)
+            {
+                throw new ArgumentOutOfRangeException();
+            }
+        }
+
         protected override double CalculateStopLossPrice(ITradingObject tradingObject, double currentPrice)
         {
             AtrRuntimeMetric metric = MetricManager.GetOrCreateRuntimeMetric(tradingObject);

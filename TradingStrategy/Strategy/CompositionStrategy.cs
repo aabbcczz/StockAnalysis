@@ -173,26 +173,7 @@ namespace TradingStrategy.Strategy
 
                 if (canEnter)
                 {
-                    double stopLossGap = _stopLoss.EstimateStopLossGap(tradingObject, bar.ClosePrice);
-                    if (stopLossGap >= 0.0)
-                    {
-                        throw new InvalidProgramException("the stop loss gap returned by the stop loss component is greater than zero");
-                    }
-
-                    int volume = _positionSizing.EstimatePositionSize(tradingObject, bar.ClosePrice, stopLossGap);
-
-                    if (volume > 0)
-                    {
-                        _instructionsInCurrentPeriod.Add(
-                            new Instruction()
-                            {
-                                Action = TradingAction.OpenLong,
-                                Comments = string.Join(";", allComments),
-                                SubmissionTime = _period,
-                                TradingObject = tradingObject,
-                                Volume = volume
-                            });
-                    }
+                    CreateIntructionForBuying(tradingObject, bar.ClosePrice, string.Join(";", allComments));
                 }
             }
         }
@@ -271,29 +252,37 @@ namespace TradingStrategy.Strategy
 
                         Bar bar = _barsInPeriod[tradingObject];
 
-                        double stopLossGap = _stopLoss.EstimateStopLossGap(tradingObject, bar.ClosePrice);
-                        if (stopLossGap >= 0.0)
-                        {
-                            throw new InvalidProgramException("the stop loss gap returned by the stop loss component is greater than zero");
-                        }
-                        
-                        int volume = _positionSizing.EstimatePositionSize(tradingObject, bar.ClosePrice, stopLossGap);
-
-                        if (volume > 0)
-                        {
-                            _instructionsInCurrentPeriod.Add(
-                                new Instruction()
-                                {
-                                    Action = TradingAction.OpenLong,
-                                    Comments = "Adding position. ",
-                                    SubmissionTime = _period,
-                                    TradingObject = tradingObject,
-                                    Volume = volume
-                                });
-                        }
+                        CreateIntructionForBuying(tradingObject, bar.ClosePrice, "Adding position. ");
                     }
                 }
 
+            }
+        }
+
+        private void CreateIntructionForBuying(ITradingObject tradingObject, double price, string comments)
+        {
+            double stopLossGap = _stopLoss.EstimateStopLossGap(tradingObject, price);
+            if (stopLossGap >= 0.0)
+            {
+                throw new InvalidProgramException("the stop loss gap returned by the stop loss component is greater than zero");
+            }
+
+            int volume = _positionSizing.EstimatePositionSize(tradingObject, price, stopLossGap);
+
+            // adjust volume to ensure it fit the trading object's contraint
+            volume -= volume % tradingObject.VolumePerBuyingUnit;
+
+            if (volume > 0)
+            {
+                _instructionsInCurrentPeriod.Add(
+                    new Instruction()
+                    {
+                        Action = TradingAction.OpenLong,
+                        Comments = comments,
+                        SubmissionTime = _period,
+                        TradingObject = tradingObject,
+                        Volume = volume
+                    });
             }
         }
 

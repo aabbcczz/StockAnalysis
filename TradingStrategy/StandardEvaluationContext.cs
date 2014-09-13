@@ -11,21 +11,31 @@ namespace TradingStrategy
     {
         private EquityManager _equityManager;
         private ILogger _logger;
+        private ITradingDataProvider _provider;
 
-        public StandardEvaluationContext(EquityManager manager, ILogger logger)
+        public StandardEvaluationContext(
+            ITradingDataProvider provider, 
+            EquityManager manager, 
+            ILogger logger)
         {
-            if (manager == null)
+            if (manager == null || provider == null || logger == null)
             {
                 throw new ArgumentNullException();
             }
 
+            _provider = provider;
             _equityManager = manager;
             _logger = logger;
         }
 
-        public double GetCurrentCapital()
+        public double GetInitialEquity()
         {
-            return _equityManager.CurrentCapital;
+            return _equityManager.InitialCapital;
+        }
+
+        public double GetCurrentEquity(DateTime period, EquityEvaluationMethod method)
+        {
+            return _equityManager.GetTotalEquity(_provider, period, method);
         }
 
         public IEnumerable<string> GetAllPositionCodes()

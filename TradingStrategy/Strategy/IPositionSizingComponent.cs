@@ -20,10 +20,10 @@ namespace TradingStrategy.Strategy
         bool ShouldAdjustPosition(out string[] codesForAddingPosition, out PositionIdentifier[] PositionsForRemoving);
 
         /// <summary>
-        /// Estimate the size of position for given trading object according to current price
+        /// Estimate the size of position for a trading object according to current price
         /// and initial stop loss gap.
         /// </summary>
-        /// <param name="tradingObject">trading object</param>
+        /// <param name="tradingObject">the trading object</param>
         /// <param name="price">current market price of trading object</param>
         /// <param name="stopLossGap">initial stop loss gap. it must be smaller than zero. 
         /// price + stopLossGap = the price that the loss of position should be stopped</param>

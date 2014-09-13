@@ -238,7 +238,10 @@ namespace TradingStrategy
             return _activePositions.ContainsKey(code);
         }
 
-        public double GetTotalEquityMarketValue(ITradingDataProvider provider, DateTime time)
+        public double GetTotalEquity(
+            ITradingDataProvider provider, 
+            DateTime period, 
+            EquityEvaluationMethod method)
         {
             if (provider == null)
             {
@@ -247,26 +250,44 @@ namespace TradingStrategy
 
             double totalEquity = CurrentCapital;
 
-            foreach (var kvp in _activePositions)
+            // cash is the core equity
+            if (method == EquityEvaluationMethod.CoreEquity)
             {
-                string code = kvp.Key;
-                int volume = kvp.Value.Sum(e => e.Volume);
-
-                Bar bar;
-                
-                if (!provider.GetLastEffectiveBar(code, time, out bar))
+                // do nothing
+            }
+            else
+            {
+                foreach (var kvp in _activePositions)
                 {
-                    throw new InvalidOperationException(
-                        string.Format("Can't get data from data provider for code {0}, time {1}", code, time));
-                }
+                    string code = kvp.Key;
 
-                totalEquity += volume * bar.ClosePrice;
+                    Bar bar;
+
+                    if (!provider.GetLastEffectiveBar(code, period, out bar))
+                    {
+                        throw new InvalidOperationException(
+                            string.Format("Can't get data from data provider for code {0}, time {1}", code, period));
+                    }
+
+                    if (method == EquityEvaluationMethod.TotalEquity)
+                    {
+                        int volume = kvp.Value.Sum(e => e.Volume);
+                        totalEquity += volume * bar.ClosePrice;
+                    }
+                    else if (method == EquityEvaluationMethod.ReducedTotalEquity)
+                    {
+                        foreach (var position in kvp.Value)
+                        {
+                            totalEquity += position.Volume * Math.Min(bar.ClosePrice, position.StopLossPrice);
+                        }
+                    }
+                }
             }
 
             return totalEquity;
         }
 
-        public double GetEquityMarketValue(ITradingDataProvider provider, string code, DateTime time)
+        public double GetPositionMarketValue(ITradingDataProvider provider, string code, DateTime time)
         {
             if (provider == null)
             {

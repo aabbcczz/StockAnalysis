@@ -51,7 +51,7 @@ namespace TradingStrategy
             _settings = settings;
 
             _equityManager = new EquityManager(initalCapital);
-            _context = new StandardEvaluationContext(_equityManager, logger);
+            _context = new StandardEvaluationContext(_provider, _equityManager, logger);
             _tradingHistory = new TradingHistory(initalCapital);
         }
 

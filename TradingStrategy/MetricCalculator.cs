@@ -234,7 +234,7 @@ namespace TradingStrategy
                 if (manager.PositionCount > 0)
                 {
                     // if any transaction is executed, update the total equity.
-                    currentEquity = manager.GetTotalEquityMarketValue(_dataProvider, period);
+                    currentEquity = manager.GetTotalEquity(_dataProvider, period, EquityEvaluationMethod.TotalEquity);
                 }
 
                 equityPoints.Add(new EquityPoint() { Equity = currentEquity, Time = period });
