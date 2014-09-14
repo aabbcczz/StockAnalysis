@@ -56,14 +56,6 @@ namespace TradingStrategy.Strategy
             get { return (() => { return new AtrRuntimeMetric(VolatilityWindowSize); }); }
         }
 
-        public override bool ShouldAdjustPosition(out string[] codesForAddingPosition, out PositionIdentifier[] PositionsForRemoving)
-        {
-            codesForAddingPosition = null;
-            PositionsForRemoving = null;
-
-            return false;
-        }
-
         public override int EstimatePositionSize(ITradingObject tradingObject, double price, double stopLossGap)
         {
             var metric = MetricManager.GetOrCreateRuntimeMetric(tradingObject);

@@ -16,6 +16,7 @@ namespace TradingStrategy.Strategy
         private List<IMarketEnteringComponent> _marketEntering = new List<IMarketEnteringComponent>();
         private List<IMarketExitingComponent> _marketExiting = new List<IMarketExitingComponent>();
         private IStopLossComponent _stopLoss = null;
+        private IPositionAdjustingComponent _positionAdjusting = null;
 
         private string _name;
         private string _description;
@@ -180,82 +181,14 @@ namespace TradingStrategy.Strategy
 
         public void AfterEvaluation()
         {
-            // decide if existing position should be adjusted
-            string[] codesForAddingPosition;
-            PositionIdentifier[] positionsForRemoving;
-
-            if (_positionSizing.ShouldAdjustPosition(out codesForAddingPosition, out positionsForRemoving))
+            if (_positionAdjusting != null)
             {
-                if (positionsForRemoving != null
-                    && positionsForRemoving.Length > 0)
+                var instructions = _positionAdjusting.AdjustPositions();
+
+                if (instructions != null)
                 {
-                    // remove positions
-                    foreach (var identifier in positionsForRemoving)
-                    {
-                        if (!_context.ExistsPosition(identifier.Code))
-                        {
-                            throw new InvalidOperationException("There is no position for code " + identifier.Code);
-                        }
-
-                        ITradingObject tradingObject;
-
-                        if (!_codeToTradingObjectMap.TryGetValue(identifier.Code, out tradingObject))
-                        {
-                            // ignore the request of removing position because the trading object has 
-                            // no valid bar this period.
-                            continue;
-                        }
-
-                        var positions = _context.GetPositionDetails(identifier.Code)
-                            .Where(p => p.ID == identifier.PositionId);
-
-                        if (positions == null || positions.Count() == 0)
-                        {
-                            throw new InvalidOperationException(
-                                string.Format("position id {0} does not exist.", identifier.PositionId));
-                        }
-
-                        System.Diagnostics.Debug.Assert(positions.Count() == 1);
-
-                        _instructionsInCurrentPeriod.Add(
-                            new Instruction()
-                            {
-                                Action = TradingAction.CloseLong,
-                                Comments = "adjust position triggered. ",
-                                SubmissionTime = _period,
-                                TradingObject = tradingObject,
-                                SellingType = SellingType.ByPositionId,
-                                PositionIdForSell = identifier.PositionId,
-                                Volume = positions.Sum(p => p.Volume),
-                            });
-                    }
+                    _instructionsInCurrentPeriod.AddRange(instructions);
                 }
-                else if (codesForAddingPosition != null
-                    && codesForAddingPosition.Length > 0)
-                {
-                    // adding positions
-                    foreach (var code in codesForAddingPosition)
-                    {
-                        if (!_context.ExistsPosition(code))
-                        {
-                            throw new InvalidOperationException("There is no position for code " + code);
-                        }
-
-                        ITradingObject tradingObject;
-
-                        if (!_codeToTradingObjectMap.TryGetValue(code, out tradingObject))
-                        {
-                            // ignore the request of adding position because the trading object has 
-                            // no valid bar this period.
-                            continue;
-                        }
-
-                        Bar bar = _barsInPeriod[tradingObject];
-
-                        CreateIntructionForBuying(tradingObject, bar.ClosePrice, "Adding position. ");
-                    }
-                }
-
             }
         }
 
@@ -407,8 +340,14 @@ namespace TradingStrategy.Strategy
                 {
                     SetComponent(component, ref _stopLoss);
                 }
+
+                if (component is IPositionAdjustingComponent)
+                {
+                    SetComponent(component, ref _positionAdjusting);
+                }
             }
 
+            // PositionAdjusting component could be null
             if (_positionSizing == null
                 || _marketExiting.Count == 0
                 || _marketEntering.Count == 0

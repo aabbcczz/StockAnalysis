@@ -10,6 +10,18 @@ namespace TradingStrategy
 {
     public sealed class EquityManager
     {
+        private struct PositionToBeSold
+        {
+            public int Index;
+            public int Volume;
+
+            public PositionToBeSold(int index, int volume)
+            {
+                Index = index;
+                Volume = volume;
+            }
+        }
+
         private Dictionary<string, List<Position>> _activePositions = new Dictionary<string, List<Position>>();
 
         private List<Position> _closedPositions = new List<Position>();
@@ -80,49 +92,59 @@ namespace TradingStrategy
 
                 Position[] positions = _activePositions[code].ToArray();
 
-                var indiceOfPositionToBeSold = IdentifyPositionToBeSold(positions, transaction);
+                PositionToBeSold[] PositionsToBeSold = IdentifyPositionToBeSold(positions, transaction).ToArray();
 
-                if (indiceOfPositionToBeSold == null || indiceOfPositionToBeSold.Count() == 0)
+                if (PositionsToBeSold == null || PositionsToBeSold.Count() == 0)
                 {
                     return true;
                 }
 
+                // note: the position could be sold partially and we need to consider the situation
+                // everywhere in the code
+
                 double buyCost = 0.0;
                 double buyCommission = 0.0;
 
-                foreach (var index in indiceOfPositionToBeSold)
+                foreach (var ptbs in PositionsToBeSold)
                 {
-                    buyCost += positions[index].BuyPrice * positions[index].Volume;
-                    buyCommission += positions[index].BuyCommission;
+                    buyCost += positions[ptbs.Index].BuyPrice * ptbs.Volume;
+                    buyCommission += positions[ptbs.Index].BuyCommission 
+                        * (double)ptbs.Volume / positions[ptbs.Index].Volume;
                 }
 
-                foreach (var index in indiceOfPositionToBeSold)
+                foreach (var ptbs in PositionsToBeSold)
                 {
-                    positions[index].Close(
+                    // for partial selling, we need to split position firstly.
+                    Position newPosition = null;
+                    if (ptbs.Volume < positions[ptbs.Index].Volume)
+                    {
+                        newPosition = positions[ptbs.Index].Split(ptbs.Volume);
+                    }
+
+                    positions[ptbs.Index].Close(
                         new Transaction()
                         {
                             Action = transaction.Action,
                             Code = transaction.Code,
                             Comments = transaction.Comments,
-                            Commission = transaction.Commission / transaction.Volume * positions[index].Volume,
+                            Commission = transaction.Commission / transaction.Volume * positions[ptbs.Index].Volume,
                             Error = transaction.Error,
                             ExecutionTime = transaction.ExecutionTime,
                             InstructionId = transaction.InstructionId,
                             Price = transaction.Price,
                             SubmissionTime = transaction.SubmissionTime,
                             Succeeded = transaction.Succeeded,
-                            Volume = positions[index].Volume
+                            Volume = positions[ptbs.Index].Volume
                         });
 
                     // move closed position to history
-                    _closedPositions.Add(positions[index]);
+                    _closedPositions.Add(positions[ptbs.Index]);
 
-                    // set to null for cleaning up.
-                    positions[index] = null;
-
+                    // use new position to replace old position.
+                    positions[ptbs.Index] = newPosition;
                 }
 
-                // update equities for given code
+                // update positions for given code
                 var remainingPositions = positions.Where(e => e != null).ToList();
 
                 if (remainingPositions == null || remainingPositions.Count == 0)
@@ -160,7 +182,13 @@ namespace TradingStrategy
             }
         }
 
-        private IEnumerable<int> IdentifyPositionToBeSold(Position[] positions, Transaction transaction)
+        /// <summary>
+        /// Identify all positions that to be sold
+        /// </summary>
+        /// <param name="positions">existing positions to be examined</param>
+        /// <param name="transaction">transaction to be executed</param>
+        /// <returns>Tuples that identify the position and volume to be sold</returns>
+        private IEnumerable<PositionToBeSold> IdentifyPositionToBeSold(Position[] positions, Transaction transaction)
         {
             System.Diagnostics.Debug.Assert(positions != null);
             System.Diagnostics.Debug.Assert(transaction != null);
@@ -176,7 +204,7 @@ namespace TradingStrategy
                         if (positions[i].ID == transaction.PositionIdForSell)
                         {
                             remainingVolume -= positions[i].Volume;
-                            yield return i;
+                            yield return new PositionToBeSold(i, positions[i].Volume);
                             yield break;
                         }
                     }
@@ -188,7 +216,7 @@ namespace TradingStrategy
                         {
                             remainingVolume -= positions[i].Volume;
 
-                            yield return i;
+                            yield return new PositionToBeSold(i, positions[i].Volume);
                         }
                     }
                     break;
@@ -204,11 +232,13 @@ namespace TradingStrategy
                         if (positions[i].Volume <= remainingVolume)
                         {
                             remainingVolume -= positions[i].Volume;
-                            yield return i;
+                            yield return new PositionToBeSold(i, positions[i].Volume);
                         }
                         else
                         {
-                            throw new InvalidOperationException("Can't partially sell a position");
+                            yield return new PositionToBeSold(i, remainingVolume);
+
+                            remainingVolume = 0;
                         }
                     }
 

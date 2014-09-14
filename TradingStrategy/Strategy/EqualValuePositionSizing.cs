@@ -40,13 +40,6 @@ namespace TradingStrategy.Strategy
             double initalCapital = context.GetInitialEquity();
             _capitalOfEachPiece = initalCapital / PartsOfCapital;
         }
-        public override bool ShouldAdjustPosition(out string[] codesForAddingPosition, out PositionIdentifier[] PositionsForRemoving)
-        {
-            codesForAddingPosition = null;
-            PositionsForRemoving = null;
-
-            return false;
-        }
 
         public override int EstimatePositionSize(ITradingObject tradingObject, double price, double stopLossGap)
         {

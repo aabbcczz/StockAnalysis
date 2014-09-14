@@ -11,15 +11,6 @@ namespace TradingStrategy.Strategy
     interface IPositionSizingComponent : ITradingStrategyComponent
     {
         /// <summary>
-        /// Decide if new position should be added or old positions should be removed after knowing all
-        /// information.
-        /// </summary>
-        /// <param name="codesForAddingPosition">[out] codes need to add position</param>
-        /// <param name="PositionsForRemoving">[out] codes that all associated postions should be removed</param>
-        /// <returns>true if any position should be adjusted</returns>
-        bool ShouldAdjustPosition(out string[] codesForAddingPosition, out PositionIdentifier[] PositionsForRemoving);
-
-        /// <summary>
         /// Estimate the size of position for a trading object according to current price
         /// and initial stop loss gap.
         /// </summary>

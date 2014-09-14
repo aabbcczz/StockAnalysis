@@ -42,14 +42,6 @@ namespace TradingStrategy.Strategy
             }
         }
 
-        public override bool ShouldAdjustPosition(out string[] codesForAddingPosition, out PositionIdentifier[] PositionsForRemoving)
-        {
-            codesForAddingPosition = null;
-            PositionsForRemoving = null;
-
-            return false;
-        }
-
         public override int EstimatePositionSize(ITradingObject tradingObject, double price, double stopLossGap)
         {
             double currentEquity = Context.GetCurrentEquity(Period, _equityEvaluationMethod);

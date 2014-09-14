@@ -10,8 +10,6 @@ namespace TradingStrategy.Strategy
         : GeneralTradingStrategyComponentBase
         , IPositionSizingComponent
     {
-        public abstract bool ShouldAdjustPosition(out string[] codesForAddingPosition, out PositionIdentifier[] PositionsForRemoving);
-
         public abstract int EstimatePositionSize(ITradingObject tradingObject, double price, double stopLossGap);
     }
 }

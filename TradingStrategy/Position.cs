@@ -76,6 +76,55 @@ namespace TradingStrategy
             StopLossPrice = UninitializedStopLossPrice;
         }
 
+        /// <summary>
+        /// Split a position into two parts according the volume parameter.
+        /// The existing position will include the volume specified in the parameter,
+        /// and the new position object returned will include remaining volumes
+        /// </summary>
+        /// <param name="volume">expected volume kept in old position</param>
+        /// <returns>new position that include remaining volumes</returns>
+        public Position Split(int volume)
+        {
+            if (volume <= 0 || volume >= this.Volume)
+            {
+                throw new ArgumentOutOfRangeException();
+            }
+
+            if (!IsInitialized)
+            {
+                throw new InvalidOperationException("Can't split uninitialized position");
+            }
+
+            double oldPositionPercentage = (double)volume / this.Volume;
+            double newPositionPercentage = 1.0 - oldPositionPercentage;
+
+            // create new position
+            Position newPosition = new Position()
+            {
+                IsInitialized = this.IsInitialized,
+                Code = this.Code,
+                BuyTime = this.BuyTime,
+                SellTime = this.SellTime,
+                BuyAction = this.BuyAction,
+                SellAction = this.SellAction,
+                Volume = this.Volume - volume,
+                BuyPrice = this.BuyPrice,
+                SellPrice = this.SellPrice,
+                BuyCommission = this.BuyCommission * newPositionPercentage,
+                SellCommission = this.SellCommission * newPositionPercentage,
+                InitialRisk = this.IsStopLossPriceInitialized() ? this.InitialRisk * newPositionPercentage : 0.0,
+                StopLossPrice = this.StopLossPrice,
+            };
+
+            // update this position
+            this.Volume -= volume;
+            this.BuyCommission *= oldPositionPercentage;
+            this.SellCommission *= oldPositionPercentage;
+            this.InitialRisk = this.IsStopLossPriceInitialized() ? this.InitialRisk * oldPositionPercentage : 0.0;
+
+            return newPosition;
+        }
+
         public void Close(Transaction transaction)
         {
             if (transaction == null)
