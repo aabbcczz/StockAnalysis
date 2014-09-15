@@ -225,6 +225,8 @@ namespace TradingStrategy
             DateTime time, 
             bool forCurrentPeriod)
         {
+            Dictionary<int, Transaction> pendingTansactions = new Dictionary<int, Transaction>();
+
             for (int i = 0; i < _pendingInstructions.Count; ++i)
             {
                 var instruction = _pendingInstructions[i];
@@ -278,11 +280,23 @@ namespace TradingStrategy
                     time,
                     tradingData[tradingObjectIndex]);
 
+                pendingTansactions.Add(i, transaction);
+            }
+
+            var orderedTransactions = pendingTansactions.Values
+                .OrderBy(t => t, new Transaction.DefaultComparer());
+
+            // execute the close long transaction firstly
+            foreach (var transaction in orderedTransactions)
+            {
                 // execute transaction
                 ExecuteTransaction(transaction, true);
+            }
 
+            foreach (var index in pendingTansactions.Keys)
+            {
                 // remove instruction that has been executed
-                _pendingInstructions[i] = null;
+                _pendingInstructions[index] = null;
             }
 
             // compact pending instruction list

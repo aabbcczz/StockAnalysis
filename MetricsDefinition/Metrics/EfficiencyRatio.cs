@@ -22,7 +22,7 @@ namespace MetricsDefinition
         {
             double volatilitySum = _volatility.Update(Math.Abs(dataPoint - _previousData));
 
-            double movingSpeed = Data.Length == 0 ? 0.0 : Data[Data.Length - 1] - Data[0];
+            double movingSpeed = Data.Length == 0 ? 0.0 : Data[-1] - Data[0];
 
             Data.Add(dataPoint);
 

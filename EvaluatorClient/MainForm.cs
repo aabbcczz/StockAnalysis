@@ -716,6 +716,8 @@ namespace EvaluatorClient
         private void UpdateEvaluationProgress(object sender, EvaluationProgressEventArgs e)
         {
             evaluationProgressBar.Value = (int)(e.EvaluationPercentage * 100.0);
+            
+            this.Update();
         }
 
         private void strategyComboBox_SelectedIndexChanged(object sender, EventArgs e)

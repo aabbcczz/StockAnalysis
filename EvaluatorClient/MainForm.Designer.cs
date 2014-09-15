@@ -29,15 +29,15 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle19 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle20 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle21 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle22 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle23 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle24 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle25 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle26 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle27 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle5 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle6 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle7 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle8 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle9 = new System.Windows.Forms.DataGridViewCellStyle();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.settingsPage = new System.Windows.Forms.TabPage();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
@@ -702,7 +702,7 @@
             // 
             // iTradingStrategyBindingSource
             // 
-            this.iTradingStrategyBindingSource.DataSource = typeof(TradingStrategy.ITradingStrategy);
+            this.iTradingStrategyBindingSource.DataSource = typeof(TradingStrategy.ITradingStrategyComponent);
             // 
             // initialCapitalTextBox
             // 
@@ -779,81 +779,81 @@
             // 
             // profitTimesResultDataGridViewColumn
             // 
-            dataGridViewCellStyle19.Format = "N0";
-            dataGridViewCellStyle19.NullValue = null;
-            this.profitTimesResultDataGridViewColumn.DefaultCellStyle = dataGridViewCellStyle19;
+            dataGridViewCellStyle1.Format = "N0";
+            dataGridViewCellStyle1.NullValue = null;
+            this.profitTimesResultDataGridViewColumn.DefaultCellStyle = dataGridViewCellStyle1;
             this.profitTimesResultDataGridViewColumn.HeaderText = "盈利次数";
             this.profitTimesResultDataGridViewColumn.Name = "profitTimesResultDataGridViewColumn";
             this.profitTimesResultDataGridViewColumn.ReadOnly = true;
             // 
             // totalTimesResultDataGridViewColumn
             // 
-            dataGridViewCellStyle20.Format = "N0";
-            dataGridViewCellStyle20.NullValue = null;
-            this.totalTimesResultDataGridViewColumn.DefaultCellStyle = dataGridViewCellStyle20;
+            dataGridViewCellStyle2.Format = "N0";
+            dataGridViewCellStyle2.NullValue = null;
+            this.totalTimesResultDataGridViewColumn.DefaultCellStyle = dataGridViewCellStyle2;
             this.totalTimesResultDataGridViewColumn.HeaderText = "总次数";
             this.totalTimesResultDataGridViewColumn.Name = "totalTimesResultDataGridViewColumn";
             this.totalTimesResultDataGridViewColumn.ReadOnly = true;
             // 
             // winRatioResultDataGridViewColumn
             // 
-            dataGridViewCellStyle21.Format = "N2";
-            dataGridViewCellStyle21.NullValue = null;
-            this.winRatioResultDataGridViewColumn.DefaultCellStyle = dataGridViewCellStyle21;
+            dataGridViewCellStyle3.Format = "N2";
+            dataGridViewCellStyle3.NullValue = null;
+            this.winRatioResultDataGridViewColumn.DefaultCellStyle = dataGridViewCellStyle3;
             this.winRatioResultDataGridViewColumn.HeaderText = "胜率%";
             this.winRatioResultDataGridViewColumn.Name = "winRatioResultDataGridViewColumn";
             this.winRatioResultDataGridViewColumn.ReadOnly = true;
             // 
             // commissionResultDataGridViewColumn
             // 
-            dataGridViewCellStyle22.Format = "N2";
-            dataGridViewCellStyle22.NullValue = null;
-            this.commissionResultDataGridViewColumn.DefaultCellStyle = dataGridViewCellStyle22;
+            dataGridViewCellStyle4.Format = "N2";
+            dataGridViewCellStyle4.NullValue = null;
+            this.commissionResultDataGridViewColumn.DefaultCellStyle = dataGridViewCellStyle4;
             this.commissionResultDataGridViewColumn.HeaderText = "手续费";
             this.commissionResultDataGridViewColumn.Name = "commissionResultDataGridViewColumn";
             this.commissionResultDataGridViewColumn.ReadOnly = true;
             // 
             // netProfitResultDataGridViewColumn
             // 
-            dataGridViewCellStyle23.Format = "N2";
-            dataGridViewCellStyle23.NullValue = null;
-            this.netProfitResultDataGridViewColumn.DefaultCellStyle = dataGridViewCellStyle23;
+            dataGridViewCellStyle5.Format = "N2";
+            dataGridViewCellStyle5.NullValue = null;
+            this.netProfitResultDataGridViewColumn.DefaultCellStyle = dataGridViewCellStyle5;
             this.netProfitResultDataGridViewColumn.HeaderText = "净利润";
             this.netProfitResultDataGridViewColumn.Name = "netProfitResultDataGridViewColumn";
             this.netProfitResultDataGridViewColumn.ReadOnly = true;
             // 
             // profitRatioResultDataGridViewColumn
             // 
-            dataGridViewCellStyle24.Format = "N2";
-            dataGridViewCellStyle24.NullValue = null;
-            this.profitRatioResultDataGridViewColumn.DefaultCellStyle = dataGridViewCellStyle24;
+            dataGridViewCellStyle6.Format = "N2";
+            dataGridViewCellStyle6.NullValue = null;
+            this.profitRatioResultDataGridViewColumn.DefaultCellStyle = dataGridViewCellStyle6;
             this.profitRatioResultDataGridViewColumn.HeaderText = "收益率%";
             this.profitRatioResultDataGridViewColumn.Name = "profitRatioResultDataGridViewColumn";
             this.profitRatioResultDataGridViewColumn.ReadOnly = true;
             // 
             // annualProfitRatioResultDataGridViewColumn
             // 
-            dataGridViewCellStyle25.Format = "N2";
-            dataGridViewCellStyle25.NullValue = null;
-            this.annualProfitRatioResultDataGridViewColumn.DefaultCellStyle = dataGridViewCellStyle25;
+            dataGridViewCellStyle7.Format = "N2";
+            dataGridViewCellStyle7.NullValue = null;
+            this.annualProfitRatioResultDataGridViewColumn.DefaultCellStyle = dataGridViewCellStyle7;
             this.annualProfitRatioResultDataGridViewColumn.HeaderText = "年化收益率%";
             this.annualProfitRatioResultDataGridViewColumn.Name = "annualProfitRatioResultDataGridViewColumn";
             this.annualProfitRatioResultDataGridViewColumn.ReadOnly = true;
             // 
             // maxDrawDownResultDataGridViewColumn
             // 
-            dataGridViewCellStyle26.Format = "N2";
-            dataGridViewCellStyle26.NullValue = null;
-            this.maxDrawDownResultDataGridViewColumn.DefaultCellStyle = dataGridViewCellStyle26;
+            dataGridViewCellStyle8.Format = "N2";
+            dataGridViewCellStyle8.NullValue = null;
+            this.maxDrawDownResultDataGridViewColumn.DefaultCellStyle = dataGridViewCellStyle8;
             this.maxDrawDownResultDataGridViewColumn.HeaderText = "最大回撤值";
             this.maxDrawDownResultDataGridViewColumn.Name = "maxDrawDownResultDataGridViewColumn";
             this.maxDrawDownResultDataGridViewColumn.ReadOnly = true;
             // 
             // maxDrawDownRatioResultDataGridViewColumn
             // 
-            dataGridViewCellStyle27.Format = "N2";
-            dataGridViewCellStyle27.NullValue = null;
-            this.maxDrawDownRatioResultDataGridViewColumn.DefaultCellStyle = dataGridViewCellStyle27;
+            dataGridViewCellStyle9.Format = "N2";
+            dataGridViewCellStyle9.NullValue = null;
+            this.maxDrawDownRatioResultDataGridViewColumn.DefaultCellStyle = dataGridViewCellStyle9;
             this.maxDrawDownRatioResultDataGridViewColumn.HeaderText = "最大回撤比%";
             this.maxDrawDownRatioResultDataGridViewColumn.Name = "maxDrawDownRatioResultDataGridViewColumn";
             this.maxDrawDownRatioResultDataGridViewColumn.ReadOnly = true;

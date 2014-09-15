@@ -13,13 +13,13 @@ namespace MetricsDefinition
     /// The Chavkin metric
     /// </summary>
     [Metric("CV")]
-    public sealed class Chavkin : SingleOutputBarInputSerialMetric
+    public sealed class Chaikin : SingleOutputBarInputSerialMetric
     {
         private int _interval;
         private ExponentialMovingAverage _ema;
         private CirculatedArray<double> _mahl;
 
-        public Chavkin(int windowSize, int interval)
+        public Chaikin(int windowSize, int interval)
             : base(1)
         {
             if (interval <= 0 || interval > windowSize)
@@ -48,7 +48,7 @@ namespace MetricsDefinition
             else
             {
 
-                return (_mahl[_mahl.Length - 1] - _mahl[index]) / _mahl[index] * 100.0;
+                return (_mahl[-1] - _mahl[index]) / _mahl[index] * 100.0;
             }
 
         }

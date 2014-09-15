@@ -62,6 +62,9 @@
     <Compile Include="Strategy\AtrDevRuntimeMetric.cs" />
     <Compile Include="Strategy\AtrDevTraceStopLossMarketExiting.cs" />
     <Compile Include="Strategy\AtrDevStopLoss.cs" />
+    <Compile Include="Strategy\DmiFilterMarketEntering.cs" />
+    <Compile Include="Strategy\RsiRuntimeMetric.cs" />
+    <Compile Include="Strategy\DmiRuntimeMetric.cs" />
     <Compile Include="Strategy\IPositionAdjustingComponent.cs" />
     <Compile Include="Strategy\RiskPercentagePositionSizing.cs" />
     <Compile Include="Strategy\VolatilityPercentagePositionSizing.cs" />

@@ -91,7 +91,7 @@ namespace MetricsDefinition
 
             // calculate ADXR
             _adx.Add(adx);
-            double adxr = (_adx[_adx.Length - 1] + _adx[0]) / 2.0;
+            double adxr = (_adx[-1] + _adx[0]) / 2.0;
 
             // update internal status
             _prevBar = bar;

@@ -50,7 +50,7 @@
     <Compile Include="Metrics\TrendPivot.cs" />
     <Compile Include="Metrics\UltimateOscillator.cs" />
     <Compile Include="Metrics\Oscillator.cs" />
-    <Compile Include="Metrics\Chavkin.cs" />
+    <Compile Include="Metrics\Chaikin.cs" />
     <Compile Include="Metrics\DirectionMovementIndex.cs" />
     <Compile Include="Metrics\AccumulationDistribution.cs" />
     <Compile Include="Metrics\AverageTrueRange.cs" />

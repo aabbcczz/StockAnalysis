@@ -55,6 +55,18 @@ namespace TradingStrategy
                     return x.ExecutionTime.CompareTo(y.ExecutionTime);
                 }
 
+                if (x.Action != y.Action)
+                {
+                    if (x.Action == TradingAction.CloseLong)
+                    {
+                        return 1;
+                    }
+                    else if (y.Action == TradingAction.CloseLong)
+                    {
+                        return -1;
+                    }
+                }
+
                 if (x.SubmissionTime != y.SubmissionTime)
                 {
                     return x.SubmissionTime.CompareTo(y.SubmissionTime);

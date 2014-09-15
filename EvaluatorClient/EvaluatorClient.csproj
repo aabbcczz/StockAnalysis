@@ -84,6 +84,7 @@
     </EmbeddedResource>
     <None Include="Properties\DataSources\TradeMetricSlim.datasource" />
     <None Include="Properties\DataSources\TradingStrategy.ITradingStrategy.datasource" />
+    <None Include="Properties\DataSources\TradingStrategy.ITradingStrategyComponent.datasource" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>

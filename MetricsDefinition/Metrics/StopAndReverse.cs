@@ -61,14 +61,14 @@ namespace MetricsDefinition
                 _initialized = true;
                 _accelerateFactor = _initialAccelerateFactor;
 
-                _ascending = Data[Data.Length - 1].ClosePrice > Data[Data.Length - 2].ClosePrice;
+                _ascending = Data[-1].ClosePrice > Data[-2].ClosePrice;
 
                 _sar = _ascending ? _lowestPrice : _highestPrice;
             }
             else
             {
-                if ((_ascending && _sar > Data[Data.Length - 1].LowestPrice)
-                    || (!_ascending && _sar < Data[Data.Length - 1].HighestPrice))
+                if ((_ascending && _sar > Data[-1].LowestPrice)
+                    || (!_ascending && _sar < Data[-1].HighestPrice))
                 {
                     // need to turn the trends
                     _ascending = !_ascending;
