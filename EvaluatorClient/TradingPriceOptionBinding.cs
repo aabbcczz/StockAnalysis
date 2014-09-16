@@ -5,6 +5,8 @@ using System.Text;
 using System.Threading.Tasks;
 
 using TradingStrategy;
+using TradingStrategyEvaluation;
+
 namespace EvaluatorClient
 {
     internal sealed class TradingPriceOptionBinding

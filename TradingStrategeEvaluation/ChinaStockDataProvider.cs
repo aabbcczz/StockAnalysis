@@ -7,8 +7,9 @@ using System.Threading.Tasks;
 
 using StockAnalysis.Share;
 using MetricsDefinition;
+using TradingStrategy;
 
-namespace TradingStrategy
+namespace TradingStrategyEvaluation
 {
     public sealed class ChinaStockDataProvider : ITradingDataProvider
     {

@@ -4,7 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using TradingStrategy;
+using TradingStrategyEvaluation;
+
 namespace EvaluatorClient
 {
     sealed class TradeMetricSlim

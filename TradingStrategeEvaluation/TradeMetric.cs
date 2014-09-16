@@ -4,7 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TradingStrategy
+using TradingStrategy;
+
+namespace TradingStrategyEvaluation
 {
     public sealed class TradeMetric
     {

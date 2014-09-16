@@ -39,16 +39,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ChinaStock.cs" />
-    <Compile Include="ChinaStockDataAccessor.cs" />
-    <Compile Include="ChinaStockDataProvider.cs" />
-    <Compile Include="CommissionSettings.cs" />
     <Compile Include="CompletedTransaction.cs" />
     <Compile Include="EquityEvaluationMethod.cs" />
     <Compile Include="IdGenerator.cs" />
     <Compile Include="Position.cs" />
-    <Compile Include="EquityManager.cs" />
-    <Compile Include="EquityPoint.cs" />
     <Compile Include="EvaluationProgressEventArgs.cs" />
     <Compile Include="ILogger.cs" />
     <Compile Include="Instruction.cs" />
@@ -58,7 +52,6 @@
     <Compile Include="ParameterHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SellingType.cs" />
-    <Compile Include="StandardEvaluationContext.cs" />
     <Compile Include="Strategy\AtrDevRuntimeMetric.cs" />
     <Compile Include="Strategy\AtrDevTraceStopLossMarketExiting.cs" />
     <Compile Include="Strategy\AtrDevStopLoss.cs" />
@@ -106,14 +99,8 @@
     <Compile Include="Strategy\TimeoutMarketExiting.cs" />
     <Compile Include="TradingAction.cs" />
     <Compile Include="ITradingObject.cs" />
-    <Compile Include="MetricCalculator.cs" />
-    <Compile Include="TradeMetric.cs" />
-    <Compile Include="TradingPriceOption.cs" />
-    <Compile Include="TradingSettings.cs" />
-    <Compile Include="TradingStrategyEvaluator.cs" />
     <Compile Include="ParameterAttribute.cs" />
     <Compile Include="Transaction.cs" />
-    <Compile Include="TradingHistory.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\MetricsDefinition\MetricsDefinition.csproj">

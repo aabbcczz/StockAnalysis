@@ -5,7 +5,9 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace TradingStrategy
+using TradingStrategy;
+
+namespace TradingStrategyEvaluation
 {
     internal sealed class StandardEvaluationContext : IEvaluationContext
     {

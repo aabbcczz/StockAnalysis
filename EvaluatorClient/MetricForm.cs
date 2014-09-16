@@ -10,6 +10,7 @@ using System.Windows.Forms;
 
 using TradingStrategy;
 using StockAnalysis.Share;
+using TradingStrategyEvaluation;
 
 namespace EvaluatorClient
 {

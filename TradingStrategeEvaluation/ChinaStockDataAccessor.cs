@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 using StockAnalysis.Share;
 
-namespace TradingStrategy
+namespace TradingStrategyEvaluation
 {
     internal static class ChinaStockDataAccessor
     {

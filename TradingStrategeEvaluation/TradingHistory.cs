@@ -5,7 +5,9 @@ using System.Text;
 using System.Threading.Tasks;
 using System.IO;
 
-namespace TradingStrategy
+using TradingStrategy;
+
+namespace TradingStrategyEvaluation
 {
     public sealed class TradingHistory
     {

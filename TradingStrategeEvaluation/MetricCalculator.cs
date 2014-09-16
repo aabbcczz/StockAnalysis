@@ -5,8 +5,9 @@ using System.Text;
 using System.Threading.Tasks;
 
 using StockAnalysis.Share;
+using TradingStrategy;
 
-namespace TradingStrategy
+namespace TradingStrategyEvaluation
 {
     public sealed class MetricCalculator
     {

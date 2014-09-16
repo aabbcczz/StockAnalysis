@@ -6,7 +6,9 @@ using System.Threading.Tasks;
 
 using StockAnalysis.Share;
 
-namespace TradingStrategy
+using TradingStrategy;
+
+namespace TradingStrategyEvaluation
 {
     public sealed class EquityManager
     {
