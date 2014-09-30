@@ -56,7 +56,7 @@ namespace TradingStrategyEvaluation
 
         }
 
-        public static void SaveToFile(TradingHistory history, string file)
+        public void SaveToFile(string file)
         {
             if (file == null || file == string.Empty)
             {
@@ -65,9 +65,9 @@ namespace TradingStrategyEvaluation
 
             using(StreamWriter writer = new StreamWriter(file, false, Encoding.UTF8))
             {
-                writer.WriteLine("{0:0.00}", history.InitialCapital);
-                writer.WriteLine("InstructionId,SubmissionTime,ExecutionTime,Action,Code,Price,Volume,Commission,Succeeded,Error");
-                foreach (var t in history.History)
+                writer.WriteLine("{0:0.00}", InitialCapital);
+                writer.WriteLine(Transaction.ToStringHeader);
+                foreach (var t in History)
                 {
                     writer.WriteLine(t.ToString());
                 }
@@ -82,7 +82,7 @@ namespace TradingStrategyEvaluation
             return history;
         }
 
-        public TradingHistory LoadFromFile(string file)
+        public static TradingHistory LoadFromFile(string file)
         {
             if (file == null || file == string.Empty)
             {

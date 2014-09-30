@@ -86,6 +86,11 @@ namespace TradingStrategy
             }
         }
 
+        public static string ToStringHeader
+        {
+            get { return "InstructionId,SubmissionTime,ExecutionTime,Action,SellingType,Code,Price,Volume,Commission,Succeeded,Error,Comment"; }
+        }
+
         public override string ToString()
         {
             return string.Format(
@@ -115,21 +120,21 @@ namespace TradingStrategy
 
             }
 
-            int fid = 0;
+            int fieldIndex = 0;
             Transaction transaction = new Transaction()
             {
-                InstructionId = long.Parse(fields[fid++]),
-                SubmissionTime = DateTime.Parse(fields[fid++]),
-                ExecutionTime = DateTime.Parse(fields[fid++]),
-                Action = (TradingAction)int.Parse(fields[fid++]),
-                SellingType = (SellingType)int.Parse(fields[fid++]),
-                Code = fields[fid++],
-                Price = double.Parse(fields[fid++]),
-                Volume = int.Parse(fields[fid++]),
-                Commission = double.Parse(fields[fid++]),
-                Succeeded = bool.Parse(fields[fid++]),
-                Error = fields[fid++].Unescape(),
-                Comments = fields[fid++].Unescape()
+                InstructionId = long.Parse(fields[fieldIndex++]),
+                SubmissionTime = DateTime.Parse(fields[fieldIndex++]),
+                ExecutionTime = DateTime.Parse(fields[fieldIndex++]),
+                Action = (TradingAction)int.Parse(fields[fieldIndex++]),
+                SellingType = (SellingType)int.Parse(fields[fieldIndex++]),
+                Code = fields[fieldIndex++],
+                Price = double.Parse(fields[fieldIndex++]),
+                Volume = int.Parse(fields[fieldIndex++]),
+                Commission = double.Parse(fields[fieldIndex++]),
+                Succeeded = bool.Parse(fields[fieldIndex++]),
+                Error = fields[fieldIndex++].Unescape(),
+                Comments = fields[fieldIndex++].Unescape()
             };
 
             return transaction;

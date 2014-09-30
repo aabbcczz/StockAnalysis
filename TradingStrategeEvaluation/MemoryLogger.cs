@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 using TradingStrategy;
 
-namespace EvaluatorClient
+namespace TradingStrategyEvaluation
 {
-    class MemoryLogger : ILogger
+    public sealed class MemoryLogger : ILogger
     {
         private List<string> _logs = new List<string>();
 

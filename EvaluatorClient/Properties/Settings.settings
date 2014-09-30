@@ -5,14 +5,8 @@
     <Setting Name="tradingSettingsFile" Type="System.String" Scope="Application">
       <Value Profile="(Default)">tradingsettings.xml</Value>
     </Setting>
-    <Setting Name="stockNameFile" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">e:\stock\fullstockname.txt</Value>
-    </Setting>
-    <Setting Name="stockDataFileFolder" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">e:\stock\processedFullDailyData\includeRight</Value>
-    </Setting>
-    <Setting Name="stockDataFileNamePattern" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">%c.day.csv</Value>
+    <Setting Name="stockDataSettingsFile" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">stockdatasettings.xml</Value>
     </Setting>
   </Settings>
 </SettingsFile>

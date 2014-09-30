@@ -8,18 +8,19 @@ using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Xml;
-using System.Xml.Serialization;
 using System.Reflection;
 
 using TradingStrategy;
 using StockAnalysis.Share;
 using TradingStrategyEvaluation;
+using TradingStrategeEvaluation;
 
 namespace EvaluatorClient
 {
     public partial class MainForm : Form
     {
+        ChinaStockDataSettings _stockDataSettings = null;
+
         StockNameTable _stockNameTable = null;
 
         ITradingDataProvider _activeDataProvider = null;
@@ -85,6 +86,10 @@ namespace EvaluatorClient
             // initialize strategy loader
             try
             {
+                // load stock data settings
+                _stockDataSettings = LoadStockDataSettings();
+
+                // load all strategies.
                 LoadStrategies();
 
                 // initialize data source bindings
@@ -165,7 +170,7 @@ namespace EvaluatorClient
         {
             _stockNameTable = null;
 
-            string stockNameFile = Properties.Settings.Default.stockNameFile;
+            string stockNameFile = _stockDataSettings.StockNameTableFile;
 
             try
             {
@@ -206,17 +211,7 @@ namespace EvaluatorClient
             {
                 try
                 {
-                    XmlSerializer serializer = new XmlSerializer(typeof(TradingSettings));
-
-                    using (StreamReader reader = new StreamReader(file))
-                    {
-                        settings = (TradingSettings)serializer.Deserialize(reader);
-                    }
-
-                    if (settings.BuyingCommission.Type != settings.SellingCommission.Type)
-                    {
-                        throw new InvalidDataException("Commission types of buying and selling are different");
-                    }
+                    settings = TradingSettings.LoadFromFile(file);
                 }
                 catch (Exception ex)
                 {
@@ -251,6 +246,24 @@ namespace EvaluatorClient
             }
 
             return settings;
+        }
+
+        private ChinaStockDataSettings LoadStockDataSettings()
+        {
+            string file = Properties.Settings.Default.stockDataSettingsFile;
+            
+            if (!File.Exists(file))
+            {
+                // create a dummy file
+                ChinaStockDataSettings settings = new ChinaStockDataSettings();
+                settings.StockNameTableFile = "sample";
+                settings.StockDataFileDirectory = ".";
+                settings.StockDataFileNamePattern = ChinaStockDataSettings.StockCodePattern + ".csv";
+
+                settings.SaveToFile(file);
+            }
+
+            return ChinaStockDataSettings.LoadFromFile(file);
         }
 
         private void ApplyTradingSettings(TradingSettings settings)
@@ -359,12 +372,7 @@ namespace EvaluatorClient
 
             try
             {
-                XmlSerializer serializer = new XmlSerializer(typeof(TradingSettings));
-
-                using (StreamWriter writer = new StreamWriter(file))
-                {
-                    serializer.Serialize(writer, settings);
-                }
+                settings.SaveToFile(file);
             }
             catch (Exception ex)
             {
@@ -567,16 +575,10 @@ namespace EvaluatorClient
                 return;
             }
 
-            string stockDataFileFolder = Properties.Settings.Default.stockDataFileFolder;
+            string stockDataFileFolder = _stockDataSettings.StockDataFileDirectory;
             if (!Directory.Exists(stockDataFileFolder))
             {
                 ShowError(string.Format("Stock data file folder \"{0}\" does not exist", stockDataFileFolder));
-            }
-
-            string stockDataFileNamePattern = Properties.Settings.Default.stockDataFileNamePattern;
-            if (stockDataFileNamePattern.IndexOf(Constants.StockCodePattern) < 0)
-            {
-                ShowError(string.Format("Stock data file name pattern does not contain {0}", Constants.StockCodePattern));
             }
 
             if (selectedObjectListView.Items.Count == 0)
@@ -606,8 +608,7 @@ namespace EvaluatorClient
                 {
                     string code = item.Text;
 
-                    string fileName = stockDataFileNamePattern.Replace(Constants.StockCodePattern, code);
-                    fileName = Path.Combine(stockDataFileFolder, fileName);
+                    string fileName = _stockDataSettings.BuildActualDataFilePathAndName(code);
 
                     if (File.Exists(fileName))
                     {

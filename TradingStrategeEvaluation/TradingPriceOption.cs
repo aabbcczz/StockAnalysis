@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace TradingStrategyEvaluation
 {
+    [Serializable]
     [Flags]
     public enum TradingPriceOption : int
     {

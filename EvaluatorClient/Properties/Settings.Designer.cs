@@ -34,28 +34,10 @@ namespace EvaluatorClient.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("e:\\stock\\fullstockname.txt")]
-        public string stockNameFile {
+        [global::System.Configuration.DefaultSettingValueAttribute("stockdatasettings.xml")]
+        public string stockDataSettingsFile {
             get {
-                return ((string)(this["stockNameFile"]));
-            }
-        }
-        
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("e:\\stock\\processedFullDailyData\\includeRight")]
-        public string stockDataFileFolder {
-            get {
-                return ((string)(this["stockDataFileFolder"]));
-            }
-        }
-        
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("%c.day.csv")]
-        public string stockDataFileNamePattern {
-            get {
-                return ((string)(this["stockDataFileNamePattern"]));
+                return ((string)(this["stockDataSettingsFile"]));
             }
         }
     }
