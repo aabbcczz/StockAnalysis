@@ -75,8 +75,23 @@ namespace TradingStrategy
 
         public static bool IsValidValue(ParameterAttribute attribute, string value)
         {
+            if (attribute == null)
+            {
+                throw new ArgumentNullException();
+            }
+
+            return IsValidValue(attribute.ParameterType, value);
+        }
+
+        public static bool IsValidValue(Type type, string value)
+        {
+            if (type == null)
+            {
+                throw new ArgumentNullException();
+            }
+
             bool valid = true;
-            if (attribute.ParameterType == typeof(int))
+            if (type == typeof(int))
             {
                 int result;
                 if (!int.TryParse(value, out result))
@@ -84,7 +99,7 @@ namespace TradingStrategy
                     valid = false;
                 }
             }
-            else if (attribute.ParameterType == typeof(double))
+            else if (type == typeof(double))
             {
                 double result;
                 if (!double.TryParse(value, out result))
@@ -92,13 +107,13 @@ namespace TradingStrategy
                     valid = false;
                 }
             }
-            else if (attribute.ParameterType == typeof(string))
+            else if (type == typeof(string))
             {
                 // nothing to do
             }
             else
             {
-                throw new InvalidProgramException();
+                throw new InvalidOperationException();
             }
 
             return valid;
@@ -106,22 +121,37 @@ namespace TradingStrategy
 
         public static object ConvertStringToValue(ParameterAttribute attribute, string value)
         {
+            if (attribute == null)
+            {
+                throw new ArgumentNullException();
+            }
+
+            return ConvertStringToValue(attribute.ParameterType, value);
+        }
+
+        public static object ConvertStringToValue(Type type, string value)
+        {
+            if (type == null)
+            {
+                throw new ArgumentNullException();
+            }
+
             object objValue;
-            if (attribute.ParameterType == typeof(int))
+            if (type == typeof(int))
             {
                 objValue = int.Parse(value);
             }
-            else if (attribute.ParameterType == typeof(double))
+            else if (type == typeof(double))
             {
                 objValue = double.Parse(value);
             }
-            else if (attribute.ParameterType == typeof(string))
+            else if (type == typeof(string))
             {
                 objValue = value;
             }
             else
             {
-                throw new InvalidProgramException();
+                throw new InvalidOperationException();
             }
 
             return objValue;
