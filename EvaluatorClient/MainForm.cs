@@ -13,7 +13,6 @@ using System.Reflection;
 using TradingStrategy;
 using StockAnalysis.Share;
 using TradingStrategyEvaluation;
-using TradingStrategeEvaluation;
 
 namespace EvaluatorClient
 {
@@ -119,6 +118,17 @@ namespace EvaluatorClient
 
         private void LoadStrategies()
         {
+            string componentStrategySettingsFileName = "ComponentStrategySettings.xml";
+
+            if (!File.Exists(componentStrategySettingsFileName))
+            {
+                ComponentStrategySettings settings = ComponentStrategySettings.GenerateExampleSettings();
+                if (settings != null)
+                {
+                    settings.SaveToFile(componentStrategySettingsFileName);
+                }
+            }
+
             StrategyLoader.Initialize();
 
             foreach (var strategy in StrategyLoader.Strategies)

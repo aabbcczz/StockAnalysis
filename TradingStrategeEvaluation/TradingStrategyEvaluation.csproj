@@ -7,8 +7,8 @@
     <ProjectGuid>{1AD439B8-C393-45CD-A68A-EF6153138E03}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>TradingStrategeEvaluation</RootNamespace>
-    <AssemblyName>TradingStrategeEvaluation</AssemblyName>
+    <RootNamespace>TradingStrategyEvaluation</RootNamespace>
+    <AssemblyName>TradingStrategyEvaluation</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -44,17 +44,20 @@
     <Compile Include="ChinaStockDataProvider.cs" />
     <Compile Include="ChinaStockDataSettings.cs" />
     <Compile Include="CommissionSettings.cs" />
+    <Compile Include="ComponentStrategySettings.cs" />
     <Compile Include="EquityManager.cs" />
     <Compile Include="EquityPoint.cs" />
     <Compile Include="FileLogger.cs" />
     <Compile Include="MemoryLogger.cs" />
     <Compile Include="MetricCalculator.cs" />
+    <Compile Include="ParameterSettings.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="StandardEvaluationContext.cs" />
     <Compile Include="TradeMetric.cs" />
     <Compile Include="TradingHistory.cs" />
     <Compile Include="TradingPriceOption.cs" />
     <Compile Include="TradingSettings.cs" />
+    <Compile Include="TradingStrategyComponentSettings.cs" />
     <Compile Include="TradingStrategyEvaluator.cs" />
   </ItemGroup>
   <ItemGroup>

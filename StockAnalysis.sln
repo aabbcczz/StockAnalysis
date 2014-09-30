@@ -29,7 +29,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TradingStrategy", "TradingS
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EvaluatorClient", "EvaluatorClient\EvaluatorClient.csproj", "{47C70E18-0485-4D0E-9074-1D3C78E543CD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TradingStrategeEvaluation", "TradingStrategeEvaluation\TradingStrategeEvaluation.csproj", "{1AD439B8-C393-45CD-A68A-EF6153138E03}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TradingStrategyEvaluation", "TradingStrategeEvaluation\TradingStrategyEvaluation.csproj", "{1AD439B8-C393-45CD-A68A-EF6153138E03}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

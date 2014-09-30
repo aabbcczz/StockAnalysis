@@ -7,7 +7,7 @@ using System.Xml;
 using System.Xml.Serialization;
 using System.IO;
 
-namespace TradingStrategeEvaluation
+namespace TradingStrategyEvaluation
 {
     [Serializable]
     public sealed class ChinaStockDataSettings
