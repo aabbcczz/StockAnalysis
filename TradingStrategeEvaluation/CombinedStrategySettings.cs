@@ -13,24 +13,24 @@ using TradingStrategy;
 namespace TradingStrategyEvaluation
 {
     [Serializable]
-    public sealed class ComponentStrategySettings
+    public sealed class CombinedStrategySettings
     {
         public TradingStrategyComponentSettings[] ComponentSettings { get; set; }
 
-        public static ComponentStrategySettings LoadFromFile(string file)
+        public static CombinedStrategySettings LoadFromFile(string file)
         {
             if (string.IsNullOrEmpty(file))
             {
                 throw new ArgumentNullException();
             }
 
-            ComponentStrategySettings settings;
+            CombinedStrategySettings settings;
 
-            XmlSerializer serializer = new XmlSerializer(typeof(ComponentStrategySettings));
+            XmlSerializer serializer = new XmlSerializer(typeof(CombinedStrategySettings));
 
             using (StreamReader reader = new StreamReader(file))
             {
-                settings = (ComponentStrategySettings)serializer.Deserialize(reader);
+                settings = (CombinedStrategySettings)serializer.Deserialize(reader);
             }
 
             if (settings.ComponentSettings == null
@@ -50,7 +50,7 @@ namespace TradingStrategyEvaluation
                 throw new ArgumentNullException();
             }
 
-            XmlSerializer serializer = new XmlSerializer(typeof(ComponentStrategySettings));
+            XmlSerializer serializer = new XmlSerializer(typeof(CombinedStrategySettings));
 
             using (StreamWriter writer = new StreamWriter(file))
             {
@@ -58,9 +58,9 @@ namespace TradingStrategyEvaluation
             }
         }
 
-        public static ComponentStrategySettings GenerateExampleSettings()
+        public static CombinedStrategySettings GenerateExampleSettings()
         {
-            ComponentStrategySettings settings = new ComponentStrategySettings();
+            CombinedStrategySettings settings = new CombinedStrategySettings();
 
             var allComponents = AppDomain.CurrentDomain.GetAssemblies()
                 .SelectMany(a => a.GetTypes()

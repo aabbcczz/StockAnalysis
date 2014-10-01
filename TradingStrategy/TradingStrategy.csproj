@@ -74,7 +74,7 @@
     <Compile Include="Strategy\MetricBasedTraceStopLossMarketExitingBase.cs" />
     <Compile Include="Strategy\AtrTraceStopLossMarketExiting.cs" />
     <Compile Include="Strategy\AtrStopLoss.cs" />
-    <Compile Include="Strategy\CompositionStrategy.cs" />
+    <Compile Include="Strategy\CombinedStrategy.cs" />
     <Compile Include="Strategy\IPositionSizingComponent.cs" />
     <Compile Include="Strategy\IMarketEnteringComponent.cs" />
     <Compile Include="ITradingStrategyComponent.cs" />

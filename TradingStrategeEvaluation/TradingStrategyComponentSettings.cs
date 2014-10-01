@@ -4,12 +4,16 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TradingStrategy;
+using System.Xml;
+using System.Xml.Serialization;
 
 namespace TradingStrategyEvaluation
 {
     [Serializable]
     public sealed class TradingStrategyComponentSettings
     {
+        [XmlAttribute]
+        public bool Enabled { get; set; }
         public string ClassType { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
@@ -26,7 +30,8 @@ namespace TradingStrategyEvaluation
 
             TradingStrategyComponentSettings settings = new TradingStrategyComponentSettings();
 
-            settings.ClassType = component.GetType().FullName;
+            settings.Enabled = false;
+            settings.ClassType = component.GetType().AssemblyQualifiedName;
             settings.Name = component.Name;
             settings.Description = component.Description;
 

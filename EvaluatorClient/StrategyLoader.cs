@@ -41,9 +41,16 @@ namespace EvaluatorClient
             _strategies = new List<ITradingStrategy>(strategyTypes.Count);
             foreach (Type type in strategyTypes)
             {
-                ITradingStrategy strategy = (ITradingStrategy)Activator.CreateInstance(type);
+                try
+                {
+                    ITradingStrategy strategy = (ITradingStrategy)Activator.CreateInstance(type);
 
-                _strategies.Add(strategy);
+                    _strategies.Add(strategy);
+                }
+                catch (Exception)
+                {
+                    // ignore exception.
+                }
             }
 
             Initialized = true;

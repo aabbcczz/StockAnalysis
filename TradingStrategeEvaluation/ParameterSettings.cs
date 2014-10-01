@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Reflection;
+using System.Xml;
+using System.Xml.Serialization;
 
 using TradingStrategy;
 
@@ -33,7 +35,12 @@ namespace TradingStrategyEvaluation
         public string Values { get; set; }
 
         public IEnumerable<object> GetParsedValues()
-        { 
+        {
+            if (_parsedValues == null)
+            {
+                ParseValues();
+            }
+
             return _parsedValues; 
         } 
 
@@ -48,14 +55,14 @@ namespace TradingStrategyEvaluation
 
             settings.Name = attribute.Name;
             settings.Description = attribute.Description;
-            settings.ValueType = attribute.ParameterType.FullName;
+            settings.ValueType = attribute.ParameterType.AssemblyQualifiedName;
             settings.DefaultValue = attribute.DefaultValue;
             settings.Values = "1;2 or 1.0/10.0/1.0 or abcd(;)efgh";
 
             return settings;
         }
 
-        public void ParseValues()
+        private void ParseValues()
         {
             if (_parsedValues != null)
             {

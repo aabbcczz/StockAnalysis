@@ -44,7 +44,8 @@
     <Compile Include="ChinaStockDataProvider.cs" />
     <Compile Include="ChinaStockDataSettings.cs" />
     <Compile Include="CommissionSettings.cs" />
-    <Compile Include="ComponentStrategySettings.cs" />
+    <Compile Include="CombinedStrategyAssembler.cs" />
+    <Compile Include="CombinedStrategySettings.cs" />
     <Compile Include="EquityManager.cs" />
     <Compile Include="EquityPoint.cs" />
     <Compile Include="FileLogger.cs" />

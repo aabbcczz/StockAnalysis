@@ -118,11 +118,11 @@ namespace EvaluatorClient
 
         private void LoadStrategies()
         {
-            string componentStrategySettingsFileName = "ComponentStrategySettings.xml";
+            string componentStrategySettingsFileName = "CombinedStrategySettings.xml";
 
             if (!File.Exists(componentStrategySettingsFileName))
             {
-                ComponentStrategySettings settings = ComponentStrategySettings.GenerateExampleSettings();
+                CombinedStrategySettings settings = CombinedStrategySettings.GenerateExampleSettings();
                 if (settings != null)
                 {
                     settings.SaveToFile(componentStrategySettingsFileName);
@@ -349,8 +349,16 @@ namespace EvaluatorClient
 
                 settings.Spread = int.Parse(spreadTextBox.Text);
 
-                settings.OpenLongPriceOption = (TradingPriceOption)openLongOptionComboBox.SelectedValue;
-                settings.CloseLongPriceOption = (TradingPriceOption)closeLongOptionComboBox.SelectedValue;
+
+                settings.OpenLongPriceOption 
+                    =  openLongOptionComboBox.SelectedValue == null 
+                    ? TradingPriceOption.NextOpenPrice 
+                    : (TradingPriceOption)openLongOptionComboBox.SelectedValue;
+
+                settings.CloseLongPriceOption 
+                    = closeLongOptionComboBox.SelectedValue == null
+                    ? TradingPriceOption.NextOpenPrice
+                    : (TradingPriceOption)closeLongOptionComboBox.SelectedValue;
 
             }
             catch (Exception ex)

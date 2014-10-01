@@ -9,7 +9,7 @@ using TradingStrategy;
 
 namespace TradingStrategy.Strategy
 {
-    public sealed class CompositionStrategy : ITradingStrategy
+    public sealed class CombinedStrategy : ITradingStrategy
     {
         private ITradingStrategyComponent[] _components = null;
         private IPositionSizingComponent _positionSizing = null;
@@ -310,7 +310,7 @@ namespace TradingStrategy.Strategy
             }
         }
 
-        public CompositionStrategy(IEnumerable<ITradingStrategyComponent> components)
+        public CombinedStrategy(IEnumerable<ITradingStrategyComponent> components)
         {
             if (components == null || components.Count() == 0)
             {
