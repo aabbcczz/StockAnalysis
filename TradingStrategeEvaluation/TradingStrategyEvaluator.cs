@@ -29,6 +29,11 @@ namespace TradingStrategyEvaluation
             get { return _tradingHistory; }
         }
 
+        public IEnumerable<Position> ClosedPosition
+        {
+            get { return _equityManager.ClosedPositions; }
+        }
+
         public EventHandler<EvaluationProgressEventArgs> OnEvaluationProgress = null;
 
         public TradingStrategyEvaluator(

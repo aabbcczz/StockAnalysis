@@ -46,6 +46,7 @@ namespace ProcessDailyStockData
             if (string.IsNullOrEmpty(options.OutputFileFolder))
             {
                 Console.WriteLine("output file folder is empty");
+                return -2;
             }
 
             string folder = Path.GetFullPath(options.OutputFileFolder);

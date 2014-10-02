@@ -31,6 +31,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EvaluatorClient", "Evaluato
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TradingStrategyEvaluation", "TradingStrategeEvaluation\TradingStrategyEvaluation.csproj", "{1AD439B8-C393-45CD-A68A-EF6153138E03}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EvaluatorCmdClient", "EvaluatorCmdClient\EvaluatorCmdClient.csproj", "{1598105B-1F0F-47BD-8B67-7DEC9D777E54}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -93,6 +95,10 @@ Global
 		{1AD439B8-C393-45CD-A68A-EF6153138E03}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1AD439B8-C393-45CD-A68A-EF6153138E03}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1AD439B8-C393-45CD-A68A-EF6153138E03}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1598105B-1F0F-47BD-8B67-7DEC9D777E54}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1598105B-1F0F-47BD-8B67-7DEC9D777E54}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1598105B-1F0F-47BD-8B67-7DEC9D777E54}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1598105B-1F0F-47BD-8B67-7DEC9D777E54}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

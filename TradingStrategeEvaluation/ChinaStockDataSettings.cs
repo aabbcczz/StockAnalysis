@@ -72,5 +72,16 @@ namespace TradingStrategyEvaluation
                 StockDataFileDirectory,
                 StockDataFileNamePattern.Replace(StockCodePattern, code));
         }
+
+        public static ChinaStockDataSettings GenerateExampleSettings()
+        {
+            ChinaStockDataSettings settings = new ChinaStockDataSettings();
+
+            settings.StockDataFileDirectory = @"d:\stock\";
+            settings.StockDataFileNamePattern = @"%c.day.csv";
+            settings.StockNameTableFile = @"stocknames.txt";
+
+            return settings;
+        }
     }
 }

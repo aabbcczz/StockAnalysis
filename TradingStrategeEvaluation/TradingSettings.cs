@@ -64,5 +64,25 @@ namespace TradingStrategyEvaluation
                 serializer.Serialize(writer, this);
             }
         }
+
+        public static TradingSettings GenerateExampleSettings()
+        {
+            TradingSettings settings = new TradingSettings();
+
+            settings.BuyingCommission = new CommissionSettings();
+            settings.BuyingCommission.Type = CommissionSettings.CommissionType.ByAmount;
+            settings.BuyingCommission.Tariff = 0.0005;
+
+            settings.SellingCommission = new CommissionSettings();
+            settings.SellingCommission.Type = CommissionSettings.CommissionType.ByAmount;
+            settings.SellingCommission.Tariff = 0.0005;
+
+            settings.Spread = 0;
+
+            settings.OpenLongPriceOption = TradingPriceOption.NextOpenPrice;
+            settings.CloseLongPriceOption = TradingPriceOption.NextOpenPrice;
+
+            return settings;
+        }
     }
 }

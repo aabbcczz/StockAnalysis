@@ -94,7 +94,7 @@ namespace TradingStrategy
         public override string ToString()
         {
             return string.Format(
-                "{0},{1:yyyy-MM-dd HH:mm:ss},{2:yyyy-MM-dd HH:mm:ss}, {3}, {4}, {5}, {6:0.00}, {7:0.00}, {8:0.00}, {9:0.00}, {10},{11}",
+                "{0},{1:u},{2:u}, {3}, {4}, {5}, {6:0.00}, {7:0.00}, {8:0.00}, {9:0.00}, {10},{11}",
                 InstructionId,
                 SubmissionTime,
                 ExecutionTime,
@@ -114,7 +114,7 @@ namespace TradingStrategy
             string[] fields = s.Split(new char[] { ',' });
             if (fields.Length != 12)
             {
-                // there should be 11 fields
+                // there should be 12 fields
                 throw new FormatException(
                     string.Format("Data format error: there is no enough fields in \"{0}\"", s));
 
