@@ -86,12 +86,8 @@ namespace TradingStrategy
             }
         }
 
-        public static string ToStringHeader
-        {
-            get { return "InstructionId,SubmissionTime,ExecutionTime,Action,SellingType,Code,Price,Volume,Commission,Succeeded,Error,Comment"; }
-        }
 
-        public override string ToString()
+        public string Print()
         {
             return string.Format(
                 "{0},{1:u},{2:u}, {3}, {4}, {5}, {6:0.00}, {7:0.00}, {8:0.00}, {9:0.00}, {10},{11}",
@@ -107,37 +103,6 @@ namespace TradingStrategy
                 Succeeded,
                 Error.Escape(),
                 Comments.Escape());
-        }
-
-        public static Transaction Parse(string s)
-        {
-            string[] fields = s.Split(new char[] { ',' });
-            if (fields.Length != 12)
-            {
-                // there should be 12 fields
-                throw new FormatException(
-                    string.Format("Data format error: there is no enough fields in \"{0}\"", s));
-
-            }
-
-            int fieldIndex = 0;
-            Transaction transaction = new Transaction()
-            {
-                InstructionId = long.Parse(fields[fieldIndex++]),
-                SubmissionTime = DateTime.Parse(fields[fieldIndex++]),
-                ExecutionTime = DateTime.Parse(fields[fieldIndex++]),
-                Action = (TradingAction)int.Parse(fields[fieldIndex++]),
-                SellingType = (SellingType)int.Parse(fields[fieldIndex++]),
-                Code = fields[fieldIndex++],
-                Price = double.Parse(fields[fieldIndex++]),
-                Volume = int.Parse(fields[fieldIndex++]),
-                Commission = double.Parse(fields[fieldIndex++]),
-                Succeeded = bool.Parse(fields[fieldIndex++]),
-                Error = fields[fieldIndex++].Unescape(),
-                Comments = fields[fieldIndex++].Unescape()
-            };
-
-            return transaction;
         }
     }
 }

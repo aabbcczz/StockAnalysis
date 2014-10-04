@@ -41,15 +41,6 @@ namespace TradingStrategyEvaluation
         }
 
         public bool ExecuteTransaction(
-            Transaction transaction,
-            bool allowNegativeCapital,
-            out string error)
-        {
-            CompletedTransaction completed;
-            return ExecuteTransaction(transaction, allowNegativeCapital, out completed, out error);
-        }
-
-        public bool ExecuteTransaction(
             Transaction transaction, 
             bool allowNegativeCapital,
             out CompletedTransaction completedTransaction, 

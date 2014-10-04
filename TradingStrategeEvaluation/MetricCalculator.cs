@@ -11,7 +11,9 @@ namespace TradingStrategyEvaluation
 {
     public sealed class MetricCalculator
     {
-        private Transaction[] _orderedHistory = null;
+        private Transaction[] _orderedTransactionHistory = null;
+        private CompletedTransaction[] _orderedCompletedTransactionHistory = null;
+
         private double _initialCapital = 0.0;
 
         private DateTime _startDate;
@@ -23,10 +25,10 @@ namespace TradingStrategyEvaluation
 
         public MetricCalculator(
             StockNameTable nameTable,
-            TradingHistory history, 
+            TradingTracker tracker, 
             ITradingDataProvider provider)
         {
-            if (history == null)
+            if (tracker == null)
             {
                 throw new ArgumentNullException("history");
             }
@@ -45,12 +47,12 @@ namespace TradingStrategyEvaluation
                 endDate.AddDays(1);
             }
 
-            if (history.MinTransactionTime < startDate)
+            if (tracker.MinTransactionTime < startDate)
             {
                 throw new ArgumentOutOfRangeException("the minimum transaction time in trading history is smaller than the start date of provider's data");
             }
 
-            if (history.MaxTransactionTime > endDate)
+            if (tracker.MaxTransactionTime > endDate)
             {
                 throw new ArgumentOutOfRangeException("the maximum transaction time in trading history is larger than the end date of provider's data");
             }
@@ -61,10 +63,15 @@ namespace TradingStrategyEvaluation
             _startDate = startDate;
             _endDate = endDate;
 
-            _initialCapital = history.InitialCapital;
-            _orderedHistory = history.History
+            _initialCapital = tracker.InitialCapital;
+            _orderedTransactionHistory = tracker.TransactionHistory
                 .OrderBy(t => t, new Transaction.DefaultComparer())
                 .ToArray();
+
+            _orderedCompletedTransactionHistory = tracker.CompletedTransactionHistory
+                .OrderBy(ct => ct, new CompletedTransaction.DefaultComparer())
+                .ToArray();
+
             _periods = _dataProvider.GetAllPeriods().ToArray();
         }
 
@@ -82,7 +89,7 @@ namespace TradingStrategyEvaluation
                 metrics.Add(metric);
             }
 
-            var codes = _orderedHistory
+            var codes = _orderedTransactionHistory
                 .Select(t => t.Code)
                 .GroupBy(c => c)
                 .Select(g => g.Key);
@@ -179,10 +186,20 @@ namespace TradingStrategyEvaluation
 
         private TradeMetric GetTradeMetric(string code, string name, double startPrice, double endPrice)
         {
+            CompletedTransaction[] completedTransactions =
+                code == TradeMetric.CodeForAll
+                ? _orderedCompletedTransactionHistory
+                : _orderedCompletedTransactionHistory.Where(ct => ct.Code == code).ToArray();
+
+            if (completedTransactions.Length == 0)
+            {
+                return null;
+            }
+
             Transaction[] transactions = 
                 code == TradeMetric.CodeForAll 
-                ? _orderedHistory
-                : _orderedHistory.Where(t => t.Code == code).ToArray();
+                ? _orderedTransactionHistory
+                : _orderedTransactionHistory.Where(t => t.Code == code).ToArray();
 
             double usedCapital = EstimateUsedCapital(transactions);
 
@@ -191,24 +208,29 @@ namespace TradingStrategyEvaluation
             int transactionIndex = 0;
             double currentEquity = usedCapital; 
 
-            List<CompletedTransaction> completedTransactions = new List<CompletedTransaction>(transactions.Length / 2 + 1);
             List<EquityPoint> equityPoints = new List<EquityPoint>(_periods.Length);
 
             for (int i = 0; i < _periods.Length; ++i)
             {
                 DateTime period = _periods[i];
 
-                CompletedTransaction completedTransaction = null;
-
                 while (transactionIndex < transactions.Length)
                 {
                     Transaction transaction = transactions[transactionIndex];
 
+                    CompletedTransaction completedTransaction = null;
                     string error;
+
                     if (transaction.ExecutionTime <= period)
                     {
                         if (transaction.Succeeded)
                         {
+                            // save transaction selling type
+                            SellingType sellingType = transaction.SellingType;
+
+                            // always use ByVolume selling type to simulate transactions.
+                            transaction.SellingType = SellingType.ByVolume;
+
                             if (!manager.ExecuteTransaction(
                                     transaction,
                                     code != TradeMetric.CodeForAll,
@@ -217,14 +239,12 @@ namespace TradingStrategyEvaluation
                             {
                                 throw new InvalidOperationException("Replay transaction failed: " + error);
                             }
+
+                            // recover the transaction selling type
+                            transaction.SellingType = sellingType;
                         }
 
                         ++transactionIndex;
-                        
-                        if (completedTransaction != null)
-                        {
-                            completedTransactions.Add(completedTransaction);
-                        }
                     }
                     else
                     {
@@ -241,12 +261,10 @@ namespace TradingStrategyEvaluation
                 equityPoints.Add(new EquityPoint() { Equity = currentEquity, Time = period });
             }
 
-            if (completedTransactions.Count == 0)
-            {
-                return null;
-            }
 
-            return new TradeMetric(
+            var metric = new TradeMetric();
+
+            metric.Initialize(
                 code,
                 name,
                 _startDate,
@@ -254,8 +272,10 @@ namespace TradingStrategyEvaluation
                 startPrice,
                 endPrice,
                 equityPoints.OrderBy(t => t.Time).ToArray(),
-                completedTransactions.OrderBy(ct => ct, new CompletedTransaction.DefaultComparer()).ToArray(),
+                completedTransactions,
                 transactions);
+
+            return metric;
         }
     }
 }

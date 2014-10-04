@@ -26,6 +26,11 @@ namespace EvaluatorCmdClient
 
                 Run(options);
             }
+
+#if DEBUG
+            Console.WriteLine("Press any key to exit...");
+            Console.ReadKey();
+#endif
         }
 
         static void ErrorExit(string message, int exitCode = -1)
@@ -116,45 +121,100 @@ namespace EvaluatorCmdClient
 
             using (var contextManager = new EvaluationResultContextManager(options.EvaluationName))
             {
+                // save evluation summary
+                var evaluationSummary = new EvaluationSummary()
+                {
+                    StrategySettings = combinedStrategySettings.GetActiveSettings(),
+                    TradingSettings = tradingSettings,
+                    DataSettings = stockDataSettings,
+                    StartTime = options.StartDate,
+                    EndTime = options.EndDate,
+                    ObjectNames = codes
+                        .Select(c => stockNameTable.ContainsStock(c) 
+                            ? c + '|' + stockNameTable[c].Names[0] 
+                            : c)
+                        .ToArray()
+                };
+
+                contextManager.SaveEvaluationSummary(evaluationSummary);
+
                 // evaluate each set of parameter values
+                bool isResultSummaryInitialized = false;
                 IDictionary<ParameterAttribute, object> parameterValues;
                 while ((parameterValues = combinedStrategyAssembler.GetNextSetOfParameterValues()) != null)
                 {
+                    // initialize ResultSummary if necessary;
+                    if (!isResultSummaryInitialized)
+                    {
+                        ResultSummary.Initialize(parameterValues);
+                        isResultSummaryInitialized = true;
+                    }
+
                     CombinedStrategy strategy = combinedStrategyAssembler.NewStrategy();
 
-                    EvaluationResultContext context = contextManager.CreateNewContext("s");
+                    using (EvaluationResultContext context = contextManager.CreateNewContext())
+                    {
+                        TradingStrategyEvaluator evaluator
+                            = new TradingStrategyEvaluator(
+                                options.InitialCapital,
+                                strategy,
+                                parameterValues,
+                                dataProvider,
+                                tradingSettings,
+                                context.Logger);
 
-                    TradingStrategyEvaluator evaluator
-                        = new TradingStrategyEvaluator(
-                            options.InitialCapital,
-                            strategy,
-                            parameterValues,
-                            dataProvider,
-                            tradingSettings,
-                            context.Logger);
+                        EventHandler<EvaluationProgressEventArgs> evaluationProgressHandler =
+                            (object obj, EvaluationProgressEventArgs e) =>
+                            {
+                                Console.Write("\r{0:yyyy-MM-dd} {1}%", e.EvaluationPeriod, (int)(e.EvaluationPercentage * 100.0));
+                            };
 
-                    EventHandler<EvaluationProgressEventArgs> evaluationProgressHandler =
-                        (object obj, EvaluationProgressEventArgs e) =>
+                        evaluator.OnEvaluationProgress += evaluationProgressHandler;
+
+                        evaluator.Evaluate();
+
+                        if (evaluator.Tracker.TransactionHistory.Count() == 0)
                         {
-                            Console.Write("\r{0:yyyy-MM-dd} {1}", e.EvaluationPeriod, e.EvaluationPercentage);
-                        };
+                            // no transaction
+                            continue;
+                        }
 
-                    evaluator.OnEvaluationProgress += evaluationProgressHandler;
+                        MetricCalculator calculator
+                            = new MetricCalculator(
+                                stockNameTable,
+                                evaluator.Tracker,
+                                dataProvider);
 
-                    evaluator.Evaluate();
+                        var metrics = calculator.Calculate();
 
-                    MetricCalculator calculator
-                        = new MetricCalculator(
-                            stockNameTable,
-                            evaluator.History,
-                            dataProvider);
+                        // get the overall metric
+                        TradeMetric overallMetric = metrics
+                            .Where(m => m.Code == TradeMetric.CodeForAll)
+                            .First();
 
-                    var metrics = calculator.Calculate();
-                    
+                        // save results
+                        context.SaveResults(parameterValues, metrics, evaluator.ClosedPositions);
+
+
+                        // create result summary;
+                        ResultSummary resultSummary = new ResultSummary();
+                        resultSummary.Initialize(context, parameterValues, overallMetric);
+
+                        contextManager.AddResultSummary(resultSummary);
+                    }
+
                     Console.WriteLine();
+
+                    // for fun.
+                    GC.Collect();
+                    GC.Collect();
                 }
+
+                // save result summary
+                contextManager.SaveResultSummaries();
             }
 
+            Console.WriteLine();
             Console.WriteLine("Done.");
         }
     }

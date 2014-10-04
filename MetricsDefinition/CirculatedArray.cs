@@ -21,7 +21,7 @@ namespace MetricsDefinition
         {
             get 
             { 
-                if (index <= -_length || index >= _length)
+                if (index < -_length || index >= _length)
                 {
                     throw new IndexOutOfRangeException();
                 }

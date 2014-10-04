@@ -694,7 +694,7 @@ namespace EvaluatorClient
                 MetricCalculator calculator 
                     = new MetricCalculator(
                         _stockNameTable,
-                        evaluator.History,
+                        evaluator.Tracker,
                         provider);
 
                 var metrics = calculator.Calculate().Select(tm => new TradeMetricSlim(tm));

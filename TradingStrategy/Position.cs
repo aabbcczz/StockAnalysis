@@ -10,35 +10,35 @@ namespace TradingStrategy
     {
         public const double UninitializedStopLossPrice = double.MinValue;
 
-        public long ID { get; private set; }
+        public long ID { get; set; }
 
-        public bool IsInitialized { get; private set; }
+        public bool IsInitialized { get; set; }
 
-        public string Code { get; private set; }
+        public string Code { get; set; }
 
-        public DateTime BuyTime { get; private set; }
+        public DateTime BuyTime { get; set; }
 
-        public DateTime SellTime { get; private set; }
+        public DateTime SellTime { get; set; }
 
-        public TradingAction BuyAction { get; private set; }
+        public TradingAction BuyAction { get; set; }
 
-        public TradingAction SellAction { get; private set; }
+        public TradingAction SellAction { get; set; }
 
-        public int Volume { get; private set; }
+        public int Volume { get; set; }
 
-        public double BuyPrice { get; private set; }
+        public double BuyPrice { get; set; }
 
-        public double SellPrice { get; private set; }
+        public double SellPrice { get; set; }
 
-        public double BuyCommission { get; private set; }
+        public double BuyCommission { get; set; }
 
-        public double SellCommission { get; private set; }
+        public double SellCommission { get; set; }
 
         // 初始风险，即 R
-        public double InitialRisk { get; private set; }
+        public double InitialRisk { get; set; }
 
         // 止损价格
-        public double StopLossPrice { get; private set; }
+        public double StopLossPrice { get; set; }
 
         public Position()
         {
@@ -169,7 +169,7 @@ namespace TradingStrategy
 
         public bool IsStopLossPriceInitialized()
         {
-            return StopLossPrice == UninitializedStopLossPrice;
+            return StopLossPrice != UninitializedStopLossPrice;
         }
 
         public void SetStopLossPrice(double stopLossPrice)
@@ -194,67 +194,6 @@ namespace TradingStrategy
 
                 StopLossPrice = stopLossPrice;
             }
-        }
-
-        public static string ToStringHeader
-        {
-            get
-            {
-                return "ID,IsInitialized,Code,BuyTime,SellTime,BuyAction,SellAction,Volume,BuyPrice,SellPrice,BuyCommission,SellComission,InitialRisk,StopLossPrice";
-            }
-        }
-
-        public override string ToString()
-        {
-            return string.Format(
-                "{0},{1},{2},{3:u},{4:u},{5},{6},{7},{8:0.000},{9:0.000},{10:0.000},{11:0.000},{12:0.000},{13:0.000}",
-                ID,
-                IsInitialized,
-                Code,
-                BuyTime,
-                SellTime,
-                (int)BuyAction,
-                (int)SellAction,
-                Volume,
-                BuyPrice,
-                SellPrice,
-                BuyCommission,
-                SellCommission,
-                InitialRisk,
-                StopLossPrice);
-        }
-
-        public static Position Parse(string line)
-        {
-            string[] fields = line.Split(new char[] { ',' });
-            if (fields.Length != 14)
-            {
-                // there should be 14 fields
-                throw new FormatException(
-                    string.Format("Data format error: there is no enough fields in \"{0}\"", line));
-
-            }
-
-            int fieldIndex = 0;
-            Position position = new Position()
-            {
-                ID = long.Parse(fields[fieldIndex++]),
-                IsInitialized = bool.Parse(fields[fieldIndex++]),
-                Code = fields[fieldIndex++],
-                BuyTime = DateTime.Parse(fields[fieldIndex++]),
-                SellTime = DateTime.Parse(fields[fieldIndex++]),
-                BuyAction = (TradingAction)int.Parse(fields[fieldIndex++]),
-                SellAction = (TradingAction)int.Parse(fields[fieldIndex++]),
-                Volume = int.Parse(fields[fieldIndex++]),
-                BuyPrice = double.Parse(fields[fieldIndex++]),
-                SellPrice = double.Parse(fields[fieldIndex++]),
-                BuyCommission = double.Parse(fields[fieldIndex++]),
-                SellCommission = double.Parse(fields[fieldIndex++]),
-                InitialRisk = double.Parse(fields[fieldIndex++]),
-                StopLossPrice = double.Parse(fields[fieldIndex++]),
-            };
-
-            return position;
         }
     }
 }

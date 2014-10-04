@@ -4,20 +4,26 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.IO;
+using System.Xml;
+using System.Xml.Serialization;
+
+using CsvHelper;
 
 namespace EvaluatorCmdClient
 {
     sealed class EvaluationResultContextManager : IDisposable
     {
-        private const string DefaultEvaluationName = "EvaluationResult";
-        private const string ResultSummaryFileName = "Summary.txt";
+        private const string DefaultEvaluationName = "Evaluation";
+        private const string ResultSummaryFileName = "ResultSummary.csv";
+        private const string EvaluationSummaryFileName = "EvaluationSummary.xml";
 
-        private TextWriter _resultSummaryWriter;
         private string _evaluationName;
         private string _rootDirectory;
+        private List<ResultSummary> _resultSummaries = new List<ResultSummary>();
 
         private int _contextId = 0;
-        private List<EvaluationResultContext> _contexts = new List<EvaluationResultContext>();
+
+        private bool _disposed = false;
 
         public EvaluationResultContextManager(string evaluationName)
         {
@@ -26,50 +32,75 @@ namespace EvaluatorCmdClient
                 evaluationName = DefaultEvaluationName;
             }
 
-            _evaluationName = evaluationName + "_" + DateTime.Now.ToString("yyyyMMddTHH:mm:ss");
+            _evaluationName = evaluationName + "_" + DateTime.Now.ToString("yyyyMMddTHHmmss");
 
-            _rootDirectory = Path.GetFullPath(evaluationName);
+            _rootDirectory = Path.GetFullPath(_evaluationName);
             if (!Directory.Exists(_rootDirectory))
             {
                 Directory.CreateDirectory(_rootDirectory);
             }
+        }
 
-            string resultSummaryFile = Path.Combine(_rootDirectory, ResultSummaryFileName);
-            _resultSummaryWriter = new StreamWriter(resultSummaryFile, false, Encoding.UTF8);
+        public void SaveEvaluationSummary(EvaluationSummary summary)
+        {
+            string summaryFile = Path.Combine(_rootDirectory, EvaluationSummaryFileName);
+
+            using (StreamWriter writer = new StreamWriter(summaryFile, false, Encoding.UTF8))
+            {
+                XmlSerializer serializer = new XmlSerializer(summary.GetType());
+                serializer.Serialize(writer, summary);
+            }
         }
     
-        public EvaluationResultContext CreateNewContext(string contextAnnotation)
+        public void AddResultSummary(ResultSummary summary)
+        {
+            if (summary == null)
+            {
+                throw new ArgumentNullException();
+            }
+
+            _resultSummaries.Add(summary);
+        }
+
+        public void SaveResultSummaries()
+        {
+            string resultSummaryFile = Path.Combine(_rootDirectory, ResultSummaryFileName);
+            
+            using (StreamWriter writer = new StreamWriter(resultSummaryFile, false, Encoding.UTF8))
+            {
+                using (CsvWriter csvWriter = new CsvWriter(writer))
+                {
+                    csvWriter.Configuration.RegisterClassMap<ResultSummary.ResultSummaryMap>();
+                    csvWriter.WriteRecords(_resultSummaries);
+                }
+            }
+        }
+
+        public EvaluationResultContext CreateNewContext()
         {
             ++_contextId;
  
             string contextRootDirectory = Path.Combine(_rootDirectory, _contextId.ToString());
-            var context = new EvaluationResultContext(contextRootDirectory, contextAnnotation);
+            if (!Directory.Exists(contextRootDirectory))
+            {
+                Directory.CreateDirectory(contextRootDirectory);
+            }
 
-            _contexts.Add(context);
-
-            _resultSummaryWriter.WriteLine("{0},{1},{2}", _contextId, contextRootDirectory, contextAnnotation);
+            var context = new EvaluationResultContext(_contextId, contextRootDirectory);
 
             return context;
         }
 
         public void Dispose()
         {
-            if (_resultSummaryWriter != null)
+            if (_disposed)
             {
-                _resultSummaryWriter.Flush();
-                _resultSummaryWriter.Dispose();
-
-                _resultSummaryWriter = null;
+                throw new ObjectDisposedException(typeof(EvaluationResultContextManager).FullName);
             }
-
-            foreach (var context in _contexts)
-            {
-                context.Dispose();
-            }
-
-            _contexts.Clear();
 
             GC.SuppressFinalize(this);
+
+            _disposed = true;
         }
     }
 }

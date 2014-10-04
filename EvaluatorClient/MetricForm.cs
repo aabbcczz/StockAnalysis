@@ -138,8 +138,8 @@ namespace EvaluatorClient
                     lines.Add(string.Format("总交易量： {0}", metric.TotalVolume));
                     lines.Add(string.Format("盈利交易量： {0}", metric.ProfitVolume));
                     lines.Add(string.Format("亏损交易量： {0}", metric.LossVolume));
-                    lines.Add(string.Format("平均每股盈利： {0:0.00}", metric.AverageProfit));
-                    lines.Add(string.Format("平均每股亏损： {0:0.00}", metric.AverageLoss));
+                    lines.Add(string.Format("平均每股盈利： {0:0.00}", metric.AverageProfitPerVolume));
+                    lines.Add(string.Format("平均每股亏损： {0:0.00}", metric.AverageLossPerVolume));
                     lines.Add(string.Format("最大回撤： {0:0.00}", metric.MaxDrawDown));
                     lines.Add(string.Format("最大回撤比率： {0:0.00}%", metric.MaxDrawDownRatio * 100.0));
                     lines.Add(string.Format("最大回撤起始时间： {0:yyyy-MM-dd}", metric.MaxDrawDownStartTime));

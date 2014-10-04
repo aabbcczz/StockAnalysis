@@ -158,7 +158,7 @@ namespace TradingStrategyEvaluation
             }
         }
 
-        private IEnumerable<ITradingStrategyComponent> CreateComponents()
+        private ITradingStrategyComponent[] CreateComponents()
         {
             foreach (var settings in _componentSettings)
             {
@@ -171,7 +171,8 @@ namespace TradingStrategyEvaluation
 
             var components = _componentSettings
                 .Select(s => Type.GetType(s.ClassType))
-                .Select(t => (ITradingStrategyComponent)Activator.CreateInstance(t));
+                .Select(t => (ITradingStrategyComponent)Activator.CreateInstance(t))
+                .ToArray();
 
             return components;
         }

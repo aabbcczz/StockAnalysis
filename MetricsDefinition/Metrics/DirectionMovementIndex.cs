@@ -86,12 +86,13 @@ namespace MetricsDefinition
 
             // calculate DX and ADX
             double dx = (pdim + ndim) == 0.0 ? 0.0 : Math.Abs(pdim - ndim) / (pdim + ndim);
+            dx *= 100.0;
 
             double adx = _maDx.Update(dx);
 
             // calculate ADXR
             _adx.Add(adx);
-            double adxr = (_adx[-1] + _adx[0]) / 2.0;
+            double adxr = _adx.Length < 2 ? _adx[0] : (_adx[-1] + _adx[0]) / 2.0;
 
             // update internal status
             _prevBar = bar;

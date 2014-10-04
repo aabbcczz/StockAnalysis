@@ -17,19 +17,19 @@ namespace TradingStrategyEvaluation
         private EquityManager _equityManager;
         private StandardEvaluationContext _context;
         private TradingSettings _settings;
-        private TradingHistory _tradingHistory = null;
+        private TradingTracker _tradingTracker = null;
         private ITradingObject[] _allTradingObjects = null;
         private Dictionary<string, int> _tradingObjectIndexByCode = new Dictionary<string,int>();
         private List<Instruction> _pendingInstructions = new List<Instruction>();
 
         private bool _evaluatable = true;
 
-        public TradingHistory History
+        public TradingTracker Tracker
         {
-            get { return _tradingHistory; }
+            get { return _tradingTracker; }
         }
 
-        public IEnumerable<Position> ClosedPosition
+        public IEnumerable<Position> ClosedPositions
         {
             get { return _equityManager.ClosedPositions; }
         }
@@ -58,7 +58,7 @@ namespace TradingStrategyEvaluation
 
             _equityManager = new EquityManager(initalCapital);
             _context = new StandardEvaluationContext(_provider, _equityManager, logger);
-            _tradingHistory = new TradingHistory(initalCapital);
+            _tradingTracker = new TradingTracker(initalCapital);
         }
 
         public void Evaluate()
@@ -313,9 +313,11 @@ namespace TradingStrategyEvaluation
         {
             string error;
 
+            CompletedTransaction completedTransaction = null;
             bool succeeded = _equityManager.ExecuteTransaction(
                 transaction,
                 false,
+                out completedTransaction,
                 out error);
 
             transaction.Succeeded = succeeded;
@@ -328,10 +330,14 @@ namespace TradingStrategyEvaluation
             }
 
             // add to history
-            _tradingHistory.AddTransaction(transaction);
+            _tradingTracker.AddTransaction(transaction);
+            if (completedTransaction != null)
+            {
+                _tradingTracker.AddCompletedTransaction(completedTransaction);
+            }
 
             // log transaction
-            _context.Log(transaction.ToString());
+            _context.Log(transaction.Print());
 
             return succeeded;
         }

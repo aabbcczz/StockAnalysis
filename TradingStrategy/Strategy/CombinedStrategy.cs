@@ -240,7 +240,7 @@ namespace TradingStrategy.Strategy
 
                 var positions = _context.GetPositionDetails(code);
 
-                // set stop loss and initial risk for all new postions
+                // set stop loss and initial risk for all new positions
                 foreach (var position in positions)
                 {
                     if (!position.IsStopLossPriceInitialized())

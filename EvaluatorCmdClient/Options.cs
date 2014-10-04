@@ -72,7 +72,7 @@ namespace EvaluatorCmdClient
             VerboseLevel = Math.Max(0, VerboseLevel);
             VerboseLevel = Math.Min(2, VerboseLevel);
 
-            if (StartDate < EndDate)
+            if (StartDate > EndDate)
             {
                 DateTime temp = EndDate;
                 EndDate = StartDate;

@@ -8,8 +8,8 @@ namespace TradingStrategyEvaluation
 {
     public struct EquityPoint
     {
-        public DateTime Time;
-        public double Equity;
+        public DateTime Time { get; set;}
+        public double Equity { get; set; }
 
         public class DefaultComparer : IComparer<EquityPoint>
         {

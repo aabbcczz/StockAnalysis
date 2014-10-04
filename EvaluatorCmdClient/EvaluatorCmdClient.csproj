@@ -49,12 +49,15 @@
   <ItemGroup>
     <Compile Include="EvaluationResultContext.cs" />
     <Compile Include="EvaluationResultContextManager.cs" />
+    <Compile Include="EvaluationSummary.cs" />
     <Compile Include="Options.cs" />
     <Compile Include="Program.cs">
       <SubType>
       </SubType>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ResultSummary.cs" />
+    <Compile Include="SerializableParameterValues.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

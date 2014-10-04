@@ -58,6 +58,14 @@ namespace TradingStrategyEvaluation
             }
         }
 
+        public CombinedStrategySettings GetActiveSettings()
+        {
+            CombinedStrategySettings settings = new CombinedStrategySettings();
+            settings.ComponentSettings = ComponentSettings.Where(s => s.Enabled).ToArray();
+
+            return settings;
+        }
+
         public static CombinedStrategySettings GenerateExampleSettings()
         {
             CombinedStrategySettings settings = new CombinedStrategySettings();
