@@ -17,8 +17,9 @@ namespace TradingStrategy.Strategy
         /// </summary>
         /// <param name="tradingObject">trading object</param>
         /// <param name="assumedPrice">assumed price</param>
+        /// <param name="comments">comments on how the gap is estimated</param>
         /// <returns>estimated stop loss gap, must be smaller than zero. 
         /// actual price + stop loss gap = stop loss price</returns>
-        double EstimateStopLossGap(ITradingObject tradingObject, double assumedPrice);
+        double EstimateStopLossGap(ITradingObject tradingObject, double assumedPrice, out string comments);
     }
 }

@@ -41,9 +41,16 @@ namespace TradingStrategy.Strategy
             }
         }
 
-        protected override double CalculateStopLossPrice(ITradingObject tradingObject, double currentPrice)
+        protected override double CalculateStopLossPrice(ITradingObject tradingObject, double currentPrice, out string comments)
         {
             AtrRuntimeMetric metric = MetricManager.GetOrCreateRuntimeMetric(tradingObject);
+
+            comments = string.Format(
+                "stoploss = price({2:0.000}) - ATR({0:0.000}) * AtrStopLossFactor({1:0.000})",
+                metric.Atr,
+                AtrStopLossFactor,
+                currentPrice);
+
             return currentPrice - metric.Atr * AtrStopLossFactor;
         }
     }

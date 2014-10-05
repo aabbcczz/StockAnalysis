@@ -113,7 +113,7 @@ namespace TradingStrategy.Strategy
                             new Instruction()
                             {
                                 Action = TradingAction.CloseLong,
-                                Comments = "market exiting condition triggered. " + comments,
+                                Comments = "Exiting market: " + comments,
                                 SubmissionTime = _period,
                                 TradingObject = tradingObject,
                                 SellingType = SellingType.ByVolume,
@@ -156,7 +156,6 @@ namespace TradingStrategy.Strategy
             if (positions.Count() == 0) 
             {
                 List<string> allComments = new List<string>(_marketEntering.Count + 1);
-                allComments.Add("Entering market. ");
 
                 bool canEnter = true;
                 foreach (var component in _marketEntering)
@@ -174,7 +173,7 @@ namespace TradingStrategy.Strategy
 
                 if (canEnter)
                 {
-                    CreateIntructionForBuying(tradingObject, bar.ClosePrice, string.Join(";", allComments));
+                    CreateIntructionForBuying(tradingObject, bar.ClosePrice, "Entering market: " + string.Join(";", allComments));
                 }
             }
         }
@@ -194,13 +193,18 @@ namespace TradingStrategy.Strategy
 
         private void CreateIntructionForBuying(ITradingObject tradingObject, double price, string comments)
         {
-            double stopLossGap = _stopLoss.EstimateStopLossGap(tradingObject, price);
+            string stopLossComments;
+            double stopLossGap = _stopLoss.EstimateStopLossGap(tradingObject, price, out stopLossComments);
             if (stopLossGap >= 0.0)
             {
                 throw new InvalidProgramException("the stop loss gap returned by the stop loss component is greater than zero");
             }
 
-            int volume = _positionSizing.EstimatePositionSize(tradingObject, price, stopLossGap);
+            string positionSizeComments;
+            int volume = _positionSizing.EstimatePositionSize(tradingObject, price, stopLossGap, out positionSizeComments);
+
+            // add global contraint that no any stock can exceeds 10% of total capital
+            volume = Math.Min(volume, (int)(_context.GetInitialEquity() / 10.0 / price));
 
             // adjust volume to ensure it fit the trading object's contraint
             volume -= volume % tradingObject.VolumePerBuyingUnit;
@@ -211,7 +215,7 @@ namespace TradingStrategy.Strategy
                     new Instruction()
                     {
                         Action = TradingAction.OpenLong,
-                        Comments = comments,
+                        Comments = string.Join(" ", comments, stopLossComments, positionSizeComments),
                         SubmissionTime = _period,
                         TradingObject = tradingObject,
                         Volume = volume
@@ -245,11 +249,20 @@ namespace TradingStrategy.Strategy
                 {
                     if (!position.IsStopLossPriceInitialized())
                     {
-                        double stopLossGap = _stopLoss.EstimateStopLossGap(instruction.TradingObject, position.BuyPrice);
+                        string comments;
+
+                        double stopLossGap = _stopLoss.EstimateStopLossGap(instruction.TradingObject, position.BuyPrice, out comments);
 
                         double stopLossPrice = Math.Max(0.0, position.BuyPrice + stopLossGap);
 
                         position.SetStopLossPrice(stopLossPrice);
+
+                        _context.Log(
+                            string.Format(
+                                "Set stop loss for position {0}/{1} as {2:0.000}",
+                                position.ID,
+                                position.Code,
+                                stopLossPrice));
                     }
                 }
             }

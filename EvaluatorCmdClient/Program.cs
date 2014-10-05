@@ -143,12 +143,18 @@ namespace EvaluatorCmdClient
                 IDictionary<ParameterAttribute, object> parameterValues;
                 while ((parameterValues = combinedStrategyAssembler.GetNextSetOfParameterValues()) != null)
                 {
+                    OutputParameterValues(parameterValues);
+
                     // initialize ResultSummary if necessary;
                     if (!isResultSummaryInitialized)
                     {
                         ResultSummary.Initialize(parameterValues);
                         isResultSummaryInitialized = true;
                     }
+
+                    // reset data provider to ensure it can provide data properly for each set of 
+                    // parameter values.
+                    dataProvider.Reset();
 
                     CombinedStrategy strategy = combinedStrategyAssembler.NewStrategy();
 
@@ -171,7 +177,17 @@ namespace EvaluatorCmdClient
 
                         evaluator.OnEvaluationProgress += evaluationProgressHandler;
 
-                        evaluator.Evaluate();
+                        try
+                        {
+                            evaluator.Evaluate();
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine();
+                            Console.WriteLine("{0}", ex);
+
+                            continue;
+                        }
 
                         if (evaluator.Tracker.TransactionHistory.Count() == 0)
                         {
@@ -216,6 +232,17 @@ namespace EvaluatorCmdClient
 
             Console.WriteLine();
             Console.WriteLine("Done.");
+        }
+
+        private static void OutputParameterValues(IDictionary<ParameterAttribute, object> values)
+        {
+            SerializableParameterValues spv = new SerializableParameterValues();
+            spv.Initialize(values);
+
+            foreach (var nvp in spv.Parameters)
+            {
+                Console.WriteLine("{0} : {1}", nvp.Name, nvp.Value);
+            }
         }
     }
 }

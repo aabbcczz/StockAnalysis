@@ -39,6 +39,11 @@ namespace TradingStrategyEvaluation
             return _stocks;
         }
 
+        public void Reset()
+        {
+            _currentPeriodIndex = -1;
+        }
+
         public IEnumerable<Bar> GetWarmUpData(string code)
         {
             int stockIndex = _stockIndices[code];

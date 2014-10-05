@@ -10,6 +10,6 @@ namespace TradingStrategy.Strategy
         : GeneralTradingStrategyComponentBase
         , IStopLossComponent
     {
-        public abstract double EstimateStopLossGap(ITradingObject tradingObject, double assumedPrice);
+        public abstract double EstimateStopLossGap(ITradingObject tradingObject, double assumedPrice, out string comments);
     }
 }

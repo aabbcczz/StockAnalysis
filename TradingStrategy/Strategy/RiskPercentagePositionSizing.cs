@@ -11,7 +11,7 @@ namespace TradingStrategy.Strategy
         private EquityEvaluationMethod _equityEvaluationMethod;
 
         [Parameter(1.0, "每份头寸的风险占权益的百分比")]
-        public double PecentageOfEquityForEachRisk { get; set; }
+        public double PercentageOfEquityForEachRisk { get; set; }
 
         [Parameter(0, "权益计算方法。0：核心权益法，1：总权益法，2：抵减总权益法")]
         public int EquityEvaluationMethod { get; set; }
@@ -30,7 +30,7 @@ namespace TradingStrategy.Strategy
         {
             base.ValidateParameterValues();
 
-            if (PecentageOfEquityForEachRisk <= 0.0 || PecentageOfEquityForEachRisk > 100.0)
+            if (PercentageOfEquityForEachRisk <= 0.0 || PercentageOfEquityForEachRisk > 100.0)
             {
                 throw new ArgumentOutOfRangeException("PecentageOfEquityForPositionRisk is not in (0.0, 100.0]");
             }
@@ -42,11 +42,17 @@ namespace TradingStrategy.Strategy
             }
         }
 
-        public override int EstimatePositionSize(ITradingObject tradingObject, double price, double stopLossGap)
+        public override int EstimatePositionSize(ITradingObject tradingObject, double price, double stopLossGap, out string comments)
         {
             double currentEquity = Context.GetCurrentEquity(Period, _equityEvaluationMethod);
 
-            return (int)(currentEquity * PecentageOfEquityForEachRisk / 100.0 / Math.Abs(stopLossGap));
+            comments = string.Format(
+                "positionsize = CurrentEquity({0:0.000}) * PercentageOfEquityForEachRisk({1:0.000}) / 100.0 / Risk({2:0.000})",
+                currentEquity,
+                PercentageOfEquityForEachRisk,
+                Math.Abs(stopLossGap));
+
+            return (int)(currentEquity * PercentageOfEquityForEachRisk / 100.0 / Math.Abs(stopLossGap));
         }
     }
 }

@@ -44,9 +44,15 @@ namespace TradingStrategy.Strategy
             }
         }
 
-        public override double EstimateStopLossGap(ITradingObject tradingObject, double assumedPrice)
+        public override double EstimateStopLossGap(ITradingObject tradingObject, double assumedPrice, out string comments)
         {
             AtrRuntimeMetric metric = MetricManager.GetOrCreateRuntimeMetric(tradingObject);
+
+            comments = string.Format(
+                "stoplossgap = ATR({0:0.000}) * AtrStopLossFactor({1:0.000})",
+                metric.Atr,
+                AtrStopLossFactor);
+
             return -metric.Atr * AtrStopLossFactor;
         }
     }

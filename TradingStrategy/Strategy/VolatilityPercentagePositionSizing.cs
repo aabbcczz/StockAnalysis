@@ -15,7 +15,7 @@ namespace TradingStrategy.Strategy
         public int VolatilityWindowSize { get; set; }
 
         [Parameter(1.0, "每份头寸的波动率占权益的百分比")]
-        public double PecentageOfEquityForEachPositionVolatility { get; set; }
+        public double PercentageOfEquityForEachPositionVolatility { get; set; }
 
         [Parameter(0, "权益计算方法。0：核心权益法，1：总权益法，2：抵减总权益法")]
         public int EquityEvaluationMethod { get; set; }
@@ -34,7 +34,7 @@ namespace TradingStrategy.Strategy
         {
             base.ValidateParameterValues();
 
-            if (PecentageOfEquityForEachPositionVolatility <= 0.0 || PecentageOfEquityForEachPositionVolatility > 100.0)
+            if (PercentageOfEquityForEachPositionVolatility <= 0.0 || PercentageOfEquityForEachPositionVolatility > 100.0)
             {
                 throw new ArgumentOutOfRangeException("PecentageOfEquityForPositionRisk is not in (0.0, 100.0]");
             }
@@ -56,7 +56,7 @@ namespace TradingStrategy.Strategy
             get { return (() => { return new AtrRuntimeMetric(VolatilityWindowSize); }); }
         }
 
-        public override int EstimatePositionSize(ITradingObject tradingObject, double price, double stopLossGap)
+        public override int EstimatePositionSize(ITradingObject tradingObject, double price, double stopLossGap, out string comments)
         {
             var metric = MetricManager.GetOrCreateRuntimeMetric(tradingObject);
 
@@ -64,7 +64,13 @@ namespace TradingStrategy.Strategy
 
             double currentEquity = Context.GetCurrentEquity(Period, _equityEvaluationMethod);
 
-            return (int)(currentEquity * PecentageOfEquityForEachPositionVolatility / 100.0 / volatility);
+            comments = string.Format(
+                "positionsize = CurrentEquity({0:0.000}) * PercentageOfEquityForEachPositionVolatility({1:0.000}) / 100.0 / Volatility({2:0.000})",
+                currentEquity,
+                PercentageOfEquityForEachPositionVolatility,
+                volatility);
+
+            return (int)(currentEquity * PercentageOfEquityForEachPositionVolatility / 100.0 / volatility);
         }
     }
 }

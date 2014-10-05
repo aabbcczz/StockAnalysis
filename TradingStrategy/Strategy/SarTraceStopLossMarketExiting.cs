@@ -38,10 +38,17 @@ namespace TradingStrategy.Strategy
             }
         }
 
-        protected override double CalculateStopLossPrice(ITradingObject tradingObject, double currentPrice)
+        protected override double CalculateStopLossPrice(ITradingObject tradingObject, double currentPrice, out string comments)
         {
             SarRuntimeMetric metric = MetricManager.GetOrCreateRuntimeMetric(tradingObject);
-            return Math.Min(currentPrice * MaxPercentageOfPrice / 100, metric.Sar);
+
+            comments = string.Format(
+                "stoploss = Min(Price({0:0.000}) * MaxPercentageOfPrice({1:0.000}) / 100.0, SAR({2:0.000}))",
+                currentPrice,
+                MaxPercentageOfPrice,
+                metric.Sar);
+
+            return Math.Min(currentPrice * MaxPercentageOfPrice / 100.0, metric.Sar);
         }
     }
 }

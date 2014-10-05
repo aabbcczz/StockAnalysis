@@ -41,9 +41,15 @@ namespace TradingStrategy.Strategy
             _capitalOfEachPiece = initalCapital / PartsOfCapital;
         }
 
-        public override int EstimatePositionSize(ITradingObject tradingObject, double price, double stopLossGap)
+        public override int EstimatePositionSize(ITradingObject tradingObject, double price, double stopLossGap, out string comments)
         {
             double currentEquity = Context.GetCurrentEquity(Period, EquityEvaluationMethod.CoreEquity);
+
+            comments = string.Format(
+                "positionsize = Min(currentEquity{{0:0.000}), capitalOfEachPiece({1:0.000})) / price({2:0.000})",
+                currentEquity,
+                _capitalOfEachPiece,
+                price);
 
             return (int)(Math.Min(currentEquity, _capitalOfEachPiece) / price);
         }

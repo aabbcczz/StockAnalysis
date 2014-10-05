@@ -33,7 +33,7 @@ namespace TradingStrategy.Strategy
         {
             base.ValidateParameterValues();
 
-            if (HoldingPeriods <= 0)
+            if (HoldingPeriods < 0)
             {
                 throw new ArgumentOutOfRangeException("HoldingPeriods must be great than 0");
             }
@@ -41,6 +41,11 @@ namespace TradingStrategy.Strategy
 
         public override void Evaluate(ITradingObject tradingObject, StockAnalysis.Share.Bar bar)
         {
+            if (HoldingPeriods == 0)
+            {
+                return;
+            }
+
             string code = tradingObject.Code;
 
             // remove all codes for non-existing positions
@@ -101,6 +106,11 @@ namespace TradingStrategy.Strategy
         public override bool ShouldExit(ITradingObject tradingObject, out string comments)
         {
             comments = string.Empty;
+
+            if (HoldingPeriods == 0)
+            {
+                return false;
+            }
 
             if (_codesShouldExit.Contains(tradingObject.Code))
             {

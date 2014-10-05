@@ -11,6 +11,6 @@ namespace TradingStrategy.Strategy
         , IPositionSizingComponent
         where T : IRuntimeMetric
     {
-        public abstract int EstimatePositionSize(ITradingObject tradingObject, double price, double stopLossGap);
+        public abstract int EstimatePositionSize(ITradingObject tradingObject, double price, double stopLossGap, out string comments);
     }
 }

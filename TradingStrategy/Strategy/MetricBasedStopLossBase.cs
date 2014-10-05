@@ -11,6 +11,6 @@ namespace TradingStrategy.Strategy
         , IStopLossComponent
         where T : IRuntimeMetric
     {
-        public abstract double EstimateStopLossGap(ITradingObject tradingObject, double assumedPrice);
+        public abstract double EstimateStopLossGap(ITradingObject tradingObject, double assumedPrice, out string comments);
     }
 }
