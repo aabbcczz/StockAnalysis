@@ -58,6 +58,7 @@ namespace StockAnalysis.Share
 
             List<Bar> data = new List<Bar>(inputData.RowCount);
 
+            DateTime lastInvalidBarTime = DateTime.MinValue;
             foreach (var row in inputData.Rows)
             {
                 DateTime date = DateTime.Parse(row[1]);
@@ -76,17 +77,31 @@ namespace StockAnalysis.Share
                 dailyData.Volume = double.Parse(row[6]);
                 dailyData.Amount = double.Parse(row[7]);
 
-                if (dailyData.Volume != 0.0 
-                    && dailyData.OpenPrice > 0.0
+                if (dailyData.OpenPrice > 0.0
                     && dailyData.ClosePrice > 0.0
                     && dailyData.HighestPrice > 0.0
                     && dailyData.LowestPrice > 0.0)
                 {
-                    data.Add(dailyData);
+                    if (dailyData.Volume != 0.0)
+                    {
+                        data.Add(dailyData);
+                    }
+                }
+                else
+                {
+                    if (dailyData.Time > lastInvalidBarTime)
+                    {
+                        lastInvalidBarTime = dailyData.Time;
+                    }
                 }
             }
 
-            return new StockHistoryData(name, interval, data.OrderBy(b => b.Time));
+            // remove all data that before last invalidate bar. 
+            var filterData = data
+                .Where(b => b.Time > lastInvalidBarTime)
+                .OrderBy(b => b.Time);
+
+            return new StockHistoryData(name, interval, filterData);
         }
     }
 }

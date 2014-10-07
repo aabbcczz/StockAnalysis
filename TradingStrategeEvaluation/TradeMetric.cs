@@ -199,7 +199,7 @@ namespace TradingStrategyEvaluation
             ProfitRatio = NetProfit / InitialEquity;
 
             double reciprocal_years = 365.0 / TotalTradingDays;
-            AnnualProfitRatio = Math.Sign(ProfitRatio) * (Math.Pow(Math.Abs(1.0 + ProfitRatio), reciprocal_years) - 1.0);
+            AnnualProfitRatio = Math.Pow(1.0 + ProfitRatio, reciprocal_years) - 1.0;
 
             // update trading times related metrics
             TotalTradingTimes = OrderedCompletedTransactionSequence.Count();
