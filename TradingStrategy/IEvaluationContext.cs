@@ -18,6 +18,8 @@ namespace TradingStrategy
 
         IEnumerable<Position> GetPositionDetails(string code);
 
+        IEnumerable<ITradingObject> GetAllTradingObjects();
+
         void Log(string log);
     }
 }

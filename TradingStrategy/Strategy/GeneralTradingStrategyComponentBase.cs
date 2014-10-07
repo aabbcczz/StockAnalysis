@@ -51,7 +51,7 @@ namespace TradingStrategy.Strategy
             Period = time;
         }
 
-        public virtual void Evaluate(ITradingObject tradingObject, StockAnalysis.Share.Bar bar)
+        public virtual void EvaluateSingleObject(ITradingObject tradingObject, StockAnalysis.Share.Bar bar)
         {
             // do nothing
         }

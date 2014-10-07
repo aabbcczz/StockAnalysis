@@ -72,7 +72,7 @@ namespace TradingStrategyEvaluation
             _strategy.Initialize(_context, _strategyParameterValues);
 
             // Get all trading objects
-            _allTradingObjects = _provider.GetAllTradingObjects().ToArray();
+            _allTradingObjects = _provider.GetAllTradingObjects();
             for (int i = 0; i < _allTradingObjects.Length; ++i)
             {
                 _tradingObjectIndexByCode.Add(_allTradingObjects[i].Code, i);
@@ -98,13 +98,13 @@ namespace TradingStrategyEvaluation
             }
 
             // evaluating
-            Bar[] thisPeriodData = null;
-            DateTime thisPeriodTime;
             DateTime lastPeriodTime = DateTime.MinValue;
-            int finishedPeriodCount = 0;
-
-            while ((thisPeriodData = _provider.GetNextPeriodData(out thisPeriodTime)) != null)
+            DateTime[] periods = _provider.GetAllPeriodsOrdered();
+            for (int periodIndex = 0; periodIndex < periods.Length; ++periodIndex)
             {
+                DateTime thisPeriodTime = periods[periodIndex];
+                Bar[] thisPeriodData = _provider.GetDataOfPeriod(thisPeriodTime);
+
                 if (thisPeriodData.Length != _allTradingObjects.Length)
                 {
                     throw new InvalidOperationException("the number of data returned does not match the number of trading object");
@@ -116,28 +116,23 @@ namespace TradingStrategyEvaluation
                 // run pending instructions left over from previous period
                 RunPendingInstructions(thisPeriodData, thisPeriodTime, false);
 
-                Action<int> evaluationAction =
-                    (int i) =>
-                    {
-                        Bar bar = thisPeriodData[i];
-                        ITradingObject tradingObject = _allTradingObjects[i];
-
-                        if (!bar.Invalid())
-                        {
-                            if (bar.Time != thisPeriodTime)
-                            {
-                                throw new InvalidOperationException("Time in bar data is different with the time returned by data provider");
-                            }
-
-                            _strategy.Evaluate(tradingObject, bar);
-                        }
-                    };
-
-                // evaluate bar data
+                // check data
                 for (int i = 0; i < thisPeriodData.Length; ++i)
                 {
-                    evaluationAction(i);
+                    Bar bar = thisPeriodData[i];
+
+                    if (!bar.Invalid())
+                    {
+                        if (bar.Time != thisPeriodTime)
+                        {
+                            throw new InvalidOperationException("Time in bar data is different with the time returned by data provider");
+                        }
+                    }
                 }
+
+                // evaluate bar data
+                _strategy.Evaluate(_allTradingObjects, thisPeriodData);
+
 
                 // get instructions and add them to pending instruction list
                 var instructions = _strategy.RetrieveInstructions();
@@ -157,14 +152,13 @@ namespace TradingStrategyEvaluation
                 lastPeriodTime = thisPeriodTime;
 
                 // update progress event
-                ++finishedPeriodCount;
                 if (OnEvaluationProgress != null)
                 {
                     OnEvaluationProgress(
                         this, 
                         new EvaluationProgressEventArgs(
                             thisPeriodTime, 
-                            (double)finishedPeriodCount / _provider.PeriodCount));
+                            (double)(periodIndex + 1) / periods.Length));
                 }
             }
 
@@ -316,7 +310,7 @@ namespace TradingStrategyEvaluation
             CompletedTransaction completedTransaction = null;
             bool succeeded = _equityManager.ExecuteTransaction(
                 transaction,
-                false,
+                true,
                 out completedTransaction,
                 out error);
 

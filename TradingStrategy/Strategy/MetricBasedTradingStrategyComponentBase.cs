@@ -33,7 +33,7 @@ namespace TradingStrategy.Strategy
             MetricManager.Update(tradingObject, bar);
         }
 
-        public override void Evaluate(ITradingObject tradingObject, StockAnalysis.Share.Bar bar)
+        public override void EvaluateSingleObject(ITradingObject tradingObject, StockAnalysis.Share.Bar bar)
         {
             MetricManager.Update(tradingObject, bar);
         }

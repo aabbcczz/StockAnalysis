@@ -19,51 +19,45 @@ namespace TradingStrategyEvaluation
 
         private Bar[][] _allWarmupData = null;
 
-        private DateTime[] _allPeriods = null;
+        private DateTime[] _allPeriodsOrdered = null;
 
         private Dictionary<DateTime, int> _periodIndices = new Dictionary<DateTime,int>();
 
         private Bar[][] _allTradingData = null;
 
-        private int _currentPeriodIndex = -1;
+        public int PeriodCount { get { return _allPeriodsOrdered.Length; } }
 
-        public int PeriodCount { get { return _allPeriods.Length; } }
-
-        public IOrderedEnumerable<DateTime> GetAllPeriods()
+        public DateTime[] GetAllPeriodsOrdered()
         {
-            return _allPeriods.OrderBy(dt => dt);
+            return _allPeriodsOrdered;
         }
 
-        public IEnumerable<ITradingObject> GetAllTradingObjects()
+        public ITradingObject[] GetAllTradingObjects()
         {
             return _stocks;
         }
 
-        public void Reset()
-        {
-            _currentPeriodIndex = -1;
-        }
-
-        public IEnumerable<Bar> GetWarmUpData(string code)
+        public Bar[] GetWarmUpData(string code)
         {
             int stockIndex = _stockIndices[code];
             return _allWarmupData[stockIndex];
         }
 
-        public Bar[] GetNextPeriodData(out DateTime time)
+        public Bar[] GetDataOfPeriod(DateTime period)
         {
-            if (_currentPeriodIndex < _allPeriods.Length - 1)
+            if (period < _allPeriodsOrdered[0] || period > _allPeriodsOrdered[_allPeriodsOrdered.Length - 1])
             {
-                ++_currentPeriodIndex;
-                time = _allPeriods[_currentPeriodIndex];
+                throw new ArgumentOutOfRangeException();
+            }
 
-                return _allTradingData[_currentPeriodIndex];
-            }
-            else
+            int periodIndex;
+            
+            if (!_periodIndices.TryGetValue(period, out periodIndex))
             {
-                time = DateTime.MinValue;
-                return null;
+                throw new ArgumentOutOfRangeException();
             }
+
+            return _allTradingData[periodIndex];
         }
 
         public bool GetLastEffectiveBar(string code, DateTime period, out Bar bar)
@@ -71,7 +65,7 @@ namespace TradingStrategyEvaluation
             bar = new Bar();
             bar.Invalidate();
 
-            if (period < _allPeriods[0] || period > _allPeriods[_allPeriods.Length - 1])
+            if (period < _allPeriodsOrdered[0] || period > _allPeriodsOrdered[_allPeriodsOrdered.Length - 1])
             {
                 return false;
             }
@@ -82,7 +76,7 @@ namespace TradingStrategyEvaluation
             }
 
             int stockIndex = _stockIndices[code];
-            int periodIndex = Array.BinarySearch(_allPeriods, period);
+            int periodIndex = Array.BinarySearch(_allPeriodsOrdered, period);
 
             if (periodIndex < 0)
             {
@@ -218,21 +212,21 @@ namespace TradingStrategyEvaluation
                 });
 
             // get all periods.
-            _allPeriods = allTradingData
+            _allPeriodsOrdered = allTradingData
                 .SelectMany(s => s.DataOrderedByTime.Select(b => b.Time))
                 .GroupBy(dt => dt)
                 .Select(g => g.Key)
                 .OrderBy(dt => dt)
                 .ToArray();
 
-            if (_allPeriods.Length == 0)
+            if (_allPeriodsOrdered.Length == 0)
             {
                 throw new InvalidDataException("No any trading data are loaded, please adjust the time range");
             }
 
-            for (int i = 0; i < _allPeriods.Length; ++i)
+            for (int i = 0; i < _allPeriodsOrdered.Length; ++i)
             {
-                _periodIndices.Add(_allPeriods[i], i);
+                _periodIndices.Add(_allPeriodsOrdered[i], i);
             }
 
             // build trading objects
@@ -254,7 +248,7 @@ namespace TradingStrategyEvaluation
             }
 
             // expand data to #period * #stock
-            _allTradingData = new Bar[_allPeriods.Length][];
+            _allTradingData = new Bar[_allPeriodsOrdered.Length][];
             for (int i = 0; i < _allTradingData.Length; ++i)
             {
                 _allTradingData[i] = new Bar[_stocks.Length];
@@ -267,13 +261,13 @@ namespace TradingStrategyEvaluation
                 Bar[] data = historyData.DataOrderedByTime.ToArray();
                 int dataIndex = 0;
 
-                for (int periodIndex = 0; periodIndex < _allPeriods.Length; ++periodIndex)
+                for (int periodIndex = 0; periodIndex < _allPeriodsOrdered.Length; ++periodIndex)
                 {
-                    if (dataIndex >= data.Length || _allPeriods[periodIndex] < data[dataIndex].Time)
+                    if (dataIndex >= data.Length || _allPeriodsOrdered[periodIndex] < data[dataIndex].Time)
                     {
                         _allTradingData[periodIndex][stockIndex].Invalidate();
                     }
-                    else if (_allPeriods[periodIndex] == data[dataIndex].Time)
+                    else if (_allPeriodsOrdered[periodIndex] == data[dataIndex].Time)
                     {
                         _allTradingData[periodIndex][stockIndex] = data[dataIndex];
                         ++dataIndex;

@@ -30,7 +30,7 @@ namespace EvaluatorCmdClient
                 .Select(
                     kvp => new NameValuePair()
                     {
-                        Name = kvp.Key.TargetObject.GetType().FullName + "." + kvp.Key.Name,
+                        Name = kvp.Key.TargetObject.GetType().Name + "." + kvp.Key.Name,
                         Value = ConvertParameterValueToString(kvp.Value),
                     })
                 .OrderBy(nvp => nvp.Name)

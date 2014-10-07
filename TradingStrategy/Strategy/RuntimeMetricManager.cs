@@ -43,5 +43,10 @@ namespace TradingStrategy.Strategy
 
             return _metrics[tradingObject];
         }
+
+        public IEnumerable<KeyValuePair<ITradingObject, T>> GetAllMetrics()
+        {
+            return _metrics.AsEnumerable();
+        }
     }
 }

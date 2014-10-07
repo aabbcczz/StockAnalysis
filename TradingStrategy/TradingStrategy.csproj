@@ -55,7 +55,9 @@
     <Compile Include="Strategy\AtrDevRuntimeMetric.cs" />
     <Compile Include="Strategy\AtrDevTraceStopLossMarketExiting.cs" />
     <Compile Include="Strategy\AtrDevStopLoss.cs" />
+    <Compile Include="Strategy\RelativeStrengthFilterMarketEntering.cs" />
     <Compile Include="Strategy\DmiFilterMarketEntering.cs" />
+    <Compile Include="Strategy\RocRuntimeMetric.cs" />
     <Compile Include="Strategy\RsiRuntimeMetric.cs" />
     <Compile Include="Strategy\DmiRuntimeMetric.cs" />
     <Compile Include="Strategy\IPositionAdjustingComponent.cs" />

@@ -38,7 +38,7 @@ namespace TradingStrategyEvaluation
                 throw new ArgumentNullException("provider");
             }
 
-            var periods = provider.GetAllPeriods();
+            var periods = provider.GetAllPeriodsOrdered();
 
             DateTime startDate = periods.First().Date;
             DateTime endDate = periods.Last();
@@ -72,21 +72,21 @@ namespace TradingStrategyEvaluation
                 .OrderBy(ct => ct, new CompletedTransaction.DefaultComparer())
                 .ToArray();
 
-            _periods = _dataProvider.GetAllPeriods().ToArray();
+            _periods = _dataProvider.GetAllPeriodsOrdered();
         }
 
         public IEnumerable<TradeMetric> Calculate()
         {
             List<TradeMetric> metrics = new List<TradeMetric>();
 
-            TradeMetric metric = GetTradeMetric(TradeMetric.CodeForAll, TradeMetric.NameForAll, 0.0, 0.0);
-            if (metric == null)
+            TradeMetric overallMetric = GetTradeMetric(TradeMetric.CodeForAll, TradeMetric.NameForAll, 0.0, 0.0);
+            if (overallMetric == null)
             {
                 return metrics;
             }
             else
             {
-                metrics.Add(metric);
+                metrics.Add(overallMetric);
             }
 
             var codes = _orderedTransactionHistory
@@ -111,8 +111,8 @@ namespace TradingStrategyEvaluation
 
                     string name = _nameTable.ContainsStock(code) ? _nameTable[code].Names[0] : string.Empty;
 
-                    metric = GetTradeMetric(code, name, startPrice, endPrice);
-                
+                    var metric = GetTradeMetric(code, name, startPrice, endPrice);
+
                     if (metric != null)
                     {
                         lock (metrics)
@@ -201,12 +201,12 @@ namespace TradingStrategyEvaluation
                 ? _orderedTransactionHistory
                 : _orderedTransactionHistory.Where(t => t.Code == code).ToArray();
 
-            double usedCapital = EstimateUsedCapital(transactions);
+            //double usedCapital = EstimateUsedCapital(transactions);
 
-            EquityManager manager = new EquityManager(usedCapital);
+            EquityManager manager = new EquityManager(_initialCapital);
 
             int transactionIndex = 0;
-            double currentEquity = usedCapital; 
+            double currentEquity = _initialCapital; 
 
             List<EquityPoint> equityPoints = new List<EquityPoint>(_periods.Length);
 
@@ -233,7 +233,7 @@ namespace TradingStrategyEvaluation
 
                             if (!manager.ExecuteTransaction(
                                     transaction,
-                                    code != TradeMetric.CodeForAll,
+                                    true,
                                     out completedTransaction,
                                     out error))
                             {
@@ -258,7 +258,13 @@ namespace TradingStrategyEvaluation
                     currentEquity = manager.GetTotalEquity(_dataProvider, period, EquityEvaluationMethod.TotalEquity);
                 }
 
-                equityPoints.Add(new EquityPoint() { Equity = currentEquity, Time = period });
+                equityPoints.Add(
+                    new EquityPoint() 
+                    { 
+                        Capital = manager.CurrentCapital,
+                        Equity = currentEquity, 
+                        Time = period 
+                    });
             }
 
 

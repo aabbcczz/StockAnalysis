@@ -44,9 +44,9 @@ namespace TradingStrategyEvaluation
         public double AverageProfitPerTrading { get; set; } // 每交易平均盈利 = TotalProfit / ProfitTradingTimes;
         public double AverageLossPerTrading { get; set; } // 每交易平均亏损 = TotalLoss / LossTradingTimes;
 
-        public int TotalVolume { get; set; } // 总交易量 = ProfitVolume + LossVolume
-        public int ProfitVolume { get; set; } // 盈利量, 所有盈利交易中交易量的总和
-        public int LossVolume { get; set; } // 亏损量，所以亏损交易中交易量的总和
+        public long TotalVolume { get; set; } // 总交易量 = ProfitVolume + LossVolume
+        public long ProfitVolume { get; set; } // 盈利量, 所有盈利交易中交易量的总和
+        public long LossVolume { get; set; } // 亏损量，所以亏损交易中交易量的总和
         public double AverageProfitPerVolume { get; set; } // 每量平均盈利 = TotalProfit / ProfitVolume
         public double AverageLossPerVolume { get; set; } // 每量平均亏损 = TotalLoss / LossVolume
 
@@ -199,7 +199,7 @@ namespace TradingStrategyEvaluation
             ProfitRatio = NetProfit / InitialEquity;
 
             double reciprocal_years = 365.0 / TotalTradingDays;
-            AnnualProfitRatio = Math.Pow(1.0 + ProfitRatio, reciprocal_years) - 1.0 ;
+            AnnualProfitRatio = Math.Sign(ProfitRatio) * (Math.Pow(Math.Abs(1.0 + ProfitRatio), reciprocal_years) - 1.0);
 
             // update trading times related metrics
             TotalTradingTimes = OrderedCompletedTransactionSequence.Count();
@@ -213,9 +213,9 @@ namespace TradingStrategyEvaluation
             AverageLossPerTrading = LossTradingTimes == 0 ? 0.0 : TotalLoss / LossTradingTimes;
 
             // update trading volume related metrics
-            TotalVolume = OrderedCompletedTransactionSequence.Sum(ct => ct.Volume);
-            ProfitVolume = OrderedCompletedTransactionSequence.Sum(ct => ct.SoldGain > ct.BuyCost ? ct.Volume : 0);
-            LossVolume = OrderedCompletedTransactionSequence.Sum(ct => ct.SoldGain < ct.BuyCost ? ct.Volume : 0);
+            TotalVolume = OrderedCompletedTransactionSequence.Sum(ct => (long)ct.Volume);
+            ProfitVolume = OrderedCompletedTransactionSequence.Sum(ct => ct.SoldGain > ct.BuyCost ? (long)ct.Volume : 0);
+            LossVolume = OrderedCompletedTransactionSequence.Sum(ct => ct.SoldGain < ct.BuyCost ? (long)ct.Volume : 0);
             AverageProfitPerVolume = ProfitVolume == 0 ? 0.0 : TotalProfit / ProfitVolume;
             AverageLossPerVolume = LossVolume == 0 ? 0.0 : TotalLoss / LossVolume;
 

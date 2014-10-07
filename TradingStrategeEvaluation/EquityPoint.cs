@@ -10,6 +10,7 @@ namespace TradingStrategyEvaluation
     {
         public DateTime Time { get; set;}
         public double Equity { get; set; }
+        public double Capital { get; set; }
 
         public class DefaultComparer : IComparer<EquityPoint>
         {

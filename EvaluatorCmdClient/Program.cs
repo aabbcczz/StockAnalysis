@@ -138,93 +138,36 @@ namespace EvaluatorCmdClient
 
                 contextManager.SaveEvaluationSummary(evaluationSummary);
 
-                // evaluate each set of parameter values
-                bool isResultSummaryInitialized = false;
-                IDictionary<ParameterAttribute, object> parameterValues;
-                while ((parameterValues = combinedStrategyAssembler.GetNextSetOfParameterValues()) != null)
+                List<Tuple<CombinedStrategy, IDictionary<ParameterAttribute, object>>> strategyInstances
+                    = new List<Tuple<CombinedStrategy, IDictionary<ParameterAttribute, object>>>();
+
+                IDictionary<ParameterAttribute, object> values;
+                while ((values = combinedStrategyAssembler.GetNextSetOfParameterValues()) != null)
                 {
-                    OutputParameterValues(parameterValues);
-
-                    // initialize ResultSummary if necessary;
-                    if (!isResultSummaryInitialized)
-                    {
-                        ResultSummary.Initialize(parameterValues);
-                        isResultSummaryInitialized = true;
-                    }
-
-                    // reset data provider to ensure it can provide data properly for each set of 
-                    // parameter values.
-                    dataProvider.Reset();
-
                     CombinedStrategy strategy = combinedStrategyAssembler.NewStrategy();
 
-                    using (EvaluationResultContext context = contextManager.CreateNewContext())
-                    {
-                        TradingStrategyEvaluator evaluator
-                            = new TradingStrategyEvaluator(
-                                options.InitialCapital,
-                                strategy,
-                                parameterValues,
-                                dataProvider,
-                                tradingSettings,
-                                context.Logger);
-
-                        EventHandler<EvaluationProgressEventArgs> evaluationProgressHandler =
-                            (object obj, EvaluationProgressEventArgs e) =>
-                            {
-                                Console.Write("\r{0:yyyy-MM-dd} {1}%", e.EvaluationPeriod, (int)(e.EvaluationPercentage * 100.0));
-                            };
-
-                        evaluator.OnEvaluationProgress += evaluationProgressHandler;
-
-                        try
-                        {
-                            evaluator.Evaluate();
-                        }
-                        catch (Exception ex)
-                        {
-                            Console.WriteLine();
-                            Console.WriteLine("{0}", ex);
-
-                            continue;
-                        }
-
-                        if (evaluator.Tracker.TransactionHistory.Count() == 0)
-                        {
-                            // no transaction
-                            continue;
-                        }
-
-                        MetricCalculator calculator
-                            = new MetricCalculator(
-                                stockNameTable,
-                                evaluator.Tracker,
-                                dataProvider);
-
-                        var metrics = calculator.Calculate();
-
-                        // get the overall metric
-                        TradeMetric overallMetric = metrics
-                            .Where(m => m.Code == TradeMetric.CodeForAll)
-                            .First();
-
-                        // save results
-                        context.SaveResults(parameterValues, metrics, evaluator.ClosedPositions);
-
-
-                        // create result summary;
-                        ResultSummary resultSummary = new ResultSummary();
-                        resultSummary.Initialize(context, parameterValues, overallMetric);
-
-                        contextManager.AddResultSummary(resultSummary);
-                    }
-
-                    Console.WriteLine();
-
-                    // for fun.
-                    GC.Collect();
-                    GC.Collect();
+                    strategyInstances.Add(Tuple.Create(strategy, values));
                 }
+
+                if (strategyInstances.Count > 0)
+                {
+                    // initialize ResultSummary
+                    ResultSummary.Initialize(strategyInstances.First().Item2);
+                }
+
+                Parallel.ForEach(
+                    strategyInstances,
+                    t =>
+                    {
+                        EvaluateStrategy(
+                            contextManager,
+                            t.Item1,
+                            t.Item2,
+                            options.InitialCapital,
+                            dataProvider,
+                            tradingSettings,
+                            stockNameTable);
+                    });
 
                 // save result summary
                 contextManager.SaveResultSummaries();
@@ -232,6 +175,89 @@ namespace EvaluatorCmdClient
 
             Console.WriteLine();
             Console.WriteLine("Done.");
+        }
+
+        private static void EvaluateStrategy(
+            EvaluationResultContextManager contextManager, 
+            ITradingStrategy strategy,
+            IDictionary<ParameterAttribute, object> parameterValues,
+            double initialCapital,
+            ITradingDataProvider dataProvider,
+            TradingSettings tradingSettings,
+            StockNameTable stockNameTable)
+        {
+            // OutputParameterValues(parameterValues);
+
+            EvaluationResultContext context;
+
+            lock (contextManager)
+            {
+                context = contextManager.CreateNewContext();
+            }
+
+            using (context)
+            {
+                TradingStrategyEvaluator evaluator
+                    = new TradingStrategyEvaluator(
+                        initialCapital,
+                        strategy,
+                        parameterValues,
+                        dataProvider,
+                        tradingSettings,
+                        context.Logger);
+
+                //EventHandler<EvaluationProgressEventArgs> evaluationProgressHandler =
+                //    (object obj, EvaluationProgressEventArgs e) =>
+                //    {
+                //        Console.Write("\r{0:yyyy-MM-dd} {1}%", e.EvaluationPeriod, (int)(e.EvaluationPercentage * 100.0));
+                //    };
+
+                //evaluator.OnEvaluationProgress += evaluationProgressHandler;
+
+                try
+                {
+                    evaluator.Evaluate();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine();
+                    Console.WriteLine("{0}", ex);
+                    return;
+                }
+
+                if (evaluator.Tracker.TransactionHistory.Count() == 0)
+                {
+                    // no transaction
+                    return;
+                }
+
+                MetricCalculator calculator
+                    = new MetricCalculator(
+                        stockNameTable,
+                        evaluator.Tracker,
+                        dataProvider);
+
+                var metrics = calculator.Calculate();
+
+                // get the overall metric
+                TradeMetric overallMetric = metrics
+                    .Where(m => m.Code == TradeMetric.CodeForAll)
+                    .First();
+
+                // save results
+                context.SaveResults(parameterValues, metrics, evaluator.ClosedPositions);
+
+                // create result summary;
+                ResultSummary resultSummary = new ResultSummary();
+                resultSummary.Initialize(context, parameterValues, overallMetric);
+
+                lock (contextManager)
+                {
+                    contextManager.AddResultSummary(resultSummary);
+                }
+            }
+
+            Console.Write(".");
         }
 
         private static void OutputParameterValues(IDictionary<ParameterAttribute, object> values)

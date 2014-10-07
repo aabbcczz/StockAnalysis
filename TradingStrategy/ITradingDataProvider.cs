@@ -12,18 +12,16 @@ namespace TradingStrategy
     {
         int PeriodCount { get; }
 
-        IOrderedEnumerable<DateTime> GetAllPeriods();
+        DateTime[] GetAllPeriodsOrdered();
 
-        IEnumerable<ITradingObject> GetAllTradingObjects();
+        ITradingObject[] GetAllTradingObjects();
 
-        IEnumerable<Bar> GetWarmUpData(string code);
+        Bar[] GetWarmUpData(string code);
 
         /// <summary>
-        /// Get bars for all trading objects in next period
+        /// Get bars for all trading objects for given period
         /// </summary>
-        /// <param name="time">
-        /// Output parameter to store the time of period
-        /// </param>
+        /// <param name="time">period time</param>
         /// <returns>
         /// All bars in an array, and the size of array equals to number of trading objects returned by
         /// GetAllTradingObjects(), and the first bar is the data for the first trading object, the second bar
@@ -31,7 +29,7 @@ namespace TradingStrategy
         /// in the period, the bar returned will be invalid, call bar.Invalid() will return true.
         /// return null if there is no more period. 
         /// </returns>
-        Bar[] GetNextPeriodData(out DateTime time);
+        Bar[] GetDataOfPeriod(DateTime period);
 
         /// <summary>
         /// Get the last effective bar before or equal given period for a given trading object that identified by code

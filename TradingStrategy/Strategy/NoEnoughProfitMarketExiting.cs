@@ -39,7 +39,7 @@ namespace TradingStrategy.Strategy
             }
         }
 
-        public override void Evaluate(ITradingObject tradingObject, StockAnalysis.Share.Bar bar)
+        public override void EvaluateSingleObject(ITradingObject tradingObject, StockAnalysis.Share.Bar bar)
         {
             if (HoldingPeriods == 0)
             {

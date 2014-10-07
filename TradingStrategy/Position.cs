@@ -174,13 +174,18 @@ namespace TradingStrategy
 
         public void SetStopLossPrice(double stopLossPrice)
         {
-            if (stopLossPrice < 0.0 || stopLossPrice > BuyPrice)
+            if (stopLossPrice < 0.0)
             {
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException("stop loss price must be greater than 0.0");
             }
 
             if (!IsStopLossPriceInitialized())
             { 
+                if (stopLossPrice > BuyPrice)
+                {
+                    throw new ArgumentOutOfRangeException("initial stop loss price can't be greater than buy price");
+                }
+
                 StopLossPrice = stopLossPrice;
 
                 InitialRisk = (BuyPrice - StopLossPrice) * Volume;
