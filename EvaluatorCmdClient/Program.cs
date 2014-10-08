@@ -155,22 +155,27 @@ namespace EvaluatorCmdClient
                     ResultSummary.Initialize(strategyInstances.First().Item2);
                 }
 
-                Parallel.ForEach(
-                    strategyInstances,
-                    t =>
-                    {
-                        EvaluateStrategy(
-                            contextManager,
-                            t.Item1,
-                            t.Item2,
-                            options.InitialCapital,
-                            dataProvider,
-                            tradingSettings,
-                            stockNameTable);
-                    });
-
-                // save result summary
-                contextManager.SaveResultSummaries();
+                try
+                {
+                    Parallel.ForEach(
+                        strategyInstances,
+                        t =>
+                        {
+                            EvaluateStrategy(
+                                contextManager,
+                                t.Item1,
+                                t.Item2,
+                                options.InitialCapital,
+                                dataProvider,
+                                tradingSettings,
+                                stockNameTable);
+                        });
+                }
+                finally
+                {
+                    // save result summary
+                    contextManager.SaveResultSummaries();
+                }
             }
 
             Console.WriteLine();
