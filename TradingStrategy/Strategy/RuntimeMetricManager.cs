@@ -10,16 +10,23 @@ namespace TradingStrategy.Strategy
         where T : IRuntimeMetric
     {
         private Func<T> _creator;
-        private Dictionary<ITradingObject, T> _metrics = new Dictionary<ITradingObject, T>();
+        private T[] _metrics;
 
-        public RuntimeMetricManager(Func<T> creator)
+        public RuntimeMetricManager(Func<T> creator, int maxNumberOfTradingObjects)
         {
             if (creator == null)
             {
                 throw new ArgumentNullException();
             }
 
+            if (maxNumberOfTradingObjects <= 0)
+            {
+                throw new ArgumentException();
+            }
+
             _creator = creator;
+
+            _metrics = new T[maxNumberOfTradingObjects];
         }
 
         public void Update(ITradingObject tradingObject, StockAnalysis.Share.Bar bar)
@@ -36,17 +43,17 @@ namespace TradingStrategy.Strategy
                 throw new ArgumentNullException("tradingObject");
             }
 
-            if (!_metrics.ContainsKey(tradingObject))
+            if (_metrics[tradingObject.Index] == null)
             {
-                _metrics.Add(tradingObject, _creator());
+                _metrics[tradingObject.Index] =  _creator();
             }
 
-            return _metrics[tradingObject];
+            return _metrics[tradingObject.Index];
         }
 
-        public IEnumerable<KeyValuePair<ITradingObject, T>> GetAllMetrics()
+        public T[] GetAllMetrics()
         {
-            return _metrics.AsEnumerable();
+            return _metrics;
         }
     }
 }

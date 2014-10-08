@@ -12,8 +12,13 @@ namespace TradingStrategy.Strategy
     public sealed class RelativeStrengthFilterMarketEntering 
         : MetricBasedMarketEnteringBase<RocRuntimeMetric>
     {
-        private Dictionary<string, double> _relativeStrengths = null;
-        private HashSet<string> _validCodesInThisPeriod = null;
+        private const double InvalidRateOfChanges = double.MaxValue;
+
+        private double[] _rateOfChanges = null;
+        private int[] _rateOfChangesIndex = null;
+        private double[] _relativeStrengths = null;
+        private int _numberOfValidTradingObjectsInThisPeriod = 0;
+        private bool _isRelativeStrengthsGenerated = false;
 
         [Parameter(30, "ROC周期")]
         public int RocWindowSize { get; set; }
@@ -55,8 +60,27 @@ namespace TradingStrategy.Strategy
         {
  	        base.StartPeriod(time);
 
-            _relativeStrengths = null;
-            _validCodesInThisPeriod = new HashSet<string>();
+            if (_relativeStrengths == null)
+            {
+                _relativeStrengths = new double[base.Context.GetCountOfTradingObjects()];
+            }
+
+            Array.Clear(_relativeStrengths, 0, _relativeStrengths.Length);
+
+            if (_rateOfChanges == null)
+            {
+                _rateOfChanges = new double[base.Context.GetCountOfTradingObjects()];
+                _rateOfChangesIndex = new int[_rateOfChanges.Length];
+            }
+
+            for (int i = 0; i < _rateOfChanges.Length; ++i)
+            {
+                _rateOfChanges[i] = InvalidRateOfChanges;
+                _rateOfChangesIndex[i] = i;
+            }
+
+            _numberOfValidTradingObjectsInThisPeriod = 0;
+            _isRelativeStrengthsGenerated = false;
         }
 
         public override void EvaluateSingleObject(ITradingObject tradingObject, Bar bar)
@@ -65,24 +89,22 @@ namespace TradingStrategy.Strategy
 
             if (!bar.Invalid())
             {
-                _validCodesInThisPeriod.Add(tradingObject.Code);
+                _rateOfChanges[tradingObject.Index] 
+                    = base.MetricManager.GetOrCreateRuntimeMetric(tradingObject).RateOfChange;
+
+                _numberOfValidTradingObjectsInThisPeriod++;
             }
         }
 
         private void GenerateRelativeStrength()
         {
-            var orderedRateOfChanges = base.MetricManager.GetAllMetrics()
-                .Where(kvp => _validCodesInThisPeriod.Contains(kvp.Key.Code))
-                .OrderBy(kvp => kvp.Value.RateOfChange)
-                .Reverse()
-                .ToArray();
+            // sort the rate of changes and index ascending
+            Array.Sort(_rateOfChanges, _rateOfChangesIndex);
 
-            _relativeStrengths = new Dictionary<string, double>();
-            for (int i = 0; i < orderedRateOfChanges.Length; ++i)
+            for (int i = 0; i < _numberOfValidTradingObjectsInThisPeriod; ++i)
             {
-                _relativeStrengths.Add(
-                    orderedRateOfChanges[i].Key.Code, 
-                    (1.0 - ((double)i / orderedRateOfChanges.Length)) * 100.0);
+                _relativeStrengths[_rateOfChangesIndex[i]] 
+                    = (double)(i + 1) * 100.0 / _numberOfValidTradingObjectsInThisPeriod;
             }
         }
 
@@ -90,22 +112,20 @@ namespace TradingStrategy.Strategy
         {
             comments = string.Empty;
 
-            if (_relativeStrengths == null)
+            if (!_isRelativeStrengthsGenerated)
             {
                 GenerateRelativeStrength();
+                _isRelativeStrengthsGenerated = true;
             }
 
-            double relativeStrength;
-            if (_relativeStrengths.TryGetValue(tradingObject.Code, out relativeStrength))
+            double relativeStrength = _relativeStrengths[tradingObject.Index];
+            if (relativeStrength > RelativeStrengthThreshold)
             {
-                if (relativeStrength > RelativeStrengthThreshold)
-                {
-                    comments = string.Format(
-                        "RelativeStrength: {0:0.000}%",
-                        relativeStrength);
+                comments = string.Format(
+                    "RelativeStrength: {0:0.000}%",
+                    relativeStrength);
 
-                    return true;
-                }
+                return true;
             }
 
             return false;

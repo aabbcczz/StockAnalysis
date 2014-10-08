@@ -20,6 +20,8 @@ namespace TradingStrategy
 
         IEnumerable<ITradingObject> GetAllTradingObjects();
 
+        int GetCountOfTradingObjects();
+
         void Log(string log);
     }
 }

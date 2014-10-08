@@ -19,7 +19,7 @@ namespace TradingStrategyEvaluation
         private TradingSettings _settings;
         private TradingTracker _tradingTracker = null;
         private ITradingObject[] _allTradingObjects = null;
-        private Dictionary<string, int> _tradingObjectIndexByCode = new Dictionary<string,int>();
+//        private Dictionary<string, int> _tradingObjectIndexByCode = new Dictionary<string,int>();
         private List<Instruction> _pendingInstructions = new List<Instruction>();
 
         private bool _evaluatable = true;
@@ -73,18 +73,13 @@ namespace TradingStrategyEvaluation
 
             // Get all trading objects
             _allTradingObjects = _provider.GetAllTradingObjects();
-            for (int i = 0; i < _allTradingObjects.Length; ++i)
-            {
-                _tradingObjectIndexByCode.Add(_allTradingObjects[i].Code, i);
-            }
-
             Action<ITradingObject> warmupAction = 
                 (ITradingObject obj) =>
                 {
-                    var warmupData = _provider.GetWarmUpData(obj.Code);
+                    var warmupData = _provider.GetWarmUpData(obj.Index);
                     if (warmupData != null)
                     {
-                        foreach (var bar in _provider.GetWarmUpData(obj.Code))
+                        foreach (var bar in warmupData)
                         {
                             _strategy.WarmUp(obj, bar);
                         }
@@ -189,7 +184,9 @@ namespace TradingStrategyEvaluation
                 }
 
                 Bar bar;
-                if (!_provider.GetLastEffectiveBar(code, lastPeriodTime, out bar))
+                int index = _provider.GetIndexOfTradingObject(code);
+
+                if (!_provider.GetLastEffectiveBar(index, lastPeriodTime, out bar))
                 {
                     throw new InvalidOperationException(
                         string.Format("failed to get last data for code {0}, logic error", code));
@@ -210,7 +207,7 @@ namespace TradingStrategyEvaluation
                     Comments = "clear forcibly"
                 };
 
-                UpdateTransactionCommission(transaction, _allTradingObjects[_tradingObjectIndexByCode[code]]);
+                UpdateTransactionCommission(transaction, _allTradingObjects[index]);
 
                 if (!ExecuteTransaction(transaction, false))
                 {
@@ -261,7 +258,7 @@ namespace TradingStrategyEvaluation
                     }
                 }
 
-                int tradingObjectIndex = _tradingObjectIndexByCode[instruction.TradingObject.Code];
+                int tradingObjectIndex = instruction.TradingObject.Index;
                 if (tradingData[tradingObjectIndex].Invalid())
                 {
                     if (forCurrentPeriod)

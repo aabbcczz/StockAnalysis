@@ -286,7 +286,13 @@ namespace TradingStrategyEvaluation
 
                     Bar bar;
 
-                    if (!provider.GetLastEffectiveBar(code, period, out bar))
+                    int index = provider.GetIndexOfTradingObject(code);
+                    if (index < 0)
+                    {
+                        throw new InvalidOperationException(string.Format("Can't get index for code {0}", code));
+                    }
+
+                    if (!provider.GetLastEffectiveBar(index, period, out bar))
                     {
                         throw new InvalidOperationException(
                             string.Format("Can't get data from data provider for code {0}, time {1}", code, period));
@@ -325,7 +331,8 @@ namespace TradingStrategyEvaluation
 
                 Bar bar;
 
-                if (!provider.GetLastEffectiveBar(code, time, out bar))
+                int index = provider.GetIndexOfTradingObject(code);
+                if (!provider.GetLastEffectiveBar(index, time, out bar))
                 {
                     throw new InvalidOperationException(
                         string.Format("Can't get data from data provider for code {0}, time {1}", code, time));

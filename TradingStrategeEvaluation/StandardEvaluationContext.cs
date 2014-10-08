@@ -45,6 +45,11 @@ namespace TradingStrategyEvaluation
             return _provider.GetAllTradingObjects();
         }
 
+        public int GetCountOfTradingObjects()
+        {
+            return _provider.GetAllTradingObjects().Length;
+        }
+
         public IEnumerable<string> GetAllPositionCodes()
         {
             return _equityManager.GetAllPositionCodes();

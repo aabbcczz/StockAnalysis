@@ -16,7 +16,14 @@ namespace TradingStrategy
 
         ITradingObject[] GetAllTradingObjects();
 
-        Bar[] GetWarmUpData(string code);
+        /// <summary>
+        /// Get index of trading object
+        /// </summary>
+        /// <param name="code">code of trading object</param>
+        /// <returns>index of trading object. if the trading object does not exist, -1 will be returned</returns>
+        int GetIndexOfTradingObject(string code);
+
+        Bar[] GetWarmUpData(int index);
 
         /// <summary>
         /// Get bars for all trading objects for given period
@@ -34,17 +41,17 @@ namespace TradingStrategy
         /// <summary>
         /// Get the last effective bar before or equal given period for a given trading object that identified by code
         /// </summary>
-        /// <param name="code">the code of trading object</param>
+        /// <param name="index">the index of trading object</param>
         /// <param name="period">time of period that the data should not exceed</param>
         /// <param name="bar">[OUT] returned data if any</param>
         /// <returns>true if there is data for the trading object, otherwise false is returned</returns>
-        bool GetLastEffectiveBar(string code, DateTime period, out Bar bar);
+        bool GetLastEffectiveBar(int index, DateTime period, out Bar bar);
 
         /// <summary>
         /// Get all bar data for given trading object.
         /// </summary>
-        /// <param name="code">code of trading object</param>
+        /// <param name="index">index of trading object</param>
         /// <returns>all bar data ordered by time ascending. if there is not data exists, null is returned</returns>
-        Bar[] GetAllBarsForTradingObject(string code);
+        Bar[] GetAllBarsForTradingObject(int index);
     }
 }

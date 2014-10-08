@@ -25,7 +25,7 @@ namespace TradingStrategy.Strategy
                 throw new InvalidProgramException("Creator property must not be null");
             }
 
-            MetricManager = new RuntimeMetricManager<T>(Creator);
+            MetricManager = new RuntimeMetricManager<T>(Creator, context.GetAllTradingObjects().Count());
         }
 
         public override void WarmUp(ITradingObject tradingObject, StockAnalysis.Share.Bar bar)

@@ -66,7 +66,8 @@ namespace EvaluatorClient
 
                     if (metric.Code != TradeMetric.CodeForAll)
                     {
-                        var bars = provider.GetAllBarsForTradingObject(metric.Code)
+                        int index = provider.GetIndexOfTradingObject(metric.Code);
+                        var bars = provider.GetAllBarsForTradingObject(index)
                             .Where(bar => bar.Time >= metric.StartDate && bar.Time <= metric.EndDate);
 
                         foreach (var bar in bars)

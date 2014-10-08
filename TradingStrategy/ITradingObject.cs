@@ -8,6 +8,12 @@ namespace TradingStrategy
 {
     public interface ITradingObject
     {
+        // For performance consideration, the data provider will assign unique index for
+        // each trading object, starts from 0, to allow other parts of program use array
+        // to store/index the objects.
+        // it will be the same in the same run and might change across different runs.
+        int Index { get; }
+
         // code, like 'SH600002', should be unique
         string Code { get; }
 

@@ -10,6 +10,8 @@ namespace TradingStrategyEvaluation
 {
     public sealed class ChinaStock : ITradingObject
     {
+        public int Index { get; private set; }
+
         public string Code { get; private set; }
 
         public string Name { get; private set; }
@@ -22,12 +24,13 @@ namespace TradingStrategyEvaluation
 
         public double MinPriceUnit { get; private set; }
 
-        public ChinaStock(string code, string name)
-            : this(code, name, 100, 100, 1, 0.01)
+        public ChinaStock(int index, string code, string name)
+            : this(index, code, name, 100, 100, 1, 0.01)
         {
         }
 
         public ChinaStock(
+            int index,
             string code, 
             string name, 
             int volumePerHand,
@@ -35,6 +38,7 @@ namespace TradingStrategyEvaluation
             int volumePerSellingUnit, 
             double minPriceUnit)
         {
+            Index = index;
             Code = code;
             Name = name;
             VolumePerHand = volumePerHand;

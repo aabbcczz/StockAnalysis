@@ -37,10 +37,23 @@ namespace TradingStrategyEvaluation
             return _stocks;
         }
 
-        public Bar[] GetWarmUpData(string code)
+        public int GetIndexOfTradingObject(string code)
         {
-            int stockIndex = _stockIndices[code];
-            return _allWarmupData[stockIndex];
+            int index;
+
+            if (_stockIndices.TryGetValue(code, out index))
+            {
+                return index;
+            }
+            else
+            {
+                return -1;
+            }
+        }
+
+        public Bar[] GetWarmUpData(int index)
+        {
+            return _allWarmupData[index];
         }
 
         public Bar[] GetDataOfPeriod(DateTime period)
@@ -60,7 +73,7 @@ namespace TradingStrategyEvaluation
             return _allTradingData[periodIndex];
         }
 
-        public bool GetLastEffectiveBar(string code, DateTime period, out Bar bar)
+        public bool GetLastEffectiveBar(int index, DateTime period, out Bar bar)
         {
             bar = new Bar();
             bar.Invalidate();
@@ -70,12 +83,6 @@ namespace TradingStrategyEvaluation
                 return false;
             }
 
-            if (!_stockIndices.ContainsKey(code))
-            {
-                return false;
-            }
-
-            int stockIndex = _stockIndices[code];
             int periodIndex = Array.BinarySearch(_allPeriodsOrdered, period);
 
             if (periodIndex < 0)
@@ -93,14 +100,14 @@ namespace TradingStrategyEvaluation
             // find the latest valid data
             while (periodIndex >= 0)
             {
-                if (_allTradingData[periodIndex][stockIndex].Invalid())
+                if (_allTradingData[periodIndex][index].Invalid())
                 {
                     --periodIndex;
                     continue;
                 }
                 else
                 {
-                    bar = _allTradingData[periodIndex][stockIndex];
+                    bar = _allTradingData[periodIndex][index];
                     return true;
                 }
             }
@@ -108,17 +115,10 @@ namespace TradingStrategyEvaluation
             return false;
         }
 
-        public Bar[] GetAllBarsForTradingObject(string code)
+        public Bar[] GetAllBarsForTradingObject(int index)
         {
-            if (!_stockIndices.ContainsKey(code))
-            {
-                return null;
-            }
-
-            int stockIndex = _stockIndices[code];
-
             return _allTradingData
-                .Select(x => x[stockIndex])
+                .Select(x => x[index])
                 .Where(bar => !bar.Invalid())
                 .ToArray();
         }
@@ -230,9 +230,10 @@ namespace TradingStrategyEvaluation
             }
 
             // build trading objects
-            _stocks = allTradingData
-                .Select(t => new ChinaStock(t.Name.Code, t.Name.Names[0]))
-                .OrderBy(s => s.Code)
+            var tempTradingData = allTradingData.OrderBy(t => t.Name.Code).ToArray();
+
+            _stocks = Enumerable.Range(0, tempTradingData.Length)
+                .Select(i => new ChinaStock(i, tempTradingData[i].Name.Code, tempTradingData[i].Name.Names[0]))
                 .ToArray();
 
             for (int i = 0; i < _stocks.Length; ++i) 
@@ -256,7 +257,7 @@ namespace TradingStrategyEvaluation
 
             foreach (var historyData in allTradingData)
             {
-                int stockIndex = _stockIndices[historyData.Name.Code];
+                int stockIndex = GetIndexOfTradingObject(historyData.Name.Code);
 
                 Bar[] data = historyData.DataOrderedByTime.ToArray();
                 int dataIndex = 0;

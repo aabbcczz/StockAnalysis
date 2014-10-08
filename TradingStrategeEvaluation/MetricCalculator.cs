@@ -98,7 +98,9 @@ namespace TradingStrategyEvaluation
                 codes,
                 (string code) =>
                 {
-                    Bar[] bars = _dataProvider.GetAllBarsForTradingObject(code);
+                    int index = _dataProvider.GetIndexOfTradingObject(code);
+
+                    Bar[] bars = _dataProvider.GetAllBarsForTradingObject(index);
 
                     if (bars == null || bars.Length == 0)
                     {
