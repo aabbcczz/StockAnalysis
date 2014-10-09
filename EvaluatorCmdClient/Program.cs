@@ -159,6 +159,8 @@ namespace EvaluatorCmdClient
                 {
                     Parallel.ForEach(
                         strategyInstances,
+                        // below line is for performance profiling only.
+                        // new ParallelOptions() { MaxDegreeOfParallelism = 1 }, 
                         t =>
                         {
                             EvaluateStrategy(

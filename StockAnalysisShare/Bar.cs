@@ -22,5 +22,13 @@ namespace StockAnalysis.Share
         {
             return Time == Bar.InvalidTime;
         }
+
+        public class TimeComparer : IComparer<Bar>
+        {
+            public int Compare(Bar x, Bar y)
+            {
+                return x.Time.CompareTo(y.Time);
+            }
+        }
     }
 }

@@ -10,22 +10,22 @@ namespace StockAnalysis.Share
 {
     public class StockHistoryData
     {
-        private List<Bar> _dataOrderedByTime = null;
+        private Bar[] _dataOrderedByTime = null;
         private StockName _name;
         private long _intervalInSecond;
 
         public StockName Name { get{ return _name; } }
 
         // ordered by time
-        public IEnumerable<Bar> DataOrderedByTime { get { return _dataOrderedByTime; } }
+        public Bar[] DataOrderedByTime { get { return _dataOrderedByTime; } }
 
         public long IntervalInSecond { get { return _intervalInSecond; } }
 
-        public StockHistoryData(StockName name, long intervalInSecond, IEnumerable<Bar> data)
+        public StockHistoryData(StockName name, long intervalInSecond, Bar[] dataOrderByTime)
         {
             _name = name;
             _intervalInSecond = intervalInSecond;
-            _dataOrderedByTime = data.OrderBy(b => b.Time).ToList();
+            _dataOrderedByTime = dataOrderByTime;
         }
 
         public static StockHistoryData LoadFromFile(
@@ -99,7 +99,8 @@ namespace StockAnalysis.Share
             // remove all data that before last invalidate bar. 
             var filterData = data
                 .Where(b => b.Time > lastInvalidBarTime)
-                .OrderBy(b => b.Time);
+                .OrderBy(b => b.Time)
+                .ToArray();
 
             return new StockHistoryData(name, interval, filterData);
         }

@@ -89,6 +89,8 @@ namespace TradingStrategyEvaluation
                 metrics.Add(overallMetric);
             }
 
+            /* metrics for each code is not necessary now.
+             * 
             var codes = _orderedTransactionHistory
                 .Select(t => t.Code)
                 .GroupBy(c => c)
@@ -123,6 +125,7 @@ namespace TradingStrategyEvaluation
                         }
                     }
                 });
+             */
 
             return metrics;   
         }

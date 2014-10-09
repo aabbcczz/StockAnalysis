@@ -159,38 +159,51 @@ namespace TradingStrategyEvaluation
                     {
                         StockHistoryData data = ChinaStockDataAccessor.Load(file, nameTable);
 
-                        var dataBeforeStart = data.DataOrderedByTime.Where(b => b.Time < start);
-                        var dataInbetween = data.DataOrderedByTime.Where(b => b.Time >= start && b.Time <= end);
-                        var dataAfterEnd = data.DataOrderedByTime.Where(b => b.Time > end);
+                        int startIndex;
+                        int endIndex;
+
+                        Split(data.DataOrderedByTime, start, end, out startIndex, out endIndex);
+
+                        if (startIndex > endIndex)
+                        {
+                            // no any trading data, ignore it.
+                            return;
+                        }
+
+                        // now we have ensured endIndex >= startIndex;
 
                         Bar[] warmupData = null;
                         Bar[] tradingData = null;
 
                         if (warmupDataSize > 0)
                         {
-                            if (dataBeforeStart.Count() >= warmupDataSize)
+                            if (startIndex >= warmupDataSize)
                             {
-                                warmupData = dataBeforeStart.Skip(dataBeforeStart.Count() - warmupDataSize).ToArray();
-                                tradingData = dataInbetween.ToArray();
-                            }
-                            else if (dataBeforeStart.Count() + dataInbetween.Count() >= warmupDataSize)
-                            {
-                                int sizeOfDataToBeMoved = warmupDataSize - dataBeforeStart.Count();
+                                warmupData = new Bar[warmupDataSize];
+                                Array.Copy(data.DataOrderedByTime, startIndex - warmupDataSize, warmupData, 0, warmupData.Length);
 
-                                warmupData = dataBeforeStart.Concat(dataInbetween.Take(sizeOfDataToBeMoved)).ToArray();
-                                tradingData = dataInbetween.Skip(sizeOfDataToBeMoved).ToArray();
+                                tradingData = new Bar[endIndex - startIndex + 1];
+                                Array.Copy(data.DataOrderedByTime, startIndex, tradingData, 0, tradingData.Length);
+                            }
+                            else if (endIndex >= warmupDataSize)
+                            {
+                                warmupData = new Bar[warmupDataSize];
+                                Array.Copy(data.DataOrderedByTime, 0, warmupData, 0, warmupData.Length);
+
+                                tradingData = new Bar[endIndex - warmupDataSize + 1];
+                                Array.Copy(data.DataOrderedByTime, warmupDataSize, tradingData, 0, tradingData.Length);
                             }
                             else
                             {
                                 // all data are for warming up and there is no official data for evaluation or other
                                 // usage, so we just skip the data.
-                                warmupData = null;
-                                tradingData = null;
+                                return;
                             }
                         }
                         else
                         {
-                            tradingData = dataInbetween.ToArray();
+                            tradingData = new Bar[endIndex - startIndex + 1];
+                            Array.Copy(data.DataOrderedByTime, startIndex, tradingData, 0, tradingData.Length);
                         }
 
                         if (warmupData != null)
@@ -259,7 +272,7 @@ namespace TradingStrategyEvaluation
             {
                 int stockIndex = GetIndexOfTradingObject(historyData.Name.Code);
 
-                Bar[] data = historyData.DataOrderedByTime.ToArray();
+                Bar[] data = historyData.DataOrderedByTime;
                 int dataIndex = 0;
 
                 for (int periodIndex = 0; periodIndex < _allPeriodsOrdered.Length; ++periodIndex)
@@ -279,6 +292,40 @@ namespace TradingStrategyEvaluation
                         throw new InvalidOperationException("Logic error");
                     }
                 }
+            }
+        }
+
+        private void Split(
+            Bar[] dataOrderedByTime, 
+            DateTime start, 
+            DateTime end, 
+            out int startIndex, // the index of data which time >= start
+            out int endIndex) // the index of data which time <= end
+        {
+            if (dataOrderedByTime == null || start > end || dataOrderedByTime.Length == 0)
+            {
+                throw new ArgumentException();
+            }
+
+            Bar startObject = new Bar(){ Time = start };
+            Bar endObject = new Bar(){ Time = end };
+
+            // startIndex is the index of data whose time >= startDate
+            startIndex = Array.BinarySearch(dataOrderedByTime, startObject, new Bar.TimeComparer());
+            if (startIndex < 0)
+            {
+                // not found, ~startIndex is the index of first data that is greater than value being searched.
+                startIndex = ~startIndex;
+            }
+
+            // endIndex is the index of data whose time <= endDate
+            endIndex = Array.BinarySearch(dataOrderedByTime, endObject, new Bar.TimeComparer());
+            if (endIndex < 0)
+            {
+                // not found, ~endIndex is the index of first data that is greater than value being searched.
+                endIndex = ~endIndex;
+
+                endIndex--; // we need to get the index of data that is just <= endDate.
             }
         }
     }
