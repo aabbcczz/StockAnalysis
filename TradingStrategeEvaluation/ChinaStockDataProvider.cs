@@ -76,7 +76,7 @@ namespace TradingStrategyEvaluation
         public bool GetLastEffectiveBar(int index, DateTime period, out Bar bar)
         {
             bar = new Bar();
-            bar.Invalidate();
+            bar.Time = Bar.InvalidTime;
 
             if (period < _allPeriodsOrdered[0] || period > _allPeriodsOrdered[_allPeriodsOrdered.Length - 1])
             {
@@ -100,7 +100,7 @@ namespace TradingStrategyEvaluation
             // find the latest valid data
             while (periodIndex >= 0)
             {
-                if (_allTradingData[periodIndex][index].Invalid())
+                if (_allTradingData[periodIndex][index].Time == Bar.InvalidTime)
                 {
                     --periodIndex;
                     continue;
@@ -119,7 +119,7 @@ namespace TradingStrategyEvaluation
         {
             return _allTradingData
                 .Select(x => x[index])
-                .Where(bar => !bar.Invalid())
+                .Where(bar => bar.Time != Bar.InvalidTime)
                 .ToArray();
         }
 
@@ -266,7 +266,7 @@ namespace TradingStrategyEvaluation
                 {
                     if (dataIndex >= data.Length || _allPeriodsOrdered[periodIndex] < data[dataIndex].Time)
                     {
-                        _allTradingData[periodIndex][stockIndex].Invalidate();
+                        _allTradingData[periodIndex][stockIndex].Time = Bar.InvalidTime;
                     }
                     else if (_allPeriodsOrdered[periodIndex] == data[dataIndex].Time)
                     {

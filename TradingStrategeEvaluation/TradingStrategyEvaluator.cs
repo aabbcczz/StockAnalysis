@@ -19,7 +19,6 @@ namespace TradingStrategyEvaluation
         private TradingSettings _settings;
         private TradingTracker _tradingTracker = null;
         private ITradingObject[] _allTradingObjects = null;
-//        private Dictionary<string, int> _tradingObjectIndexByCode = new Dictionary<string,int>();
         private List<Instruction> _pendingInstructions = new List<Instruction>();
 
         private bool _evaluatable = true;
@@ -116,12 +115,9 @@ namespace TradingStrategyEvaluation
                 {
                     Bar bar = thisPeriodData[i];
 
-                    if (!bar.Invalid())
+                    if (bar.Time != Bar.InvalidTime && bar.Time != thisPeriodTime)
                     {
-                        if (bar.Time != thisPeriodTime)
-                        {
-                            throw new InvalidOperationException("Time in bar data is different with the time returned by data provider");
-                        }
+                        throw new InvalidOperationException("Time in bar data is different with the time returned by data provider");
                     }
                 }
 
@@ -259,7 +255,7 @@ namespace TradingStrategyEvaluation
                 }
 
                 int tradingObjectIndex = instruction.TradingObject.Index;
-                if (tradingData[tradingObjectIndex].Invalid())
+                if (tradingData[tradingObjectIndex].Time == Bar.InvalidTime)
                 {
                     if (forCurrentPeriod)
                     {

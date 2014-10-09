@@ -107,7 +107,7 @@ namespace TradingStrategy.Strategy
             {
                 for (int i = 0; i < bars.Length; ++i)
                 {
-                    if (bars[i].Invalid())
+                    if (bars[i].Time == Bar.InvalidTime)
                     {
                         continue;
                     }
@@ -121,7 +121,7 @@ namespace TradingStrategy.Strategy
                 ITradingObject tradingObject = tradingObjects[i];
                 Bar bar = bars[i];
 
-                if (bar.Invalid())
+                if (bar.Time == Bar.InvalidTime)
                 {
                     continue;
                 }

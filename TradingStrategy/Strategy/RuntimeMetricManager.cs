@@ -43,12 +43,18 @@ namespace TradingStrategy.Strategy
                 throw new ArgumentNullException("tradingObject");
             }
 
-            if (_metrics[tradingObject.Index] == null)
+            int index = tradingObject.Index;
+
+            T metric = _metrics[index];
+
+            if (metric == null)
             {
-                _metrics[tradingObject.Index] =  _creator();
+                metric = _creator();
+
+                _metrics[index] =  metric;
             }
 
-            return _metrics[tradingObject.Index];
+            return metric;
         }
 
         public T[] GetAllMetrics()

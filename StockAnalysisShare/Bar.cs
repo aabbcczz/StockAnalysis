@@ -8,7 +8,7 @@ namespace StockAnalysis.Share
 {
     public struct Bar
     {
-        private static DateTime InvalidTime = DateTime.MinValue;
+        public static DateTime InvalidTime = DateTime.MinValue;
 
         public DateTime Time;  // transaction time
         public double OpenPrice; // price when openning market
@@ -21,11 +21,6 @@ namespace StockAnalysis.Share
         public bool Invalid()
         {
             return Time == Bar.InvalidTime;
-        }
-
-        public void Invalidate()
-        {
-            Time = Bar.InvalidTime;
         }
     }
 }

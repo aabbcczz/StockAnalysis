@@ -87,13 +87,10 @@ namespace TradingStrategy.Strategy
         {
             base.EvaluateSingleObject(tradingObject, bar);
 
-            if (!bar.Invalid())
-            {
-                _rateOfChanges[tradingObject.Index] 
-                    = base.MetricManager.GetOrCreateRuntimeMetric(tradingObject).RateOfChange;
+            _rateOfChanges[tradingObject.Index] 
+                = base.MetricManager.GetOrCreateRuntimeMetric(tradingObject).RateOfChange;
 
-                _numberOfValidTradingObjectsInThisPeriod++;
-            }
+            _numberOfValidTradingObjectsInThisPeriod++;
         }
 
         private void GenerateRelativeStrength()
