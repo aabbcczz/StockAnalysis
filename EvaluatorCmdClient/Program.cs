@@ -14,6 +14,8 @@ namespace EvaluatorCmdClient
 {
     class Program
     {
+        private static EvaluationResultContextManager ContextManager = null;
+
         static void Main(string[] args)
         {
             var options = new Options();
@@ -96,6 +98,8 @@ namespace EvaluatorCmdClient
                 return;
             }
 
+            Console.CancelKeyPress += ConsoleCancelKeyPress;
+
             // load settings from files
             var tradingSettings = TradingSettings.LoadFromFile(options.TradingSettingsFile);
             var combinedStrategySettings = CombinedStrategySettings.LoadFromFile(options.CombinedStrategySettingsFile);
@@ -119,7 +123,7 @@ namespace EvaluatorCmdClient
                     options.EndDate,
                     options.WarmupPeriods);
 
-            using (var contextManager = new EvaluationResultContextManager(options.EvaluationName))
+            using (ContextManager = new EvaluationResultContextManager(options.EvaluationName))
             {
                 // save evluation summary
                 var evaluationSummary = new EvaluationSummary()
@@ -136,7 +140,7 @@ namespace EvaluatorCmdClient
                         .ToArray()
                 };
 
-                contextManager.SaveEvaluationSummary(evaluationSummary);
+                ContextManager.SaveEvaluationSummary(evaluationSummary);
 
                 List<Tuple<CombinedStrategy, IDictionary<ParameterAttribute, object>>> strategyInstances
                     = new List<Tuple<CombinedStrategy, IDictionary<ParameterAttribute, object>>>();
@@ -164,7 +168,7 @@ namespace EvaluatorCmdClient
                         t =>
                         {
                             EvaluateStrategy(
-                                contextManager,
+                                ContextManager,
                                 t.Item1,
                                 t.Item2,
                                 options.InitialCapital,
@@ -175,13 +179,29 @@ namespace EvaluatorCmdClient
                 }
                 finally
                 {
-                    // save result summary
-                    contextManager.SaveResultSummaries();
+                    lock (ContextManager)
+                    {
+                        // save result summary
+                        ContextManager.SaveResultSummaries();
+                    }
                 }
             }
 
+            ContextManager = null;
+
             Console.WriteLine();
             Console.WriteLine("Done.");
+        }
+
+        private static void ConsoleCancelKeyPress(object sender, ConsoleCancelEventArgs e)
+        {
+            if (ContextManager != null)
+            {
+                lock (ContextManager)
+                {
+                    ContextManager.SaveResultSummaries();
+                }
+            }
         }
 
         private static void EvaluateStrategy(

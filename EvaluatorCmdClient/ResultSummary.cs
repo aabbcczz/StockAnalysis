@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
+using System.Linq.Dynamic;
 using System.Text;
 using System.Threading.Tasks;
+using System.Reflection;
 
 using TradingStrategy;
 using TradingStrategyEvaluation;
@@ -13,21 +16,75 @@ namespace EvaluatorCmdClient
 {
     public sealed class ResultSummary
     {
+        private const int MaxParameterCount = 40;
+
         public sealed class ResultSummaryMap : CsvClassMap<ResultSummary>
         {
             public ResultSummaryMap()
             {
                 AutoMap();
 
-                Map(m => m.ParameterValuesString).Name(ResultSummary.ParameterHeader);
+                for (int i = 0; i < MaxParameterCount; ++i)
+                {
+                    string exp = string.Format("m => m.ParameterValue{0}", i + 1);
+                    var e = System.Linq.Dynamic.DynamicExpression.ParseLambda<ResultSummary, object>(exp);
+
+                    if (i >= ParameterNames.Length)
+                    {
+                        Map(e).Ignore();
+                    }
+                    else
+                    {
+                        Map(e).Name(ResultSummary.ParameterNames[i]);
+                    }
+                }
             }
         }
 
-        private const string ParameterSeparator = "|";
+        public static string[] ParameterNames;
+        private static PropertyInfo[] ParameterValueProperties;
 
-        public static string ParameterHeader;
+        public string ParameterValue1 { get; set; }
+        public string ParameterValue2 { get; set; }
+        public string ParameterValue3 { get; set; }
+        public string ParameterValue4 { get; set; }
+        public string ParameterValue5 { get; set; }
+        public string ParameterValue6 { get; set; }
+        public string ParameterValue7 { get; set; }
+        public string ParameterValue8 { get; set; }
+        public string ParameterValue9 { get; set; }
+        public string ParameterValue10 { get; set; }
+        public string ParameterValue11 { get; set; }
+        public string ParameterValue12 { get; set; }
+        public string ParameterValue13 { get; set; }
+        public string ParameterValue14 { get; set; }
+        public string ParameterValue15 { get; set; }
+        public string ParameterValue16 { get; set; }
+        public string ParameterValue17 { get; set; }
+        public string ParameterValue18 { get; set; }
+        public string ParameterValue19 { get; set; }
+        public string ParameterValue20 { get; set; }
+        public string ParameterValue21 { get; set; }
+        public string ParameterValue22 { get; set; }
+        public string ParameterValue23 { get; set; }
+        public string ParameterValue24 { get; set; }
+        public string ParameterValue25 { get; set; }
+        public string ParameterValue26 { get; set; }
+        public string ParameterValue27 { get; set; }
+        public string ParameterValue28 { get; set; }
+        public string ParameterValue29 { get; set; }
+        public string ParameterValue30 { get; set; }
+        public string ParameterValue31 { get; set; }
+        public string ParameterValue32 { get; set; }
+        public string ParameterValue33 { get; set; }
+        public string ParameterValue34 { get; set; }
+        public string ParameterValue35 { get; set; }
+        public string ParameterValue36 { get; set; }
+        public string ParameterValue37 { get; set; }
+        public string ParameterValue38 { get; set; }
+        public string ParameterValue39 { get; set; }
+        public string ParameterValue40 { get; set; }
 
-        public string ParameterValuesString { get; set; }
         public double InitialEquity { get; set; } // 期初权益
         public double FinalEquity { get; set; } // 期末权益
         public double NetProfit { get; set; } // 净利润 = TotalProfit - TotalLoss - TotalCommission
@@ -53,9 +110,21 @@ namespace EvaluatorCmdClient
             SerializableParameterValues serializableParameterValues = new SerializableParameterValues();
             serializableParameterValues.Initialize(parameterValues);
 
-            ParameterHeader = string.Join(
-                ParameterSeparator,
-                serializableParameterValues.Parameters.Select(p => p.Name));
+            ParameterNames = serializableParameterValues.Parameters.Select(p => p.Name).ToArray();
+
+            if (ParameterNames.Length > MaxParameterCount)
+            {
+                throw new ArgumentException(string.Format("# of parameters exceeds limit {0}", MaxParameterCount));
+            }
+
+            ParameterValueProperties = new PropertyInfo[MaxParameterCount];
+
+            for (int i = 0; i < MaxParameterCount; ++i)
+            {
+                string name = string.Format("ParameterValue{0}", i + 1);
+
+                ParameterValueProperties[i] = typeof(ResultSummary).GetProperty(name);
+            }
         }
 
         public void Initialize(
@@ -71,9 +140,10 @@ namespace EvaluatorCmdClient
             SerializableParameterValues serializableParameterValues = new SerializableParameterValues();
             serializableParameterValues.Initialize(parameterValues);
 
-            ParameterValuesString = string.Join(
-                ParameterSeparator,
-                serializableParameterValues.Parameters.Select(p => p.Value));
+            for (int i = 0; i < serializableParameterValues.Parameters.Length; ++i)
+            {
+                ParameterValueProperties[i].SetValue(this, serializableParameterValues.Parameters[i].Value);
+            }
 
             InitialEquity = metric.InitialEquity;
             FinalEquity = metric.FinalEquity;
