@@ -59,6 +59,36 @@
         </ParameterSettings>
       </ComponentParameterSettings>
     </TradingStrategyComponentSettings>
+    <TradingStrategyComponentSettings Enabled="false">
+      <ClassType>TradingStrategy.Strategy.BreakthroughMarketExiting, TradingStrategy, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</ClassType>
+      <Name>通道突破退市</Name>
+      <Description>当最低价格突破通道后退市</Description>
+      <ImplementedInterfaces>ITradingStrategyComponent;IMarketExitingComponent</ImplementedInterfaces>
+      <ComponentParameterSettings>
+        <ParameterSettings>
+          <Name>BreakthroughWindow</Name>
+          <Description>通道突破窗口</Description>
+          <ValueType>System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
+          <DefaultValue xsi:type="xsd:int">20</DefaultValue>
+          <Values>20</Values>
+        </ParameterSettings>
+      </ComponentParameterSettings>
+    </TradingStrategyComponentSettings>
+    <TradingStrategyComponentSettings Enabled="false">
+      <ClassType>TradingStrategy.Strategy.BreakthroughMarketEntering, TradingStrategy, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</ClassType>
+      <Name>通道突破入市</Name>
+      <Description>当最高价格突破通道后入市</Description>
+      <ImplementedInterfaces>ITradingStrategyComponent;IMarketEnteringComponent</ImplementedInterfaces>
+      <ComponentParameterSettings>
+        <ParameterSettings>
+          <Name>BreakthroughWindow</Name>
+          <Description>通道突破窗口</Description>
+          <ValueType>System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
+          <DefaultValue xsi:type="xsd:int">20</DefaultValue>
+          <Values>55</Values>
+        </ParameterSettings>
+      </ComponentParameterSettings>
+    </TradingStrategyComponentSettings>    
     <TradingStrategyComponentSettings Enabled="true">
       <ClassType>TradingStrategy.Strategy.RelativeStrengthFilterMarketEntering, TradingStrategy, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</ClassType>
       <Name>相对强度入市过滤器</Name>
@@ -114,7 +144,7 @@
           <Description>每份头寸的风险占权益的百分比</Description>
           <ValueType>System.Double, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
           <DefaultValue xsi:type="xsd:double">1</DefaultValue>
-          <Values>1.4</Values>
+          <Values>1</Values>
         </ParameterSettings>
         <ParameterSettings>
           <Name>EquityEvaluationMethod</Name>
@@ -202,7 +232,7 @@
           <Description>ATR停价倍数</Description>
           <ValueType>System.Double, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
           <DefaultValue xsi:type="xsd:double">3</DefaultValue>
-          <Values>2</Values>
+          <Values>3.1</Values>
         </ParameterSettings>
       </ComponentParameterSettings>
     </TradingStrategyComponentSettings>
@@ -224,7 +254,7 @@
           <Description>ATR停价倍数</Description>
           <ValueType>System.Double, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
           <DefaultValue xsi:type="xsd:double">3</DefaultValue>
-          <Values>2</Values>
+          <Values>1.2</Values>
         </ParameterSettings>
       </ComponentParameterSettings>
     </TradingStrategyComponentSettings>

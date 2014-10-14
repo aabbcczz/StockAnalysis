@@ -29,7 +29,7 @@ namespace MetricsDefinition
             }
             else
             {
-                // determine if current highest price is still valid
+                // determine if current lowest price is still valid
                 if (_lowestPriceIndex < 0)
                 {
                     _lowestPrice = double.MaxValue;
