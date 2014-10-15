@@ -271,6 +271,11 @@ namespace TradingStrategyEvaluation
                 throw new ArgumentNullException("provider");
             }
 
+            if (method == EquityEvaluationMethod.InitialEquity)
+            {
+                return InitialCapital;
+            }
+
             double totalEquity = CurrentCapital;
 
             // cash is the core equity

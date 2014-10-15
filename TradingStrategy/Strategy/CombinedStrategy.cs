@@ -134,6 +134,7 @@ namespace TradingStrategy.Strategy
                 // decide if we need to exit market for this trading object. This is the first priorty work
                 if (positions.Count() > 0)
                 {
+                    bool exited = false;
                     foreach (var component in _marketExiting)
                     {
                         if (component.ShouldExit(tradingObject, out comments))
@@ -149,8 +150,14 @@ namespace TradingStrategy.Strategy
                                     Volume = positions.Sum(p => p.Volume),
                                 });
 
-                            return;
+                            exited = true;
+                            break;
                         }
+                    }
+
+                    if (exited)
+                    {
+                        continue;
                     }
                 }
 
@@ -178,7 +185,7 @@ namespace TradingStrategy.Strategy
                             Volume = totalVolume
                         });
 
-                    return;
+                    continue;
                 }
 
                 // decide if we should enter market
