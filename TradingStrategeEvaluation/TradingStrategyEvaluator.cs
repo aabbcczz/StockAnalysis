@@ -30,7 +30,7 @@ namespace TradingStrategyEvaluation
             get { return _equityManager.ClosedPositions; }
         }
 
-        public EventHandler<EvaluationProgressEventArgs> OnEvaluationProgress = null;
+        public EventHandler<EvaluationProgressEventArgs> OnEvaluationProgress;
 
         public TradingStrategyEvaluator(
             double initalCapital, 
@@ -108,14 +108,9 @@ namespace TradingStrategyEvaluation
                 RunPendingInstructions(thisPeriodData, thisPeriodTime, false);
 
                 // check data
-                for (var i = 0; i < thisPeriodData.Length; ++i)
+                if (thisPeriodData.Any(bar => bar.Time != Bar.InvalidTime && bar.Time != thisPeriodTime))
                 {
-                    var bar = thisPeriodData[i];
-
-                    if (bar.Time != Bar.InvalidTime && bar.Time != thisPeriodTime)
-                    {
-                        throw new InvalidOperationException("Time in bar data is different with the time returned by data provider");
-                    }
+                    throw new InvalidOperationException("Time in bar data is different with the time returned by data provider");
                 }
 
                 // evaluate bar data

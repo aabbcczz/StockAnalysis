@@ -8,14 +8,14 @@ using StockAnalysis.Share;
 
 namespace ReportParser
 {
-    class Program
+    static class Program
     {
         static void Main(string[] args)
         {
             var options = new Options();
             var parser = new Parser(with => with.HelpWriter = Console.Error);
 
-            if (parser.ParseArgumentsStrict(args, options, () => { Environment.Exit(-2); }))
+            if (parser.ParseArgumentsStrict(args, options, () => Environment.Exit(-2)))
             {
                 options.BoundaryCheck();
 
@@ -211,14 +211,12 @@ namespace ReportParser
                 {
                     var tables = financeReports.SelectMany(r => r.Tables.Where(t => t.Name == tableName));
                     var financeReportTables = tables as FinanceReportTable[] ?? tables.ToArray();
-                    if (financeReportTables.Count() == 0)
+                    if (!financeReportTables.Any())
                     {
                         continue;
                     }
 
-                    var outputColumnsForHeader = new List<string>();
-                    outputColumnsForHeader.Add("CODE");
-                    outputColumnsForHeader.Add("PeriodOrColumn");
+                    var outputColumnsForHeader = new List<string> {"CODE", "PeriodOrColumn"};
                     outputColumnsForHeader.AddRange(financeReportTables.First().Rows.Select(r => r.Name));
 
                     // write header
@@ -243,11 +241,7 @@ namespace ReportParser
                                     continue;
                                 }
 
-                                var outputColumnsForRow = new List<string>();
-
-                                outputColumnsForRow.Add(code);
-
-                                outputColumnsForRow.Add(tableColumnNames[i]);
+                                var outputColumnsForRow = new List<string> {code, tableColumnNames[i]};
 
                                 foreach (var row in table.Rows)
                                 {
@@ -369,12 +363,12 @@ namespace ReportParser
                     var firstColumnIndex = firstActiveColumn.Tag;
 
                     var secondColumnIndex = -1;
-                    for (var i = 0; i < dateColumns.Length; ++i)
+                    foreach (FinanceReportColumnDefinition t in dateColumns)
                     {
-                        if (dateColumns[i].Date.Year == firstActiveColumn.Date.Year - 1
-                            && dateColumns[i].Date.Month == 12)
+                        if (t.Date.Year == firstActiveColumn.Date.Year - 1
+                            && t.Date.Month == 12)
                         {
-                            secondColumnIndex = dateColumns[i].Tag;
+                            secondColumnIndex = t.Tag;
                             break;
                         }
                     }
@@ -386,12 +380,12 @@ namespace ReportParser
                     }
 
                     var thirdColumnIndex = -1;
-                    for (var i = 0; i < dateColumns.Length; ++i)
+                    foreach (FinanceReportColumnDefinition t in dateColumns)
                     {
-                        if (dateColumns[i].Date.Year == firstActiveColumn.Date.Year - 1
-                            && dateColumns[i].Date.Month == firstActiveColumn.Date.Month)
+                        if (t.Date.Year == firstActiveColumn.Date.Year - 1
+                            && t.Date.Month == firstActiveColumn.Date.Month)
                         {
-                            thirdColumnIndex = dateColumns[i].Tag;
+                            thirdColumnIndex = t.Tag;
                             break;
                         }
                     }

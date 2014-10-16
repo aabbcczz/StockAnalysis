@@ -22,13 +22,13 @@ namespace MetricsDefinition.Metrics
 
         public override double Update(Bar bar)
         {
-            const double SmallValue = 1e-10;
+            const double smallValue = 1e-10;
    
             double pv, nv, zv;
             
             if (_firstBar)
             {
-                pv = nv = SmallValue;
+                pv = nv = smallValue;
                 zv = bar.Volume;
             }
             else
@@ -50,9 +50,9 @@ namespace MetricsDefinition.Metrics
                 }
             }
 
-            var msPv = _msPv.Update(pv) + SmallValue;
-            var msNv = _msNv.Update(nv) + SmallValue;
-            var msZv = _msZv.Update(zv) + SmallValue;
+            var msPv = _msPv.Update(pv) + smallValue;
+            var msNv = _msNv.Update(nv) + smallValue;
+            var msZv = _msZv.Update(zv) + smallValue;
 
             var result = (msPv + msZv / 2.0) / (msNv + msZv / 2.0) * 100.0;
 

@@ -7,9 +7,9 @@ namespace MetricsDefinition
 {
     public static class MetricEvaluationContext
     {
-        public static Dictionary<string, MetricAttribute> NameToMetricAttributeMap = new Dictionary<string, MetricAttribute>();
+        private static readonly Dictionary<string, MetricAttribute> NameToMetricAttributeMap = new Dictionary<string, MetricAttribute>();
 
-        public static Dictionary<string, Type> NameToMetricMap = new Dictionary<string, Type>();
+        public static readonly Dictionary<string, Type> NameToMetricMap = new Dictionary<string, Type>();
 
         static MetricEvaluationContext()
         {

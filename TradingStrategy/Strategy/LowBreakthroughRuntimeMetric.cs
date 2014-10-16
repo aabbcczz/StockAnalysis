@@ -1,20 +1,15 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using MetricsDefinition;
+using MetricsDefinition.Metrics;
 
 namespace TradingStrategy.Strategy
 {
     public sealed class LowBreakthroughRuntimeMetric : IRuntimeMetric
     {
-        private Lowest _lowest;
+        private readonly Lowest _lowest;
 
-        public double CurrentLowest { get; set; }
+        public double CurrentLowest { get; private set; }
 
-        public bool Breakthrough { get; set; }
+        public bool Breakthrough { get; private set; }
 
         public LowBreakthroughRuntimeMetric(int windowSize)
         {
@@ -26,7 +21,7 @@ namespace TradingStrategy.Strategy
         {
             double newLowest = _lowest.Update(bar.LowestPrice);
 
-            Breakthrough = newLowest == bar.LowestPrice && newLowest < CurrentLowest;
+            Breakthrough = Math.Abs(newLowest - bar.LowestPrice) < 1e-6 && newLowest < CurrentLowest;
 
             CurrentLowest = newLowest;
         }

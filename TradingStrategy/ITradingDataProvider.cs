@@ -5,9 +5,7 @@ namespace TradingStrategy
 {
     public interface ITradingDataProvider
     {
-        int PeriodCount { get; }
-
-        DateTime[] GetAllPeriodsOrdered();
+       DateTime[] GetAllPeriodsOrdered();
 
         ITradingObject[] GetAllTradingObjects();
 

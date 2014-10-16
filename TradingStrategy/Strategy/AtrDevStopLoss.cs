@@ -24,9 +24,9 @@ namespace TradingStrategy.Strategy
             get { return "当价格低于买入价，并且差值>ATR的标准差*ATR标准差停价倍数*(1+ATR标准差调整百分比/100)时停价"; }
         }
 
-        public override Func<AtrDevRuntimeMetric> Creator
+        protected override Func<AtrDevRuntimeMetric> Creator
         {
-            get { return (() => { return new AtrDevRuntimeMetric(AtrWindowSize); }); }
+            get { return (() => new AtrDevRuntimeMetric(AtrWindowSize)); }
         }
 
         protected override void ValidateParameterValues()

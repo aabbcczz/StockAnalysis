@@ -34,13 +34,7 @@ namespace TradingStrategy.Strategy
 
         public IEnumerable<ParameterAttribute> GetParameterDefinitions()
         {
-            foreach (var component in _components)
-            {
-                foreach (var attribute in component.GetParameterDefinitions())
-                {
-                    yield return attribute;
-                }
-            }
+            return _components.SelectMany(component => component.GetParameterDefinitions());
         }
 
         public void Initialize(IEvaluationContext context, IDictionary<ParameterAttribute, object> parameterValues)
@@ -288,7 +282,7 @@ namespace TradingStrategy.Strategy
                         _context.Log(
                             string.Format(
                                 "Set stop loss for position {0}/{1} as {2:0.000}",
-                                position.ID,
+                                position.Id,
                                 position.Code,
                                 stopLossPrice));
                     }

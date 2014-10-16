@@ -1,20 +1,15 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using MetricsDefinition;
+using MetricsDefinition.Metrics;
 
 namespace TradingStrategy.Strategy
 {
     public sealed class HighBreakthroughRuntimeMetric : IRuntimeMetric
     {
-        private Highest _highest;
+        private readonly Highest _highest;
 
-        public double CurrentHighest { get; set; }
+        public double CurrentHighest { get; private set; }
 
-        public bool Breakthrough { get; set; }
+        public bool Breakthrough { get; private set; }
 
         public HighBreakthroughRuntimeMetric(int windowSize)
         {
@@ -26,7 +21,7 @@ namespace TradingStrategy.Strategy
         {
             double newHighest = _highest.Update(bar.HighestPrice);
 
-            Breakthrough = newHighest == bar.HighestPrice && newHighest > CurrentHighest;
+            Breakthrough = Math.Abs(newHighest - bar.HighestPrice) < 1e-6 && newHighest > CurrentHighest;
 
             CurrentHighest = newHighest;
         }

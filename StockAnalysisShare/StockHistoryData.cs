@@ -64,15 +64,16 @@ namespace StockAnalysis.Share
                     continue;
                 }
 
-                var dailyData = new Bar();
-
-                dailyData.Time = DateTime.Parse(row[1]);
-                dailyData.OpenPrice = double.Parse(row[2]);
-                dailyData.HighestPrice = double.Parse(row[3]);
-                dailyData.LowestPrice = double.Parse(row[4]);
-                dailyData.ClosePrice = double.Parse(row[5]);
-                dailyData.Volume = double.Parse(row[6]);
-                dailyData.Amount = double.Parse(row[7]);
+                var dailyData = new Bar
+                {
+                    Time = DateTime.Parse(row[1]),
+                    OpenPrice = double.Parse(row[2]),
+                    HighestPrice = double.Parse(row[3]),
+                    LowestPrice = double.Parse(row[4]),
+                    ClosePrice = double.Parse(row[5]),
+                    Volume = double.Parse(row[6]),
+                    Amount = double.Parse(row[7])
+                };
 
                 if (dailyData.OpenPrice > 0.0
                     && dailyData.ClosePrice > 0.0

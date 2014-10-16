@@ -10,14 +10,14 @@ using StockAnalysis.Share;
 
 namespace GenerateMetrics
 {
-    class Program
+    static class Program
     {
         static void Main(string[] args)
         {
             var options = new Options();
             var parser = new Parser(with => with.HelpWriter = Console.Error);
 
-            if (parser.ParseArgumentsStrict(args, options, () => { Environment.Exit(-2); }))
+            if (parser.ParseArgumentsStrict(args, options, () => Environment.Exit(-2)))
             {
                 options.BoundaryCheck();
 
@@ -103,7 +103,7 @@ namespace GenerateMetrics
 
             // parse metrics to expression
             var metricExpressions = metrics
-                .Select(m => MetricEvaluationContext.ParseExpression(m))
+                .Select(MetricEvaluationContext.ParseExpression)
                 .ToArray();
 
             // build field names
@@ -132,7 +132,7 @@ namespace GenerateMetrics
             using (var outputter = new StreamWriter(outputFile, false, Encoding.UTF8))
             {
                 var header = "code,date," 
-                    + string.Join(",", allFieldNames.Select(m => MetricHelper.ConvertMetricToCsvCompatibleHead(m)));
+                    + string.Join(",", allFieldNames.Select(MetricHelper.ConvertMetricToCsvCompatibleHead));
 
                 outputter.WriteLine(header);
 

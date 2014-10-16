@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Globalization;
 using System.Linq;
 using System.IO;
 using System.Text;
@@ -49,8 +50,7 @@ namespace EvaluatorClient
             valueParameterDataGridViewColumn.DataPropertyName = "Value";
 
             // create metric form
-            _metricForm = new MetricForm();
-            _metricForm.Visible = false;
+            _metricForm = new MetricForm {Visible = false};
         }
 
         private void ShowError(string error, Exception exception = null)
@@ -114,7 +114,7 @@ namespace EvaluatorClient
 
         private void LoadStrategies()
         {
-            var componentStrategySettingsFileName = "CombinedStrategySettings.xml";
+            const string componentStrategySettingsFileName = "CombinedStrategySettings.xml";
 
             if (!File.Exists(componentStrategySettingsFileName))
             {
@@ -132,7 +132,7 @@ namespace EvaluatorClient
                 iTradingStrategyBindingSource.Add(strategy);
             }
 
-            if (StrategyLoader.Strategies.Count() > 0)
+            if (StrategyLoader.Strategies.Any())
             {
                 strategyComboBox.SelectedIndex = 0;
                 // force update
@@ -227,31 +227,22 @@ namespace EvaluatorClient
                 }
             }
 
-            if (settings == null)
+            return settings ?? (new TradingSettings
             {
-                settings = new TradingSettings
+                BuyingCommission = new CommissionSettings
                 {
-                    BuyingCommission = new CommissionSettings
-                    {
-                        Type = CommissionSettings.CommissionType.ByAmount,
-                        Tariff = 0.0005
-                    },
-
-                    SellingCommission = new CommissionSettings
-                    {
-                        Type = CommissionSettings.CommissionType.ByAmount,
-                        Tariff = 0.0005
-                    },
-
-                    Spread = 0,
-
-                    OpenLongPriceOption = TradingPriceOption.NextOpenPrice,
-
-                    CloseLongPriceOption = TradingPriceOption.NextOpenPrice,
-                };
-            }
-
-            return settings;
+                    Type = CommissionSettings.CommissionType.ByAmount,
+                    Tariff = 0.0005
+                },
+                SellingCommission = new CommissionSettings
+                {
+                    Type = CommissionSettings.CommissionType.ByAmount,
+                    Tariff = 0.0005
+                },
+                Spread = 0,
+                OpenLongPriceOption = TradingPriceOption.NextOpenPrice,
+                CloseLongPriceOption = TradingPriceOption.NextOpenPrice,
+            });
         }
 
         private ChinaStockDataSettings LoadStockDataSettings()
@@ -261,10 +252,12 @@ namespace EvaluatorClient
             if (!File.Exists(file))
             {
                 // create a dummy file
-                var settings = new ChinaStockDataSettings();
-                settings.StockNameTableFile = "sample";
-                settings.StockDataFileDirectory = ".";
-                settings.StockDataFileNamePattern = ChinaStockDataSettings.StockCodePattern + ".csv";
+                var settings = new ChinaStockDataSettings
+                {
+                    StockNameTableFile = "sample",
+                    StockDataFileDirectory = ".",
+                    StockDataFileNamePattern = ChinaStockDataSettings.StockCodePattern + ".csv"
+                };
 
                 settings.SaveToFile(file);
             }
@@ -284,7 +277,7 @@ namespace EvaluatorClient
             {
                 chargeByAmountRadioButton.Checked = true;
                 chargeByVolumeRadioButton.Checked = false;
-                tariffTextBox.Text = "0";
+                tariffTextBox.Text = Resources.MainForm_ApplyTradingSettings__0;
                 buyCommissionTextBox.Text = string.Format("{0:0.00}", settings.BuyingCommission.Tariff * 100);
                 sellCommissionTextBox.Text = string.Format("{0:0.00}", settings.SellingCommission.Tariff * 100);
                 
@@ -294,11 +287,11 @@ namespace EvaluatorClient
                 chargeByAmountRadioButton.Checked = false;
                 chargeByVolumeRadioButton.Checked = true;
                 tariffTextBox.Text = string.Format("{0:0.00}", settings.BuyingCommission.Tariff);
-                buyCommissionTextBox.Text = "0.05";
-                sellCommissionTextBox.Text = "0.05";
+                buyCommissionTextBox.Text = Resources.MainForm_ApplyTradingSettings__0_05;
+                sellCommissionTextBox.Text = Resources.MainForm_ApplyTradingSettings__0_05;
             }
 
-            spreadTextBox.Text = settings.Spread.ToString();
+            spreadTextBox.Text = settings.Spread.ToString(CultureInfo.InvariantCulture);
 
             openLongOptionComboBox.SelectedValue = settings.OpenLongPriceOption;
             closeLongOptionComboBox.SelectedValue = settings.CloseLongPriceOption;
@@ -617,18 +610,11 @@ namespace EvaluatorClient
                 var initialCapital = double.Parse(initialCapitalTextBox.Text);
 
                 var files = new List<string>(selectedObjectListView.Items.Count);
-
-                foreach (ListViewItem item in selectedObjectListView.Items)
-                {
-                    var code = item.Text;
-
-                    var fileName = _stockDataSettings.BuildActualDataFilePathAndName(code);
-
-                    if (File.Exists(fileName))
-                    {
-                        files.Add(fileName);
-                    }
-                }
+                files.AddRange(selectedObjectListView.Items
+                    .Cast<ListViewItem>()
+                    .Select(item => item.Text)
+                    .Select(code => _stockDataSettings.BuildActualDataFilePathAndName(code))
+                    .Where(File.Exists));
 
                 if (files.Count == 0)
                 {
@@ -696,14 +682,15 @@ namespace EvaluatorClient
                 var metrics = calculator.Calculate().Select(tm => new TradeMetricSlim(tm));
 
                 // show results
-                var results = new SortableBindingList<TradeMetricSlim>(metrics);
+                var tradeMetricSlims = metrics as TradeMetricSlim[] ?? metrics.ToArray();
+                var results = new SortableBindingList<TradeMetricSlim>(tradeMetricSlims);
                 resultDataGridView.DataSource = results;
 
                 // switch to result page
                 tabControl1.SelectedTab = resultPage; 
 
                 // set active data provider
-                if (metrics.Count() > 0)
+                if (tradeMetricSlims.Any())
                 {
                     _activeDataProvider = provider;
                 }
@@ -719,11 +706,14 @@ namespace EvaluatorClient
             var parameterValues = new Dictionary<ParameterAttribute, object>();
 
             var attributes = parameterDataGridView.DataSource as List<ParameterAttributeSlim>;
-            foreach (var attribute in attributes)
+            if (attributes != null)
             {
-                var value = ParameterHelper.ConvertStringToValue(attribute.Attribute, attribute.Value);
+                foreach (var attribute in attributes)
+                {
+                    var value = ParameterHelper.ConvertStringToValue(attribute.Attribute, attribute.Value);
 
-                parameterValues.Add(attribute.Attribute, value);
+                    parameterValues.Add(attribute.Attribute, value);
+                }
             }
 
             return parameterValues;
@@ -798,9 +788,12 @@ namespace EvaluatorClient
 
             var obj = parameterDataGridView.Rows[e.RowIndex].DataBoundItem as ParameterAttributeSlim;
 
-            if (!ParameterHelper.IsValidValue(obj.Attribute, (string)e.FormattedValue))
+            if (obj != null)
             {
-                e.Cancel = true;
+                if (!ParameterHelper.IsValidValue(obj.Attribute, (string) e.FormattedValue))
+                {
+                    e.Cancel = true;
+                }
             }
         }
     }

@@ -11,7 +11,7 @@ namespace TradingStrategy.Strategy
         [Parameter(20, "长期移动平均周期")]
         public int Long { get; set; }
 
-        public override Func<MovingAverageRuntimeMetric> Creator
+        protected override Func<MovingAverageRuntimeMetric> Creator
         {
             get { return (() => new MovingAverageRuntimeMetric(Short, Long)); }
         }

@@ -21,9 +21,9 @@ namespace TradingStrategyEvaluation
             }
         }
 
-        private Dictionary<string, List<Position>> _activePositions = new Dictionary<string, List<Position>>();
+        private readonly Dictionary<string, List<Position>> _activePositions = new Dictionary<string, List<Position>>();
 
-        private List<Position> _closedPositions = new List<Position>();
+        private readonly List<Position> _closedPositions = new List<Position>();
 
         public double InitialCapital { get; private set; }
 
@@ -201,7 +201,7 @@ namespace TradingStrategyEvaluation
                 case SellingType.ByPositionId:
                     for (var i = 0; i < positions.Length; ++i)
                     {
-                        if (positions[i].ID == transaction.PositionIdForSell)
+                        if (positions[i].Id == transaction.PositionIdForSell)
                         {
                             yield return new PositionToBeSold(i, positions[i].Volume);
                             yield break;
@@ -317,10 +317,7 @@ namespace TradingStrategyEvaluation
                     }
                     else if (method == EquityEvaluationMethod.ReducedTotalEquity)
                     {
-                        foreach (var position in kvp.Value)
-                        {
-                            totalEquity += position.Volume * Math.Min(bar.ClosePrice, position.StopLossPrice);
-                        }
+                        totalEquity += kvp.Value.Sum(position => position.Volume*Math.Min(bar.ClosePrice, position.StopLossPrice));
                     }
                 }
             }

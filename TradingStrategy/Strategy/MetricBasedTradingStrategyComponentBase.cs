@@ -11,7 +11,7 @@ namespace TradingStrategy.Strategy
     {
         protected RuntimeMetricManager<T> MetricManager { get; private set; }
 
-        public abstract Func<T> Creator { get; }
+        protected abstract Func<T> Creator { get; }
 
         public override void Initialize(
             IEvaluationContext context, 

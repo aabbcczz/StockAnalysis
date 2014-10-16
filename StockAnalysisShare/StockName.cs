@@ -68,11 +68,11 @@ namespace StockAnalysis.Share
                 throw new FormatException(string.Format("stock name [{0}] is invalid", stockName));
             }
 
-            var name = new StockName();
-
-            name.Code = fields[0];
-
-            name.Names = fields.Length > 1 ? fields.Skip(1).ToArray() : new[] { string.Empty } ;
+            var name = new StockName
+            {
+                Code = fields[0],
+                Names = fields.Length > 1 ? fields.Skip(1).ToArray() : new[] {string.Empty}
+            };
 
             return name;
         }

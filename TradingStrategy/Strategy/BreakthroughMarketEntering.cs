@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace TradingStrategy.Strategy
 {
@@ -26,7 +22,7 @@ namespace TradingStrategy.Strategy
         {
             comments = string.Empty;
 
-            var metric = base.MetricManager.GetOrCreateRuntimeMetric(tradingObject);
+            var metric = MetricManager.GetOrCreateRuntimeMetric(tradingObject);
             if (metric.Breakthrough)
             {
                 comments = string.Format("Breakthrough: {0}", metric.CurrentHighest);
@@ -35,11 +31,11 @@ namespace TradingStrategy.Strategy
             return metric.Breakthrough;
         }
 
-        public override Func<HighBreakthroughRuntimeMetric> Creator
+        protected override Func<HighBreakthroughRuntimeMetric> Creator
         {
             get 
             {
-                return (() => { return new HighBreakthroughRuntimeMetric(BreakthroughWindow); });    
+                return (() => new HighBreakthroughRuntimeMetric(BreakthroughWindow));    
             }
         }
     }

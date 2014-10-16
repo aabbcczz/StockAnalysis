@@ -40,7 +40,7 @@ namespace StockAnalysis.Share
             // find out tables with given name
             var tables = _tables.Where(t => t.Name == tableName).ToArray();
 
-            if (tables.Count() == 0)
+            if (!tables.Any())
             {
                 return;
             }

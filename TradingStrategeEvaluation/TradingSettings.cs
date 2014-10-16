@@ -60,20 +60,19 @@ namespace TradingStrategyEvaluation
 
         public static TradingSettings GenerateExampleSettings()
         {
-            var settings = new TradingSettings();
-
-            settings.BuyingCommission = new CommissionSettings();
-            settings.BuyingCommission.Type = CommissionSettings.CommissionType.ByAmount;
-            settings.BuyingCommission.Tariff = 0.0005;
-
-            settings.SellingCommission = new CommissionSettings();
-            settings.SellingCommission.Type = CommissionSettings.CommissionType.ByAmount;
-            settings.SellingCommission.Tariff = 0.0005;
-
-            settings.Spread = 0;
-
-            settings.OpenLongPriceOption = TradingPriceOption.NextOpenPrice;
-            settings.CloseLongPriceOption = TradingPriceOption.NextOpenPrice;
+            var settings = new TradingSettings
+            {
+                BuyingCommission =
+                    new CommissionSettings {Type = CommissionSettings.CommissionType.ByAmount, Tariff = 0.0005},
+                SellingCommission = new CommissionSettings
+                {
+                    Type = CommissionSettings.CommissionType.ByAmount,
+                    Tariff = 0.0005
+                },
+                Spread = 0,
+                OpenLongPriceOption = TradingPriceOption.NextOpenPrice,
+                CloseLongPriceOption = TradingPriceOption.NextOpenPrice
+            };
 
             return settings;
         }

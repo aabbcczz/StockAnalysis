@@ -43,7 +43,9 @@ namespace EvaluatorClient
 
                     _strategies.Add(strategy);
                 }
+// ReSharper disable EmptyGeneralCatchClause
                 catch
+// ReSharper restore EmptyGeneralCatchClause
                 {
                     // ignore exception.
                 }

@@ -70,11 +70,12 @@ namespace TradingStrategyEvaluation
 
         public static ChinaStockDataSettings GenerateExampleSettings()
         {
-            var settings = new ChinaStockDataSettings();
-
-            settings.StockDataFileDirectory = @"d:\stock\";
-            settings.StockDataFileNamePattern = @"%c.day.csv";
-            settings.StockNameTableFile = @"stocknames.txt";
+            var settings = new ChinaStockDataSettings
+            {
+                StockDataFileDirectory = @"d:\stock\",
+                StockDataFileNamePattern = @"%c.day.csv",
+                StockNameTableFile = @"stocknames.txt"
+            };
 
             return settings;
         }

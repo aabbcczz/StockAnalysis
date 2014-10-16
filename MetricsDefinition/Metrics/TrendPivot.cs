@@ -1,5 +1,5 @@
-﻿namespace MetricsDefinition.Metrics
-{
+﻿//namespace MetricsDefinition.Metrics
+//{
     //[Metric("TP")]
     //public sealed class TrendPivot : SerialMetric
     //{
@@ -166,4 +166,4 @@
     //        return -1;
     //    }
     //}
-}
+//}

@@ -11,7 +11,7 @@ namespace MetricsDefinition
             get { return _data; }
         }
 
-        public BarInputSerialMetric(int windowSize)
+        protected BarInputSerialMetric(int windowSize)
             : base(windowSize)
         {
             _data = new CirculatedArray<Bar>(windowSize);

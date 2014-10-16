@@ -65,10 +65,9 @@ namespace StockAnalysis.Share
                         continue;
                     }
 
-                    StockName stockName;
                     try
                     {
-                        stockName = StockName.Parse(line);
+                        StockName stockName = StockName.Parse(line);
 
                         // avoid duplicated stock name (two stocks are treated as duplicated iff. their code are the same)
                         if (!ContainsStock(stockName.Code))

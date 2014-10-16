@@ -8,14 +8,14 @@ using StockAnalysis.Share;
 
 namespace ProcessDailyStockData
 {
-    class Program
+    static class Program
     {
         static void Main(string[] args)
         {
             var options = new Options();
             var parser = new Parser(with => with.HelpWriter = Console.Error);
 
-            if (parser.ParseArgumentsStrict(args, options, () => { Environment.Exit(-2); }))
+            if (parser.ParseArgumentsStrict(args, options, () => Environment.Exit(-2)))
             {
                 options.BoundaryCheck();
 
@@ -138,7 +138,7 @@ namespace ProcessDailyStockData
 
             using (var outputter = new StreamWriter(outputFile, false, Encoding.UTF8))
             {
-                var header = "code,date,open,highest,lowest,close,volume,amount";
+                const string header = "code,date,open,highest,lowest,close,volume,amount";
                 const int indexOfVolume = 6;
 
                 outputter.WriteLine(header);

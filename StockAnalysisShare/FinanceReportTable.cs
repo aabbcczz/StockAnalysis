@@ -128,13 +128,14 @@ namespace StockAnalysis.Share
                 columnDefinitions[i + orderedColumnDate.Count] = new FinanceReportColumnDefinition(orderedColumnText[i]);
             }
 
-            var table = new FinanceReportTable(Name, RowDefinition, Unit, columnDefinitions);
-
-            table._rows = new List<FinanceReportRow>();
-
-            for (var i = 0; i < orderedRowNames.Count; ++i)
+            var table = new FinanceReportTable(Name, RowDefinition, Unit, columnDefinitions)
             {
-                table._rows.Add(new FinanceReportRow(orderedRowNames[i], table._columnDefinitions, table.Unit));
+                _rows = new List<FinanceReportRow>()
+            };
+
+            foreach (string t in orderedRowNames)
+            {
+                table._rows.Add(new FinanceReportRow(t, table._columnDefinitions, table.Unit));
             }
 
             // build old row index to new row index map and old column index to new column index

@@ -1,12 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace TradingStrategy.Strategy
 {
-    public sealed class BreakthroughMarketExiting 
+    public sealed class BreakthroughMarketExiting
         : MetricBasedMarketExitingBase<LowBreakthroughRuntimeMetric>
     {
         public override string Name
@@ -22,25 +18,22 @@ namespace TradingStrategy.Strategy
         [Parameter(20, "通道突破窗口")]
         public int BreakthroughWindow { get; set; }
 
+        protected override Func<LowBreakthroughRuntimeMetric> Creator
+        {
+            get { return (() => new LowBreakthroughRuntimeMetric(BreakthroughWindow)); }
+        }
+
         public override bool ShouldExit(ITradingObject tradingObject, out string comments)
         {
             comments = string.Empty;
 
-            var metric = base.MetricManager.GetOrCreateRuntimeMetric(tradingObject);
+            LowBreakthroughRuntimeMetric metric = MetricManager.GetOrCreateRuntimeMetric(tradingObject);
             if (metric.Breakthrough)
             {
                 comments = string.Format("Breakthrough: {0}", metric.CurrentLowest);
             }
 
             return metric.Breakthrough;
-        }
-
-        public override Func<LowBreakthroughRuntimeMetric> Creator
-        {
-            get 
-            {
-                return (() => { return new LowBreakthroughRuntimeMetric(BreakthroughWindow); });    
-            }
         }
     }
 }

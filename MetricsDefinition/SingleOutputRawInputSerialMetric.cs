@@ -2,7 +2,7 @@
 {
     public abstract class SingleOutputRawInputSerialMetric : RawInputSerialMetric
     {
-        public SingleOutputRawInputSerialMetric(int windowSize)
+        protected SingleOutputRawInputSerialMetric(int windowSize)
             : base(windowSize)
         {
         }

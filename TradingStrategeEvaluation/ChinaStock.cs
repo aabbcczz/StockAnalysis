@@ -18,19 +18,14 @@ namespace TradingStrategyEvaluation
 
         public double MinPriceUnit { get; private set; }
 
-        public ChinaStock(int index, string code, string name)
-            : this(index, code, name, 100, 100, 1, 0.01)
-        {
-        }
-
         public ChinaStock(
             int index,
             string code, 
             string name, 
-            int volumePerHand,
-            int volumePerBuyingUnit,
-            int volumePerSellingUnit, 
-            double minPriceUnit)
+            int volumePerHand = 100,
+            int volumePerBuyingUnit = 100,
+            int volumePerSellingUnit = 1, 
+            double minPriceUnit = 0.01)
         {
             Index = index;
             Code = code;

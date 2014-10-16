@@ -8,14 +8,14 @@ using StockAnalysis.Share;
 
 namespace CalcMarketValue
 {
-    class Program
+    static class Program
     {
         static void Main(string[] args)
         {
             var options = new Options();
             var parser = new Parser(with => with.HelpWriter = Console.Error);
 
-            if (parser.ParseArgumentsStrict(args, options, () => { Environment.Exit(-2); }))
+            if (parser.ParseArgumentsStrict(args, options, () => Environment.Exit(-2)))
             {
                 options.BoundaryCheck();
 

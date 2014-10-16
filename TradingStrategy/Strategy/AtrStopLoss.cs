@@ -22,11 +22,11 @@ namespace TradingStrategy.Strategy
             get { return "当价格低于买入价，并且差值大于ATR乘以Atr停价倍数时停价"; }
         }
 
-        public override Func<AtrRuntimeMetric> Creator
+        protected override Func<AtrRuntimeMetric> Creator
         {
             get 
             {
-                return (() => { return new AtrRuntimeMetric(AtrWindowSize); });
+                return (() => new AtrRuntimeMetric(AtrWindowSize));
             }
         }
 

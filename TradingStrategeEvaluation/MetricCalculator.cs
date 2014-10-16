@@ -212,16 +212,11 @@ namespace TradingStrategyEvaluation
 
             var equityPoints = new List<EquityPoint>(_periods.Length);
 
-            for (var i = 0; i < _periods.Length; ++i)
+            foreach (var period in _periods)
             {
-                var period = _periods[i];
-
                 while (transactionIndex < transactions.Length)
                 {
                     var transaction = transactions[transactionIndex];
-
-                    CompletedTransaction completedTransaction;
-                    string error;
 
                     if (transaction.ExecutionTime <= period)
                     {
@@ -233,11 +228,13 @@ namespace TradingStrategyEvaluation
                             // always use ByVolume selling type to simulate transactions.
                             transaction.SellingType = SellingType.ByVolume;
 
+                            CompletedTransaction completedTransaction;
+                            string error;
                             if (!manager.ExecuteTransaction(
-                                    transaction,
-                                    true,
-                                    out completedTransaction,
-                                    out error))
+                                transaction,
+                                true,
+                                out completedTransaction,
+                                out error))
                             {
                                 throw new InvalidOperationException("Replay transaction failed: " + error);
                             }

@@ -69,7 +69,7 @@ namespace GetFinanceReports
                 RandomRange = 10;
             }
 
-            if (OutputFolder.IndexOf(DateMark) >= 0)
+            if (OutputFolder.IndexOf(DateMark, StringComparison.Ordinal) >= 0)
             {
                 OutputFolder = OutputFolder.Replace(DateMark, string.Format("{0:yyyymmdd}", DateTime.Today));
             }

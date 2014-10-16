@@ -31,7 +31,7 @@ namespace TradingStrategy.Strategy
                             Context.Log(
                                 string.Format(
                                     "TraceStopLoss: Set stop loss for position {0}/{1} as {2:0.000}", 
-                                    position.ID, 
+                                    position.Id, 
                                     position.Code, 
                                     stopLossPrice));
                         }

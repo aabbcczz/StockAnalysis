@@ -15,12 +15,7 @@ namespace StockAnalysis.Share
         public double Volume; // total amount of volume in all transactions
         public double Amount; // total amount of money in all transaction
 
-        public bool Invalid()
-        {
-            return Time == InvalidTime;
-        }
-
-        public class TimeComparer : IComparer<Bar>
+       public class TimeComparer : IComparer<Bar>
         {
             public int Compare(Bar x, Bar y)
             {

@@ -22,9 +22,9 @@ namespace TradingStrategy.Strategy
             get { return "当价格向有利方向变动时，持续跟踪设置止损价为当前价格减去ATR乘以Atr停价倍数"; }
         }
 
-        public override Func<AtrRuntimeMetric> Creator
+        protected override Func<AtrRuntimeMetric> Creator
         {
-            get { return (() => { return new AtrRuntimeMetric(AtrWindowSize); }); }
+            get { return (() => new AtrRuntimeMetric(AtrWindowSize)); }
         }
 
         protected override void ValidateParameterValues()

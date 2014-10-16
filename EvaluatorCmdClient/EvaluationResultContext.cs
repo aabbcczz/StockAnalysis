@@ -86,7 +86,7 @@ namespace EvaluatorCmdClient
             }
 
             // get the overall metric
-            var overallMetric = tradeMetrics.Where(m => m.Code == TradeMetric.CodeForAll).First();
+            var overallMetric = tradeMetrics.First(m => m.Code == TradeMetric.CodeForAll);
             
             // save equities
             using (var writer = new StreamWriter(

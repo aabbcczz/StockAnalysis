@@ -4,8 +4,8 @@ namespace EvaluatorClient
 {
     internal sealed class TradingPriceOptionBinding
     {
-        public string Text { get; set; }
-        public TradingPriceOption Option { get; set; }
+        public string Text { get; private set; }
+        public TradingPriceOption Option { get; private set; }
 
         public static TradingPriceOptionBinding[] CreateBindings()
         {

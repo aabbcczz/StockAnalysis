@@ -82,7 +82,7 @@ namespace StockAnalysis.Share
         public void SaveToXml(XmlDocument doc, XmlElement parentElement)
         {
             var sortedNames = GetAllNormalizedNames().OrderBy(s => s);
-            if (sortedNames.Count() > 0)
+            if (sortedNames.Any())
             {
                 foreach (var name in sortedNames)
                 {
@@ -118,8 +118,7 @@ namespace StockAnalysis.Share
             }
             else
             {
-                var aliases = new List<string>();
-                aliases.Add(alias);
+                var aliases = new List<string> { alias };
 
                 _normalizedNameToAliasesMap.Add(normalizedName, aliases);
             }

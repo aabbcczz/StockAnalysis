@@ -8,7 +8,6 @@ namespace TradingStrategy.Strategy
         [Parameter(95.0, "SAR占价格的最大百分比")]
         public double MaxPercentageOfPrice { get; set; }
 
-
         public override string Name
         {
             get { return "SAR跟踪停价退市"; }
@@ -19,9 +18,9 @@ namespace TradingStrategy.Strategy
             get { return "当价格向有利方向变动时，持续跟踪设置止损价为SAR值，并不超过当期价格*MaxPercentageOfPrice/100.0"; }
         }
 
-        public override Func<SarRuntimeMetric> Creator
+        protected override Func<SarRuntimeMetric> Creator
         {
-            get { return (() => { return new SarRuntimeMetric(); }); }
+            get { return (() => new SarRuntimeMetric()); }
         }
 
         protected override void ValidateParameterValues()

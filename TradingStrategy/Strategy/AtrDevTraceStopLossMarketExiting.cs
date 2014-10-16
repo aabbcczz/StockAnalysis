@@ -24,9 +24,9 @@ namespace TradingStrategy.Strategy
             get { return "当价格向有利方向变动时，持续跟踪设置止损价为当前价格减去ATR的标准差*ATR标准差停价倍数*(1+ATR标准差调整百分比/100)"; }
         }
 
-        public override Func<AtrDevRuntimeMetric> Creator
+        protected override Func<AtrDevRuntimeMetric> Creator
         {
-            get { return (() => { return new AtrDevRuntimeMetric(AtrWindowSize); }); }
+            get { return (() => new AtrDevRuntimeMetric(AtrWindowSize)); }
         }
 
         protected override void ValidateParameterValues()

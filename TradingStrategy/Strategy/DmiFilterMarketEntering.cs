@@ -12,7 +12,7 @@ namespace TradingStrategy.Strategy
         [Parameter(20.0, "ADX阈值")]
         public double AdxThreshold { get; set; }
 
-        public override Func<DmiRuntimeMetric> Creator
+        protected override Func<DmiRuntimeMetric> Creator
         {
             get { return (() => new DmiRuntimeMetric(DmiWindowSize)); }
         }

@@ -4,9 +4,9 @@ namespace TradingStrategy
 {
     public sealed class Position
     {
-        public const double UninitializedStopLossPrice = double.MinValue;
+        private const double UninitializedStopLossPrice = double.MinValue;
 
-        public long ID { get; set; }
+        public long Id { get; set; }
 
         public bool IsInitialized { get; set; }
 
@@ -38,7 +38,7 @@ namespace TradingStrategy
 
         public Position()
         {
-            ID = IdGenerator.Next;
+            Id = IdGenerator.Next;
 
             InitialRisk = 0.0;
             StopLossPrice = UninitializedStopLossPrice;
@@ -51,7 +51,7 @@ namespace TradingStrategy
                 throw new ArgumentNullException();
             }
 
-            ID = IdGenerator.Next;
+            Id = IdGenerator.Next;
 
             switch (transaction.Action)
             {
@@ -165,7 +165,7 @@ namespace TradingStrategy
 
         public bool IsStopLossPriceInitialized()
         {
-            return StopLossPrice != UninitializedStopLossPrice;
+            return Math.Abs(StopLossPrice - UninitializedStopLossPrice) > 1e-6;
         }
 
         public void SetStopLossPrice(double stopLossPrice)

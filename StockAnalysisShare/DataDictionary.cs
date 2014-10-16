@@ -10,9 +10,9 @@ namespace StockAnalysis.Share
         public sealed class TableDataDictionary
         {
             public const string TableRootElementName = "Table";
-            public const string NameAttributeName = "name";
-            public const string RowElementName = "Row";
-            public const string ColumnElementName = "Column";
+            private const string NameAttributeName = "name";
+            private const string RowElementName = "Row";
+            private const string ColumnElementName = "Column";
 
             public string TableName { get; private set; }
             public AliasNameMapping RowNameMap { get; private set; }

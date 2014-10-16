@@ -5,7 +5,7 @@ using StockAnalysis.Share;
 
 namespace CleanCsv
 {
-    class Program
+    static class Program
     {
         static void Main(string[] args)
         {

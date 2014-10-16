@@ -6,9 +6,9 @@ namespace MetricsDefinition
     {
         private readonly int _windowSize;
 
-        public int WindowSize { get { return _windowSize; } }
+        protected int WindowSize { get { return _windowSize; } }
 
-        public SerialMetric(int windowSize)
+        protected SerialMetric(int windowSize)
         {
             if (windowSize <= 0)
             {

@@ -27,56 +27,52 @@ namespace MetricsDefinition
 
         public override double SingleOutputUpdate(double data)
         {
-            double calleeResult;
-
             if (_callee.FieldNames.Length <= 1)
             {
-                calleeResult = _callee.SingleOutputUpdate(data);
+                double calleeResult = _callee.SingleOutputUpdate(data);
 
                 return _caller.SingleOutputUpdate(calleeResult);
             }
+
             throw new InvalidOperationException(
                 "callee has multiple outputs, and caller can't handle it");
         }
 
         public override double[] MultipleOutputUpdate(double data)
         {
-            double calleeResult;
-
             if (_callee.FieldNames.Length <= 1)
             {
-                calleeResult = _callee.SingleOutputUpdate(data);
+                double calleeResult = _callee.SingleOutputUpdate(data);
 
                 return _caller.MultipleOutputUpdate(calleeResult);
             }
+
             throw new InvalidOperationException(
                 "callee has multiple outputs, and caller can't handle it");
         }
 
         public override double SingleOutputUpdate(Bar data)
         {
-            double calleeResult;
-
             if (_callee.FieldNames.Length <= 1)
             {
-                calleeResult = _callee.SingleOutputUpdate(data);
+                double calleeResult = _callee.SingleOutputUpdate(data);
 
                 return _caller.SingleOutputUpdate(calleeResult);
             }
+
             throw new InvalidOperationException(
                 "callee has multiple outputs, and caller can't handle it");
         }
 
         public override double[] MultipleOutputUpdate(Bar data)
         {
-            double calleeResult;
-
             if (_callee.FieldNames.Length <= 1)
             {
-                calleeResult = _callee.SingleOutputUpdate(data);
+                double calleeResult = _callee.SingleOutputUpdate(data);
 
                 return _caller.MultipleOutputUpdate(calleeResult);
             }
+
             throw new InvalidOperationException(
                 "callee has multiple outputs, and caller can't handle it");
         }

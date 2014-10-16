@@ -1,6 +1,6 @@
 ﻿namespace StockAnalysis.Share
 {
-    public enum StockExchangeMarket : int
+    public enum StockExchangeMarket
     {
         Unknown = 0,
         ShengZhen = 1,

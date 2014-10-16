@@ -40,20 +40,8 @@ namespace ReportParser
 
         public FinanceReport ParseReport(string code, string file)
         {
-            var lines = new List<string>();
-
-            foreach (var line in Parse(file))
-            {
-                if (string.IsNullOrWhiteSpace(line))
-                {
-                    continue;
-                }
-
-                lines.Add(line.Trim());
-            }
-
             // recursive descending analysis
-            return ParseReport(code, lines.ToArray());
+            return ParseReport(code, (from line in Parse(file) where !string.IsNullOrWhiteSpace(line) select line.Trim()).ToArray());
         }
 
         private FinanceReport ParseReport(string code, string[] lines)
@@ -220,11 +208,10 @@ namespace ReportParser
             var cleanedCells = new List<string[]>();
 
             var nextRow = 0;
-            int currentRow;
 
             do
             {
-                currentRow = nextRow;
+                int currentRow = nextRow;
                 nextRow = currentRow + 1;
 
                 if (cells[currentRow].Length == 2

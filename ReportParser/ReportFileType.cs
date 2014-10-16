@@ -1,8 +1,7 @@
 ﻿namespace ReportParser
 {
-    public enum ReportFileType : int
+    public enum ReportFileType
     {
-        Unknown = 0,
         EastMoneyPlainHtml = 1
     }
 }

@@ -4,7 +4,7 @@ namespace MetricsDefinition
 {
     public abstract class MultipleOutputBarInputSerialMetric : BarInputSerialMetric
     {
-        public MultipleOutputBarInputSerialMetric(int windowSize)
+        protected MultipleOutputBarInputSerialMetric(int windowSize)
             : base(windowSize)
         {
         }

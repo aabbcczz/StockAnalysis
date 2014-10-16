@@ -23,8 +23,6 @@ namespace TradingStrategyEvaluation
 
         private readonly Bar[][] _allTradingData;
 
-        public int PeriodCount { get { return _allPeriodsOrdered.Length; } }
-
         public DateTime[] GetAllPeriodsOrdered()
         {
             return _allPeriodsOrdered;
@@ -70,8 +68,7 @@ namespace TradingStrategyEvaluation
 
         public bool GetLastEffectiveBar(int index, DateTime period, out Bar bar)
         {
-            bar = new Bar();
-            bar.Time = Bar.InvalidTime;
+            bar = new Bar {Time = Bar.InvalidTime};
 
             if (period < _allPeriodsOrdered[0] || period > _allPeriodsOrdered[_allPeriodsOrdered.Length - 1])
             {

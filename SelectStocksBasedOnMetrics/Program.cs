@@ -10,14 +10,14 @@ using StockAnalysis.Share;
 
 namespace SelectStocksBasedOnMetrics
 {
-    class Program
+    static class Program
     {
         static void Main(string[] args)
         {
             var options = new Options();
             var parser = new Parser(with => with.HelpWriter = Console.Error);
 
-            if (parser.ParseArgumentsStrict(args, options, () => { Environment.Exit(-2); }))
+            if (parser.ParseArgumentsStrict(args, options, () => Environment.Exit(-2)))
             {
                 options.BoundaryCheck();
 
@@ -77,12 +77,13 @@ namespace SelectStocksBasedOnMetrics
             return trimmedInputData.Select(
                 row => 
                     {
-                        var record = new StockMetricRecord();
-
-                        record.Code = row[0];
-                        record.Date = DateTime.Parse(row[1]);
-                        record.MetricNames = metricNames;
-                        record.Metrics = new double[row.Length - 2];
+                        var record = new StockMetricRecord
+                        {
+                            Code = row[0],
+                            Date = DateTime.Parse(row[1]),
+                            MetricNames = metricNames,
+                            Metrics = new double[row.Length - 2]
+                        };
 
                         for (var i = 2; i < row.Length; ++i)
                         {
@@ -124,18 +125,20 @@ namespace SelectStocksBasedOnMetrics
 
                         var metrics = rawMetrics.Reverse().ToArray();
 
-                        var expandedMetric = new StockMetricRecord();
-                        expandedMetric.Code = metrics[0].Code;
-                        expandedMetric.Date = metrics[0].Date;
-                        expandedMetric.MetricNames = Enumerable
-                            .Range(0, metrics.Length)
-                            .SelectMany(i => metrics[i].MetricNames
-                                .Select(s => "T" + (i == 0 ? "0" : (-i).ToString(CultureInfo.InvariantCulture)) + s))
-                            .ToArray();
-                        expandedMetric.Metrics = Enumerable
-                            .Range(0, metrics.Length)
-                            .SelectMany(i => metrics[i].Metrics)
-                            .ToArray();
+                        var expandedMetric = new StockMetricRecord
+                        {
+                            Code = metrics[0].Code,
+                            Date = metrics[0].Date,
+                            MetricNames = Enumerable
+                                .Range(0, metrics.Length)
+                                .SelectMany(i => metrics[i].MetricNames
+                                    .Select(s => "T" + (i == 0 ? "0" : (-i).ToString(CultureInfo.InvariantCulture)) + s))
+                                .ToArray(),
+                            Metrics = Enumerable
+                                .Range(0, metrics.Length)
+                                .SelectMany(i => metrics[i].Metrics)
+                                .ToArray()
+                        };
 
                         lock(records)
                         {

@@ -20,7 +20,7 @@ namespace TradingStrategy.Strategy
         [Parameter(95.0, "相对强度阈值")]
         public double RelativeStrengthThreshold { get; set; }
 
-        public override Func<RocRuntimeMetric> Creator
+        protected override Func<RocRuntimeMetric> Creator
         {
             get { return (() => new RocRuntimeMetric(RocWindowSize)); }
         }

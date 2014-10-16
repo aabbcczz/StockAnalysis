@@ -43,7 +43,7 @@ namespace MetricsDefinition.Metrics
             // update status;
             _prevD = d;
 
-            return new double[3]{ k, d, j};
+            return new[]{ k, d, j};
 
         }
     }

@@ -24,12 +24,13 @@ namespace TradingStrategyEvaluation
                 throw new ArgumentNullException();
             }
 
-            var settings = new TradingStrategyComponentSettings();
-
-            settings.Enabled = false;
-            settings.ClassType = component.GetType().AssemblyQualifiedName;
-            settings.Name = component.Name;
-            settings.Description = component.Description;
+            var settings = new TradingStrategyComponentSettings
+            {
+                Enabled = false,
+                ClassType = component.GetType().AssemblyQualifiedName,
+                Name = component.Name,
+                Description = component.Description
+            };
 
             var interfaces = component.GetType().GetInterfaces()
                 .Where(i => typeof(ITradingStrategyComponent).IsAssignableFrom(i))
@@ -38,7 +39,7 @@ namespace TradingStrategyEvaluation
             settings.ImplementedInterfaces = string.Join(";", interfaces);
 
             settings.ComponentParameterSettings = ParameterHelper.GetParameterAttributes(component)
-                .Select(p => ParameterSettings.GenerateExampleSettings(p))
+                .Select(ParameterSettings.GenerateExampleSettings)
                 .ToArray();
 
             return settings;

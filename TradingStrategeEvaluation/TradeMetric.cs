@@ -214,7 +214,7 @@ namespace TradingStrategyEvaluation
             CalcuateMaxDrawDownMetrics();
 
             // update max profit/loss related metrics
-            if (OrderedCompletedTransactionSequence.Count() > 0)
+            if (OrderedCompletedTransactionSequence.Any())
             {
                 MaxProfitInOneTransaction = OrderedCompletedTransactionSequence.Max(ct => ct.SoldGain > ct.BuyCost ? ct.SoldGain - ct.BuyCost : 0.0);
                 MaxLossInOneTransaction = OrderedCompletedTransactionSequence.Max(ct => ct.SoldGain < ct.BuyCost ? ct.BuyCost - ct.SoldGain : 0.0);

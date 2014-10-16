@@ -261,12 +261,11 @@ namespace MetricsDefinition
         /// </returns>
         private string[] ParseParameters()
         {
-            Token token;
             var parameters = new List<string>();
 
             do
             {
-                token = PeekNextToken();
+                Token token = PeekNextToken();
                 if (token == null)
                 {
                     LastErrorMessage = "Expect ']'";

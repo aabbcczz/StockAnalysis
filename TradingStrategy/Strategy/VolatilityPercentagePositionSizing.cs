@@ -47,9 +47,9 @@ namespace TradingStrategy.Strategy
             }
         }
 
-        public override Func<AtrRuntimeMetric> Creator
+        protected override Func<AtrRuntimeMetric> Creator
         {
-            get { return (() => { return new AtrRuntimeMetric(VolatilityWindowSize); }); }
+            get { return (() => new AtrRuntimeMetric(VolatilityWindowSize)); }
         }
 
         public override int EstimatePositionSize(ITradingObject tradingObject, double price, double stopLossGap, out string comments)

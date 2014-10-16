@@ -11,7 +11,7 @@ using TradingStrategyEvaluation;
 
 namespace EvaluatorCmdClient
 {
-    class Program
+    static class Program
     {
         private static EvaluationResultContextManager _contextManager;
 
@@ -170,8 +170,7 @@ namespace EvaluatorCmdClient
                                 t.Item2,
                                 options.InitialCapital,
                                 dataProvider,
-                                tradingSettings,
-                                stockNameTable));
+                                tradingSettings));
                 }
                 finally
                 {
@@ -206,8 +205,8 @@ namespace EvaluatorCmdClient
             IDictionary<ParameterAttribute, object> parameterValues,
             double initialCapital,
             ITradingDataProvider dataProvider,
-            TradingSettings tradingSettings,
-            StockNameTable stockNameTable)
+            TradingSettings tradingSettings)
+            //StockNameTable stockNameTable)
         {
             // OutputParameterValues(parameterValues);
 

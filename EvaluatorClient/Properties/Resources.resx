@@ -114,4 +114,10 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="MainForm_ApplyTradingSettings__0" xml:space="preserve">
+    <value>0</value>
+  </data>
+  <data name="MainForm_ApplyTradingSettings__0_05" xml:space="preserve">
+    <value>0.05</value>
+  </data>
 </root>

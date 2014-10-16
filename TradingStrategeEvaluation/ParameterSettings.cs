@@ -8,9 +8,9 @@ namespace TradingStrategyEvaluation
     [Serializable]
     public sealed class ParameterSettings
     {
-        public const string MultipleValueSeparator = ";";
-        public const string MultipleStringValueSeparator = "(;)";
-        public const string LoopSeparator = "/";
+        private const string MultipleValueSeparator = ";";
+        private const string MultipleStringValueSeparator = "(;)";
+        private const string LoopSeparator = "/";
 
         private List<object> _parsedValues;
 
@@ -45,13 +45,14 @@ namespace TradingStrategyEvaluation
                 throw new ArgumentNullException();
             }
 
-            var settings = new ParameterSettings();
-
-            settings.Name = attribute.Name;
-            settings.Description = attribute.Description;
-            settings.ValueType = attribute.ParameterType.AssemblyQualifiedName;
-            settings.DefaultValue = attribute.DefaultValue;
-            settings.Values = "1;2 or 1.0/10.0/1.0 or abcd(;)efgh";
+            var settings = new ParameterSettings
+            {
+                Name = attribute.Name,
+                Description = attribute.Description,
+                ValueType = attribute.ParameterType.AssemblyQualifiedName,
+                DefaultValue = attribute.DefaultValue,
+                Values = "1;2 or 1.0/10.0/1.0 or abcd(;)efgh"
+            };
 
             return settings;
         }

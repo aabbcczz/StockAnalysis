@@ -8,7 +8,7 @@ namespace GetFinanceReports
 {
     public sealed class WebReportFetcher : IReportFetcher
     {
-        public const string DefaultSuffixOfOutputFile = @"html";
+        private const string DefaultSuffixOfOutputFile = @"html";
 
         public string FinanceReportServerAddress { get; private set; }
 
@@ -41,10 +41,10 @@ namespace GetFinanceReports
 
             var address = ReportServerAddressFormatter.Format(FinanceReportServerAddress, stock, ReportServerAddressFormatter.DefaultAbbrevationMarketFormatter);
 
-            return FetchReport(address, stock, outputFile, out errorMessage);
+            return FetchReport(address, outputFile, out errorMessage);
         }
 
-        private static bool FetchReport(string serverAddress, StockName stock, string outputFile, out string errorMessage)
+        private static bool FetchReport(string serverAddress, string outputFile, out string errorMessage)
         {
             errorMessage = string.Empty;
 
@@ -60,7 +60,7 @@ namespace GetFinanceReports
                         return false;
                     }
 
-                    string body = null;
+                    string body;
                     var charset = response.CharacterSet;
                     var encoding = string.IsNullOrWhiteSpace(charset) ? Encoding.UTF8 : Encoding.GetEncoding(charset);
 
@@ -78,7 +78,7 @@ namespace GetFinanceReports
 
                         // Check real charset meta-tag in HTML
                         const string meta = "charset=";
-                        var charsetStart = body.IndexOf(meta);
+                        var charsetStart = body.IndexOf(meta, StringComparison.Ordinal);
                         if (charsetStart > 0)
                         {
                             charsetStart += meta.Length;

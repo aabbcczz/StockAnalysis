@@ -9,7 +9,7 @@
             get { return _data; }
         }
 
-        public RawInputSerialMetric(int windowSize)
+        protected RawInputSerialMetric(int windowSize)
             : base(windowSize)
         {
             _data = new CirculatedArray<double>(windowSize);

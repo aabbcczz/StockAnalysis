@@ -7,7 +7,7 @@ using StockAnalysis.Share;
 
 namespace GetFinanceReports
 {
-    class Program
+    static class Program
     {
         private const string ServerKey = "serverAddress";
 
@@ -16,7 +16,7 @@ namespace GetFinanceReports
             var options = new Options();
             var parser = new Parser(with => with.HelpWriter = Console.Error);
 
-            if (parser.ParseArgumentsStrict(args, options, () => { Environment.Exit(-2); }))
+            if (parser.ParseArgumentsStrict(args, options, () => Environment.Exit(-2)))
             {
                 options.BoundaryCheck();
 
