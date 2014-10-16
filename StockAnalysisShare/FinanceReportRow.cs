@@ -1,16 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace StockAnalysis.Share
 {
     public sealed class FinanceReportRow
     {
-        private readonly FinanceReportColumnDefinition[] _columnDefinitions;
-
-        private FinanceReportCell[] _cells;
+        private readonly FinanceReportCell[] _cells;
 
         public FinanceReportCell this[int index]
         {
@@ -31,17 +26,15 @@ namespace StockAnalysis.Share
 
         public decimal Unit { get; private set; }
 
-        public FinanceReportRow(string name, FinanceReportColumnDefinition[] columnDefinitions, decimal defaultUnit)
+        public FinanceReportRow(string name, ICollection<FinanceReportColumnDefinition> columnDefinitions, decimal defaultUnit)
         {
-            if (columnDefinitions == null || columnDefinitions.Length == 0)
+            if (columnDefinitions == null || columnDefinitions.Count == 0)
             {
                 throw new ArgumentNullException("columnDefinitions");
             }
 
-            _columnDefinitions = columnDefinitions;
-
-            _cells = new FinanceReportCell[_columnDefinitions.Length];
-            for (int i = 0; i < _cells.Length; ++i)
+            _cells = new FinanceReportCell[columnDefinitions.Count];
+            for (var i = 0; i < _cells.Length; ++i)
             {
                 _cells[i] = new FinanceReportCell();
             }

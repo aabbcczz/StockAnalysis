@@ -1,10 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using MetricsDefinition;
 using StockAnalysis.Share;
 
 namespace TradingStrategy.Strategy
@@ -14,11 +8,11 @@ namespace TradingStrategy.Strategy
     {
         private const double InvalidRateOfChanges = double.MaxValue;
 
-        private double[] _rateOfChanges = null;
-        private int[] _rateOfChangesIndex = null;
-        private double[] _relativeStrengths = null;
-        private int _numberOfValidTradingObjectsInThisPeriod = 0;
-        private bool _isRelativeStrengthsGenerated = false;
+        private double[] _rateOfChanges;
+        private int[] _rateOfChangesIndex;
+        private double[] _relativeStrengths;
+        private int _numberOfValidTradingObjectsInThisPeriod;
+        private bool _isRelativeStrengthsGenerated;
 
         [Parameter(30, "ROC周期")]
         public int RocWindowSize { get; set; }
@@ -62,18 +56,18 @@ namespace TradingStrategy.Strategy
 
             if (_relativeStrengths == null)
             {
-                _relativeStrengths = new double[base.Context.GetCountOfTradingObjects()];
+                _relativeStrengths = new double[Context.GetCountOfTradingObjects()];
             }
 
             Array.Clear(_relativeStrengths, 0, _relativeStrengths.Length);
 
             if (_rateOfChanges == null)
             {
-                _rateOfChanges = new double[base.Context.GetCountOfTradingObjects()];
+                _rateOfChanges = new double[Context.GetCountOfTradingObjects()];
                 _rateOfChangesIndex = new int[_rateOfChanges.Length];
             }
 
-            for (int i = 0; i < _rateOfChanges.Length; ++i)
+            for (var i = 0; i < _rateOfChanges.Length; ++i)
             {
                 _rateOfChanges[i] = InvalidRateOfChanges;
                 _rateOfChangesIndex[i] = i;
@@ -88,7 +82,7 @@ namespace TradingStrategy.Strategy
             base.EvaluateSingleObject(tradingObject, bar);
 
             _rateOfChanges[tradingObject.Index] 
-                = base.MetricManager.GetOrCreateRuntimeMetric(tradingObject).RateOfChange;
+                = MetricManager.GetOrCreateRuntimeMetric(tradingObject).RateOfChange;
 
             _numberOfValidTradingObjectsInThisPeriod++;
         }
@@ -98,10 +92,10 @@ namespace TradingStrategy.Strategy
             // sort the rate of changes and index ascending
             Array.Sort(_rateOfChanges, _rateOfChangesIndex);
 
-            for (int i = 0; i < _numberOfValidTradingObjectsInThisPeriod; ++i)
+            for (var i = 0; i < _numberOfValidTradingObjectsInThisPeriod; ++i)
             {
                 _relativeStrengths[_rateOfChangesIndex[i]] 
-                    = (double)(i + 1) * 100.0 / _numberOfValidTradingObjectsInThisPeriod;
+                    = (i + 1) * 100.0 / _numberOfValidTradingObjectsInThisPeriod;
             }
         }
 
@@ -115,7 +109,7 @@ namespace TradingStrategy.Strategy
                 _isRelativeStrengthsGenerated = true;
             }
 
-            double relativeStrength = _relativeStrengths[tradingObject.Index];
+            var relativeStrength = _relativeStrengths[tradingObject.Index];
             if (relativeStrength > RelativeStrengthThreshold)
             {
                 comments = string.Format(

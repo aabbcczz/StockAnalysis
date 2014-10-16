@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
-
+using CommandLine;
 using StockAnalysis.Share;
 
 namespace CalcMarketValue
@@ -13,7 +13,7 @@ namespace CalcMarketValue
         static void Main(string[] args)
         {
             var options = new Options();
-            var parser = new CommandLine.Parser(with => with.HelpWriter = Console.Error);
+            var parser = new Parser(with => with.HelpWriter = Console.Error);
 
             if (parser.ParseArgumentsStrict(args, options, () => { Environment.Exit(-2); }))
             {
@@ -27,32 +27,31 @@ namespace CalcMarketValue
         {
             options.Print(Console.Out);
 
-            Csv shareInfo = Csv.Load(options.ShareFile, Encoding.GetEncoding("gb2312"), "\t", StringSplitOptions.RemoveEmptyEntries);
-            Csv priceInfo = Csv.Load(options.PriceFile, Encoding.GetEncoding("gb2312"), "\t", StringSplitOptions.RemoveEmptyEntries);
+            var shareInfo = Csv.Load(options.ShareFile, Encoding.GetEncoding("gb2312"), "\t", StringSplitOptions.RemoveEmptyEntries);
+            var priceInfo = Csv.Load(options.PriceFile, Encoding.GetEncoding("gb2312"), "\t", StringSplitOptions.RemoveEmptyEntries);
 
-            int codeColumnIndexInShareInfo = Array.IndexOf(shareInfo.Header, "代码");
-            int codeColumnIndexInPriceInfo = Array.IndexOf(priceInfo.Header, "代码");
-            int totalShareNumberColumnIndex = Array.IndexOf(shareInfo.Header, "总股数");
-            int marketPriceColumnIndex = Array.IndexOf(priceInfo.Header, "昨收");
-            int nameColumnIndex = Array.IndexOf(priceInfo.Header, "名称");
+            var codeColumnIndexInShareInfo = Array.IndexOf(shareInfo.Header, "代码");
+            var totalShareNumberColumnIndex = Array.IndexOf(shareInfo.Header, "总股数");
+            var marketPriceColumnIndex = Array.IndexOf(priceInfo.Header, "昨收");
+            var nameColumnIndex = Array.IndexOf(priceInfo.Header, "名称");
 
-            Dictionary<string, decimal> shares = new Dictionary<string,decimal>();
+            var shares = new Dictionary<string,decimal>();
 
-            for (int i = 0; i < shareInfo.RowCount; ++i)
+            for (var i = 0; i < shareInfo.RowCount; ++i)
             {
-                string code = GetPureCode(shareInfo[i][codeColumnIndexInShareInfo]);
-                decimal totalShareNumber = decimal.Parse(shareInfo[i][totalShareNumberColumnIndex]);
+                var code = GetPureCode(shareInfo[i][codeColumnIndexInShareInfo]);
+                var totalShareNumber = decimal.Parse(shareInfo[i][totalShareNumberColumnIndex]);
 
                 shares.Add(code, totalShareNumber);
             }
 
-            Dictionary<string, Tuple<string, decimal>> prices = new Dictionary<string, Tuple<string, decimal>>();
+            var prices = new Dictionary<string, Tuple<string, decimal>>();
 
-            for (int i = 0; i < priceInfo.RowCount; ++i)
+            for (var i = 0; i < priceInfo.RowCount; ++i)
             {
-                string code = GetPureCode(priceInfo[i][codeColumnIndexInShareInfo]);
-                decimal marketPrice = decimal.Parse(priceInfo[i][marketPriceColumnIndex]);
-                string name = priceInfo[i][nameColumnIndex];
+                var code = GetPureCode(priceInfo[i][codeColumnIndexInShareInfo]);
+                var marketPrice = decimal.Parse(priceInfo[i][marketPriceColumnIndex]);
+                var name = priceInfo[i][nameColumnIndex];
 
                 prices.Add(code, Tuple.Create(name, marketPrice));
             }
@@ -60,7 +59,7 @@ namespace CalcMarketValue
             // join the keys
             var codes = shares.Keys.Union(prices.Keys).OrderBy(s => s);
 
-            string[] header = new string[]
+            var header = new[]
             {
                 "CODE",
                 "NAME",
@@ -68,15 +67,15 @@ namespace CalcMarketValue
                 "MarketPrice"
             };
 
-            Csv marketValues = new Csv(header);
+            var marketValues = new Csv(header);
             foreach (var code in codes)
             {
-                string[] row = new string[]
+                var row = new[]
                 {
                     NormalizeCode(code),
                     prices.ContainsKey(code) ? prices[code].Item1 : "Unknown",
-                    shares.ContainsKey(code) ? shares[code].ToString() : "0.0",
-                    prices.ContainsKey(code) ? prices[code].Item2.ToString() : "0.0"
+                    shares.ContainsKey(code) ? shares[code].ToString(CultureInfo.InvariantCulture) : "0.0",
+                    prices.ContainsKey(code) ? prices[code].Item2.ToString(CultureInfo.InvariantCulture) : "0.0"
                 };
 
                 marketValues.AddRow(row);
@@ -93,21 +92,18 @@ namespace CalcMarketValue
             {
                 return code;
             }
-            else if (code.Length == 8)
+            if (code.Length == 8)
             {
                 return code.Substring(2);
             }
-            else
-            {
-                throw new InvalidOperationException(string.Format("code is not valid: {0}", code));
-            }
+            throw new InvalidOperationException(string.Format("code is not valid: {0}", code));
         }
 
         private static string NormalizeCode(string code)
         {
-            StockName name = StockName.Parse(code);
+            var name = StockName.Parse(code);
 
-            string prefix = string.Empty;
+            var prefix = string.Empty;
             if (name.Market == StockExchangeMarket.ShengZhen)
             {
                 prefix = "SZ";

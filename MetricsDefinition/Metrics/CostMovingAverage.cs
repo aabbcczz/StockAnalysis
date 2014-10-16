@@ -1,19 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using StockAnalysis.Share;
 
-using System.Reflection;
-
-namespace MetricsDefinition
+namespace MetricsDefinition.Metrics
 {
 
     [Metric("COSTMA,CYC,CMA")]
     public sealed class CostMovingAverage : SingleOutputBarInputSerialMetric
     {
-        private MovingSum _msCost;
-        private MovingSum _msVolume;
+        private readonly MovingSum _msCost;
+        private readonly MovingSum _msVolume;
 
         public CostMovingAverage(int windowSize)
             : base (windowSize)
@@ -22,12 +16,12 @@ namespace MetricsDefinition
             _msVolume = new MovingSum(windowSize);
         }
 
-        public override double Update(StockAnalysis.Share.Bar bar)
+        public override double Update(Bar bar)
         {
-            double truePrice = (bar.HighestPrice + bar.LowestPrice + 2 * bar.ClosePrice ) / 4;
+            var truePrice = (bar.HighestPrice + bar.LowestPrice + 2 * bar.ClosePrice ) / 4;
 
-            double sumCost = _msCost.Update(bar.Volume * truePrice);
-            double sumVolume = _msVolume.Update(bar.Volume);
+            var sumCost = _msCost.Update(bar.Volume * truePrice);
+            var sumVolume = _msVolume.Update(bar.Volume);
 
             return sumCost / sumVolume;
         }

@@ -1,16 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 using StockAnalysis.Share;
 
 namespace TradingStrategyEvaluation
 {
     internal static class ChinaStockDataAccessor
     {
-        private static Dictionary<string, StockHistoryData> _cache = null;
+        private static Dictionary<string, StockHistoryData> _cache;
 
         public static void Initialize()
         {
@@ -30,7 +26,7 @@ namespace TradingStrategyEvaluation
                 }
             }
 
-            StockHistoryData data = StockHistoryData.LoadFromFile(file, DateTime.MinValue, DateTime.MaxValue, nameTable);
+            var data = StockHistoryData.LoadFromFile(file, DateTime.MinValue, DateTime.MaxValue, nameTable);
 
             lock (_cache)
             {

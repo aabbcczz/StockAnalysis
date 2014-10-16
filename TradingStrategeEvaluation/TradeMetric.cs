@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 using TradingStrategy;
 
 namespace TradingStrategyEvaluation
@@ -56,7 +52,7 @@ namespace TradingStrategyEvaluation
         public DateTime MaxDrawDownEndTime { get; set;  } // 最大回撤发生的结束时间
         public double MaxDrawDownStartEquity { get; set; } // 最大回撤发生的期初权益
         public double MaxDrawDownEndEquity { get; set; } // 最大回撤发生的期末权益
-        public double MAR { get; set; } // = AnnualProfitRatio / MaxDrawDownRatio
+        public double Mar { get; set; } // = AnnualProfitRatio / MaxDrawDownRatio
 
         public double MaxProfitInOneTransaction { get; set; } // 单次最大盈利
         public double MaxLossInOneTransaction { get; set; } // 单词最大亏损
@@ -71,11 +67,6 @@ namespace TradingStrategyEvaluation
         public CompletedTransaction[] OrderedCompletedTransactionSequence { get; private set; } // all completed transactions, ordered by execution time and code
 
         public Transaction[] OrderedTransactionSequence { get; private set; }
-
-        public TradeMetric()
-        {
-            // for serialization and deserialization only
-        }
 
         public void Initialize(
             string code,
@@ -152,7 +143,7 @@ namespace TradingStrategyEvaluation
             OrderedTransactionSequence = orderedTransactionSequence;
             StartPrice = startPrice;
             EndPrice = endPrice;
-            Rise = startPrice == 0.0 ? 0.0 : (endPrice - startPrice) / startPrice;
+            Rise = Math.Abs(startPrice) < 1e-6 ? 0.0 : (endPrice - startPrice) / startPrice;
 
             Initialize();
         }
@@ -170,7 +161,7 @@ namespace TradingStrategyEvaluation
             TotalPeriods = OrderedEquitySequence.Length;
             ProfitPeriods = 0;
             LossPeriods = 0;
-            double previousEquity = double.NaN;
+            var previousEquity = double.NaN;
             foreach (var e in OrderedEquitySequence)
             {
                 if (!double.IsNaN(previousEquity))
@@ -198,8 +189,8 @@ namespace TradingStrategyEvaluation
             NetProfit = TotalProfit - TotalLoss - TotalCommission;
             ProfitRatio = NetProfit / InitialEquity;
 
-            double reciprocal_years = 365.0 / TotalTradingDays;
-            AnnualProfitRatio = Math.Pow(1.0 + ProfitRatio, reciprocal_years) - 1.0;
+            var reciprocalYears = 365.0 / TotalTradingDays;
+            AnnualProfitRatio = Math.Pow(1.0 + ProfitRatio, reciprocalYears) - 1.0;
 
             // update trading times related metrics
             TotalTradingTimes = OrderedCompletedTransactionSequence.Count();
@@ -240,39 +231,36 @@ namespace TradingStrategyEvaluation
 
         private void CalcuateMaxDrawDownMetrics()
         {
-            EquityPoint[] equityPoints = OrderedEquitySequence.ToArray();
+            var equityPoints = OrderedEquitySequence.ToArray();
             
             MaxDrawDownRatio = double.MinValue;
-            bool foundMaxDrawDown = false;
+            var foundMaxDrawDown = false;
 
-            int i = 0;
+            var i = 0;
             while (i < equityPoints.Length)
             {
                 // find the first local peak
-                double high = equityPoints[i].Equity;
-                int highIndex = i;
+                var high = equityPoints[i].Equity;
+                var highIndex = i;
                 // find next high value
-                for (int j = i + 1; j < equityPoints.Length; ++j)
+                for (var j = i + 1; j < equityPoints.Length; ++j)
                 {
                     if (equityPoints[j].Equity < equityPoints[j - 1].Equity)
                     {
                         break;
                     }
-                    else
-                    {
-                        high = equityPoints[j].Equity;
-                        highIndex = j;
-                    }
+                    high = equityPoints[j].Equity;
+                    highIndex = j;
                 }
 
                 // find next high and the lowest value in between
-                bool foundNextHigh = false;
-                bool foundLowest = false;
+                var foundNextHigh = false;
+                var foundLowest = false;
 
-                int nextHighIndex = highIndex;
-                int lowestIndex = highIndex;
-                double lowest = high;
-                for (int j = highIndex + 1; j < equityPoints.Length; ++j)
+                var nextHighIndex = highIndex;
+                var lowestIndex = highIndex;
+                var lowest = high;
+                for (var j = highIndex + 1; j < equityPoints.Length; ++j)
                 {
                     if (equityPoints[j].Equity > high)
                     {
@@ -280,7 +268,7 @@ namespace TradingStrategyEvaluation
                         nextHighIndex = j;
                         break;
                     }
-                    else if (equityPoints[j].Equity < lowest)
+                    if (equityPoints[j].Equity < lowest)
                     {
                         foundLowest = true;
                         lowest = equityPoints[j].Equity;
@@ -290,7 +278,7 @@ namespace TradingStrategyEvaluation
 
                 if (foundLowest)
                 {
-                    double drawDownRatio = (high - lowest) / high;
+                    var drawDownRatio = (high - lowest) / high;
                     if (drawDownRatio > MaxDrawDownRatio)
                     {
                         MaxDrawDownRatio = drawDownRatio;
@@ -333,7 +321,7 @@ namespace TradingStrategyEvaluation
             }
 
             // update MAR
-            MAR = MaxDrawDownRatio == 0.0 ? 0.0 : AnnualProfitRatio / MaxDrawDownRatio;
+            Mar = Math.Abs(MaxDrawDownRatio) < 1e-6 ? 0.0 : AnnualProfitRatio / MaxDrawDownRatio;
         }
     }
 }

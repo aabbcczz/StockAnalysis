@@ -1,27 +1,23 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Reflection;
+using StockAnalysis.Share;
 
-namespace MetricsDefinition
+namespace MetricsDefinition.Metrics
 {
     [Metric("SAR")]
     public sealed class StopAndReverse : SingleOutputBarInputSerialMetric
     {
-        private Highest _highestMetric;
-        private Lowest _lowestMetric;
-        private double _initialAccelerateFactor;
-        private double _accelerateFactorStep;
-        private double _maxAccelerateFactor;
+        private readonly Highest _highestMetric;
+        private readonly Lowest _lowestMetric;
+        private readonly double _initialAccelerateFactor;
+        private readonly double _accelerateFactorStep;
+        private readonly double _maxAccelerateFactor;
 
         private double _accelerateFactor;
         private double _highestPrice;
         private double _lowestPrice;
 
-        private bool _initialized = false;
-        private bool _ascending = false;
+        private bool _initialized;
+        private bool _ascending;
 
         private double _sar;
         private double _ep;
@@ -47,7 +43,7 @@ namespace MetricsDefinition
             _accelerateFactor = _initialAccelerateFactor;
         }
 
-        public override double Update(StockAnalysis.Share.Bar bar)
+        public override double Update(Bar bar)
         {
             if (Data.Length < WindowSize)
             {
@@ -100,7 +96,7 @@ namespace MetricsDefinition
             return _sar;
         }
 
-        private void UpdateInternal(StockAnalysis.Share.Bar bar)
+        private void UpdateInternal(Bar bar)
         {
             Data.Add(bar);
             _highestPrice = _highestMetric.Update(bar.HighestPrice);

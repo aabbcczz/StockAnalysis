@@ -1,15 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Data;
-using System.Drawing;
 using System.Linq;
 using System.IO;
 using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Reflection;
-
+using EvaluatorClient.Properties;
 using TradingStrategy;
 using StockAnalysis.Share;
 using TradingStrategyEvaluation;
@@ -18,13 +14,13 @@ namespace EvaluatorClient
 {
     public partial class MainForm : Form
     {
-        ChinaStockDataSettings _stockDataSettings = null;
+        ChinaStockDataSettings _stockDataSettings;
 
-        StockNameTable _stockNameTable = null;
+        StockNameTable _stockNameTable;
 
-        ITradingDataProvider _activeDataProvider = null;
+        ITradingDataProvider _activeDataProvider;
 
-        MetricForm _metricForm;
+        readonly MetricForm _metricForm;
 
         public MainForm()
         {
@@ -59,7 +55,7 @@ namespace EvaluatorClient
 
         private void ShowError(string error, Exception exception = null)
         {
-            string message = exception == null ? error : error + string.Format("\nException: {0}", exception);
+            var message = exception == null ? error : error + string.Format("\nException: {0}", exception);
 
             MessageBox.Show(
                 message,
@@ -118,11 +114,11 @@ namespace EvaluatorClient
 
         private void LoadStrategies()
         {
-            string componentStrategySettingsFileName = "CombinedStrategySettings.xml";
+            var componentStrategySettingsFileName = "CombinedStrategySettings.xml";
 
             if (!File.Exists(componentStrategySettingsFileName))
             {
-                CombinedStrategySettings settings = CombinedStrategySettings.GenerateExampleSettings();
+                var settings = CombinedStrategySettings.GenerateExampleSettings();
                 if (settings != null)
                 {
                     settings.SaveToFile(componentStrategySettingsFileName);
@@ -158,10 +154,10 @@ namespace EvaluatorClient
 
             try
             {
-                ITradingStrategy strategy = (ITradingStrategy)strategyComboBox.SelectedItem;
+                var strategy = (ITradingStrategy)strategyComboBox.SelectedItem;
 
                 // create the copy of strategy
-                ITradingStrategy copyStrategy = (ITradingStrategy)Activator.CreateInstance(strategy.GetType());
+                var copyStrategy = (ITradingStrategy)Activator.CreateInstance(strategy.GetType());
 
                 return copyStrategy;
             }
@@ -180,7 +176,7 @@ namespace EvaluatorClient
         {
             _stockNameTable = null;
 
-            string stockNameFile = _stockDataSettings.StockNameTableFile;
+            var stockNameFile = _stockDataSettings.StockNameTableFile;
 
             try
             {
@@ -201,7 +197,7 @@ namespace EvaluatorClient
                 {
                     availableObjectListView.Items.Add(
                         new ListViewItem(
-                            new string[] 
+                            new[] 
                             { 
                                 stockName.Code, 
                                 stockName.Names[0] 
@@ -214,7 +210,7 @@ namespace EvaluatorClient
 
         private TradingSettings LoadTradingSettings()
         {
-            string file = Properties.Settings.Default.tradingSettingsFile;
+            var file = Settings.Default.tradingSettingsFile;
             TradingSettings settings = null;
 
             if (!string.IsNullOrWhiteSpace(file) && File.Exists(file))
@@ -233,15 +229,15 @@ namespace EvaluatorClient
 
             if (settings == null)
             {
-                settings = new TradingSettings()
+                settings = new TradingSettings
                 {
-                    BuyingCommission = new CommissionSettings()
+                    BuyingCommission = new CommissionSettings
                     {
                         Type = CommissionSettings.CommissionType.ByAmount,
                         Tariff = 0.0005
                     },
 
-                    SellingCommission = new CommissionSettings()
+                    SellingCommission = new CommissionSettings
                     {
                         Type = CommissionSettings.CommissionType.ByAmount,
                         Tariff = 0.0005
@@ -260,12 +256,12 @@ namespace EvaluatorClient
 
         private ChinaStockDataSettings LoadStockDataSettings()
         {
-            string file = Properties.Settings.Default.stockDataSettingsFile;
+            var file = Settings.Default.stockDataSettingsFile;
             
             if (!File.Exists(file))
             {
                 // create a dummy file
-                ChinaStockDataSettings settings = new ChinaStockDataSettings();
+                var settings = new ChinaStockDataSettings();
                 settings.StockNameTableFile = "sample";
                 settings.StockDataFileDirectory = ".";
                 settings.StockDataFileNamePattern = ChinaStockDataSettings.StockCodePattern + ".csv";
@@ -311,20 +307,20 @@ namespace EvaluatorClient
         private TradingSettings BuildTradingSettings(bool warning)
         {
             // build trading settings from UI
-            TradingSettings settings = new TradingSettings();
+            var settings = new TradingSettings();
 
             try
             {
 
                 if (chargeByAmountRadioButton.Checked)
                 {
-                    settings.BuyingCommission = new CommissionSettings()
+                    settings.BuyingCommission = new CommissionSettings
                     {
                         Type = CommissionSettings.CommissionType.ByAmount,
                         Tariff = double.Parse(buyCommissionTextBox.Text) / 100.0,
                     };
 
-                    settings.SellingCommission = new CommissionSettings()
+                    settings.SellingCommission = new CommissionSettings
                     {
                         Type = CommissionSettings.CommissionType.ByAmount,
                         Tariff = double.Parse(sellCommissionTextBox.Text) / 100.0,
@@ -332,15 +328,15 @@ namespace EvaluatorClient
                 }
                 else
                 {
-                    double tariff = double.Parse(tariffTextBox.Text);
+                    var tariff = double.Parse(tariffTextBox.Text);
 
-                    settings.BuyingCommission = new CommissionSettings()
+                    settings.BuyingCommission = new CommissionSettings
                     {
                         Type = CommissionSettings.CommissionType.ByVolume,
                         Tariff = tariff,
                     };
 
-                    settings.SellingCommission = new CommissionSettings()
+                    settings.SellingCommission = new CommissionSettings
                     {
                         Type = CommissionSettings.CommissionType.ByVolume,
                         Tariff = tariff,
@@ -381,7 +377,7 @@ namespace EvaluatorClient
                 throw new ArgumentNullException("settings");
             }
 
-            string file = Properties.Settings.Default.tradingSettingsFile;
+            var file = Settings.Default.tradingSettingsFile;
 
             if (string.IsNullOrWhiteSpace(file))
             {
@@ -411,7 +407,7 @@ namespace EvaluatorClient
                 buyCommissionTextBox.Select(0, buyCommissionTextBox.Text.Length);
 
                 // Set the ErrorProvider error with the text to display.  
-                this.errorProvider1.SetError(buyCommissionTextBox, "费率需要为非负数字");
+                errorProvider1.SetError(buyCommissionTextBox, "费率需要为非负数字");
             }
         }
 
@@ -426,7 +422,7 @@ namespace EvaluatorClient
                 sellCommissionTextBox.Select(0, sellCommissionTextBox.Text.Length);
 
                 // Set the ErrorProvider error with the text to display.  
-                this.errorProvider1.SetError(sellCommissionTextBox, "费率需要为非负数字");
+                errorProvider1.SetError(sellCommissionTextBox, "费率需要为非负数字");
             }
         }
 
@@ -441,7 +437,7 @@ namespace EvaluatorClient
                 tariffTextBox.Select(0, tariffTextBox.Text.Length);
 
                 // Set the ErrorProvider error with the text to display.  
-                this.errorProvider1.SetError(tariffTextBox, "费率需要为非负数字");
+                errorProvider1.SetError(tariffTextBox, "费率需要为非负数字");
             }
         }
 
@@ -456,7 +452,7 @@ namespace EvaluatorClient
                 spreadTextBox.Select(0, spreadTextBox.Text.Length);
 
                 // Set the ErrorProvider error with the text to display.  
-                this.errorProvider1.SetError(spreadTextBox, "滑点需要为非负整数");
+                errorProvider1.SetError(spreadTextBox, "滑点需要为非负整数");
             }
         }
 
@@ -471,7 +467,7 @@ namespace EvaluatorClient
                 initialCapitalTextBox.Select(0, initialCapitalTextBox.Text.Length);
 
                 // Set the ErrorProvider error with the text to display.  
-                this.errorProvider1.SetError(initialCapitalTextBox, "初始资金需要为非负整数");
+                errorProvider1.SetError(initialCapitalTextBox, "初始资金需要为非负整数");
             }
         }
 
@@ -509,13 +505,13 @@ namespace EvaluatorClient
                 warmupTextBox.Select(0, spreadTextBox.Text.Length);
 
                 // Set the ErrorProvider error with the text to display.  
-                this.errorProvider1.SetError(warmupTextBox, "周期数需要为非负整数");
+                errorProvider1.SetError(warmupTextBox, "周期数需要为非负整数");
             }
         }
 
         private void control_Validated(object sender, EventArgs e)
         {
-            this.errorProvider1.SetError((Control)sender, "");
+            errorProvider1.SetError((Control)sender, "");
         }
 
         private void time_Validating(object sender, CancelEventArgs e)
@@ -525,7 +521,7 @@ namespace EvaluatorClient
                 e.Cancel = true;
                 startDateTimePicker.Value = endDateTimePicker.Value.AddYears(-1);
 
-                this.errorProvider1.SetError((Control)sender, "起始时间必须小于终止时间");
+                errorProvider1.SetError((Control)sender, "起始时间必须小于终止时间");
             }
         }
 
@@ -577,7 +573,7 @@ namespace EvaluatorClient
         {
             if (e.Control && e.KeyCode == Keys.A)
             {
-                ListView view = (ListView)sender;
+                var view = (ListView)sender;
                 foreach (ListViewItem item in view.Items)
                 {
                     item.Selected = true;
@@ -593,7 +589,7 @@ namespace EvaluatorClient
                 return;
             }
 
-            string stockDataFileFolder = _stockDataSettings.StockDataFileDirectory;
+            var stockDataFileFolder = _stockDataSettings.StockDataFileDirectory;
             if (!Directory.Exists(stockDataFileFolder))
             {
                 ShowError(string.Format("Stock data file folder \"{0}\" does not exist", stockDataFileFolder));
@@ -604,13 +600,13 @@ namespace EvaluatorClient
                 return;
             }
 
-            TradingSettings settings = BuildTradingSettings(true);
+            var settings = BuildTradingSettings(true);
             if (settings == null)
             {
                 return;
             }
 
-            ITradingStrategy strategy = BuildStrategy(true);
+            var strategy = BuildStrategy(true);
             if (strategy == null)
             {
                 return;
@@ -618,15 +614,15 @@ namespace EvaluatorClient
 
             try
             {
-                double initialCapital = double.Parse(initialCapitalTextBox.Text);
+                var initialCapital = double.Parse(initialCapitalTextBox.Text);
 
-                List<string> files = new List<string>(selectedObjectListView.Items.Count);
+                var files = new List<string>(selectedObjectListView.Items.Count);
 
                 foreach (ListViewItem item in selectedObjectListView.Items)
                 {
-                    string code = item.Text;
+                    var code = item.Text;
 
-                    string fileName = _stockDataSettings.BuildActualDataFilePathAndName(code);
+                    var fileName = _stockDataSettings.BuildActualDataFilePathAndName(code);
 
                     if (File.Exists(fileName))
                     {
@@ -650,11 +646,11 @@ namespace EvaluatorClient
                 // force GC for fun
                 GC.Collect();
 
-                DateTime startDate = startDateTimePicker.Value.Date;
-                DateTime endDate = endDateTimePicker.Value.Date;
+                var startDate = startDateTimePicker.Value.Date;
+                var endDate = endDateTimePicker.Value.Date;
 
                 // create data provider
-                ChinaStockDataProvider provider 
+                var provider 
                     = new ChinaStockDataProvider(
                         _stockNameTable, 
                         files.ToArray(), 
@@ -663,12 +659,12 @@ namespace EvaluatorClient
                         int.Parse(warmupTextBox.Text));
 
                 // create new logger;
-                MemoryLogger logger = new MemoryLogger();
+                var logger = new MemoryLogger();
 
                 // create evaluator
-                IDictionary<ParameterAttribute, object> parameterValues = CollectParameterValues();
+                var parameterValues = CollectParameterValues();
 
-                TradingStrategyEvaluator evaluator
+                var evaluator
                     = new TradingStrategyEvaluator(
                         initialCapital, 
                         strategy, 
@@ -691,20 +687,20 @@ namespace EvaluatorClient
                 logTextBox.Lines = logger.Logs.ToArray();
 
                 // calculate metrics
-                MetricCalculator calculator 
+                var calculator 
                     = new MetricCalculator(
-                        _stockNameTable,
+                        //_stockNameTable,
                         evaluator.Tracker,
                         provider);
 
                 var metrics = calculator.Calculate().Select(tm => new TradeMetricSlim(tm));
 
                 // show results
-                SortableBindingList<TradeMetricSlim> results = new SortableBindingList<TradeMetricSlim>(metrics);
+                var results = new SortableBindingList<TradeMetricSlim>(metrics);
                 resultDataGridView.DataSource = results;
 
                 // switch to result page
-                this.tabControl1.SelectedTab = resultPage; 
+                tabControl1.SelectedTab = resultPage; 
 
                 // set active data provider
                 if (metrics.Count() > 0)
@@ -720,12 +716,12 @@ namespace EvaluatorClient
 
         private IDictionary<ParameterAttribute, object> CollectParameterValues()
         {
-            Dictionary<ParameterAttribute, object> parameterValues = new Dictionary<ParameterAttribute, object>();
+            var parameterValues = new Dictionary<ParameterAttribute, object>();
 
             var attributes = parameterDataGridView.DataSource as List<ParameterAttributeSlim>;
             foreach (var attribute in attributes)
             {
-                object value = ParameterHelper.ConvertStringToValue(attribute.Attribute, attribute.Value);
+                var value = ParameterHelper.ConvertStringToValue(attribute.Attribute, attribute.Value);
 
                 parameterValues.Add(attribute.Attribute, value);
             }
@@ -737,16 +733,16 @@ namespace EvaluatorClient
         {
             evaluationProgressBar.Value = (int)(e.EvaluationPercentage * 100.0);
             
-            this.Update();
+            Update();
         }
 
         private void strategyComboBox_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (strategyComboBox.SelectedIndex >= 0)
             {
-                ITradingStrategy strategy = (ITradingStrategy)strategyComboBox.SelectedItem;
+                var strategy = (ITradingStrategy)strategyComboBox.SelectedItem;
 
-                StringBuilder builder = new StringBuilder();
+                var builder = new StringBuilder();
 
                 builder.Append("全类型名：\n");
                 builder.Append(strategy.GetType().FullName);
@@ -754,7 +750,7 @@ namespace EvaluatorClient
                 builder.Append("策略描述：\n");
                 builder.Append(strategy.Description);
 
-                descriptionTextBox.Lines = builder.ToString().Split(new char[] {'\n'});
+                descriptionTextBox.Lines = builder.ToString().Split(new[] {'\n'});
 
                 var parameters = ParameterHelper.GetParameterAttributes(strategy)
                     .Select(p => new ParameterAttributeSlim(p))
@@ -775,7 +771,7 @@ namespace EvaluatorClient
                 return;
             }
 
-            TradeMetricSlim obj = resultDataGridView.Rows[e.RowIndex].DataBoundItem as TradeMetricSlim;
+            var obj = resultDataGridView.Rows[e.RowIndex].DataBoundItem as TradeMetricSlim;
             if (obj != null)
             {
                 _metricForm.SetMetric(obj.Metric, _activeDataProvider);
@@ -800,7 +796,7 @@ namespace EvaluatorClient
                 return;
             }
 
-            ParameterAttributeSlim obj = parameterDataGridView.Rows[e.RowIndex].DataBoundItem as ParameterAttributeSlim;
+            var obj = parameterDataGridView.Rows[e.RowIndex].DataBoundItem as ParameterAttributeSlim;
 
             if (!ParameterHelper.IsValidValue(obj.Attribute, (string)e.FormattedValue))
             {

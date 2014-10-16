@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace MetricsDefinition
+namespace MetricsDefinition.Metrics
 {
     [Metric("MTM")]
     public sealed class Momentum : SingleOutputRawInputSerialMetric
@@ -18,9 +14,9 @@ namespace MetricsDefinition
          {
              Data.Add(dataPoint);
 
-             double oldData = Data[0];
+             var oldData = Data[0];
 
-             return oldData == 0.0 ? 0.0 : dataPoint * 100.0 / oldData;
+             return Math.Abs(oldData) < 1e-6 ? 0.0 : dataPoint * 100.0 / oldData;
          }
     }
 }

@@ -1,13 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 using StockAnalysis.Share;
-using System.Reflection;
 
-namespace MetricsDefinition
+namespace MetricsDefinition.Metrics
 {
     /// <summary>
     /// The StdDev of TureRange metric
@@ -15,8 +9,8 @@ namespace MetricsDefinition
     [Metric("SDTR")]
     public sealed class StdDevTrueRange : SingleOutputBarInputSerialMetric
     {
-        private double _prevClosePrice = 0.0;
-        private StdDev _sdTrueRange;
+        private double _prevClosePrice;
+        private readonly StdDev _sdTrueRange;
         public StdDevTrueRange(int windowSize)
             : base(1)
         {
@@ -25,7 +19,7 @@ namespace MetricsDefinition
 
         public override double Update(Bar bar)
         {
-            double trueRange = 
+            var trueRange = 
                 Math.Max(
                     Math.Max(bar.HighestPrice - bar.LowestPrice, bar.HighestPrice - _prevClosePrice),
                     _prevClosePrice - bar.LowestPrice);

@@ -1,9 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 using StockAnalysis.Share;
 
 namespace GetFinanceReports
@@ -26,7 +21,7 @@ namespace GetFinanceReports
             format = format.Replace("%code%", stock.Code);
 
             // replace %market%
-            string market = marketFormatter == null ? stock.Market.ToString() : marketFormatter(stock.Market);
+            var market = marketFormatter == null ? stock.Market.ToString() : marketFormatter(stock.Market);
 
             format = format.Replace("%market%", market);
 

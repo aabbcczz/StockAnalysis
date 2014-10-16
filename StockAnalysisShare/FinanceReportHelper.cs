@@ -1,15 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
 namespace StockAnalysis.Share
 {
     public static class FinanceReportHelper
     {
-        private static Dictionary<string, decimal> Units = new Dictionary<string, decimal>()
+        private static readonly Dictionary<string, decimal> Units = new Dictionary<string, decimal>
         {
             { "元", 1.0M },
             { "万元", 10000.0M },
@@ -26,7 +22,7 @@ namespace StockAnalysis.Share
             { "％", 1.0M }
         };
 
-        private static Regex UnitRegex = new Regex(@"(.*)(\(|（)(.+)(）|\))$", RegexOptions.Compiled);
+        private static readonly Regex UnitRegex = new Regex(@"(.*)(\(|（)(.+)(）|\))$", RegexOptions.Compiled);
 
         /// <summary>
         /// Parse a definition string to get the unit (if any) and cleaned definition contains no unit.
@@ -49,11 +45,11 @@ namespace StockAnalysis.Share
 
             definition = definition.Trim();
 
-            Match match = UnitRegex.Match(definition);
+            var match = UnitRegex.Match(definition);
 
             if (match.Success)
             {
-                string unitString = match.Groups[3].Value;
+                var unitString = match.Groups[3].Value;
 
                 if (Units.TryGetValue(unitString, out unit))
                 {

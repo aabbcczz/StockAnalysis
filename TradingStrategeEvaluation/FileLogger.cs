@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.IO;
 
 using TradingStrategy;
@@ -12,7 +9,7 @@ namespace TradingStrategyEvaluation
     public sealed class FileLogger : ILogger, IDisposable
     {
         private StreamWriter _writer;
-        private bool _flushForEachLog;
+        private readonly bool _flushForEachLog;
 
         public FileLogger(string file, bool flushForEachLog = false)
         {
@@ -39,8 +36,6 @@ namespace TradingStrategyEvaluation
                 _writer.Dispose();
                 _writer = null;
             }
-
-            GC.SuppressFinalize(this);
         }
     }
 }

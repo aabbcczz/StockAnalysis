@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using MetricsDefinition;
+using MetricsDefinition.Metrics;
+using StockAnalysis.Share;
 
-using MetricsDefinition;
 namespace TradingStrategy.Strategy
 {
     public sealed class DmiRuntimeMetric : IRuntimeMetric
@@ -16,7 +13,7 @@ namespace TradingStrategy.Strategy
 
         public CirculatedArray<double> HistoricalAdxValues { get; private set;}
 
-        private DirectionMovementIndex _dmi;
+        private readonly DirectionMovementIndex _dmi;
         
         public DmiRuntimeMetric(int windowSize)
         {
@@ -24,9 +21,9 @@ namespace TradingStrategy.Strategy
             HistoricalAdxValues = new CirculatedArray<double>(3);
         }
 
-        public void Update(StockAnalysis.Share.Bar bar)
+        public void Update(Bar bar)
         {
-            double[] values = _dmi.Update(bar);
+            var values = _dmi.Update(bar);
 
             Pdi = values[0];
             Ndi = values[1];

@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace TradingStrategy
 {
@@ -28,7 +25,7 @@ namespace TradingStrategy
 
                 if (x.Code != y.Code)
                 {
-                    return x.Code.CompareTo(y.Code);
+                    return String.Compare(x.Code, y.Code, StringComparison.Ordinal);
                 }
 
                 return 0;

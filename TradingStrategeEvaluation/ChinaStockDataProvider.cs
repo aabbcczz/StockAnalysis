@@ -2,28 +2,26 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.IO;
-using System.Text;
 using System.Threading.Tasks;
 
 using StockAnalysis.Share;
-using MetricsDefinition;
 using TradingStrategy;
 
 namespace TradingStrategyEvaluation
 {
     public sealed class ChinaStockDataProvider : ITradingDataProvider
     {
-        private ChinaStock[] _stocks = null;
+        private readonly ITradingObject[] _stocks;
 
-        private Dictionary<string, int> _stockIndices = new Dictionary<string, int>();
+        private readonly Dictionary<string, int> _stockIndices = new Dictionary<string, int>();
 
-        private Bar[][] _allWarmupData = null;
+        private readonly Bar[][] _allWarmupData;
 
-        private DateTime[] _allPeriodsOrdered = null;
+        private readonly DateTime[] _allPeriodsOrdered;
 
-        private Dictionary<DateTime, int> _periodIndices = new Dictionary<DateTime,int>();
+        private readonly Dictionary<DateTime, int> _periodIndices = new Dictionary<DateTime,int>();
 
-        private Bar[][] _allTradingData = null;
+        private readonly Bar[][] _allTradingData;
 
         public int PeriodCount { get { return _allPeriodsOrdered.Length; } }
 
@@ -45,10 +43,7 @@ namespace TradingStrategyEvaluation
             {
                 return index;
             }
-            else
-            {
-                return -1;
-            }
+            return -1;
         }
 
         public Bar[] GetWarmUpData(int index)
@@ -83,7 +78,7 @@ namespace TradingStrategyEvaluation
                 return false;
             }
 
-            int periodIndex = Array.BinarySearch(_allPeriodsOrdered, period);
+            var periodIndex = Array.BinarySearch(_allPeriodsOrdered, period);
 
             if (periodIndex < 0)
             {
@@ -105,11 +100,8 @@ namespace TradingStrategyEvaluation
                     --periodIndex;
                     continue;
                 }
-                else
-                {
-                    bar = _allTradingData[periodIndex][index];
-                    return true;
-                }
+                bar = _allTradingData[periodIndex][index];
+                return true;
             }
 
             return false;
@@ -146,18 +138,18 @@ namespace TradingStrategyEvaluation
             }
 
             // load data
-            List<StockHistoryData> allTradingData = new List<StockHistoryData>(dataFiles.Length);
-            Dictionary<string, Bar[]> allWarmupData = new Dictionary<string, Bar[]>();
+            var allTradingData = new List<StockHistoryData>(dataFiles.Length);
+            var allWarmupData = new Dictionary<string, Bar[]>();
 
             ChinaStockDataAccessor.Initialize();
 
             Parallel.ForEach(
                 dataFiles,
-                (string file) =>
+                file =>
                 {
                     if (!String.IsNullOrWhiteSpace(file) && File.Exists(file))
                     {
-                        StockHistoryData data = ChinaStockDataAccessor.Load(file, nameTable);
+                        var data = ChinaStockDataAccessor.Load(file, nameTable);
 
                         int startIndex;
                         int endIndex;
@@ -173,7 +165,7 @@ namespace TradingStrategyEvaluation
                         // now we have ensured endIndex >= startIndex;
 
                         Bar[] warmupData = null;
-                        Bar[] tradingData = null;
+                        Bar[] tradingData;
 
                         if (warmupDataSize > 0)
                         {
@@ -214,12 +206,9 @@ namespace TradingStrategyEvaluation
                             }
                         }
 
-                        if (tradingData != null)
+                        lock (allTradingData)
                         {
-                            lock (allTradingData)
-                            {
-                                allTradingData.Add(new StockHistoryData(data.Name, data.IntervalInSecond, tradingData));
-                            }
+                            allTradingData.Add(new StockHistoryData(data.Name, data.IntervalInSecond, tradingData));
                         }
                     }
                 });
@@ -237,7 +226,7 @@ namespace TradingStrategyEvaluation
                 throw new InvalidDataException("No any trading data are loaded, please adjust the time range");
             }
 
-            for (int i = 0; i < _allPeriodsOrdered.Length; ++i)
+            for (var i = 0; i < _allPeriodsOrdered.Length; ++i)
             {
                 _periodIndices.Add(_allPeriodsOrdered[i], i);
             }
@@ -246,36 +235,36 @@ namespace TradingStrategyEvaluation
             var tempTradingData = allTradingData.OrderBy(t => t.Name.Code).ToArray();
 
             _stocks = Enumerable.Range(0, tempTradingData.Length)
-                .Select(i => new ChinaStock(i, tempTradingData[i].Name.Code, tempTradingData[i].Name.Names[0]))
+                .Select(i => (ITradingObject)new ChinaStock(i, tempTradingData[i].Name.Code, tempTradingData[i].Name.Names[0]))
                 .ToArray();
 
-            for (int i = 0; i < _stocks.Length; ++i) 
+            for (var i = 0; i < _stocks.Length; ++i) 
             {
                 _stockIndices.Add(_stocks[i].Code, i);
             }
             
             // prepare warmup data
             _allWarmupData = new Bar[_stocks.Length][];
-            for (int i = 0; i < _allWarmupData.Length; ++i)
+            for (var i = 0; i < _allWarmupData.Length; ++i)
             {
                 _allWarmupData[i] = allWarmupData.ContainsKey(_stocks[i].Code) ? allWarmupData[_stocks[i].Code] : null;
             }
 
             // expand data to #period * #stock
             _allTradingData = new Bar[_allPeriodsOrdered.Length][];
-            for (int i = 0; i < _allTradingData.Length; ++i)
+            for (var i = 0; i < _allTradingData.Length; ++i)
             {
                 _allTradingData[i] = new Bar[_stocks.Length];
             }
 
             foreach (var historyData in allTradingData)
             {
-                int stockIndex = GetIndexOfTradingObject(historyData.Name.Code);
+                var stockIndex = GetIndexOfTradingObject(historyData.Name.Code);
 
-                Bar[] data = historyData.DataOrderedByTime;
-                int dataIndex = 0;
+                var data = historyData.DataOrderedByTime;
+                var dataIndex = 0;
 
-                for (int periodIndex = 0; periodIndex < _allPeriodsOrdered.Length; ++periodIndex)
+                for (var periodIndex = 0; periodIndex < _allPeriodsOrdered.Length; ++periodIndex)
                 {
                     if (dataIndex >= data.Length || _allPeriodsOrdered[periodIndex] < data[dataIndex].Time)
                     {
@@ -307,8 +296,8 @@ namespace TradingStrategyEvaluation
                 throw new ArgumentException();
             }
 
-            Bar startObject = new Bar(){ Time = start };
-            Bar endObject = new Bar(){ Time = end };
+            var startObject = new Bar { Time = start };
+            var endObject = new Bar { Time = end };
 
             // startIndex is the index of data whose time >= startDate
             startIndex = Array.BinarySearch(dataOrderedByTime, startObject, new Bar.TimeComparer());

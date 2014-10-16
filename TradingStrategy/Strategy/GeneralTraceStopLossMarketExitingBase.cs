@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using StockAnalysis.Share;
 
 namespace TradingStrategy.Strategy
 {
@@ -11,13 +7,13 @@ namespace TradingStrategy.Strategy
     {
         protected abstract double CalculateStopLossPrice(ITradingObject tradingObject, double currentPrice);
 
-        public override void EvaluateSingleObject(ITradingObject tradingObject, StockAnalysis.Share.Bar bar)
+        public override void EvaluateSingleObject(ITradingObject tradingObject, Bar bar)
         {
             base.EvaluateSingleObject(tradingObject, bar);
 
             if (Context.ExistsPosition(tradingObject.Code))
             {
-                double stopLossPrice = CalculateStopLossPrice(tradingObject, bar.ClosePrice);
+                var stopLossPrice = CalculateStopLossPrice(tradingObject, bar.ClosePrice);
 
                 foreach (var position in Context.GetPositionDetails(tradingObject.Code))
                 {

@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.IO;
 using CommandLine;
 using CommandLine.Text;
@@ -74,7 +70,7 @@ namespace EvaluatorCmdClient
 
             if (StartDate > EndDate)
             {
-                DateTime temp = EndDate;
+                var temp = EndDate;
                 EndDate = StartDate;
                 StartDate = temp;
             }

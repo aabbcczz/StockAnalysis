@@ -2,11 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.IO;
 using System.Data.SqlClient;
-
 using CommandLine;
+using ImportTable.Properties;
 using StockAnalysis.Share;
 
 namespace ImportTable
@@ -16,9 +15,9 @@ namespace ImportTable
         static void Main(string[] args)
         {
             var options = new Options();
-            var parser = new CommandLine.Parser(with => with.HelpWriter = Console.Error);
+            var parser = new Parser(with => with.HelpWriter = Console.Error);
 
-            if (parser.ParseArgumentsStrict(args, options, () => { Environment.Exit(-2); }))
+            if (parser.ParseArgumentsStrict(args, options, () => Environment.Exit(-2)))
             {
                 options.BoundaryCheck();
 
@@ -30,16 +29,16 @@ namespace ImportTable
         {
             options.Print(Console.Out);
 
-            string tableName = Path.GetFileNameWithoutExtension(options.CsvFile);
-            Csv csv = Csv.Load(options.CsvFile, Encoding.UTF8, options.Separator);
+            var tableName = Path.GetFileNameWithoutExtension(options.CsvFile);
+            var csv = Csv.Load(options.CsvFile, Encoding.UTF8, options.Separator);
 
-            using (SqlConnection connection = new SqlConnection(ImportTable.Properties.Settings.Default.stockConnectionString))
+            using (var connection = new SqlConnection(Settings.Default.stockConnectionString))
             {
                 connection.Open();
 
                 // drop table
-                string cmdstring = BuildDropTableSql(tableName);
-                SqlCommand cmd = new SqlCommand(cmdstring, connection);
+                var cmdstring = BuildDropTableSql(tableName);
+                var cmd = new SqlCommand(cmdstring, connection);
                 cmd.ExecuteNonQuery();
 
                 // create table
@@ -56,7 +55,7 @@ namespace ImportTable
                 }
 
                 // insert values
-                for (int i = 0; i < csv.RowCount; ++i)
+                for (var i = 0; i < csv.RowCount; ++i)
                 {
                     cmdstring = BuildInsertRowSql(tableName, csv[i]);
                     cmd = new SqlCommand(cmdstring, connection);
@@ -76,11 +75,11 @@ namespace ImportTable
         private static string BuildInsertRowSql(string tableName, string[] row)
         {
             // INSERT INTO [dbo].[table] ( "a", "b", "c" )
-            StringBuilder builder = new StringBuilder();
+            var builder = new StringBuilder();
 
             builder.AppendFormat("INSERT INTO [dbo].[{0}] VALUES (", tableName);
 
-            for (int i = 0; i < row.Length; ++i)
+            for (var i = 0; i < row.Length; ++i)
             {
                 if (i > 0)
                 {
@@ -103,7 +102,7 @@ namespace ImportTable
 
         private static string BuildCreateIndexSql(string tableName, string indexName, string[] columns)
         {
-            string[] primaryKeys = GetPrimaryKeys(columns);
+            var primaryKeys = GetPrimaryKeys(columns);
 
             if (primaryKeys != null && primaryKeys.Length > 1)
             {
@@ -124,11 +123,11 @@ namespace ImportTable
             //    PRIMARY KEY ([code], [column])
             //)
 
-            StringBuilder builder = new StringBuilder();
+            var builder = new StringBuilder();
 
             builder.AppendFormat("CREATE TABLE [dbo].[{0}] (", tableName);
 
-            for (int i = 0; i < columns.Length; ++i)
+            for (var i = 0; i < columns.Length; ++i)
             {
                 if (i != 0)
                 {
@@ -140,12 +139,12 @@ namespace ImportTable
                 builder.Append(IsColumnNullable(columns[i]) ? "NULL" : "NOT NULL");
             }
 
-            string[] primaryKeys = GetPrimaryKeys(columns);
+            var primaryKeys = GetPrimaryKeys(columns);
             if (primaryKeys != null && primaryKeys.Length > 0)
             {
                 builder.Append(", PRIMARY KEY (");
 
-                for (int j = 0; j < primaryKeys.Length; ++j)
+                for (var j = 0; j < primaryKeys.Length; ++j)
                 {
                     if (j > 0)
                     {
@@ -176,7 +175,7 @@ namespace ImportTable
 
         private static string[] GetPrimaryKeys(string[] columns)
         {
-            List<string> primaryKeys = new List<string>();
+            var primaryKeys = new List<string>();
 
             columns = columns.Select(s => s.ToLower()).ToArray();
 

@@ -1,15 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace TradingStrategy.Strategy
 {
     public sealed class ProfitTraceStopLossMarketExiting 
         : GeneralTraceStopLossMarketExitingBase
     {
-        private double[] _maxPercentageOfProfitDrawdown = null;
+        private double[] _maxPercentageOfProfitDrawdown;
 
         [Parameter("50:25", "利润折回参数串。参数由冒号（:）分割的浮点数构成。按照顺序这些数代表利润为1到N个R（初始风险）时允许利润折回的最大百分比。连续的冒号表示值与前一个相同。")]
         public string MaxPercentageOfProfitDrawdownString { get; set; }
@@ -31,7 +29,7 @@ namespace TradingStrategy.Strategy
             Context.Log(
                 string.Format(
                     "{0} parameters: {1}",
-                    this.GetType().FullName,
+                    GetType().FullName,
                     string.Join(
                         ":", 
                         _maxPercentageOfProfitDrawdown
@@ -45,29 +43,30 @@ namespace TradingStrategy.Strategy
                 return 0.0;
             }
 
-            var positions = Context.GetPositionDetails(tradingObject.Code);
+            var temp = Context.GetPositionDetails(tradingObject.Code);
+            var positions = temp as Position[] ?? temp.ToArray();
 
             double totalVolume = positions.Sum(p => p.Volume);
-            double totalProfit = positions.Sum(p => (currentPrice - p.BuyPrice) * p.Volume);
-            double totalCost = positions.Sum(p => p.BuyPrice * p.Volume);
-            double totalRisk = positions.Sum(p => p.InitialRisk);
+            var totalProfit = positions.Sum(p => (currentPrice - p.BuyPrice) * p.Volume);
+            var totalCost = positions.Sum(p => p.BuyPrice * p.Volume);
+            var totalRisk = positions.Sum(p => p.InitialRisk);
 
             if (totalProfit <= 0.0)
             {
                 return 0.0;
             }
 
-            int index = (int)Math.Floor(totalProfit / totalRisk) - 1;
+            var index = (int)Math.Floor(totalProfit / totalRisk) - 1;
             if (index < 0)
             {
                 return 0.0;
             }
-            else if (index >= _maxPercentageOfProfitDrawdown.Length)
+            if (index >= _maxPercentageOfProfitDrawdown.Length)
             {
                 index = _maxPercentageOfProfitDrawdown.Length - 1;
             }
 
-            double m = 1.0 - _maxPercentageOfProfitDrawdown[index] / 100.0;
+            var m = 1.0 - _maxPercentageOfProfitDrawdown[index] / 100.0;
 
             // calculate the price that can keep profit as m * totalProfit.
             // by simple induction, we know 
@@ -84,15 +83,15 @@ namespace TradingStrategy.Strategy
                 throw new ArgumentNullException();
             }
 
-            string[] fields = MaxPercentageOfProfitDrawdownString.Split(new char[] { ':' });
+            var fields = MaxPercentageOfProfitDrawdownString.Split(new[] { ':' });
 
             if (fields == null || fields.Length == 0)
             {
                 throw new ArgumentException("Invalid parameter string");
             }
 
-            List<double> parameters = new List<double>(fields.Length);
-            double previousParameter = double.NaN;
+            var parameters = new List<double>(fields.Length);
+            var previousParameter = double.NaN;
 
             foreach (var field in fields)
             {
@@ -103,10 +102,7 @@ namespace TradingStrategy.Strategy
                     {
                         throw new ArgumentException("parameter is not numeric");
                     }
-                    else
-                    {
-                        parameter = previousParameter;
-                    }
+                    parameter = previousParameter;
                 }
 
                 if (parameter <= 0.0 || parameter > 100.0)

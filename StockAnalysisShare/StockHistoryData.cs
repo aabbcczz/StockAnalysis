@@ -2,17 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
-
-using StockAnalysis.Share;
 
 namespace StockAnalysis.Share
 {
     public class StockHistoryData
     {
-        private Bar[] _dataOrderedByTime = null;
-        private StockName _name;
-        private long _intervalInSecond;
+        private readonly Bar[] _dataOrderedByTime;
+        private readonly StockName _name;
+        private readonly long _intervalInSecond;
 
         public StockName Name { get{ return _name; } }
 
@@ -40,34 +37,34 @@ namespace StockAnalysis.Share
                 throw new ArgumentNullException();
             }
 
-            Csv inputData = Csv.Load(file, Encoding.UTF8, ",");
+            var inputData = Csv.Load(file, Encoding.UTF8, ",");
 
             if (inputData.RowCount == 0)
             {
                 return null;
             }
 
-            string code = inputData[0][0];
+            var code = inputData[0][0];
 
-            StockName name = 
+            var name = 
                 nameTable != null && nameTable.ContainsStock(code)
                 ? nameTable[code] 
                 : new StockName(code, string.Empty);
 
             // header is code,date,open,highest,lowest,close,volume,amount
 
-            List<Bar> data = new List<Bar>(inputData.RowCount);
+            var data = new List<Bar>(inputData.RowCount);
 
-            DateTime lastInvalidBarTime = DateTime.MinValue;
+            var lastInvalidBarTime = DateTime.MinValue;
             foreach (var row in inputData.Rows)
             {
-                DateTime date = DateTime.Parse(row[1]);
+                var date = DateTime.Parse(row[1]);
                 if (date < startDate || date > endDate)
                 {
                     continue;
                 }
 
-                Bar dailyData = new Bar();
+                var dailyData = new Bar();
 
                 dailyData.Time = DateTime.Parse(row[1]);
                 dailyData.OpenPrice = double.Parse(row[2]);
@@ -82,7 +79,7 @@ namespace StockAnalysis.Share
                     && dailyData.HighestPrice > 0.0
                     && dailyData.LowestPrice > 0.0)
                 {
-                    if (dailyData.Volume != 0.0)
+                    if (Math.Abs(dailyData.Volume) > 1e-6)
                     {
                         data.Add(dailyData);
                     }

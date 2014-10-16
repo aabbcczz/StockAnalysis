@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace TradingStrategy.Strategy
 {
@@ -60,9 +56,9 @@ namespace TradingStrategy.Strategy
         {
             var metric = MetricManager.GetOrCreateRuntimeMetric(tradingObject);
 
-            double volatility = metric.Atr;
+            var volatility = metric.Atr;
 
-            double currentEquity = Context.GetCurrentEquity(Period, _equityEvaluationMethod);
+            var currentEquity = Context.GetCurrentEquity(Period, _equityEvaluationMethod);
 
             comments = string.Format(
                 "positionsize = CurrentEquity({0:0.000}) * PercentageOfEquityForEachPositionVolatility({1:0.000}) / 100.0 / Volatility({2:0.000})",

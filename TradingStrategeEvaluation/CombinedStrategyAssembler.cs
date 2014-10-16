@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 using TradingStrategy;
 using TradingStrategy.Strategy;
 
@@ -18,12 +16,12 @@ namespace TradingStrategyEvaluation
             public int ValueIndex { get; set; }
         }
 
-        private TradingStrategyComponentSettings[] _componentSettings;
+        private readonly TradingStrategyComponentSettings[] _componentSettings;
 
-        private List<ParameterValueSelector> _parameterValueSelectors
+        private readonly List<ParameterValueSelector> _parameterValueSelectors
             = new List<ParameterValueSelector>();
 
-        private bool _endPermutation = false;
+        private bool _endPermutation;
 
         public long NumberOfParmeterValueCombinations { get; private set; }
 
@@ -52,12 +50,12 @@ namespace TradingStrategyEvaluation
             }
 
             // verify if components' parameter settings are correct
-            ITradingStrategyComponent[] components = CreateComponents().ToArray();
-            System.Diagnostics.Debug.Assert(components.Length == _componentSettings.Length);
+            var components = CreateComponents().ToArray();
+            Debug.Assert(components.Length == _componentSettings.Length);
 
-            for (int i = 0; i < _componentSettings.Length; ++i)
+            for (var i = 0; i < _componentSettings.Length; ++i)
             {
-                var attributes = ParameterHelper.GetParameterAttributes(components[i]);
+                var attributes = ParameterHelper.GetParameterAttributes(components[i]).ToArray();
                 var allParameterSettings = _componentSettings[i].ComponentParameterSettings;
 
                 if (allParameterSettings == null || allParameterSettings.Length == 0)
@@ -69,9 +67,10 @@ namespace TradingStrategyEvaluation
                 var duplicateNames = allParameterSettings
                     .Select(p => p.Name)
                     .GroupBy(s => s)
-                    .Where(g => g.Count() > 1);
+                    .Where(g => g.Count() > 1)
+                    .ToArray();
 
-                if (duplicateNames.Count() > 0)
+                if (duplicateNames.Any())
                 {
                     throw new InvalidOperationException(
                         string.Format(
@@ -84,9 +83,9 @@ namespace TradingStrategyEvaluation
                 foreach (var parameterSettings in allParameterSettings)
                 {
                     // varify if there is name not defined in class.
-                    var attribute = attributes.Where(a => a.Name == parameterSettings.Name);
+                    var attribute = attributes.Where(a => a.Name == parameterSettings.Name).ToArray();
                     
-                    if (attribute == null || attribute.Count() == 0)
+                    if (!attribute.Any())
                     {
                         throw new InvalidOperationException(
                             string.Format(
@@ -96,7 +95,7 @@ namespace TradingStrategyEvaluation
                     }
 
                     // verify if ValueType is a correct type
-                    Type valueType = Type.GetType(parameterSettings.ValueType, false);
+                    var valueType = Type.GetType(parameterSettings.ValueType, false);
                     if (valueType == null)
                     {
                         throw new InvalidOperationException(
@@ -115,7 +114,7 @@ namespace TradingStrategyEvaluation
                     }
 
                     // verify the values specified in parameter setting is correct
-                    object[] values = null;
+                    object[] values;
                     try
                     {
                         values = parameterSettings.GetParsedValues().ToArray();
@@ -131,10 +130,10 @@ namespace TradingStrategyEvaluation
                     }
 
                     // associate attribute with all possible values
-                    if (values != null && values.Length > 0)
+                    if (values.Length > 0)
                     {
                         _parameterValueSelectors.Add(
-                            new ParameterValueSelector()
+                            new ParameterValueSelector
                             { 
                                 Attribute = attribute.First(),
                                 Values = values,
@@ -179,7 +178,7 @@ namespace TradingStrategyEvaluation
 
         public CombinedStrategy NewStrategy()
         {
-            CombinedStrategy strategy = new CombinedStrategy(CreateComponents());
+            var strategy = new CombinedStrategy(CreateComponents());
 
             return strategy;
         }
@@ -210,7 +209,7 @@ namespace TradingStrategyEvaluation
             var result = _parameterValueSelectors.ToDictionary(s => s.Attribute, s => s.Values[s.ValueIndex]);
 
             // move to next set of value
-            int index = 0;
+            var index = 0;
 
             while (index < _parameterValueSelectors.Count)
             {

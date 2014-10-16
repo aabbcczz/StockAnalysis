@@ -1,16 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿using System.Collections.Generic;
 using TradingStrategy;
 
 namespace TradingStrategyEvaluation
 {
     public sealed class MemoryLogger : ILogger
     {
-        private List<string> _logs = new List<string>();
+        private readonly List<string> _logs = new List<string>();
 
         public IEnumerable<string> Logs
         {

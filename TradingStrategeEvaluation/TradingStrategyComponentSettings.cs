@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using TradingStrategy;
-using System.Xml;
 using System.Xml.Serialization;
 
 namespace TradingStrategyEvaluation
@@ -28,7 +24,7 @@ namespace TradingStrategyEvaluation
                 throw new ArgumentNullException();
             }
 
-            TradingStrategyComponentSettings settings = new TradingStrategyComponentSettings();
+            var settings = new TradingStrategyComponentSettings();
 
             settings.Enabled = false;
             settings.ClassType = component.GetType().AssemblyQualifiedName;

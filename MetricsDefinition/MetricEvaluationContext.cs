@@ -1,11 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Reflection;
-
-using StockAnalysis.Share;
 
 namespace MetricsDefinition
 {
@@ -17,7 +13,7 @@ namespace MetricsDefinition
 
         static MetricEvaluationContext()
         {
-            Assembly assembly = Assembly.GetExecutingAssembly();
+            var assembly = Assembly.GetExecutingAssembly();
 
             var metrics = assembly.GetTypes()
                 .Where(type => type.IsClass 
@@ -51,7 +47,7 @@ namespace MetricsDefinition
                             typeof(MultipleOutputRawInputSerialMetric).Name));
                 }
 
-                MetricAttribute attribute = metric.GetCustomAttribute<MetricAttribute>();
+                var attribute = metric.GetCustomAttribute<MetricAttribute>();
 
                 if (attribute == null)
                 {
@@ -115,7 +111,7 @@ namespace MetricsDefinition
         public static MetricExpression ParseExpression(string expression)
         {
             var parser = new MetricExpressionParser();
-            MetricExpression metricExpression = parser.Parse(expression);
+            var metricExpression = parser.Parse(expression);
 
             if (metricExpression == null)
             {

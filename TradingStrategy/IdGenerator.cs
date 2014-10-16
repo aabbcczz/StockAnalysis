@@ -1,18 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Threading;
 
 namespace TradingStrategy
 {
     public static class IdGenerator
     {
-        private static long _nextId = 0;
+        private static long _nextId;
 
         public static long Next
         {
-            get { return System.Threading.Interlocked.Increment(ref _nextId); }
+            get { return Interlocked.Increment(ref _nextId); }
         }
 
         public static void Reset()

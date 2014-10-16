@@ -1,16 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using StockAnalysis.Share;
 
 namespace TradingStrategy.Strategy
 {
     public sealed class NoEnoughProfitMarketExiting 
         : GeneralMarketExitingBase
     {
-        private Dictionary<string, int> _activePositionHoldingPeriods = new Dictionary<string, int>();
-        private HashSet<string> _codesShouldExit = new HashSet<string>();
+        private readonly Dictionary<string, int> _activePositionHoldingPeriods = new Dictionary<string, int>();
+        private readonly HashSet<string> _codesShouldExit = new HashSet<string>();
 
         public override string Name
         {
@@ -39,14 +38,14 @@ namespace TradingStrategy.Strategy
             }
         }
 
-        public override void EvaluateSingleObject(ITradingObject tradingObject, StockAnalysis.Share.Bar bar)
+        public override void EvaluateSingleObject(ITradingObject tradingObject, Bar bar)
         {
             if (HoldingPeriods == 0)
             {
                 return;
             }
 
-            string code = tradingObject.Code;
+            var code = tradingObject.Code;
 
             // remove all codes for non-existing positions
             if (!Context.ExistsPosition(code))
@@ -55,7 +54,9 @@ namespace TradingStrategy.Strategy
             }
             else
             {
-                var positions = Context.GetPositionDetails(code);
+                var temp = Context.GetPositionDetails(code);
+                var positions = temp as Position[] ?? temp.ToArray();
+
                 if (positions.Count() == 1) // possible newly created position
                 {
                     if (!_activePositionHoldingPeriods.ContainsKey(code))
@@ -87,7 +88,7 @@ namespace TradingStrategy.Strategy
         private void CreateNewRecord(string code, DateTime latestBuyTime)
         {
             // create new record
-            int periodCount = latestBuyTime < Period ? 1 : 0;
+            var periodCount = latestBuyTime < Period ? 1 : 0;
 
             _activePositionHoldingPeriods.Add(code, periodCount);
         }

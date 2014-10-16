@@ -1,19 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.IO;
-
 using TradingStrategy;
 
 namespace TradingStrategyEvaluation
 {
     public sealed class TradingTracker
     {
-        private List<Transaction> _transactionHistory = new List<Transaction>();
+        private readonly List<Transaction> _transactionHistory = new List<Transaction>();
 
-        private List<CompletedTransaction> _completedTransactionHistory = new List<CompletedTransaction>();
+        private readonly List<CompletedTransaction> _completedTransactionHistory = new List<CompletedTransaction>();
 
         public double InitialCapital { get; private set; }
 

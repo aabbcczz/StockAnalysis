@@ -1,10 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.IO;
-
+using CommandLine;
 using StockAnalysis.Share;
 
 namespace ProcessDailyStockData
@@ -14,7 +13,7 @@ namespace ProcessDailyStockData
         static void Main(string[] args)
         {
             var options = new Options();
-            var parser = new CommandLine.Parser(with => with.HelpWriter = Console.Error);
+            var parser = new Parser(with => with.HelpWriter = Console.Error);
 
             if (parser.ParseArgumentsStrict(args, options, () => { Environment.Exit(-2); }))
             {
@@ -32,7 +31,7 @@ namespace ProcessDailyStockData
                     Environment.Exit(-2);
                 }
 
-                int returnValue = Run(options);
+                var returnValue = Run(options);
 
                 if (returnValue != 0)
                 {
@@ -49,7 +48,7 @@ namespace ProcessDailyStockData
                 return -2;
             }
 
-            string folder = Path.GetFullPath(options.OutputFileFolder);
+            var folder = Path.GetFullPath(options.OutputFileFolder);
 
             // try to create output file folder if it does not exist
             if (!Directory.Exists(folder))
@@ -60,18 +59,17 @@ namespace ProcessDailyStockData
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine("Create output file folder {0} failed. Exception: \n{1}", folder, ex.ToString());
+                    Console.WriteLine("Create output file folder {0} failed. Exception: \n{1}", folder, ex);
                     return -3;
                 }
             }
 
-            StockNameTable table = null;
-            StockName name = null;
+            StockNameTable table;
 
             if (!string.IsNullOrEmpty(options.InputFile))
             {
                 // single input file
-                name = ProcessOneFile(options.InputFile, options.StartDate, options.EndDate, folder);
+                StockName name = ProcessOneFile(options.InputFile, options.StartDate, options.EndDate, folder);
                 table = new StockNameTable();
 
                 if (name != null)
@@ -107,7 +105,7 @@ namespace ProcessDailyStockData
                 throw new ArgumentNullException();
             }
 
-            string[] lines = File.ReadAllLines(file, Encoding.GetEncoding("GB2312"));
+            var lines = File.ReadAllLines(file, Encoding.GetEncoding("GB2312"));
 
             // in general the file contains at least 3 lines, 2 lines of header and at least 1 line of data.
             if (lines.Length <= 2)
@@ -118,7 +116,7 @@ namespace ProcessDailyStockData
             }
 
             // first line contains the stock code, name and '日线'
-            string[] fields = lines[0].Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+            var fields = lines[0].Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
             if (fields.Length < 3)
             {
                 Console.WriteLine("Invalid first line in file {0}", file);
@@ -126,32 +124,32 @@ namespace ProcessDailyStockData
                 return null;
             }
 
-            string code = fields[0];
-            string name = string.Concat(fields.Skip(1).Take(fields.Length - 2).ToArray());
+            var code = fields[0];
+            var name = string.Concat(fields.Skip(1).Take(fields.Length - 2).ToArray());
 
-            StockName stockName = new StockName(code, name);
+            var stockName = new StockName(code, name);
 
-            string fullDataFile = Path.Combine(outputFileFolder, code + ".day.csv");
-            string deltaDataFile = Path.Combine(outputFileFolder, code + ".day.delta.csv");
+            var fullDataFile = Path.Combine(outputFileFolder, code + ".day.csv");
+            var deltaDataFile = Path.Combine(outputFileFolder, code + ".day.delta.csv");
 
-            bool generateDeltaFile = File.Exists(fullDataFile);
+            var generateDeltaFile = File.Exists(fullDataFile);
 
-            string outputFile = generateDeltaFile ? deltaDataFile : fullDataFile;
+            var outputFile = generateDeltaFile ? deltaDataFile : fullDataFile;
 
-            using (StreamWriter outputter = new StreamWriter(outputFile, false, Encoding.UTF8))
+            using (var outputter = new StreamWriter(outputFile, false, Encoding.UTF8))
             {
-                string header = "code,date,open,highest,lowest,close,volume,amount";
+                var header = "code,date,open,highest,lowest,close,volume,amount";
                 const int indexOfVolume = 6;
 
                 outputter.WriteLine(header);
 
-                fields = header.Split(new char[] { ',' });
-                int expectedFieldCount = fields.Length - 1; // remove the first column 'code' which does not exists in input file
+                fields = header.Split(new[] { ',' });
+                var expectedFieldCount = fields.Length - 1; // remove the first column 'code' which does not exists in input file
 
-                for (int i = 2; i < lines.Length - 1; ++i)
+                for (var i = 2; i < lines.Length - 1; ++i)
                 {
                     lines[i] = lines[i].Trim();
-                    fields = lines[i].Split(new char[] { ',' });
+                    fields = lines[i].Split(new[] { ',' });
                     if (fields.Length == expectedFieldCount)
                     {
                         // the first field is date
@@ -167,7 +165,7 @@ namespace ProcessDailyStockData
                             continue;
                         }
 
-                        int volume = -1;
+                        int volume;
 
                         if (int.TryParse(fields[indexOfVolume], out volume))
                         {
@@ -198,16 +196,16 @@ namespace ProcessDailyStockData
                 return;
             }
 
-            Csv fullData = Csv.Load(fullDataFile, Encoding.UTF8, ",");
-            Csv deltaData = Csv.Load(deltaDataFile, Encoding.UTF8, ",");
+            var fullData = Csv.Load(fullDataFile, Encoding.UTF8, ",");
+            var deltaData = Csv.Load(deltaDataFile, Encoding.UTF8, ",");
 
-            Csv mergedData = new Csv(fullData.Header);
+            var mergedData = new Csv(fullData.Header);
 
             var orderedFullData = fullData.Rows.OrderBy(columns => DateTime.Parse(columns[1])).ToArray();
             var orderedDeltaData = deltaData.Rows.OrderBy(columns => DateTime.Parse(columns[1])).ToArray();
 
-            int i = 0;
-            int j = 0;
+            var i = 0;
+            var j = 0;
 
             while (i < orderedFullData.Length || j < orderedDeltaData.Length)
             {
@@ -223,8 +221,8 @@ namespace ProcessDailyStockData
                 }
                 else
                 {
-                    DateTime date1 = DateTime.Parse(orderedFullData[i][1]);
-                    DateTime date2 = DateTime.Parse(orderedDeltaData[j][1]);
+                    var date1 = DateTime.Parse(orderedFullData[i][1]);
+                    var date2 = DateTime.Parse(orderedDeltaData[j][1]);
 
                     if (date1 < date2)
                     {
@@ -259,18 +257,18 @@ namespace ProcessDailyStockData
                 throw new ArgumentNullException();
             }
 
-            StockNameTable table = new StockNameTable();
+            var table = new StockNameTable();
 
             // Get all input files from list file
-            string[] files = File.ReadAllLines(listFile, Encoding.UTF8);
+            var files = File.ReadAllLines(listFile, Encoding.UTF8);
 
             Parallel.ForEach(
                 files,
-                (string file) =>
+                file =>
                 {
                     if (!String.IsNullOrWhiteSpace(file))
                     {
-                        StockName stockName = ProcessOneFile(file.Trim(), startDate, endDate, outputFileFolder);
+                        var stockName = ProcessOneFile(file.Trim(), startDate, endDate, outputFileFolder);
 
                         if (stockName != null)
                         {

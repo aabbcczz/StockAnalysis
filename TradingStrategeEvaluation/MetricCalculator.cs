@@ -1,30 +1,27 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using StockAnalysis.Share;
+//using StockAnalysis.Share;
 using TradingStrategy;
 
 namespace TradingStrategyEvaluation
 {
     public sealed class MetricCalculator
     {
-        private Transaction[] _orderedTransactionHistory = null;
-        private CompletedTransaction[] _orderedCompletedTransactionHistory = null;
+        private readonly Transaction[] _orderedTransactionHistory;
+        private readonly CompletedTransaction[] _orderedCompletedTransactionHistory;
 
-        private double _initialCapital = 0.0;
+        private readonly double _initialCapital;
 
-        private DateTime _startDate;
-        private DateTime _endDate;
+        private readonly DateTime _startDate;
+        private readonly DateTime _endDate;
 
-        private ITradingDataProvider _dataProvider;
-        private DateTime[] _periods;
-        private StockNameTable _nameTable;
+        //private readonly StockNameTable _nameTable;
+        private readonly ITradingDataProvider _dataProvider;
+        private readonly DateTime[] _periods;
 
         public MetricCalculator(
-            StockNameTable nameTable,
+            //StockNameTable nameTable,
             TradingTracker tracker, 
             ITradingDataProvider provider)
         {
@@ -40,8 +37,8 @@ namespace TradingStrategyEvaluation
 
             var periods = provider.GetAllPeriodsOrdered();
 
-            DateTime startDate = periods.First().Date;
-            DateTime endDate = periods.Last();
+            var startDate = periods.First().Date;
+            var endDate = periods.Last();
             if (endDate.Date < endDate)
             {
                 endDate.AddDays(1);
@@ -57,7 +54,7 @@ namespace TradingStrategyEvaluation
                 throw new ArgumentOutOfRangeException("the maximum transaction time in trading history is larger than the end date of provider's data");
             }
 
-            _nameTable = nameTable;
+            //_nameTable = nameTable;
             _dataProvider = provider;
 
             _startDate = startDate;
@@ -77,17 +74,15 @@ namespace TradingStrategyEvaluation
 
         public IEnumerable<TradeMetric> Calculate()
         {
-            List<TradeMetric> metrics = new List<TradeMetric>();
+            var metrics = new List<TradeMetric>();
 
-            TradeMetric overallMetric = GetTradeMetric(TradeMetric.CodeForAll, TradeMetric.NameForAll, 0.0, 0.0);
+            var overallMetric = GetTradeMetric(TradeMetric.CodeForAll, TradeMetric.NameForAll, 0.0, 0.0);
             if (overallMetric == null)
             {
                 return metrics;
             }
-            else
-            {
-                metrics.Add(overallMetric);
-            }
+
+            metrics.Add(overallMetric);
 
             /* metrics for each code is not necessary now.
              * 
@@ -130,6 +125,7 @@ namespace TradingStrategyEvaluation
             return metrics;   
         }
 
+/*
         private double EstimateUsedCapital(Transaction[] transactions)
         {
             if (transactions == null)
@@ -147,12 +143,12 @@ namespace TradingStrategyEvaluation
                 throw new ArgumentException("First transaction is not openning long");
             }
 
-            double usedCapital = 0.0;
-            double currentCapital = 0.0;
+            var usedCapital = 0.0;
+            var currentCapital = 0.0;
 
-            for (int i = 0; i < transactions.Length; ++i)
+            for (var i = 0; i < transactions.Length; ++i)
             {
-                Transaction transaction = transactions[i];
+                var transaction = transactions[i];
                 if (!transaction.Succeeded)
                 {
                     continue;
@@ -160,7 +156,7 @@ namespace TradingStrategyEvaluation
 
                 if (transaction.Action == TradingAction.OpenLong)
                 {
-                    double capitalForThisTransaction = 
+                    var capitalForThisTransaction = 
                         transaction.Price * transaction.Volume + transaction.Commission;
 
                     if (capitalForThisTransaction > currentCapital)
@@ -175,7 +171,7 @@ namespace TradingStrategyEvaluation
                 }
                 else if (transaction.Action == TradingAction.CloseLong)
                 {
-                    double capitalForThisTransaction = 
+                    var capitalForThisTransaction = 
                         transaction.Price * transaction.Volume - transaction.Commission;
 
                     currentCapital += capitalForThisTransaction;
@@ -188,10 +184,11 @@ namespace TradingStrategyEvaluation
 
             return usedCapital + 1.0; // add 1.0 to avoid accumulated precision loss.
         }
+*/
 
         private TradeMetric GetTradeMetric(string code, string name, double startPrice, double endPrice)
         {
-            CompletedTransaction[] completedTransactions =
+            var completedTransactions =
                 code == TradeMetric.CodeForAll
                 ? _orderedCompletedTransactionHistory
                 : _orderedCompletedTransactionHistory.Where(ct => ct.Code == code).ToArray();
@@ -201,29 +198,29 @@ namespace TradingStrategyEvaluation
                 return null;
             }
 
-            Transaction[] transactions = 
+            var transactions = 
                 code == TradeMetric.CodeForAll 
                 ? _orderedTransactionHistory
                 : _orderedTransactionHistory.Where(t => t.Code == code).ToArray();
 
             //double usedCapital = EstimateUsedCapital(transactions);
 
-            EquityManager manager = new EquityManager(_initialCapital);
+            var manager = new EquityManager(_initialCapital);
 
-            int transactionIndex = 0;
-            double currentEquity = _initialCapital; 
+            var transactionIndex = 0;
+            var currentEquity = _initialCapital; 
 
-            List<EquityPoint> equityPoints = new List<EquityPoint>(_periods.Length);
+            var equityPoints = new List<EquityPoint>(_periods.Length);
 
-            for (int i = 0; i < _periods.Length; ++i)
+            for (var i = 0; i < _periods.Length; ++i)
             {
-                DateTime period = _periods[i];
+                var period = _periods[i];
 
                 while (transactionIndex < transactions.Length)
                 {
-                    Transaction transaction = transactions[transactionIndex];
+                    var transaction = transactions[transactionIndex];
 
-                    CompletedTransaction completedTransaction = null;
+                    CompletedTransaction completedTransaction;
                     string error;
 
                     if (transaction.ExecutionTime <= period)
@@ -231,7 +228,7 @@ namespace TradingStrategyEvaluation
                         if (transaction.Succeeded)
                         {
                             // save transaction selling type
-                            SellingType sellingType = transaction.SellingType;
+                            var sellingType = transaction.SellingType;
 
                             // always use ByVolume selling type to simulate transactions.
                             transaction.SellingType = SellingType.ByVolume;
@@ -264,7 +261,7 @@ namespace TradingStrategyEvaluation
                 }
 
                 equityPoints.Add(
-                    new EquityPoint() 
+                    new EquityPoint
                     { 
                         Capital = manager.CurrentCapital,
                         Equity = currentEquity, 

@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace StockAnalysis.Share
 {
@@ -20,7 +17,7 @@ namespace StockAnalysis.Share
 
         public bool Invalid()
         {
-            return Time == Bar.InvalidTime;
+            return Time == InvalidTime;
         }
 
         public class TimeComparer : IComparer<Bar>

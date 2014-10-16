@@ -1,10 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Reflection;
-
 using TradingStrategy;
 
 namespace EvaluatorClient
@@ -13,7 +9,7 @@ namespace EvaluatorClient
     {
         private static List<ITradingStrategy> _strategies = new List<ITradingStrategy>();
 
-        private static bool Initialized = false;
+        private static bool _initialized;
 
         public static IEnumerable<ITradingStrategy> Strategies
         {
@@ -22,12 +18,12 @@ namespace EvaluatorClient
 
         public static void Initialize()
         {
-            if (Initialized)
+            if (_initialized)
             {
                 return;
             }
 
-            List<Type> strategyTypes = new List<Type>();
+            var strategyTypes = new List<Type>();
 
             foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
             {
@@ -39,21 +35,21 @@ namespace EvaluatorClient
             }
 
             _strategies = new List<ITradingStrategy>(strategyTypes.Count);
-            foreach (Type type in strategyTypes)
+            foreach (var type in strategyTypes)
             {
                 try
                 {
-                    ITradingStrategy strategy = (ITradingStrategy)Activator.CreateInstance(type);
+                    var strategy = (ITradingStrategy)Activator.CreateInstance(type);
 
                     _strategies.Add(strategy);
                 }
-                catch (Exception)
+                catch
                 {
                     // ignore exception.
                 }
             }
 
-            Initialized = true;
+            _initialized = true;
         }
     }
 }

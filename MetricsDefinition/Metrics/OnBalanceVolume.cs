@@ -1,17 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Reflection;
+using StockAnalysis.Share;
 
-namespace MetricsDefinition
+namespace MetricsDefinition.Metrics
 {
     [Metric("OBV")]
     public sealed class OnBalanceVolume : SingleOutputBarInputSerialMetric
     {
-        private double _prevObv = 0.0;
-        private double _prevClosePrice = 0.0;
+        private double _prevObv;
+        private double _prevClosePrice;
         private bool _firstBar = true;
 
         public OnBalanceVolume()
@@ -19,9 +15,9 @@ namespace MetricsDefinition
         {
         }
 
-        public override double Update(StockAnalysis.Share.Bar bar)
+        public override double Update(Bar bar)
         {
-            double obv = _firstBar
+            var obv = _firstBar
                 ? bar.Volume
                 : _prevObv + Math.Sign(bar.ClosePrice - _prevClosePrice) * bar.Volume;
 

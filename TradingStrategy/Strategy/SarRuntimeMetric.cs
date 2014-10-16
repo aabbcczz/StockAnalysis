@@ -1,16 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using MetricsDefinition;
+﻿using MetricsDefinition.Metrics;
+using StockAnalysis.Share;
 
 namespace TradingStrategy.Strategy
 {
     public sealed class SarRuntimeMetric : IRuntimeMetric
     {
-        private StopAndReverse _sar;
+        private readonly StopAndReverse _sar;
 
         public double Sar { get; private set; }
 
@@ -23,7 +18,7 @@ namespace TradingStrategy.Strategy
             _sar = new StopAndReverse(windowSize, accelateFactor, accelateFactorStep, maxAcceleteFactor);
         }
 
-        public void Update(StockAnalysis.Share.Bar bar)
+        public void Update(Bar bar)
         {
             Sar = _sar.Update(bar);
         }

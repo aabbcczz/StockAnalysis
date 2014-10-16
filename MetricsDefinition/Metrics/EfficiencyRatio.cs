@@ -1,16 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace MetricsDefinition
+namespace MetricsDefinition.Metrics
 {
     [Metric("ER")]
     public sealed class EfficiencyRatio : SingleOutputRawInputSerialMetric
     {
-        private double _previousData = 0.0;
-        private MovingSum _volatility;
+        private double _previousData;
+        private readonly MovingSum _volatility;
 
         public EfficiencyRatio(int windowSize)
             : base(windowSize)
@@ -20,15 +16,15 @@ namespace MetricsDefinition
 
         public override double Update(double dataPoint)
         {
-            double volatilitySum = _volatility.Update(Math.Abs(dataPoint - _previousData));
+            var volatilitySum = _volatility.Update(Math.Abs(dataPoint - _previousData));
 
-            double movingSpeed = Data.Length == 0 ? 0.0 : Data[-1] - Data[0];
+            var movingSpeed = Data.Length == 0 ? 0.0 : Data[-1] - Data[0];
 
             Data.Add(dataPoint);
 
             _previousData = dataPoint;
 
-            return volatilitySum == 0.0 ? 0.0: movingSpeed / volatilitySum;
+            return Math.Abs(volatilitySum) < 1e-6 ? 0.0: movingSpeed / volatilitySum;
         }
      }
 }

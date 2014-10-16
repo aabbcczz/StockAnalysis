@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using StockAnalysis.Share;
 
 namespace TradingStrategy.Strategy
 {
@@ -28,12 +27,12 @@ namespace TradingStrategy.Strategy
             MetricManager = new RuntimeMetricManager<T>(Creator, context.GetAllTradingObjects().Count());
         }
 
-        public override void WarmUp(ITradingObject tradingObject, StockAnalysis.Share.Bar bar)
+        public override void WarmUp(ITradingObject tradingObject, Bar bar)
         {
             MetricManager.Update(tradingObject, bar);
         }
 
-        public override void EvaluateSingleObject(ITradingObject tradingObject, StockAnalysis.Share.Bar bar)
+        public override void EvaluateSingleObject(ITradingObject tradingObject, Bar bar)
         {
             MetricManager.Update(tradingObject, bar);
         }

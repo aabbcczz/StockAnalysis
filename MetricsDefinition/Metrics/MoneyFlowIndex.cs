@@ -1,17 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Reflection;
+﻿using StockAnalysis.Share;
 
-namespace MetricsDefinition
+namespace MetricsDefinition.Metrics
 {
     [Metric("MFI")]
     public sealed class MoneyFlowIndex : SingleOutputBarInputSerialMetric
     {
-        private MovingSum _msPmf;
-        private MovingSum _msNmf;
+        private readonly MovingSum _msPmf;
+        private readonly MovingSum _msNmf;
         private double _prevTruePrice = double.NaN;
         private bool _firstData = true;
 
@@ -22,11 +17,11 @@ namespace MetricsDefinition
             _msPmf = new MovingSum(windowSize);
         }
 
-        public override double Update(StockAnalysis.Share.Bar bar)
+        public override double Update(Bar bar)
         {
-            const double SmallValue = 1e-10;
+            const double smallValue = 1e-10;
         
-            double truePrice = (bar.HighestPrice + bar.LowestPrice + bar.ClosePrice) / 3;
+            var truePrice = (bar.HighestPrice + bar.LowestPrice + bar.ClosePrice) / 3;
             
             double positiveMoneyFlow;
             double negativeMoneyFlow;
@@ -34,7 +29,7 @@ namespace MetricsDefinition
             if (_firstData)
             {
                 positiveMoneyFlow = truePrice * bar.Volume;
-                negativeMoneyFlow = SmallValue;
+                negativeMoneyFlow = smallValue;
             }
             else
             {
@@ -50,12 +45,12 @@ namespace MetricsDefinition
                 }
                 else
                 {
-                    positiveMoneyFlow = negativeMoneyFlow = SmallValue;
+                    positiveMoneyFlow = negativeMoneyFlow = smallValue;
                 }
             }
 
-            double sumPmf = _msPmf.Update(positiveMoneyFlow);
-            double sumNmf = _msNmf.Update(negativeMoneyFlow);
+            var sumPmf = _msPmf.Update(positiveMoneyFlow);
+            var sumNmf = _msNmf.Update(negativeMoneyFlow);
 
             // update status
             _prevTruePrice = truePrice;

@@ -1,12 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Configuration;
 using System.IO;
 using System.Threading;
-
+using CommandLine;
 using StockAnalysis.Share;
 
 namespace GetFinanceReports
@@ -18,7 +14,7 @@ namespace GetFinanceReports
         static void Main(string[] args)
         {
             var options = new Options();
-            var parser = new CommandLine.Parser(with => with.HelpWriter = Console.Error);
+            var parser = new Parser(with => with.HelpWriter = Console.Error);
 
             if (parser.ParseArgumentsStrict(args, options, () => { Environment.Exit(-2); }))
             {
@@ -35,11 +31,11 @@ namespace GetFinanceReports
             options.Print(Console.Out);
 
             // create stock name table
-            StockNameTable stockNameTable 
+            var stockNameTable 
                 = new StockNameTable
                     (
                         options.StockNameTable, 
-                        (string invalidLine) => 
+                        invalidLine => 
                         {
                             Console.WriteLine("Invalid line: {0}", invalidLine);
                             return true;
@@ -47,10 +43,10 @@ namespace GetFinanceReports
                     );
 
             // create report fetcher
-            IReportFetcher fetcher = ReportFetcherFactory.Create(options.FinanceReportServerAddress);
+            var fetcher = ReportFetcherFactory.Create(options.FinanceReportServerAddress);
 
             // make sure output folder exists, otherwise create it.
-            string outputFolder = Path.GetFullPath(options.OutputFolder);
+            var outputFolder = Path.GetFullPath(options.OutputFolder);
             if (!Directory.Exists(outputFolder))
             {
                 try
@@ -59,12 +55,12 @@ namespace GetFinanceReports
                 }
                 catch (IOException ex)
                 {
-                    Console.WriteLine("create folder {0} failed, error:\n{1}", outputFolder, ex.ToString());
+                    Console.WriteLine("create folder {0} failed, error:\n{1}", outputFolder, ex);
                 }
             }
 
-            StockNameTable lastRoundStocks = stockNameTable;
-            StockNameTable failedStocks = null;
+            var lastRoundStocks = stockNameTable;
+            StockNameTable failedStocks;
 
             while (true)
             {
@@ -100,18 +96,18 @@ namespace GetFinanceReports
             int intervalInSecond,
             int randomRangeInSecond)
         {
-            StockNameTable failedStocks = new StockNameTable();
+            var failedStocks = new StockNameTable();
 
-            string defaultSuffix = fetcher.GetDefaultSuffixOfOutputFile();
-            Random rand = new Random();
+            var defaultSuffix = fetcher.GetDefaultSuffixOfOutputFile();
+            var rand = new Random();
 
             foreach (var stock in stocks.StockNames)
             {
                 string errorMessage;
-                string outputFile = string.Format("{0}.{1}", stock.Code, defaultSuffix);
+                var outputFile = string.Format("{0}.{1}", stock.Code, defaultSuffix);
                 outputFile = Path.Combine(outputFolder, outputFile);
 
-                bool succeeded = fetcher.FetchReport(stock, outputFile, out errorMessage);
+                var succeeded = fetcher.FetchReport(stock, outputFile, out errorMessage);
 
                 if (!succeeded)
                 {

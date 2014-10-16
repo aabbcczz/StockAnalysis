@@ -1,32 +1,26 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using StockAnalysis.Share;
-
-using TradingStrategy;
 
 namespace TradingStrategy.Strategy
 {
     public sealed class CombinedStrategy : ITradingStrategy
     {
-        private ITradingStrategyComponent[] _components = null;
-        private IPositionSizingComponent _positionSizing = null;
-        private List<IMarketEnteringComponent> _marketEntering = new List<IMarketEnteringComponent>();
-        private List<IMarketExitingComponent> _marketExiting = new List<IMarketExitingComponent>();
-        private IStopLossComponent _stopLoss = null;
-        private IPositionAdjustingComponent _positionAdjusting = null;
+        private readonly ITradingStrategyComponent[] _components;
+        private readonly IPositionSizingComponent _positionSizing;
+        private readonly List<IMarketEnteringComponent> _marketEntering = new List<IMarketEnteringComponent>();
+        private readonly List<IMarketExitingComponent> _marketExiting = new List<IMarketExitingComponent>();
+        private readonly IStopLossComponent _stopLoss;
+        private readonly IPositionAdjustingComponent _positionAdjusting;
 
-        private string _name;
-        private string _description;
+        private readonly string _name;
+        private readonly string _description;
 
         private IEvaluationContext _context;
         private List<Instruction> _instructionsInCurrentPeriod;
-        private Dictionary<long, Instruction> _activeInstructions = new Dictionary<long, Instruction>();
+        private readonly Dictionary<long, Instruction> _activeInstructions = new Dictionary<long, Instruction>();
         private DateTime _period;
-        private Bar[] _barsInPeriod;
-        private ITradingObject[] _tradingObjectsInPeriod;
 
         public string Name
         {
@@ -59,7 +53,7 @@ namespace TradingStrategy.Strategy
             _context = context;
         }
 
-        public void WarmUp(ITradingObject tradingObject, StockAnalysis.Share.Bar bar)
+        public void WarmUp(ITradingObject tradingObject, Bar bar)
         {
             foreach (var component in _components)
             {
@@ -76,9 +70,6 @@ namespace TradingStrategy.Strategy
 
             _instructionsInCurrentPeriod = new List<Instruction>();
             _period = time;
-
-            _barsInPeriod = null;
-            _tradingObjectsInPeriod = null;
         }
 
         public void EvaluateSingleObject(ITradingObject tradingObject, Bar bar)
@@ -99,13 +90,11 @@ namespace TradingStrategy.Strategy
             }
 
             // remember the trading objects and bars because they could be used in AfterEvaulation()
-            _barsInPeriod = bars;
-            _tradingObjectsInPeriod = tradingObjects;
 
             // evaluate all components
             foreach (var component in _components)
             {
-                for (int i = 0; i < bars.Length; ++i)
+                for (var i = 0; i < bars.Length; ++i)
                 {
                     if (bars[i].Time == Bar.InvalidTime)
                     {
@@ -116,30 +105,39 @@ namespace TradingStrategy.Strategy
                 }
             }
 
-            for (int i = 0; i < tradingObjects.Length; ++i)
+            for (var i = 0; i < tradingObjects.Length; ++i)
             {
-                ITradingObject tradingObject = tradingObjects[i];
-                Bar bar = bars[i];
+                var tradingObject = tradingObjects[i];
+                var bar = bars[i];
 
                 if (bar.Time == Bar.InvalidTime)
                 {
                     continue;
                 }
 
-                string comments = string.Empty;
-                var positions = _context.ExistsPosition(tradingObject.Code)
-                    ? _context.GetPositionDetails(tradingObject.Code)
-                    : (IEnumerable<Position>)new List<Position>();
+                Position[] positions;
+
+                if (_context.ExistsPosition(tradingObject.Code))
+                {
+                    var temp = _context.GetPositionDetails(tradingObject.Code);
+                    positions = temp as Position[] ?? temp.ToArray();
+                }
+                else
+                {
+                    positions = new Position[0];
+                }
+
 
                 // decide if we need to exit market for this trading object. This is the first priorty work
-                if (positions.Count() > 0)
+                if (positions.Any())
                 {
                     foreach (var component in _marketExiting)
                     {
+                        string comments;
                         if (component.ShouldExit(tradingObject, out comments))
                         {
                             _instructionsInCurrentPeriod.Add(
-                                new Instruction()
+                                new Instruction
                                 {
                                     Action = TradingAction.CloseLong,
                                     Comments = "Exiting market: " + comments,
@@ -155,19 +153,14 @@ namespace TradingStrategy.Strategy
                 }
 
                 // decide if we need to stop loss for some positions
-                int totalVolume = 0;
-                foreach (var position in positions)
-                {
-                    if (position.StopLossPrice > bar.ClosePrice)
-                    {
-                        totalVolume += position.Volume;
-                    }
-                }
+                var totalVolume = positions
+                    .Where(position => position.StopLossPrice > bar.ClosePrice)
+                    .Sum(position => position.Volume);
 
                 if (totalVolume > 0)
                 {
                     _instructionsInCurrentPeriod.Add(
-                        new Instruction()
+                        new Instruction
                         {
                             Action = TradingAction.CloseLong,
                             Comments = string.Format("stop loss @{0:0.000}", bar.ClosePrice),
@@ -182,11 +175,11 @@ namespace TradingStrategy.Strategy
                 }
 
                 // decide if we should enter market
-                if (positions.Count() == 0)
+                if (!positions.Any())
                 {
-                    List<string> allComments = new List<string>(_marketEntering.Count + 1);
+                    var allComments = new List<string>(_marketEntering.Count + 1);
 
-                    bool canEnter = true;
+                    var canEnter = true;
                     foreach (var component in _marketEntering)
                     {
                         string subComments;
@@ -222,14 +215,14 @@ namespace TradingStrategy.Strategy
         private void CreateIntructionForBuying(ITradingObject tradingObject, double price, string comments)
         {
             string stopLossComments;
-            double stopLossGap = _stopLoss.EstimateStopLossGap(tradingObject, price, out stopLossComments);
+            var stopLossGap = _stopLoss.EstimateStopLossGap(tradingObject, price, out stopLossComments);
             if (stopLossGap >= 0.0)
             {
                 throw new InvalidProgramException("the stop loss gap returned by the stop loss component is greater than zero");
             }
 
             string positionSizeComments;
-            int volume = _positionSizing.EstimatePositionSize(tradingObject, price, stopLossGap, out positionSizeComments);
+            var volume = _positionSizing.EstimatePositionSize(tradingObject, price, stopLossGap, out positionSizeComments);
 
             // add global contraint that no any stock can exceeds 5% of total capital
             // volume = Math.Min(volume, (int)(_context.GetInitialEquity() / 20.0 / price));
@@ -240,7 +233,7 @@ namespace TradingStrategy.Strategy
             if (volume > 0)
             {
                 _instructionsInCurrentPeriod.Add(
-                    new Instruction()
+                    new Instruction
                     {
                         Action = TradingAction.OpenLong,
                         Comments = string.Join(" ", comments, stopLossComments, positionSizeComments),
@@ -263,7 +256,7 @@ namespace TradingStrategy.Strategy
             if (transaction.Succeeded && transaction.Action == TradingAction.OpenLong)
             {
                 // update the stop loss and risk for new positions
-                string code = transaction.Code;
+                var code = transaction.Code;
                 if (!_context.ExistsPosition(code))
                 {
                     throw new InvalidOperationException(
@@ -279,9 +272,9 @@ namespace TradingStrategy.Strategy
                     {
                         string comments;
 
-                        double stopLossGap = _stopLoss.EstimateStopLossGap(instruction.TradingObject, position.BuyPrice, out comments);
+                        var stopLossGap = _stopLoss.EstimateStopLossGap(instruction.TradingObject, position.BuyPrice, out comments);
 
-                        double stopLossPrice = Math.Max(0.0, position.BuyPrice + stopLossGap);
+                        var stopLossPrice = Math.Max(0.0, position.BuyPrice + stopLossGap);
 
                         position.SetStopLossPrice(stopLossPrice);
 
@@ -294,13 +287,9 @@ namespace TradingStrategy.Strategy
                     }
                 }
             }
-            else
-            {
-                // do nothing now
-            }
 
             // remove the instruction from active instruction collection.
-            _activeInstructions.Remove(instruction.ID);
+            _activeInstructions.Remove(instruction.Id);
         }
 
         public IEnumerable<Instruction> RetrieveInstructions()
@@ -311,17 +300,14 @@ namespace TradingStrategy.Strategy
 
                 foreach (var instruction in _instructionsInCurrentPeriod)
                 {
-                    _activeInstructions.Add(instruction.ID, instruction);
+                    _activeInstructions.Add(instruction.Id, instruction);
                 }
 
                 _instructionsInCurrentPeriod = null;
 
                 return temp;
             }
-            else
-            {
-                return null;
-            }
+            return null;
         }
 
         public void EndPeriod()
@@ -332,8 +318,6 @@ namespace TradingStrategy.Strategy
             }
 
             _instructionsInCurrentPeriod = null;
-            _barsInPeriod = null;
-            _tradingObjectsInPeriod = null;
         }
 
         public void Finish()
@@ -352,14 +336,14 @@ namespace TradingStrategy.Strategy
             }
         }
 
-        public CombinedStrategy(IEnumerable<ITradingStrategyComponent> components)
+        public CombinedStrategy(ITradingStrategyComponent[] components)
         {
-            if (components == null || components.Count() == 0)
+            if (components == null || !components.Any())
             {
                 throw new ArgumentNullException();
             }
 
-            _components = components.ToArray();
+            _components = components;
 
             foreach (var component in components)
             {
@@ -414,7 +398,9 @@ namespace TradingStrategy.Strategy
 
             if (component is T)
             {
+// ReSharper disable CompareNonConstrainedGenericWithNull
                 if (obj == null)
+// ReSharper restore CompareNonConstrainedGenericWithNull
                 {
                     obj = (T)component;
                 }

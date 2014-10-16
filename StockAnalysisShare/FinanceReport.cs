@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace StockAnalysis.Share
 {
@@ -17,7 +15,7 @@ namespace StockAnalysis.Share
             get { return _tables; }
         }
 
-        private List<FinanceReportTable> _tables = new List<FinanceReportTable>();
+        private readonly List<FinanceReportTable> _tables = new List<FinanceReportTable>();
 
         public void AddTable(FinanceReportTable table)
         {
@@ -57,8 +55,9 @@ namespace StockAnalysis.Share
             var expandedTables = tables.Select(t => t.Expand(orderedRowNames, orderedColumnText, orderedColumnDate));
 
             // merge expanded tables
-            var firstTable = expandedTables.First();
-            foreach (var table in expandedTables.Skip(1))
+            var financeReportTables = expandedTables as FinanceReportTable[] ?? expandedTables.ToArray();
+            var firstTable = financeReportTables.First();
+            foreach (var table in financeReportTables.Skip(1))
             {
                 firstTable.Merge(table);
             }

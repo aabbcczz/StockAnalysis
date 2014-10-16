@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace StockAnalysis.Share
 {
@@ -25,7 +21,7 @@ namespace StockAnalysis.Share
 
         public int Tag { get; set; }
 
-        private decimal _unit;
+        private readonly decimal _unit;
         public decimal Unit 
         {
             get 

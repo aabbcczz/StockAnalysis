@@ -1,18 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace MetricsDefinition
+namespace MetricsDefinition.Metrics
 {
     [Metric("BOLL", "UB,MA,LB")]
     public sealed class BollingerBand : MultipleOutputRawInputSerialMetric
     {
-        private double _alpha;
+        private readonly double _alpha;
 
-        private MovingAverage _ma;
-        private StdDev _sd;
+        private readonly MovingAverage _ma;
+        private readonly StdDev _sd;
 
         public BollingerBand(int windowSize, double alpha)
             : base(1)
@@ -30,13 +26,13 @@ namespace MetricsDefinition
 
         public override double[] Update(double dataPoint)
         {
-            double ma = _ma.Update(dataPoint);
-            double stddev = _sd.Update(dataPoint);
+            var ma = _ma.Update(dataPoint);
+            var stddev = _sd.Update(dataPoint);
 
-            double upperBound = ma + _alpha * stddev;
-            double lowerBound = ma - _alpha * stddev;
+            var upperBound = ma + _alpha * stddev;
+            var lowerBound = ma - _alpha * stddev;
 
-            return new double[3] { upperBound, ma, lowerBound };
+            return new[] { upperBound, ma, lowerBound };
         }
     }
 }

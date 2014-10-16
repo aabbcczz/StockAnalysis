@@ -1,16 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace MetricsDefinition
+namespace MetricsDefinition.Metrics
 {
     [Metric("MB,MAB")]
     public sealed class MovingAverageBias : SingleOutputRawInputSerialMetric
     {
-        private MovingAverage _maShort;
-        private MovingAverage _maLong;
+        private readonly MovingAverage _maShort;
+        private readonly MovingAverage _maLong;
 
         public MovingAverageBias(int shortWindowSize, int longWindowSize)
             : base(1)

@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Reflection;
-
-namespace MetricsDefinition
+﻿namespace MetricsDefinition.Metrics
 {
     [Metric("PSY")]
     public sealed class PsychologicalLine : SingleOutputRawInputSerialMetric
@@ -13,7 +6,7 @@ namespace MetricsDefinition
         private double _prevData;
         private bool _firstData = true;
 
-        private MovingAverage _ma;
+        private readonly MovingAverage _ma;
 
         public PsychologicalLine(int windowSize)
             : base(1)
@@ -23,7 +16,7 @@ namespace MetricsDefinition
 
         public override double Update(double dataPoint)
         {
-            double up = _firstData
+            var up = _firstData
                 ? 0.0
                 : (dataPoint > _prevData)
                     ? 100.0

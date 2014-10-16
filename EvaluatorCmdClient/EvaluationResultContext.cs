@@ -2,9 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.IO;
-using System.Xml;
 using System.Xml.Serialization;
 
 using TradingStrategy;
@@ -26,7 +24,7 @@ namespace EvaluatorCmdClient
         public string RootDirectory { get; private set; }
         public int ContextId { get; private set; }
 
-        private bool _disposed = false;
+        private bool _disposed;
 
         public ILogger Logger { get; private set; }
 
@@ -40,7 +38,7 @@ namespace EvaluatorCmdClient
             RootDirectory = rootDirectory;
             ContextId = contextId;
 
-            string logFile = Path.Combine(rootDirectory, LogFileName);
+            var logFile = Path.Combine(rootDirectory, LogFileName);
             Logger = new FileLogger(logFile);
         }
 
@@ -50,76 +48,77 @@ namespace EvaluatorCmdClient
             IEnumerable<Position> closePositions)
         {
             // save parameter values
-            SerializableParameterValues searializedParameterValues = new SerializableParameterValues();
+            var searializedParameterValues = new SerializableParameterValues();
             searializedParameterValues.Initialize(parameterValues);
 
-            using (StreamWriter writer = new StreamWriter(
+            using (var writer = new StreamWriter(
                 Path.Combine(RootDirectory, ParameterValuesFileName), 
                 false, 
                 Encoding.UTF8))
             {
-                XmlSerializer serializer = new XmlSerializer(searializedParameterValues.GetType());
+                var serializer = new XmlSerializer(searializedParameterValues.GetType());
                 serializer.Serialize(writer, searializedParameterValues);
             }
 
             // save metrics
-            using (StreamWriter writer = new StreamWriter(
+            var tradeMetrics = metrics as TradeMetric[] ?? metrics.ToArray();
+            using (var writer = new StreamWriter(
                 Path.Combine(RootDirectory, MetricsFileName),
                 false,
                 Encoding.UTF8))
             {
-                using (CsvWriter csvWriter = new CsvWriter(writer))
+                using (var csvWriter = new CsvWriter(writer))
                 {
-                    csvWriter.WriteRecords(metrics);
+                    csvWriter.WriteRecords(tradeMetrics);
                 }
             }
 
             // save closed positions
-            using (StreamWriter writer = new StreamWriter(
+            using (var writer = new StreamWriter(
                 Path.Combine(RootDirectory, ClosePositionsFileName),
                 false,
                 Encoding.UTF8))
             {
-                using (CsvWriter csvWriter = new CsvWriter(writer))
+                using (var csvWriter = new CsvWriter(writer))
                 {
                     csvWriter.WriteRecords(closePositions);
                 }
             }
 
             // get the overall metric
-            TradeMetric overallMetric = metrics.Where(m => m.Code == TradeMetric.CodeForAll).First();
+            var overallMetric = tradeMetrics.Where(m => m.Code == TradeMetric.CodeForAll).First();
             
             // save equities
-            using (StreamWriter writer = new StreamWriter(
+            using (var writer = new StreamWriter(
                 Path.Combine(RootDirectory, EquitiesFileName),
                 false,
                 Encoding.UTF8))
             {
-                using (CsvWriter csvWriter = new CsvWriter(writer))
+                using (var csvWriter = new CsvWriter(writer))
                 {
                     csvWriter.WriteRecords(overallMetric.OrderedEquitySequence);
                 }
             }
 
             // save transactions
-            using (StreamWriter writer = new StreamWriter(
+            using (var writer = new StreamWriter(
                 Path.Combine(RootDirectory, TransactionsFileName),
                 false,
                 Encoding.UTF8))
             {
-                using (CsvWriter csvWriter = new CsvWriter(writer))
+                using (var csvWriter = new CsvWriter(writer))
                 {
                     csvWriter.WriteRecords(overallMetric.OrderedTransactionSequence);
                 }
             }
 
             // save closed transactions
-            using (StreamWriter writer = new StreamWriter(
+            using (var writer = new StreamWriter(
                 Path.Combine(RootDirectory, CompletedTransactionsFileName),
                 false,
                 Encoding.UTF8))
             {
-                using (CsvWriter csvWriter = new CsvWriter(writer))
+                using (var csvWriter = new CsvWriter(writer))
                 {
                     csvWriter.WriteRecords(overallMetric.OrderedCompletedTransactionSequence);
                 }
@@ -138,8 +137,6 @@ namespace EvaluatorCmdClient
                 ((FileLogger)Logger).Dispose();
                 Logger = null;
             }
-
-            GC.SuppressFinalize(this);
 
             _disposed = true;
         }

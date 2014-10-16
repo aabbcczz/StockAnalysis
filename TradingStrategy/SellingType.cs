@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace TradingStrategy
+﻿namespace TradingStrategy
 {
-    public enum SellingType : int
+    public enum SellingType
     {
         ByVolume = 0,
         ByPositionId,

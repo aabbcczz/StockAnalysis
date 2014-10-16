@@ -1,13 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Reflection;
-
 using StockAnalysis.Share;
 
-namespace MetricsDefinition
+namespace MetricsDefinition.Metrics
 {
     [Metric("ABCR", "AR,BR,CR")]
     public sealed class ArBrCr : MultipleOutputBarInputSerialMetric
@@ -15,12 +9,12 @@ namespace MetricsDefinition
         private Bar _prevBar;
         private bool _firstBar = true;
 
-        private MovingSum _sumUp;
-        private MovingSum _sumDown;
-        private MovingSum _sumBrBs;
-        private MovingSum _sumBrSs;
-        private MovingSum _sumCrBs;
-        private MovingSum _sumCrSs;
+        private readonly MovingSum _sumUp;
+        private readonly MovingSum _sumDown;
+        private readonly MovingSum _sumBrBs;
+        private readonly MovingSum _sumBrSs;
+        private readonly MovingSum _sumCrBs;
+        private readonly MovingSum _sumCrSs;
 
         public ArBrCr(int windowSize)
             : base(1)
@@ -33,40 +27,40 @@ namespace MetricsDefinition
             _sumCrSs = new MovingSum(windowSize);
         }
 
-        public override double[] Update(StockAnalysis.Share.Bar bar)
+        public override double[] Update(Bar bar)
         {
             // calculate AR
-            double up = _sumUp.Update(bar.HighestPrice - bar.OpenPrice);
-            double down = _sumDown.Update(bar.OpenPrice - bar.LowestPrice);
+            var up = _sumUp.Update(bar.HighestPrice - bar.OpenPrice);
+            var down = _sumDown.Update(bar.OpenPrice - bar.LowestPrice);
 
-            double ar = down == 0.0 ? 0.0 : up / down * 100.0;
+            var ar = Math.Abs(down) < 1e-6 ? 0.0 : up / down * 100.0;
 
             // calculate BR
-            double tempBrBs = _firstBar ? 0.0 : Math.Max(0.0, bar.HighestPrice - _prevBar.ClosePrice);
-            double tempBrSs = _firstBar ? 0.0 : Math.Max(0.0, _prevBar.ClosePrice - bar.LowestPrice);
+            var tempBrBs = _firstBar ? 0.0 : Math.Max(0.0, bar.HighestPrice - _prevBar.ClosePrice);
+            var tempBrSs = _firstBar ? 0.0 : Math.Max(0.0, _prevBar.ClosePrice - bar.LowestPrice);
 
-            double brbs = _sumBrBs.Update(tempBrBs);
-            double brss = _sumBrSs.Update(tempBrSs);
+            var brbs = _sumBrBs.Update(tempBrBs);
+            var brss = _sumBrSs.Update(tempBrSs);
 
-            double br = brss == 0.0 ? 0.0 : brbs / brss * 100.0;
+            var br = Math.Abs(brss) < 1e-6 ? 0.0 : brbs / brss * 100.0;
 
             // calculate CR
-            double tp = Tp(_prevBar);
+            var tp = Tp(_prevBar);
 
-            double tempCrBs = _firstBar ? 0.0 : Math.Max(0.0, bar.HighestPrice - tp);
-            double tempCrSs = _firstBar ? 0.0 : Math.Max(0.0, tp - bar.LowestPrice);
+            var tempCrBs = _firstBar ? 0.0 : Math.Max(0.0, bar.HighestPrice - tp);
+            var tempCrSs = _firstBar ? 0.0 : Math.Max(0.0, tp - bar.LowestPrice);
 
-            double crbs = _sumCrBs.Update(tempCrBs);
-            double crss = _sumCrSs.Update(tempCrSs);
+            var crbs = _sumCrBs.Update(tempCrBs);
+            var crss = _sumCrSs.Update(tempCrSs);
 
-            double cr = crss == 0.0 ? 0.0 : crbs / crss * 100.0;
+            var cr = Math.Abs(crss) < 1e-6 ? 0.0 : crbs / crss * 100.0;
 
             // update bar
             _prevBar = bar;
             _firstBar = false;
 
             // return results;
-            return new double[3] { ar, br, cr };
+            return new[] { ar, br, cr };
         }
 
         private double Tp(Bar bar)

@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using StockAnalysis.Share;
 
-namespace MetricsDefinition
+namespace MetricsDefinition.Metrics
 {
     [Metric("BAR", "CP,OP,HP,LP,VOL,AMT")]
     public sealed class BarData : MultipleOutputBarInputSerialMetric
@@ -22,7 +18,7 @@ namespace MetricsDefinition
         {
         }
 
-        public override double[] Update(StockAnalysis.Share.Bar bar)
+        public override double[] Update(Bar bar)
         {
             return new double[FieldCount] 
             { 

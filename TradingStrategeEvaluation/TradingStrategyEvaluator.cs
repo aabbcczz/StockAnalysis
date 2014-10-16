@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 using StockAnalysis.Share;
 using TradingStrategy;
 
@@ -11,14 +8,14 @@ namespace TradingStrategyEvaluation
 {
     public sealed class TradingStrategyEvaluator
     {
-        private ITradingStrategy _strategy;
-        private IDictionary<ParameterAttribute, object> _strategyParameterValues;
-        private ITradingDataProvider _provider;
-        private EquityManager _equityManager;
-        private StandardEvaluationContext _context;
-        private TradingSettings _settings;
-        private TradingTracker _tradingTracker = null;
-        private ITradingObject[] _allTradingObjects = null;
+        private readonly ITradingStrategy _strategy;
+        private readonly IDictionary<ParameterAttribute, object> _strategyParameterValues;
+        private readonly ITradingDataProvider _provider;
+        private readonly EquityManager _equityManager;
+        private readonly StandardEvaluationContext _context;
+        private readonly TradingSettings _settings;
+        private readonly TradingTracker _tradingTracker;
+        private ITradingObject[] _allTradingObjects;
         private List<Instruction> _pendingInstructions = new List<Instruction>();
 
         private bool _evaluatable = true;
@@ -73,7 +70,7 @@ namespace TradingStrategyEvaluation
             // Get all trading objects
             _allTradingObjects = _provider.GetAllTradingObjects();
             Action<ITradingObject> warmupAction = 
-                (ITradingObject obj) =>
+                obj =>
                 {
                     var warmupData = _provider.GetWarmUpData(obj.Index);
                     if (warmupData != null)
@@ -92,12 +89,12 @@ namespace TradingStrategyEvaluation
             }
 
             // evaluating
-            DateTime lastPeriodTime = DateTime.MinValue;
-            DateTime[] periods = _provider.GetAllPeriodsOrdered();
-            for (int periodIndex = 0; periodIndex < periods.Length; ++periodIndex)
+            var lastPeriodTime = DateTime.MinValue;
+            var periods = _provider.GetAllPeriodsOrdered();
+            for (var periodIndex = 0; periodIndex < periods.Length; ++periodIndex)
             {
-                DateTime thisPeriodTime = periods[periodIndex];
-                Bar[] thisPeriodData = _provider.GetDataOfPeriod(thisPeriodTime);
+                var thisPeriodTime = periods[periodIndex];
+                var thisPeriodData = _provider.GetDataOfPeriod(thisPeriodTime);
 
                 if (thisPeriodData.Length != _allTradingObjects.Length)
                 {
@@ -111,9 +108,9 @@ namespace TradingStrategyEvaluation
                 RunPendingInstructions(thisPeriodData, thisPeriodTime, false);
 
                 // check data
-                for (int i = 0; i < thisPeriodData.Length; ++i)
+                for (var i = 0; i < thisPeriodData.Length; ++i)
                 {
-                    Bar bar = thisPeriodData[i];
+                    var bar = thisPeriodData[i];
 
                     if (bar.Time != Bar.InvalidTime && bar.Time != thisPeriodTime)
                     {
@@ -126,9 +123,9 @@ namespace TradingStrategyEvaluation
 
 
                 // get instructions and add them to pending instruction list
-                var instructions = _strategy.RetrieveInstructions();
+                var instructions = _strategy.RetrieveInstructions().ToArray();
 
-                if (instructions != null && instructions.Count() > 0)
+                if (instructions.Any())
                 {
                     _pendingInstructions.AddRange(instructions);
 
@@ -172,7 +169,7 @@ namespace TradingStrategyEvaluation
             foreach (var code in codes)
             {
                 var equities = _equityManager.GetPositionDetails(code);
-                int totalVolume = equities.Sum(e => e.Volume);
+                var totalVolume = equities.Sum(e => e.Volume);
 
                 if (totalVolume <= 0)
                 {
@@ -180,7 +177,7 @@ namespace TradingStrategyEvaluation
                 }
 
                 Bar bar;
-                int index = _provider.GetIndexOfTradingObject(code);
+                var index = _provider.GetIndexOfTradingObject(code);
 
                 if (!_provider.GetLastEffectiveBar(index, lastPeriodTime, out bar))
                 {
@@ -188,7 +185,7 @@ namespace TradingStrategyEvaluation
                         string.Format("failed to get last data for code {0}, logic error", code));
                 }
 
-                Transaction transaction = new Transaction()
+                var transaction = new Transaction
                 {
                     Action = TradingAction.CloseLong,
                     Commission = 0.0,
@@ -218,9 +215,9 @@ namespace TradingStrategyEvaluation
             DateTime time, 
             bool forCurrentPeriod)
         {
-            Dictionary<int, Transaction> pendingTansactions = new Dictionary<int, Transaction>();
+            var pendingTansactions = new Dictionary<int, Transaction>();
 
-            for (int i = 0; i < _pendingInstructions.Count; ++i)
+            for (var i = 0; i < _pendingInstructions.Count; ++i)
             {
                 var instruction = _pendingInstructions[i];
 
@@ -254,7 +251,7 @@ namespace TradingStrategyEvaluation
                     }
                 }
 
-                int tradingObjectIndex = instruction.TradingObject.Index;
+                var tradingObjectIndex = instruction.TradingObject.Index;
                 if (tradingData[tradingObjectIndex].Time == Bar.InvalidTime)
                 {
                     if (forCurrentPeriod)
@@ -262,13 +259,10 @@ namespace TradingStrategyEvaluation
                         throw new InvalidOperationException(
                             string.Format("the data for trading object {0} is invalid", instruction.TradingObject.Code));
                     }
-                    else
-                    {
-                        continue;
-                    }
+                    continue;
                 }
 
-                Transaction transaction = BuildTransactionFromInstruction(
+                var transaction = BuildTransactionFromInstruction(
                     instruction,
                     time,
                     tradingData[tradingObjectIndex]);
@@ -300,8 +294,8 @@ namespace TradingStrategyEvaluation
         {
             string error;
 
-            CompletedTransaction completedTransaction = null;
-            bool succeeded = _equityManager.ExecuteTransaction(
+            CompletedTransaction completedTransaction;
+            var succeeded = _equityManager.ExecuteTransaction(
                 transaction,
                 true,
                 out completedTransaction,
@@ -344,12 +338,12 @@ namespace TradingStrategyEvaluation
                 throw new InvalidOperationException("The volume of transaction does not meet trading object's requirement");
             }
 
-            Transaction transaction = new Transaction()
+            var transaction = new Transaction
             {
                 Action = instruction.Action,
                 Commission = 0.0,
                 ExecutionTime = time,
-                InstructionId = instruction.ID,
+                InstructionId = instruction.Id,
                 Code = instruction.TradingObject.Code,
                 Price = CalculateTransactionPrice(bar, instruction),
                 Succeeded = false,
@@ -458,12 +452,14 @@ namespace TradingStrategyEvaluation
             }
             else if (commission.Type == CommissionSettings.CommissionType.ByVolume)
             {
-                double hands = Math.Ceiling((double)transaction.Volume / tradingObject.VolumePerHand);
+                var hands = Math.Ceiling((double)transaction.Volume / tradingObject.VolumePerHand);
 
                 transaction.Commission = commission.Tariff * hands;
             }
 
-            transaction.Commission = (double)((long)(transaction.Commission * 10000.0) / 10000L);
+// ReSharper disable PossibleLossOfFraction
+            transaction.Commission = ((long)(transaction.Commission * 10000.0)) / 10000L;
+// ReSharper restore PossibleLossOfFraction
         }
     }
 }

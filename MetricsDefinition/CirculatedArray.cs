@@ -1,18 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MetricsDefinition
 {
     public sealed class CirculatedArray<T> 
         where T : struct
 	{
-        private T[] _storage;
+        private readonly T[] _storage;
         private int _startIndex;
         private int _endIndex;
-        private int _capacity;
+        private readonly int _capacity;
         private int _length;
 
         public int Length { get { return _length; } }

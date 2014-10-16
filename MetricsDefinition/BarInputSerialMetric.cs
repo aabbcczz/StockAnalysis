@@ -1,16 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using StockAnalysis.Share;
+﻿using StockAnalysis.Share;
 
 namespace MetricsDefinition
 {
     public abstract class BarInputSerialMetric : SerialMetric
     {
-        private CirculatedArray<Bar> _data;
+        private readonly CirculatedArray<Bar> _data;
 
         internal CirculatedArray<Bar> Data
         {

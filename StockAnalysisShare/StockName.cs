@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace StockAnalysis.Share
 {
@@ -29,14 +26,11 @@ namespace StockAnalysis.Share
             {
                 return StockExchangeMarket.ShengZhen;
             }
-            else if (code.StartsWith("6"))
+            if (code.StartsWith("6"))
             {
                 return StockExchangeMarket.ShangHai;
             }
-            else
-            {
-                return StockExchangeMarket.Unknown;
-            }
+            return StockExchangeMarket.Unknown;
         }
 
         private StockName()
@@ -46,7 +40,7 @@ namespace StockAnalysis.Share
         public StockName(string code, string name)
         {
             Code = code;
-            Names = new string[1] { name };
+            Names = new[] { name };
         }
 
         public StockName(string code, string[] names)
@@ -67,18 +61,18 @@ namespace StockAnalysis.Share
                 throw new ArgumentNullException("stockName");
             }
 
-            string[] fields = stockName.Trim().Split(new char[] { '|' }, StringSplitOptions.RemoveEmptyEntries);
+            var fields = stockName.Trim().Split(new[] { '|' }, StringSplitOptions.RemoveEmptyEntries);
 
             if (fields == null || fields.Length == 0)
             {
                 throw new FormatException(string.Format("stock name [{0}] is invalid", stockName));
             }
 
-            StockName name = new StockName();
+            var name = new StockName();
 
             name.Code = fields[0];
 
-            name.Names = fields.Length > 1 ? fields.Skip(1).ToArray() : new string[1] { string.Empty } ;
+            name.Names = fields.Length > 1 ? fields.Skip(1).ToArray() : new[] { string.Empty } ;
 
             return name;
         }

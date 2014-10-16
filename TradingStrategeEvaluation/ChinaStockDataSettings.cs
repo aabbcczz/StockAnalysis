@@ -1,9 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml;
 using System.Xml.Serialization;
 using System.IO;
 
@@ -29,9 +24,9 @@ namespace TradingStrategyEvaluation
 
             ChinaStockDataSettings settings;
 
-            XmlSerializer serializer = new XmlSerializer(typeof(ChinaStockDataSettings));
+            var serializer = new XmlSerializer(typeof(ChinaStockDataSettings));
 
-            using (StreamReader reader = new StreamReader(file))
+            using (var reader = new StreamReader(file))
             {
                 settings = (ChinaStockDataSettings)serializer.Deserialize(reader);
             }
@@ -43,7 +38,7 @@ namespace TradingStrategyEvaluation
                 throw new InvalidDataException("Empty field is not allowed");
             }
 
-            if (settings.StockDataFileNamePattern.IndexOf(StockCodePattern) < 0)
+            if (settings.StockDataFileNamePattern.IndexOf(StockCodePattern, StringComparison.Ordinal) < 0)
             {
                 throw new InvalidDataException("Stock data file name pattern is invalid");
             }
@@ -58,9 +53,9 @@ namespace TradingStrategyEvaluation
                 throw new ArgumentNullException();
             }
 
-            XmlSerializer serializer = new XmlSerializer(typeof(ChinaStockDataSettings));
+            var serializer = new XmlSerializer(typeof(ChinaStockDataSettings));
 
-            using (StreamWriter writer = new StreamWriter(file))
+            using (var writer = new StreamWriter(file))
             {
                 serializer.Serialize(writer, this);
             }
@@ -75,7 +70,7 @@ namespace TradingStrategyEvaluation
 
         public static ChinaStockDataSettings GenerateExampleSettings()
         {
-            ChinaStockDataSettings settings = new ChinaStockDataSettings();
+            var settings = new ChinaStockDataSettings();
 
             settings.StockDataFileDirectory = @"d:\stock\";
             settings.StockDataFileNamePattern = @"%c.day.csv";

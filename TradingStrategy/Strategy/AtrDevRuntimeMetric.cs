@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using MetricsDefinition.Metrics;
+using StockAnalysis.Share;
 
-using MetricsDefinition;
 namespace TradingStrategy.Strategy
 {
     public sealed class AtrDevRuntimeMetric : IRuntimeMetric
@@ -12,8 +8,8 @@ namespace TradingStrategy.Strategy
         public double Atr { get; private set; }
         public double Sdtr { get; private set; }
 
-        private AverageTrueRange _atr;
-        private StdDevTrueRange _sdtr;
+        private readonly AverageTrueRange _atr;
+        private readonly StdDevTrueRange _sdtr;
 
         public AtrDevRuntimeMetric(int windowSize)
         {
@@ -21,7 +17,7 @@ namespace TradingStrategy.Strategy
             _sdtr = new StdDevTrueRange(windowSize);
         }
 
-        public void Update(StockAnalysis.Share.Bar bar)
+        public void Update(Bar bar)
         {
             Atr = _atr.Update(bar);
             Sdtr = _sdtr.Update(bar);

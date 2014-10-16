@@ -1,14 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace TradingStrategy
 {
     public sealed class Instruction
     {
-        public long ID { get; private set; }
+        public long Id { get; private set; }
 
         public ITradingObject TradingObject { get; set; }
 
@@ -39,7 +35,7 @@ namespace TradingStrategy
 
         public Instruction()
         {
-            ID = IdGenerator.Next;
+            Id = IdGenerator.Next;
         }
     }
 }

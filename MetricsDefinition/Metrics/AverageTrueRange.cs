@@ -1,13 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 using StockAnalysis.Share;
-using System.Reflection;
 
-namespace MetricsDefinition
+namespace MetricsDefinition.Metrics
 {
     /// <summary>
     /// The ATR metric
@@ -15,8 +9,8 @@ namespace MetricsDefinition
     [Metric("ATR")]
     public sealed class AverageTrueRange : SingleOutputBarInputSerialMetric
     {
-        private double _prevClosePrice = 0.0;
-        private MovingAverage _maTrueRange;
+        private double _prevClosePrice;
+        private readonly MovingAverage _maTrueRange;
         public AverageTrueRange(int windowSize)
             : base(1)
         {
@@ -25,7 +19,7 @@ namespace MetricsDefinition
 
         public override double Update(Bar bar)
         {
-            double trueRange = 
+            var trueRange = 
                 Math.Max(
                     Math.Max(bar.HighestPrice - bar.LowestPrice, bar.HighestPrice - _prevClosePrice),
                     _prevClosePrice - bar.LowestPrice);

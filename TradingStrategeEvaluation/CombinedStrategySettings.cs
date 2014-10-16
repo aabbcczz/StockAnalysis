@@ -1,13 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.IO;
-using System.Xml;
 using System.Xml.Serialization;
-using System.Reflection;
-
 using TradingStrategy;
 
 namespace TradingStrategyEvaluation
@@ -26,9 +20,9 @@ namespace TradingStrategyEvaluation
 
             CombinedStrategySettings settings;
 
-            XmlSerializer serializer = new XmlSerializer(typeof(CombinedStrategySettings));
+            var serializer = new XmlSerializer(typeof(CombinedStrategySettings));
 
-            using (StreamReader reader = new StreamReader(file))
+            using (var reader = new StreamReader(file))
             {
                 settings = (CombinedStrategySettings)serializer.Deserialize(reader);
             }
@@ -50,9 +44,9 @@ namespace TradingStrategyEvaluation
                 throw new ArgumentNullException();
             }
 
-            XmlSerializer serializer = new XmlSerializer(typeof(CombinedStrategySettings));
+            var serializer = new XmlSerializer(typeof(CombinedStrategySettings));
 
-            using (StreamWriter writer = new StreamWriter(file))
+            using (var writer = new StreamWriter(file))
             {
                 serializer.Serialize(writer, this);
             }
@@ -60,7 +54,7 @@ namespace TradingStrategyEvaluation
 
         public CombinedStrategySettings GetActiveSettings()
         {
-            CombinedStrategySettings settings = new CombinedStrategySettings();
+            var settings = new CombinedStrategySettings();
             settings.ComponentSettings = ComponentSettings.Where(s => s.Enabled).ToArray();
 
             return settings;
@@ -68,7 +62,7 @@ namespace TradingStrategyEvaluation
 
         public static CombinedStrategySettings GenerateExampleSettings()
         {
-            CombinedStrategySettings settings = new CombinedStrategySettings();
+            var settings = new CombinedStrategySettings();
 
             var allComponents = AppDomain.CurrentDomain.GetAssemblies()
                 .SelectMany(a => a.GetTypes()

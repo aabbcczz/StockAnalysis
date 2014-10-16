@@ -1,25 +1,20 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Reflection;
+using StockAnalysis.Share;
 
-namespace MetricsDefinition
+namespace MetricsDefinition.Metrics
 {
     [Metric("QKD", "K,D,J")]
-    public sealed class QuickKDJ : MultipleOutputBarInputSerialMetric
+    public sealed class QuickKdj : MultipleOutputBarInputSerialMetric
     {
-        private int _kWindowSize;
-        private int _kDecay;
-        private int _jCoeff;
+        private readonly int _kDecay;
+        private readonly int _jCoeff;
 
         private double _prevD = 50.0;
 
-        private Highest _highest;
-        private Lowest _lowest;
+        private readonly Highest _highest;
+        private readonly Lowest _lowest;
 
-        public QuickKDJ(int kWindowSize, int kDecay, int jCoeff)
+        public QuickKdj(int kWindowSize, int kDecay, int jCoeff)
             : base(1)
         {
             if (kWindowSize <= 0 || kDecay <= 0 || jCoeff <= 0)
@@ -27,7 +22,6 @@ namespace MetricsDefinition
                 throw new ArgumentOutOfRangeException();
             }
 
-            _kWindowSize = kWindowSize;
             _kDecay = kDecay;
             _jCoeff = jCoeff;
 
@@ -35,16 +29,16 @@ namespace MetricsDefinition
             _lowest = new Lowest(kWindowSize);
         }
 
-        public override double[] Update(StockAnalysis.Share.Bar bar)
+        public override double[] Update(Bar bar)
         {
-            double lowestPrice = _lowest.Update(bar.LowestPrice);
-            double highestPrice = _highest.Update(bar.HighestPrice);
+            var lowestPrice = _lowest.Update(bar.LowestPrice);
+            var highestPrice = _highest.Update(bar.HighestPrice);
 
-            double rsv = (bar.ClosePrice - lowestPrice) / (highestPrice - lowestPrice) * 100.0;
+            var rsv = (bar.ClosePrice - lowestPrice) / (highestPrice - lowestPrice) * 100.0;
 
-            double k = rsv;
-            double d = ((_kDecay - 1) * _prevD + k) / _kDecay;
-            double j = _jCoeff * d - (_jCoeff - 1) * k;
+            var k = rsv;
+            var d = ((_kDecay - 1) * _prevD + k) / _kDecay;
+            var j = _jCoeff * d - (_jCoeff - 1) * k;
 
             // update status;
             _prevD = d;

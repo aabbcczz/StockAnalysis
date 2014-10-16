@@ -1,22 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 using TradingStrategy;
-using StockAnalysis.Share;
 using TradingStrategyEvaluation;
 
 namespace EvaluatorClient
 {
     public partial class MetricForm : Form
     {
-        TradeMetric _metric = null;
+        TradeMetric _metric;
 
         public MetricForm()
         {
@@ -54,7 +47,7 @@ namespace EvaluatorClient
             }
             else
             {
-                if (!object.ReferenceEquals(_metric, metric))
+                if (!ReferenceEquals(_metric, metric))
                 {
                     equitySeries.Points.Clear();
                     foreach (var equityPoint in metric.OrderedEquitySequence)
@@ -66,7 +59,7 @@ namespace EvaluatorClient
 
                     if (metric.Code != TradeMetric.CodeForAll)
                     {
-                        int index = provider.GetIndexOfTradingObject(metric.Code);
+                        var index = provider.GetIndexOfTradingObject(metric.Code);
                         var bars = provider.GetAllBarsForTradingObject(index)
                             .Where(bar => bar.Time >= metric.StartDate && bar.Time <= metric.EndDate);
 
@@ -93,7 +86,7 @@ namespace EvaluatorClient
             }
             else
             {
-                if (!object.ReferenceEquals(_metric, metric))
+                if (!ReferenceEquals(_metric, metric))
                 {
                     transactionDataGridView.DataSource = metric.OrderedTransactionSequence.Select(t => new TransactionSlim(t)).ToList();
                 }
@@ -109,9 +102,9 @@ namespace EvaluatorClient
             }
             else
             {
-                if (!object.ReferenceEquals(_metric, metric))
+                if (!ReferenceEquals(_metric, metric))
                 {
-                    List<string> lines = new List<string>();
+                    var lines = new List<string>();
                     lines.Add(string.Format("代码 ： {0}", metric.Code));
                     lines.Add(string.Format("名称 ： {0}", metric.Name));
                     lines.Add(string.Format("起始日期： {0:yyyy-MM-dd}", metric.StartDate));
@@ -147,7 +140,7 @@ namespace EvaluatorClient
                     lines.Add(string.Format("最大回撤终止时间： {0:yyyy-MM-dd}", metric.MaxDrawDownEndTime));
                     lines.Add(string.Format("最大回撤期初权益： {0:0.00}", metric.MaxDrawDownStartEquity));
                     lines.Add(string.Format("最大回撤期末权益： {0:0.00}", metric.MaxDrawDownEndEquity));
-                    lines.Add(string.Format("年化收益风险比率： {0:0.00}", metric.MAR));
+                    lines.Add(string.Format("年化收益风险比率： {0:0.00}", metric.Mar));
                     lines.Add(string.Format("单次最大盈利： {0:0.00}", metric.MaxProfitInOneTransaction));
                     lines.Add(string.Format("单次最大亏损： {0:0.00}", metric.MaxLossInOneTransaction));
                     lines.Add(string.Format("扣除单次最大盈利后收益率： {0:0.00}%", metric.ProfitRatioWithoutMaxProfit * 100.0));
@@ -164,7 +157,7 @@ namespace EvaluatorClient
         private void MetricForm_FormClosing(object sender, FormClosingEventArgs e)
         {
             e.Cancel = true;
-            this.Visible = false;
+            Visible = false;
         }
     }
 }

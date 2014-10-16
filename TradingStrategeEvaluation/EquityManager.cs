@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 using StockAnalysis.Share;
 
 using TradingStrategy;
@@ -51,7 +48,7 @@ namespace TradingStrategyEvaluation
 
             if (transaction.Action == TradingAction.OpenLong)
             {
-                double charge = transaction.Price * transaction.Volume + transaction.Commission;
+                var charge = transaction.Price * transaction.Volume + transaction.Commission;
 
                 if (CurrentCapital < charge && !allowNegativeCapital)
                 {
@@ -59,7 +56,7 @@ namespace TradingStrategyEvaluation
                     return false;
                 }
 
-                Position position = new Position(transaction);
+                var position = new Position(transaction);
 
                 if (!_activePositions.ContainsKey(position.Code))
                 {
@@ -73,9 +70,10 @@ namespace TradingStrategyEvaluation
 
                 return true;
             }
-            else if (transaction.Action == TradingAction.CloseLong)
+
+            if (transaction.Action == TradingAction.CloseLong)
             {
-                string code = transaction.Code;
+                var code = transaction.Code;
 
                 if (!_activePositions.ContainsKey(code))
                 {
@@ -83,11 +81,11 @@ namespace TradingStrategyEvaluation
                     return false;
                 }
 
-                Position[] positions = _activePositions[code].ToArray();
+                var positions = _activePositions[code].ToArray();
 
-                PositionToBeSold[] PositionsToBeSold = IdentifyPositionToBeSold(positions, transaction).ToArray();
+                var positionsToBeSold = IdentifyPositionToBeSold(positions, transaction).ToArray();
 
-                if (PositionsToBeSold == null || PositionsToBeSold.Count() == 0)
+                if (positionsToBeSold.Count() == 0)
                 {
                     return true;
                 }
@@ -95,43 +93,49 @@ namespace TradingStrategyEvaluation
                 // note: the position could be sold partially and we need to consider the situation
                 // everywhere in the code
 
-                double buyCost = 0.0;
-                double buyCommission = 0.0;
+                var buyCost = 0.0;
+                var buyCommission = 0.0;
 
-                foreach (var ptbs in PositionsToBeSold)
+                foreach (var ptbs in positionsToBeSold)
                 {
                     buyCost += positions[ptbs.Index].BuyPrice * ptbs.Volume;
                     buyCommission += positions[ptbs.Index].BuyCommission 
-                        * (double)ptbs.Volume / positions[ptbs.Index].Volume;
+                                     * ptbs.Volume / positions[ptbs.Index].Volume;
                 }
 
-                foreach (var ptbs in PositionsToBeSold)
+                foreach (var ptbs in positionsToBeSold)
                 {
-                    // for partial selling, we need to split position firstly.
-                    Position newPosition = null;
-                    if (ptbs.Volume < positions[ptbs.Index].Volume)
+                    var position = positions[ptbs.Index];
+                    if (position == null)
                     {
-                        newPosition = positions[ptbs.Index].Split(ptbs.Volume);
+                        throw new InvalidOperationException();
                     }
 
-                    positions[ptbs.Index].Close(
-                        new Transaction()
+                    // for partial selling, we need to split position firstly.
+                    Position newPosition = null;
+                    if (ptbs.Volume < position.Volume)
+                    {
+                        newPosition = position.Split(ptbs.Volume);
+                    }
+
+                    position.Close(
+                        new Transaction
                         {
                             Action = transaction.Action,
                             Code = transaction.Code,
                             Comments = transaction.Comments,
-                            Commission = transaction.Commission / transaction.Volume * positions[ptbs.Index].Volume,
+                            Commission = transaction.Commission / transaction.Volume * position.Volume,
                             Error = transaction.Error,
                             ExecutionTime = transaction.ExecutionTime,
                             InstructionId = transaction.InstructionId,
                             Price = transaction.Price,
                             SubmissionTime = transaction.SubmissionTime,
                             Succeeded = transaction.Succeeded,
-                            Volume = positions[ptbs.Index].Volume
+                            Volume = position.Volume
                         });
 
                     // move closed position to history
-                    _closedPositions.Add(positions[ptbs.Index]);
+                    _closedPositions.Add(position);
 
                     // use new position to replace old position.
                     positions[ptbs.Index] = newPosition;
@@ -150,11 +154,11 @@ namespace TradingStrategyEvaluation
                 }
 
                 // update current capital
-                double earn = transaction.Price * transaction.Volume - transaction.Commission;
+                var earn = transaction.Price * transaction.Volume - transaction.Commission;
                 CurrentCapital += earn;
 
                 // create completed transaction object
-                completedTransaction = new CompletedTransaction()
+                completedTransaction = new CompletedTransaction
                 {
                     Code = code,
                     ExecutionTime = transaction.ExecutionTime,
@@ -168,11 +172,9 @@ namespace TradingStrategyEvaluation
 
                 return true;
             }
-            else
-            {
-                throw new InvalidOperationException(
-                    string.Format("unsupported action {0}", transaction.Action));
-            }
+            
+            throw new InvalidOperationException(
+                string.Format("unsupported action {0}", transaction.Action));
         }
 
         /// <summary>
@@ -183,27 +185,31 @@ namespace TradingStrategyEvaluation
         /// <returns>Tuples that identify the position and volume to be sold</returns>
         private IEnumerable<PositionToBeSold> IdentifyPositionToBeSold(Position[] positions, Transaction transaction)
         {
-            System.Diagnostics.Debug.Assert(positions != null);
-            System.Diagnostics.Debug.Assert(transaction != null);
-            System.Diagnostics.Debug.Assert(positions.Length > 0);
-            System.Diagnostics.Debug.Assert(transaction.Action == TradingAction.CloseLong);
+            if (positions == null || transaction == null)
+            {
+                throw new ArgumentNullException();
+            }
 
-            int remainingVolume = transaction.Volume;
+            if (positions.Length == 0 || transaction.Action != TradingAction.CloseLong)
+            {
+                throw new ArgumentException();
+            }
+
+            var remainingVolume = transaction.Volume;
             switch (transaction.SellingType)
             {
                 case SellingType.ByPositionId:
-                    for (int i = 0; i < positions.Length; ++i)
+                    for (var i = 0; i < positions.Length; ++i)
                     {
                         if (positions[i].ID == transaction.PositionIdForSell)
                         {
-                            remainingVolume -= positions[i].Volume;
                             yield return new PositionToBeSold(i, positions[i].Volume);
                             yield break;
                         }
                     }
                     break;
                 case SellingType.ByStopLossPrice:
-                    for (int i = 0; i < positions.Length; ++i)
+                    for (var i = 0; i < positions.Length; ++i)
                     {
                         if (positions[i].StopLossPrice > transaction.StopLossPriceForSell)
                         {
@@ -214,13 +220,13 @@ namespace TradingStrategyEvaluation
                     }
                     break;
                 case SellingType.ByVolume:
-                    int totalVolume = positions.Sum(e => e.Volume);
+                    var totalVolume = positions.Sum(e => e.Volume);
                     if (totalVolume < transaction.Volume)
                     {
                         throw new InvalidOperationException("There is no enough volume for selling");
                     }
 
-                    for (int i = 0; i < positions.Length && remainingVolume > 0; ++i)
+                    for (var i = 0; i < positions.Length && remainingVolume > 0; ++i)
                     {
                         if (positions[i].Volume <= remainingVolume)
                         {
@@ -271,7 +277,7 @@ namespace TradingStrategyEvaluation
                 throw new ArgumentNullException("provider");
             }
 
-            double totalEquity = CurrentCapital;
+            var totalEquity = CurrentCapital;
 
             // cash is the core equity
             if (method == EquityEvaluationMethod.CoreEquity)
@@ -282,11 +288,11 @@ namespace TradingStrategyEvaluation
             {
                 foreach (var kvp in _activePositions)
                 {
-                    string code = kvp.Key;
+                    var code = kvp.Key;
 
                     Bar bar;
 
-                    int index = provider.GetIndexOfTradingObject(code);
+                    var index = provider.GetIndexOfTradingObject(code);
                     if (index < 0)
                     {
                         throw new InvalidOperationException(string.Format("Can't get index for code {0}", code));
@@ -300,7 +306,7 @@ namespace TradingStrategyEvaluation
 
                     if (method == EquityEvaluationMethod.TotalEquity)
                     {
-                        int volume = kvp.Value.Sum(e => e.Volume);
+                        var volume = kvp.Value.Sum(e => e.Volume);
                         totalEquity += volume * bar.ClosePrice;
                     }
                     else if (method == EquityEvaluationMethod.ReducedTotalEquity)
@@ -327,11 +333,11 @@ namespace TradingStrategyEvaluation
 
             if (_activePositions.ContainsKey(code))
             { 
-                int volume = _activePositions[code].Sum(e => e.Volume);
+                var volume = _activePositions[code].Sum(e => e.Volume);
 
                 Bar bar;
 
-                int index = provider.GetIndexOfTradingObject(code);
+                var index = provider.GetIndexOfTradingObject(code);
                 if (!provider.GetLastEffectiveBar(index, time, out bar))
                 {
                     throw new InvalidOperationException(

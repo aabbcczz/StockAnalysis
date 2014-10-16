@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace TradingStrategy.Strategy
 {
@@ -40,7 +36,7 @@ namespace TradingStrategy.Strategy
 
         protected override double CalculateStopLossPrice(ITradingObject tradingObject, double currentPrice, out string comments)
         {
-            SarRuntimeMetric metric = MetricManager.GetOrCreateRuntimeMetric(tradingObject);
+            var metric = MetricManager.GetOrCreateRuntimeMetric(tradingObject);
 
             comments = string.Format(
                 "stoploss = Min(Price({0:0.000}) * MaxPercentageOfPrice({1:0.000}) / 100.0, SAR({2:0.000}))",

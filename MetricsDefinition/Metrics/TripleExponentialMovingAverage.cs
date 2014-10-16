@@ -1,17 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace MetricsDefinition
+﻿namespace MetricsDefinition.Metrics
 {
     [Metric("TRIX,TEMA")]
     public sealed class TripleExponentialMovingAverage : SingleOutputRawInputSerialMetric
     {
-        private ExponentialMovingAverage _ema1;
-        private ExponentialMovingAverage _ema2;
-        private ExponentialMovingAverage _ema3;
+        private readonly ExponentialMovingAverage _ema1;
+        private readonly ExponentialMovingAverage _ema2;
+        private readonly ExponentialMovingAverage _ema3;
 
         public TripleExponentialMovingAverage(int windowSize)
             : base(1)

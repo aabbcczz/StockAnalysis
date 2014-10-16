@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace TradingStrategy.Strategy
 {
@@ -46,7 +42,7 @@ namespace TradingStrategy.Strategy
 
         public override double EstimateStopLossGap(ITradingObject tradingObject, double assumedPrice, out string comments)
         {
-            AtrRuntimeMetric metric = MetricManager.GetOrCreateRuntimeMetric(tradingObject);
+            var metric = MetricManager.GetOrCreateRuntimeMetric(tradingObject);
 
             comments = string.Format(
                 "stoplossgap = ATR({0:0.000}) * AtrStopLossFactor({1:0.000})",

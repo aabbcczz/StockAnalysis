@@ -81,7 +81,7 @@
     <Compile Include="MetricForm.Designer.cs">
       <DependentUpon>MetricForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Settings.cs" />
+    <Compile Include="Properties\Settings.cs" />
     <Compile Include="StrategyLoader.cs" />
     <Compile Include="TradeMetricSlim.cs" />
     <Compile Include="TradingPriceOptionBinding.cs" />

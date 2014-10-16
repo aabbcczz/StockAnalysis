@@ -1,9 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 using StockAnalysis.Share;
 
 namespace TradingStrategy
@@ -28,7 +23,6 @@ namespace TradingStrategy
         /// <summary>
         /// Get bars for all trading objects for given period
         /// </summary>
-        /// <param name="time">period time</param>
         /// <returns>
         /// All bars in an array, and the size of array equals to number of trading objects returned by
         /// GetAllTradingObjects(), and the first bar is the data for the first trading object, the second bar

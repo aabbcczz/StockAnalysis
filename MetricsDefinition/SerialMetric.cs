@@ -1,14 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MetricsDefinition
 {
     public abstract class SerialMetric
     {
-        private int _windowSize;
+        private readonly int _windowSize;
 
         public int WindowSize { get { return _windowSize; } }
 

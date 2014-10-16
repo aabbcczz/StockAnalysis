@@ -4,7 +4,7 @@ using System.Linq;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
-
+using CommandLine;
 using MetricsDefinition;
 using StockAnalysis.Share;
 
@@ -15,7 +15,7 @@ namespace GenerateMetrics
         static void Main(string[] args)
         {
             var options = new Options();
-            var parser = new CommandLine.Parser(with => with.HelpWriter = Console.Error);
+            var parser = new Parser(with => with.HelpWriter = Console.Error);
 
             if (parser.ParseArgumentsStrict(args, options, () => { Environment.Exit(-2); }))
             {
@@ -33,7 +33,7 @@ namespace GenerateMetrics
                     Environment.Exit(-2);
                 }
 
-                int returnValue = Run(options);
+                var returnValue = Run(options);
 
                 if (returnValue != 0)
                 {
@@ -49,7 +49,7 @@ namespace GenerateMetrics
                 Console.WriteLine("output file folder is empty");
             }
 
-            string folder = Path.GetFullPath(options.OutputFileFolder);
+            var folder = Path.GetFullPath(options.OutputFileFolder);
 
             // try to create output file folder if it does not exist
             if (!Directory.Exists(folder))
@@ -60,13 +60,13 @@ namespace GenerateMetrics
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine("Create output file folder {0} failed. Exception: \n{1}", folder, ex.ToString());
+                    Console.WriteLine("Create output file folder {0} failed. Exception: \n{1}", folder, ex);
                     return -3;
                 }
             }
 
             // load metric definitions
-            string[] metrics = LoadMetricsDefinition(options.MetricsDefinitionFile).ToArray();
+            var metrics = LoadMetricsDefinition(options.MetricsDefinitionFile).ToArray();
 
             if (!string.IsNullOrEmpty(options.InputFile))
             {
@@ -93,22 +93,21 @@ namespace GenerateMetrics
                 throw new ArgumentNullException();
             }
 
-            StockHistoryData data = StockHistoryData.LoadFromFile(file, startDate, endDate);
+            var data = StockHistoryData.LoadFromFile(file, startDate, endDate);
             if (data == null)
             {
                 return;
             }
 
-            List<double[]> metricValues = new List<double[]>();
-            List<string> allFieldNames = new List<string>();
+            var allFieldNames = new List<string>();
 
             // parse metrics to expression
-            MetricExpression[] metricExpressions = metrics
+            var metricExpressions = metrics
                 .Select(m => MetricEvaluationContext.ParseExpression(m))
                 .ToArray();
 
             // build field names
-            for (int i = 0; i < metrics.Length; ++i)
+            for (var i = 0; i < metrics.Length; ++i)
             {
                 if (metricExpressions[i].FieldNames.Length == 1)
                 {
@@ -116,31 +115,32 @@ namespace GenerateMetrics
                 }
                 else
                 {
-                    allFieldNames.AddRange(metricExpressions[i].FieldNames.Select(s => metrics[i] + "." + s));
+                    var i1 = i;
+                    allFieldNames.AddRange(metricExpressions[i].FieldNames.Select(s => metrics[i1] + "." + s));
                 }
             }
 
             // calculate metrics
-            foreach (Bar bar in data.DataOrderedByTime)
-            {
-                var metricValuesForOneBar = metricExpressions.SelectMany(m => m.MultipleOutputUpdate(bar)).ToArray();
-                metricValues.Add(metricValuesForOneBar);
-            }
+            var metricValues = data.DataOrderedByTime
+                .Select(bar => metricExpressions
+                    .SelectMany(m => m.MultipleOutputUpdate(bar))
+                    .ToArray())
+                .ToList();
 
-            string outputFile = Path.Combine(outputFileFolder, data.Name.Code + ".day.metric.csv");
+            var outputFile = Path.Combine(outputFileFolder, data.Name.Code + ".day.metric.csv");
 
-            using (StreamWriter outputter = new StreamWriter(outputFile, false, Encoding.UTF8))
+            using (var outputter = new StreamWriter(outputFile, false, Encoding.UTF8))
             {
-                string header = "code,date," 
+                var header = "code,date," 
                     + string.Join(",", allFieldNames.Select(m => MetricHelper.ConvertMetricToCsvCompatibleHead(m)));
 
                 outputter.WriteLine(header);
 
                 var times = data.DataOrderedByTime.Select(d => d.Time).ToArray();
 
-                for (int i = 0; i < times.Length; ++i)
+                for (var i = 0; i < times.Length; ++i)
                 {
-                    string value = string.Join(
+                    var value = string.Join(
                             ",",
                             metricValues[i]
                                 .Select(v => string.Format("{0:0.00}", v)));
@@ -162,11 +162,11 @@ namespace GenerateMetrics
             }
 
             // Get all input files from list file
-            string[] files = File.ReadAllLines(listFile, Encoding.UTF8);
+            var files = File.ReadAllLines(listFile, Encoding.UTF8);
 
             Parallel.ForEach(
                 files,
-                (string file) =>
+                file =>
                 {
                     if (!String.IsNullOrWhiteSpace(file))
                     {
@@ -179,7 +179,7 @@ namespace GenerateMetrics
 
         static IEnumerable<string> LoadMetricsDefinition(string file)
         {
-            string[] lines = File.ReadAllLines(file);
+            var lines = File.ReadAllLines(file);
 
             return lines
                 .Select(l => l.Trim())

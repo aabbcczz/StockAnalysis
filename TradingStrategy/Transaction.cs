@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using StockAnalysis.Share;
 
 namespace TradingStrategy
@@ -61,7 +58,8 @@ namespace TradingStrategy
                     {
                         return 1;
                     }
-                    else if (y.Action == TradingAction.CloseLong)
+
+                    if (y.Action == TradingAction.CloseLong)
                     {
                         return -1;
                     }
@@ -74,7 +72,7 @@ namespace TradingStrategy
 
                 if (x.Code != y.Code)
                 {
-                    return x.Code.CompareTo(y.Code);
+                    return String.Compare(x.Code, y.Code, StringComparison.Ordinal);
                 }
 
                 if (x.InstructionId != y.InstructionId)

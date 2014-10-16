@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace MetricsDefinition
+namespace StockAnalysis.Share
 {
     public static class MetricHelper
     {
@@ -25,9 +21,9 @@ namespace MetricsDefinition
                 throw new ArgumentException("input arrays have different length");
             }
 
-            double[] result = new double[op1.Length];
+            var result = new double[op1.Length];
 
-            for (int i = 0; i < result.Length; ++i)
+            for (var i = 0; i < result.Length; ++i)
             {
                 result[i] = f(op1[i], op2[i]);
             }
@@ -42,9 +38,9 @@ namespace MetricsDefinition
                 throw new ArgumentException("input arrays have different length");
             }
 
-            double[] result = new double[op1.Length];
+            var result = new double[op1.Length];
 
-            for (int i = 0; i < result.Length; ++i)
+            for (var i = 0; i < result.Length; ++i)
             {
                 result[i] = f(op1[i], op2[i], op3[i]);
             }
@@ -59,9 +55,9 @@ namespace MetricsDefinition
                 throw new ArgumentException("input arrays have different length");
             }
 
-            double[] result = new double[op1.Length];
+            var result = new double[op1.Length];
 
-            for (int i = 0; i < result.Length; ++i)
+            for (var i = 0; i < result.Length; ++i)
             {
                 result[i] = f(op1[i], op2[i], op3[i], op4[i]);
             }
@@ -76,9 +72,9 @@ namespace MetricsDefinition
                 throw new ArgumentException("input arrays have different length");
             }
 
-            double[] result = new double[op1.Length];
+            var result = new double[op1.Length];
 
-            for (int i = 0; i < result.Length; ++i)
+            for (var i = 0; i < result.Length; ++i)
             {
                 result[i] = f(op1[i], op2[i], op3[i], op4[i], op5[i]);
             }
@@ -88,9 +84,9 @@ namespace MetricsDefinition
 
         public static double[] OperateNew(double[] op1, double op2, Func<double, double, double> f)
         {
-            double[] result = new double[op1.Length];
+            var result = new double[op1.Length];
 
-            for (int i = 0; i < result.Length; ++i)
+            for (var i = 0; i < result.Length; ++i)
             {
                 result[i] = f(op1[i], op2);
             }
@@ -105,7 +101,7 @@ namespace MetricsDefinition
                 throw new ArgumentException("input arrays have different length");
             }
 
-            for (int i = 0; i < op1.Length; ++i)
+            for (var i = 0; i < op1.Length; ++i)
             {
                 op1[i] = f(op1[i], op2[i]);
             }
@@ -120,7 +116,7 @@ namespace MetricsDefinition
                 throw new ArgumentException("input arrays have different length");
             }
 
-            for (int i = 0; i < op1.Length; ++i)
+            for (var i = 0; i < op1.Length; ++i)
             {
                 op1[i] = f(op1[i], op2[i], op3[i]);
             }
@@ -135,7 +131,7 @@ namespace MetricsDefinition
                 throw new ArgumentException("input arrays have different length");
             }
 
-            for (int i = 0; i < op1.Length; ++i)
+            for (var i = 0; i < op1.Length; ++i)
             {
                 op1[i] = f(op1[i], op2[i], op3[i], op4[i]);
             }
@@ -150,7 +146,7 @@ namespace MetricsDefinition
                 throw new ArgumentException("input arrays have different length");
             }
 
-            for (int i = 0; i < op1.Length; ++i)
+            for (var i = 0; i < op1.Length; ++i)
             {
                 op1[i] = f(op1[i], op2[i], op3[i], op4[i], op5[i]);
             }
@@ -160,7 +156,7 @@ namespace MetricsDefinition
 
         public static double[] OperateThis(this double[] op1, double op2, Func<double, double, double> f)
         {
-            for (int i = 0; i < op1.Length; ++i)
+            for (var i = 0; i < op1.Length; ++i)
             {
                 op1[i] = f(op1[i], op2);
             }

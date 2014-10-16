@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Reflection;
 
 namespace TradingStrategy
@@ -45,7 +41,7 @@ namespace TradingStrategy
                 throw new ArgumentNullException("type");
             }
 
-            if (!ParameterAttribute.IsSupportedType(type))
+            if (!IsSupportedType(type))
             {
                 throw new ArgumentException(string.Format("unsupported type {0}", type.FullName));
             }

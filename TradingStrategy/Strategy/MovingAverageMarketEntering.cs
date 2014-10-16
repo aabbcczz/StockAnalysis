@@ -1,11 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using MetricsDefinition;
-using StockAnalysis.Share;
 
 namespace TradingStrategy.Strategy
 {
@@ -46,24 +39,21 @@ namespace TradingStrategy.Strategy
         public override bool CanEnter(ITradingObject tradingObject, out string comments)
         {
             comments = string.Empty;
-            var runtimeMetric = base.MetricManager.GetOrCreateRuntimeMetric(tradingObject);
+            var runtimeMetric = MetricManager.GetOrCreateRuntimeMetric(tradingObject);
 
-            if (runtimeMetric.ShortMA > runtimeMetric.LongMA
-                && runtimeMetric.PreviousShortMA < runtimeMetric.PreviousLongMA)
+            if (runtimeMetric.ShortMa > runtimeMetric.LongMa
+                && runtimeMetric.PreviousShortMa < runtimeMetric.PreviousLongMa)
             {
                 comments = string.Format(
                     "prevShort:{0:0.000}; prevLong:{1:0.000}; curShort:{2:0.000}; curLong:{3:0.000}",
-                    runtimeMetric.PreviousShortMA,
-                    runtimeMetric.PreviousLongMA,
-                    runtimeMetric.ShortMA,
-                    runtimeMetric.LongMA);
+                    runtimeMetric.PreviousShortMa,
+                    runtimeMetric.PreviousLongMa,
+                    runtimeMetric.ShortMa,
+                    runtimeMetric.LongMa);
 
                 return true;
             }
-            else
-            {
-                return false;
-            }
+            return false;
         }
     }
 }

@@ -1,15 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace MetricsDefinition
+﻿namespace MetricsDefinition.Metrics
 {
     [Metric("OSC")]
     public sealed class Oscillator : SingleOutputRawInputSerialMetric
     {
-        private MovingAverage _ma;
+        private readonly MovingAverage _ma;
 
         public Oscillator(int windowSize)
             : base(1)

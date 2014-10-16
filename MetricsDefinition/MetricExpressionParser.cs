@@ -2,14 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MetricsDefinition
 {
     internal sealed class MetricExpressionParser
     {
-        Queue<Token> _tokens = new Queue<Token>();
+        readonly Queue<Token> _tokens = new Queue<Token>();
 
         private Token GetNextToken()
         {
@@ -49,16 +47,16 @@ namespace MetricsDefinition
             Reset();
 
             // parse all tokens out and put it in queue.
-            Tokenizer _tokenizer = new Tokenizer(expression);
+            var tokenizer = new Tokenizer(expression);
 
-            Token token = null;
+            Token token;
             
 
             do
             {
-                if (!_tokenizer.GetNextToken(out token))
+                if (!tokenizer.GetNextToken(out token))
                 {
-                    LastErrorMessage = "Parse token failed: " + _tokenizer.LastErrorMessage;
+                    LastErrorMessage = "Parse token failed: " + tokenizer.LastErrorMessage;
                     return null;
                 }
 
@@ -70,7 +68,7 @@ namespace MetricsDefinition
 
 
             // use recursive descending parsing
-            MetricExpression metric = Parse();
+            var metric = Parse();
 
             if (metric != null)
             {
@@ -88,7 +86,7 @@ namespace MetricsDefinition
         private MetricExpression Parse()
         {
             // parse the first part, such as MA[20]
-            StandaloneMetric metric = ParseMetric();
+            var metric = ParseMetric();
             if (metric == null)
             {
                 return null;
@@ -97,7 +95,7 @@ namespace MetricsDefinition
             // parse the call operation part, such as (MA[20])
             MetricExpression callee = null;
 
-            Token token = PeekNextToken();
+            var token = PeekNextToken();
             if (token != null && token.Type == TokenType.LeftParenthese)
             {
                 GetNextToken();
@@ -111,7 +109,7 @@ namespace MetricsDefinition
            }
 
             // parse the selection part, such as .DIF
-            int fieldIndex = -1;
+            var fieldIndex = -1;
             token = PeekNextToken();
             if (token != null && token.Type == TokenType.Dot)
             {
@@ -122,11 +120,11 @@ namespace MetricsDefinition
                     return null;
                 }
 
-                string field = token.Value;
+                var field = token.Value;
 
                 // verify if the selection name is part of metric definition
-                Type metricType = metric.Metric.GetType();
-                MetricAttribute attribute = metricType.GetCustomAttribute<MetricAttribute>();
+                var metricType = metric.Metric.GetType();
+                var attribute = metricType.GetCustomAttribute<MetricAttribute>();
 
                 if (!attribute.NameToFieldIndexMap.ContainsKey(field))
                 {
@@ -162,10 +160,10 @@ namespace MetricsDefinition
                 return null;
             }
 
-            string name = token.Value;
-            string[] parameters = new string[0];
+            var name = token.Value;
+            var parameters = new string[0];
 
-            Token nextToken = PeekNextToken();
+            var nextToken = PeekNextToken();
 
             if (nextToken != null && nextToken.Type == TokenType.LeftBracket)
             {
@@ -191,7 +189,7 @@ namespace MetricsDefinition
                 return null;
             }
 
-            Type metricType = MetricEvaluationContext.NameToMetricMap[name];
+            var metricType = MetricEvaluationContext.NameToMetricMap[name];
             StandaloneMetric metric = null;
 
             try
@@ -203,18 +201,18 @@ namespace MetricsDefinition
                     null);
                 foreach (var constructor in constructors)
                 {
-                    Type[] parameterTypes = ((ConstructorInfo)constructor).GetParameters().Select(pi => pi.ParameterType).ToArray();
+                    var parameterTypes = ((ConstructorInfo)constructor).GetParameters().Select(pi => pi.ParameterType).ToArray();
                     if (parameterTypes.Length != parameters.Length)
                     {
                         continue;
                     }
 
                     // try to convert parameters to the expected type
-                    object[] objects = new object[parameterTypes.Length];
+                    var objects = new object[parameterTypes.Length];
 
                     try
                     {
-                        for (int i = 0; i < parameterTypes.Length; ++i)
+                        for (var i = 0; i < parameterTypes.Length; ++i)
                         {
                             objects[i] = Convert.ChangeType(parameters[i], parameterTypes[i]);
                         }
@@ -256,7 +254,6 @@ namespace MetricsDefinition
         /// <summary>
         /// Parase parameters
         /// </summary>
-        /// <param name="errorMessage">error message</param>
         /// <returns>
         /// null: failed.
         /// empty array : no parameter
@@ -264,8 +261,8 @@ namespace MetricsDefinition
         /// </returns>
         private string[] ParseParameters()
         {
-            Token token = null;
-            List<string> parameters = new List<string>();
+            Token token;
+            var parameters = new List<string>();
 
             do
             {

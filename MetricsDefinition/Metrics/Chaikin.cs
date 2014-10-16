@@ -1,13 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 using StockAnalysis.Share;
-using System.Reflection;
 
-namespace MetricsDefinition
+namespace MetricsDefinition.Metrics
 {
     /// <summary>
     /// The Chavkin metric
@@ -15,9 +9,9 @@ namespace MetricsDefinition
     [Metric("CV")]
     public sealed class Chaikin : SingleOutputBarInputSerialMetric
     {
-        private int _interval;
-        private ExponentialMovingAverage _ema;
-        private CirculatedArray<double> _mahl;
+        private readonly int _interval;
+        private readonly ExponentialMovingAverage _ema;
+        private readonly CirculatedArray<double> _mahl;
 
         public Chaikin(int windowSize, int interval)
             : base(1)
@@ -35,22 +29,17 @@ namespace MetricsDefinition
 
         public override double Update(Bar bar)
         {
-            double mahl = _ema.Update(bar.HighestPrice - bar.LowestPrice);
+            var mahl = _ema.Update(bar.HighestPrice - bar.LowestPrice);
 
             _mahl.Add(mahl);
 
-            int index = _mahl.Length < _interval ? 0 : _mahl.Length - _interval;
+            var index = _mahl.Length < _interval ? 0 : _mahl.Length - _interval;
 
-            if (_mahl[index] == 0.0)
+            if (Math.Abs(_mahl[index]) < 1e-6)
             {
                 return 0.0;
             }
-            else
-            {
-
-                return (_mahl[-1] - _mahl[index]) / _mahl[index] * 100.0;
-            }
-
+            return (_mahl[-1] - _mahl[index]) / _mahl[index] * 100.0;
         }
     }
 }

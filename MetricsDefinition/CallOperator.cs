@@ -1,15 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using StockAnalysis.Share;
 
 namespace MetricsDefinition
 {
     sealed class CallOperator : MetricBinaryOperator
     {
-        private StandaloneMetric _caller;
-        private MetricExpression _callee;
+        private readonly StandaloneMetric _caller;
+        private readonly MetricExpression _callee;
 
         public override string[] FieldNames
         {
@@ -38,11 +35,8 @@ namespace MetricsDefinition
 
                 return _caller.SingleOutputUpdate(calleeResult);
             }
-            else
-            {
-                throw new InvalidOperationException(
-                    "callee has multiple outputs, and caller can't handle it");
-            }
+            throw new InvalidOperationException(
+                "callee has multiple outputs, and caller can't handle it");
         }
 
         public override double[] MultipleOutputUpdate(double data)
@@ -55,14 +49,11 @@ namespace MetricsDefinition
 
                 return _caller.MultipleOutputUpdate(calleeResult);
             }
-            else
-            {
-                throw new InvalidOperationException(
-                    "callee has multiple outputs, and caller can't handle it");
-            }
+            throw new InvalidOperationException(
+                "callee has multiple outputs, and caller can't handle it");
         }
 
-        public override double SingleOutputUpdate(StockAnalysis.Share.Bar data)
+        public override double SingleOutputUpdate(Bar data)
         {
             double calleeResult;
 
@@ -72,14 +63,11 @@ namespace MetricsDefinition
 
                 return _caller.SingleOutputUpdate(calleeResult);
             }
-            else
-            {
-                throw new InvalidOperationException(
-                    "callee has multiple outputs, and caller can't handle it");
-            }
+            throw new InvalidOperationException(
+                "callee has multiple outputs, and caller can't handle it");
         }
 
-        public override double[] MultipleOutputUpdate(StockAnalysis.Share.Bar data)
+        public override double[] MultipleOutputUpdate(Bar data)
         {
             double calleeResult;
 
@@ -89,11 +77,8 @@ namespace MetricsDefinition
 
                 return _caller.MultipleOutputUpdate(calleeResult);
             }
-            else
-            {
-                throw new InvalidOperationException(
-                    "callee has multiple outputs, and caller can't handle it");
-            }
+            throw new InvalidOperationException(
+                "callee has multiple outputs, and caller can't handle it");
         }
     }
 }

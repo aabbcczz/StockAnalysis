@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Reflection;
 
 namespace TradingStrategy
@@ -18,7 +16,7 @@ namespace TradingStrategy
 
             foreach (var property in obj.GetType().GetProperties())
             {
-                ParameterAttribute attribute = property.GetCustomAttribute<ParameterAttribute>();
+                var attribute = property.GetCustomAttribute<ParameterAttribute>();
 
                 if (attribute != null)
                 {
@@ -58,7 +56,7 @@ namespace TradingStrategy
                     throw new InvalidOperationException(string.Format("unknown or duplicated parameter {0}", kvp.Key.Name));
                 }
 
-                ParameterAttribute attribute = parameterAttributes[kvp.Key.Name];
+                var attribute = parameterAttributes[kvp.Key.Name];
 
                 attribute.TargetProperty.SetValue(obj, kvp.Value);
 
@@ -90,7 +88,7 @@ namespace TradingStrategy
                 throw new ArgumentNullException();
             }
 
-            bool valid = true;
+            var valid = true;
             if (type == typeof(int))
             {
                 int result;

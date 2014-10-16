@@ -1,11 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 using MetricsDefinition;
-using StockAnalysis.Share;
 
 namespace TradingStrategy.Strategy
 {
@@ -51,7 +45,7 @@ namespace TradingStrategy.Strategy
         public override bool CanEnter(ITradingObject tradingObject, out string comments)
         {
             comments = string.Empty;
-            var runtimeMetric = base.MetricManager.GetOrCreateRuntimeMetric(tradingObject);
+            var runtimeMetric = MetricManager.GetOrCreateRuntimeMetric(tradingObject);
 
             if (runtimeMetric.Adx > AdxThreshold && IsIncreasing(runtimeMetric.HistoricalAdxValues))
             {
@@ -63,10 +57,7 @@ namespace TradingStrategy.Strategy
 
                 return true;
             }
-            else
-            {
-                return false;
-            }
+            return false;
         }
 
         private bool IsIncreasing(CirculatedArray<double> values)

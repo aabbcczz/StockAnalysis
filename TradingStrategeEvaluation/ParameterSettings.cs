@@ -1,12 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Reflection;
-using System.Xml;
-using System.Xml.Serialization;
-
 using TradingStrategy;
 
 namespace TradingStrategyEvaluation
@@ -18,7 +12,7 @@ namespace TradingStrategyEvaluation
         public const string MultipleStringValueSeparator = "(;)";
         public const string LoopSeparator = "/";
 
-        private List<object> _parsedValues = null;
+        private List<object> _parsedValues;
 
         public string Name { get; set; }
         public string Description { get; set; }
@@ -51,7 +45,7 @@ namespace TradingStrategyEvaluation
                 throw new ArgumentNullException();
             }
 
-            ParameterSettings settings = new ParameterSettings();
+            var settings = new ParameterSettings();
 
             settings.Name = attribute.Name;
             settings.Description = attribute.Description;
@@ -77,17 +71,17 @@ namespace TradingStrategyEvaluation
 
             try
             {
-                Type valueType = Type.GetType(ValueType);
+                var valueType = Type.GetType(ValueType);
 
                 if (valueType == typeof(int)
                     || valueType == typeof(double))
                 {
                     var substrings = Values.Split(
-                        new string[] { MultipleValueSeparator }, 
+                        new[] { MultipleValueSeparator }, 
                         StringSplitOptions.None);
 
                     if (substrings.Length > 1
-                        || Values.IndexOf(LoopSeparator) < 0) // not loop
+                        || Values.IndexOf(LoopSeparator, StringComparison.Ordinal) < 0) // not loop
                     {
                         _parsedValues = substrings
                             .Select(s => ParameterHelper.ConvertStringToValue(valueType, s))
@@ -97,7 +91,7 @@ namespace TradingStrategyEvaluation
                     {
                         // loop
                         var fields = Values.Split(
-                            new string[] { LoopSeparator }, 
+                            new[] { LoopSeparator }, 
                             StringSplitOptions.None); 
         
                         if (fields.Length != 3)
@@ -112,7 +106,7 @@ namespace TradingStrategyEvaluation
                 else if (valueType == typeof(string))
                 {
                     var substrings = Values.Split(
-                        new string[] { MultipleStringValueSeparator }, 
+                        new[] { MultipleStringValueSeparator }, 
                         StringSplitOptions.None);
 
                     _parsedValues = substrings
@@ -137,22 +131,19 @@ namespace TradingStrategyEvaluation
 
         private IEnumerable<object> GenerateValuesForLoop(Type type, string start, string end, string step)
         {
-            object startObj = ParameterHelper.ConvertStringToValue(type, start);
-            object endObj = ParameterHelper.ConvertStringToValue(type, end);
-            object stepObj = ParameterHelper.ConvertStringToValue(type, step);
+            var startObj = ParameterHelper.ConvertStringToValue(type, start);
+            var endObj = ParameterHelper.ConvertStringToValue(type, end);
+            var stepObj = ParameterHelper.ConvertStringToValue(type, step);
 
             if (type == typeof(int))
             {
                 return GenerateValuesForIntLoop((int)startObj, (int)endObj, (int)stepObj);
             }
-            else if (type == typeof(double))
+            if (type == typeof(double))
             {
                 return GenerateValuesForDoubleLoop((double)startObj, (double)endObj, (double)stepObj);
             }
-            else
-            {
-                throw new ArgumentException();
-            }
+            throw new ArgumentException();
         }
 
         private IEnumerable<object> GenerateValuesForIntLoop(int start, int end, int step)
@@ -162,7 +153,7 @@ namespace TradingStrategyEvaluation
                 throw new ArgumentException("start > end or step <= 0");
             }
 
-            for (int i = start; i <= end; i += step)
+            for (var i = start; i <= end; i += step)
             {
                 yield return i;
             }
@@ -175,7 +166,7 @@ namespace TradingStrategyEvaluation
                 throw new ArgumentException("start > end or step <= 0.0");
             }
 
-            for (double i = start; i <= end; i += step)
+            for (var i = start; i <= end; i += step)
             {
                 yield return i;
             }

@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Globalization;
 using System.Text;
-using System.Threading.Tasks;
 using System.IO;
-using System.Xml;
 using System.Xml.Serialization;
 
 using CsvHelper;
@@ -17,13 +15,12 @@ namespace EvaluatorCmdClient
         private const string ResultSummaryFileName = "ResultSummary.csv";
         private const string EvaluationSummaryFileName = "EvaluationSummary.xml";
 
-        private string _evaluationName;
-        private string _rootDirectory;
-        private List<ResultSummary> _resultSummaries = new List<ResultSummary>();
+        private readonly string _rootDirectory;
+        private readonly List<ResultSummary> _resultSummaries = new List<ResultSummary>();
 
-        private int _contextId = 0;
+        private int _contextId;
 
-        private bool _disposed = false;
+        private bool _disposed;
 
         public EvaluationResultContextManager(string evaluationName)
         {
@@ -32,9 +29,9 @@ namespace EvaluatorCmdClient
                 evaluationName = DefaultEvaluationName;
             }
 
-            _evaluationName = evaluationName + "_" + DateTime.Now.ToString("yyyyMMddTHHmmss");
+            evaluationName = evaluationName + "_" + DateTime.Now.ToString("yyyyMMddTHHmmss");
 
-            _rootDirectory = Path.GetFullPath(_evaluationName);
+            _rootDirectory = Path.GetFullPath(evaluationName);
             if (!Directory.Exists(_rootDirectory))
             {
                 Directory.CreateDirectory(_rootDirectory);
@@ -43,11 +40,11 @@ namespace EvaluatorCmdClient
 
         public void SaveEvaluationSummary(EvaluationSummary summary)
         {
-            string summaryFile = Path.Combine(_rootDirectory, EvaluationSummaryFileName);
+            var summaryFile = Path.Combine(_rootDirectory, EvaluationSummaryFileName);
 
-            using (StreamWriter writer = new StreamWriter(summaryFile, false, Encoding.UTF8))
+            using (var writer = new StreamWriter(summaryFile, false, Encoding.UTF8))
             {
-                XmlSerializer serializer = new XmlSerializer(summary.GetType());
+                var serializer = new XmlSerializer(summary.GetType());
                 serializer.Serialize(writer, summary);
             }
         }
@@ -64,11 +61,11 @@ namespace EvaluatorCmdClient
 
         public void SaveResultSummaries()
         {
-            string resultSummaryFile = Path.Combine(_rootDirectory, ResultSummaryFileName);
+            var resultSummaryFile = Path.Combine(_rootDirectory, ResultSummaryFileName);
             
-            using (StreamWriter writer = new StreamWriter(resultSummaryFile, false, Encoding.UTF8))
+            using (var writer = new StreamWriter(resultSummaryFile, false, Encoding.UTF8))
             {
-                using (CsvWriter csvWriter = new CsvWriter(writer))
+                using (var csvWriter = new CsvWriter(writer))
                 {
                     csvWriter.Configuration.RegisterClassMap<ResultSummary.ResultSummaryMap>();
                     csvWriter.WriteRecords(_resultSummaries);
@@ -80,7 +77,7 @@ namespace EvaluatorCmdClient
         {
             ++_contextId;
  
-            string contextRootDirectory = Path.Combine(_rootDirectory, _contextId.ToString());
+            var contextRootDirectory = Path.Combine(_rootDirectory, _contextId.ToString(CultureInfo.InvariantCulture));
             if (!Directory.Exists(contextRootDirectory))
             {
                 Directory.CreateDirectory(contextRootDirectory);
@@ -97,8 +94,6 @@ namespace EvaluatorCmdClient
             {
                 throw new ObjectDisposedException(typeof(EvaluationResultContextManager).FullName);
             }
-
-            GC.SuppressFinalize(this);
 
             _disposed = true;
         }

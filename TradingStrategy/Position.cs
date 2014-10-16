@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace TradingStrategy
 {
@@ -85,7 +81,7 @@ namespace TradingStrategy
         /// <returns>new position that include remaining volumes</returns>
         public Position Split(int volume)
         {
-            if (volume <= 0 || volume >= this.Volume)
+            if (volume <= 0 || volume >= Volume)
             {
                 throw new ArgumentOutOfRangeException();
             }
@@ -95,32 +91,32 @@ namespace TradingStrategy
                 throw new InvalidOperationException("Can't split uninitialized position");
             }
 
-            double oldPositionPercentage = (double)volume / this.Volume;
-            double newPositionPercentage = 1.0 - oldPositionPercentage;
+            var oldPositionPercentage = (double)volume / Volume;
+            var newPositionPercentage = 1.0 - oldPositionPercentage;
 
             // create new position
-            Position newPosition = new Position()
+            var newPosition = new Position
             {
-                IsInitialized = this.IsInitialized,
-                Code = this.Code,
-                BuyTime = this.BuyTime,
-                SellTime = this.SellTime,
-                BuyAction = this.BuyAction,
-                SellAction = this.SellAction,
-                Volume = this.Volume - volume,
-                BuyPrice = this.BuyPrice,
-                SellPrice = this.SellPrice,
-                BuyCommission = this.BuyCommission * newPositionPercentage,
-                SellCommission = this.SellCommission * newPositionPercentage,
-                InitialRisk = this.IsStopLossPriceInitialized() ? this.InitialRisk * newPositionPercentage : 0.0,
-                StopLossPrice = this.StopLossPrice,
+                IsInitialized = IsInitialized,
+                Code = Code,
+                BuyTime = BuyTime,
+                SellTime = SellTime,
+                BuyAction = BuyAction,
+                SellAction = SellAction,
+                Volume = Volume - volume,
+                BuyPrice = BuyPrice,
+                SellPrice = SellPrice,
+                BuyCommission = BuyCommission * newPositionPercentage,
+                SellCommission = SellCommission * newPositionPercentage,
+                InitialRisk = IsStopLossPriceInitialized() ? InitialRisk * newPositionPercentage : 0.0,
+                StopLossPrice = StopLossPrice,
             };
 
             // update this position
-            this.Volume -= volume;
-            this.BuyCommission *= oldPositionPercentage;
-            this.SellCommission *= oldPositionPercentage;
-            this.InitialRisk = this.IsStopLossPriceInitialized() ? this.InitialRisk * oldPositionPercentage : 0.0;
+            Volume -= volume;
+            BuyCommission *= oldPositionPercentage;
+            SellCommission *= oldPositionPercentage;
+            InitialRisk = IsStopLossPriceInitialized() ? InitialRisk * oldPositionPercentage : 0.0;
 
             return newPosition;
         }

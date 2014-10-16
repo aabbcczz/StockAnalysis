@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using StockAnalysis.Share;
 
 namespace TradingStrategy.Strategy
 {
@@ -41,7 +39,7 @@ namespace TradingStrategy.Strategy
             Context = context;
         }
 
-        public virtual void WarmUp(ITradingObject tradingObject, StockAnalysis.Share.Bar bar)
+        public virtual void WarmUp(ITradingObject tradingObject, Bar bar)
         {
             // do nothing
         }
@@ -51,7 +49,7 @@ namespace TradingStrategy.Strategy
             Period = time;
         }
 
-        public virtual void EvaluateSingleObject(ITradingObject tradingObject, StockAnalysis.Share.Bar bar)
+        public virtual void EvaluateSingleObject(ITradingObject tradingObject, Bar bar)
         {
             // do nothing
         }

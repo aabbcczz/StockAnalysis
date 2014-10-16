@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace TradingStrategyEvaluation
 {
@@ -10,7 +6,7 @@ namespace TradingStrategyEvaluation
     public sealed class CommissionSettings
     {
         [Serializable]
-        public enum CommissionType : int
+        public enum CommissionType
         {
             ByAmount = 0,
             ByVolume = 1,

@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace TradingStrategy.Strategy
 {
@@ -44,7 +40,7 @@ namespace TradingStrategy.Strategy
 
         public override int EstimatePositionSize(ITradingObject tradingObject, double price, double stopLossGap, out string comments)
         {
-            double currentEquity = Context.GetCurrentEquity(Period, _equityEvaluationMethod);
+            var currentEquity = Context.GetCurrentEquity(Period, _equityEvaluationMethod);
 
             comments = string.Format(
                 "positionsize = CurrentEquity({0:0.000}) * PercentageOfEquityForEachRisk({1:0.000}) / 100.0 / Risk({2:0.000})",

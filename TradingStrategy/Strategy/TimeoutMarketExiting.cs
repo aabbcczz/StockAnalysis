@@ -1,16 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using StockAnalysis.Share;
 
 namespace TradingStrategy.Strategy
 {
     public sealed class TimeoutMarketExiting 
         : GeneralMarketExitingBase
     {
-        private Dictionary<string, int> _activePositionHoldingPeriods = new Dictionary<string, int>();
-        private Dictionary<string, DateTime> _activePostionLatestBuyTime = new Dictionary<string, DateTime>();
+        private readonly Dictionary<string, int> _activePositionHoldingPeriods = new Dictionary<string, int>();
+        private readonly Dictionary<string, DateTime> _activePostionLatestBuyTime = new Dictionary<string, DateTime>();
 
         public override string Name
         {
@@ -35,12 +34,12 @@ namespace TradingStrategy.Strategy
             }
         }
 
-        public override void EvaluateSingleObject(ITradingObject tradingObject, StockAnalysis.Share.Bar bar)
+        public override void EvaluateSingleObject(ITradingObject tradingObject, Bar bar)
         {
-            string code = tradingObject.Code;
+            var code = tradingObject.Code;
             if (Context.ExistsPosition(code))
             {
-                DateTime latestBuyTime = Context.GetPositionDetails(code).Max(p => p.BuyTime);
+                var latestBuyTime = Context.GetPositionDetails(code).Max(p => p.BuyTime);
 
                 if (!_activePostionLatestBuyTime.ContainsKey(code))
                 {
@@ -51,7 +50,7 @@ namespace TradingStrategy.Strategy
                     if (latestBuyTime > _activePostionLatestBuyTime[code])
                     {
                         // new postion has been created, we need to reset record
-                        int periodCount = latestBuyTime < Period ? 1 : 0;
+                        var periodCount = latestBuyTime < Period ? 1 : 0;
 
                         _activePositionHoldingPeriods[code] = periodCount;
                     }
@@ -76,7 +75,7 @@ namespace TradingStrategy.Strategy
         {
             // create new record
             _activePostionLatestBuyTime.Add(code, latestBuyTime);
-            int periodCount = latestBuyTime < Period ? 1 : 0;
+            var periodCount = latestBuyTime < Period ? 1 : 0;
 
             _activePositionHoldingPeriods.Add(code, periodCount);
         }

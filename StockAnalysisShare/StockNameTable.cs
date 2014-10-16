@@ -1,15 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.IO;
 
 namespace StockAnalysis.Share
 {
     public sealed class StockNameTable
     {
-        private Dictionary<string, StockName> _stockNames = new Dictionary<string, StockName>();
+        private readonly Dictionary<string, StockName> _stockNames = new Dictionary<string, StockName>();
 
         public IEnumerable<StockName> StockNames { get { return _stockNames.Values; } }
 
@@ -57,7 +55,7 @@ namespace StockAnalysis.Share
                 throw new ArgumentNullException("fileName");
             }
 
-            using (StreamReader reader = new StreamReader(fileName, Encoding.UTF8))
+            using (var reader = new StreamReader(fileName, Encoding.UTF8))
             {
                 string line;
                 while ((line = reader.ReadLine()) != null)
@@ -67,7 +65,7 @@ namespace StockAnalysis.Share
                         continue;
                     }
 
-                    StockName stockName = null;
+                    StockName stockName;
                     try
                     {
                         stockName = StockName.Parse(line);
@@ -84,13 +82,10 @@ namespace StockAnalysis.Share
                         {
                             throw;
                         }
-                        else
+                        var continueProcess = onError(line);
+                        if (!continueProcess)
                         {
-                            bool continueProcess = onError(line);
-                            if (!continueProcess)
-                            {
-                                break;
-                            }
+                            break;
                         }
                     }
                 }

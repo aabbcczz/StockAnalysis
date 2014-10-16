@@ -11,7 +11,7 @@ namespace MetricsDefinitionTest
         [TestMethod]
         public void TestParse()
         {
-            MetricExpressionParser parser = new MetricExpressionParser();
+            var parser = new MetricExpressionParser();
 
             try
             {

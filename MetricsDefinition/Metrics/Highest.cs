@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace MetricsDefinition
+﻿namespace MetricsDefinition.Metrics
 {
     [Metric("HI")]
     public sealed class Highest : SingleOutputRawInputSerialMetric
@@ -34,9 +28,9 @@ namespace MetricsDefinition
                 {
                     _highestPrice = double.MinValue;
                     _highestPriceIndex = -1;
-                    for (int i = 0; i < Data.Length; ++i)
+                    for (var i = 0; i < Data.Length; ++i)
                     {
-                        double data = Data[i];
+                        var data = Data[i];
                         if (data >= _highestPrice)
                         {
                             _highestPrice = data;

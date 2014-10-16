@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace StockAnalysis.Share
 {
@@ -67,7 +65,7 @@ namespace StockAnalysis.Share
             }
 
             _columnDefinitions = new FinanceReportColumnDefinition[columnDefinitions.Length];
-            for (int i = 0; i < _columnDefinitions.Length; ++i)
+            for (var i = 0; i < _columnDefinitions.Length; ++i)
             {
                 _columnDefinitions[i] = new FinanceReportColumnDefinition(columnDefinitions[i]);
             }
@@ -95,7 +93,7 @@ namespace StockAnalysis.Share
 
         public int AddRow(string name)
         {
-            FinanceReportRow row = new FinanceReportRow(name, _columnDefinitions, Unit);
+            var row = new FinanceReportRow(name, _columnDefinitions, Unit);
             _rows.Add(row);
 
             return _rows.Count - 1;
@@ -120,34 +118,34 @@ namespace StockAnalysis.Share
         {
             var columnDefinitions = new FinanceReportColumnDefinition[orderedColumnDate.Count + orderedColumnText.Count];
 
-            for (int i = 0; i < orderedColumnDate.Count; ++i)
+            for (var i = 0; i < orderedColumnDate.Count; ++i)
             {
                 columnDefinitions[i] = new FinanceReportColumnDefinition(orderedColumnDate[i]);
             }
 
-            for (int i = 0; i < orderedColumnText.Count; ++i)
+            for (var i = 0; i < orderedColumnText.Count; ++i)
             {
                 columnDefinitions[i + orderedColumnDate.Count] = new FinanceReportColumnDefinition(orderedColumnText[i]);
             }
 
-            FinanceReportTable table = new FinanceReportTable(Name, RowDefinition, Unit, columnDefinitions);
+            var table = new FinanceReportTable(Name, RowDefinition, Unit, columnDefinitions);
 
             table._rows = new List<FinanceReportRow>();
 
-            for (int i = 0; i < orderedRowNames.Count; ++i)
+            for (var i = 0; i < orderedRowNames.Count; ++i)
             {
                 table._rows.Add(new FinanceReportRow(orderedRowNames[i], table._columnDefinitions, table.Unit));
             }
 
             // build old row index to new row index map and old column index to new column index
-            int[] rowMap = new int[_rows.Count];
-            for (int i = 0; i < _rows.Count; ++i)
+            var rowMap = new int[_rows.Count];
+            for (var i = 0; i < _rows.Count; ++i)
             {
                 rowMap[i] = orderedRowNames.IndexOf(_rows[i].Name);
             }
 
-            int[] columnMap = new int[_columnDefinitions.Length];
-            for (int i = 0; i < _columnDefinitions.Length; ++i)
+            var columnMap = new int[_columnDefinitions.Length];
+            for (var i = 0; i < _columnDefinitions.Length; ++i)
             {
                 if (_columnDefinitions[i].Type == FinanceReportColumnDefinition.ColumnType.Date)
                 {
@@ -164,9 +162,9 @@ namespace StockAnalysis.Share
             }
 
             // copy data from old table to new table
-            for (int i = 0; i < _rows.Count; ++i)
+            for (var i = 0; i < _rows.Count; ++i)
             {
-                for (int j = 0; j < _columnDefinitions.Length; ++j)
+                for (var j = 0; j < _columnDefinitions.Length; ++j)
                 {
                     table._rows[rowMap[i]][columnMap[j]].Copy(_rows[i][j]);
                 }
@@ -192,9 +190,9 @@ namespace StockAnalysis.Share
                 throw new InvalidOperationException("table's columns are inconsistent");
             }
 
-            for (int i = 0; i < _rows.Count; ++i)
+            for (var i = 0; i < _rows.Count; ++i)
             {
-                for (int j = 0; j < _columnDefinitions.Length; ++j)
+                for (var j = 0; j < _columnDefinitions.Length; ++j)
                 {
                     _rows[i][j].Merge(table._rows[i][j]);
                 }
@@ -211,10 +209,7 @@ namespace StockAnalysis.Share
                     {
                         return x.Text == y.Text;
                     }
-                    else
-                    {
-                        return x.Date == y.Date;
-                    }
+                    return x.Date == y.Date;
                 }
 
                 return false;

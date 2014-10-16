@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 using TradingStrategy;
 namespace EvaluatorCmdClient
 {
@@ -28,7 +25,7 @@ namespace EvaluatorCmdClient
 
             Parameters = parameterValues
                 .Select(
-                    kvp => new NameValuePair()
+                    kvp => new NameValuePair
                     {
                         Name = kvp.Key.TargetObject.GetType().Name + "." + kvp.Key.Name,
                         Value = ConvertParameterValueToString(kvp.Value),
@@ -37,34 +34,31 @@ namespace EvaluatorCmdClient
                 .ToArray();
         }
 
-        private string ConvertParameterValueToString(object value)
+        private static string ConvertParameterValueToString(object value)
         {
             if (value == null)
             {
                 return "(null)";
             }
 
-            if (value.GetType() == typeof(string))
+            var s = value as string;
+            if (s != null)
             {
-                return (string)value;
+                return s;
             }
-            if (value.GetType() == typeof(int))
+
+            if (value is int)
             {
                 return value.ToString();
             }
 
-            if (value.GetType() == typeof(double))
+            if (value is double)
             {
                 return ((double)value).ToString("0.000");
             }
 
             throw new InvalidOperationException(
                 string.Format("unsupported type {0}", value.GetType().FullName));
-        }
-
-        public override string ToString()
-        {
-            return base.ToString();
         }
     }
 }

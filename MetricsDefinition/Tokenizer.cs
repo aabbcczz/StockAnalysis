@@ -1,19 +1,15 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace MetricsDefinition
 {
     sealed class Tokenizer
     {
-        static Regex RegexIdentifier = new Regex(@"[_a-zA-Z\%][_a-zA-Z\%0-9]*", RegexOptions.Compiled);
-        static Regex RegexNumber = new Regex(@"\d+(\.\d+)?", RegexOptions.Compiled);
+        static readonly Regex RegexIdentifier = new Regex(@"[_a-zA-Z\%][_a-zA-Z\%0-9]*", RegexOptions.Compiled);
+        static readonly Regex RegexNumber = new Regex(@"\d+(\.\d+)?", RegexOptions.Compiled);
 
-        private string _expression;
-        private int _position = 0;
+        private readonly string _expression;
+        private int _position;
 
         public string LastErrorMessage { get; private set; }
 
@@ -43,7 +39,7 @@ namespace MetricsDefinition
 
             while (_position < _expression.Length)
             {
-                char ch = _expression[_position];
+                var ch = _expression[_position];
                 if (char.IsWhiteSpace(ch))
                 {
                     ++_position;
@@ -101,9 +97,9 @@ namespace MetricsDefinition
 
         private Token ParseIdentifier()
         {
-            int startPosition = _position;
+            var startPosition = _position;
 
-            Match match = RegexIdentifier.Match(_expression, startPosition);
+            var match = RegexIdentifier.Match(_expression, startPosition);
             if (!match.Success || match.Index != _position)
             {
                 throw new InvalidOperationException(
@@ -121,9 +117,9 @@ namespace MetricsDefinition
 
         private Token ParseNumber()
         {
-            int startPosition = _position;
+            var startPosition = _position;
 
-            Match match = RegexNumber.Match(_expression, startPosition);
+            var match = RegexNumber.Match(_expression, startPosition);
             if (!match.Success || match.Index != _position)
             {
                 throw new InvalidOperationException(

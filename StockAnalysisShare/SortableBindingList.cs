@@ -6,21 +6,21 @@ namespace StockAnalysis.Share
 {
     public class SortableBindingList<T> : BindingList<T>
     {
-        private readonly Dictionary<Type, PropertyComparer<T>> comparers;
-        private bool isSorted;
-        private ListSortDirection listSortDirection;
-        private PropertyDescriptor propertyDescriptor;
+        private readonly Dictionary<Type, PropertyComparer<T>> _comparers;
+        private bool _isSorted;
+        private ListSortDirection _listSortDirection;
+        private PropertyDescriptor _propertyDescriptor;
 
         public SortableBindingList()
             : base(new List<T>())
         {
-            this.comparers = new Dictionary<Type, PropertyComparer<T>>();
+            _comparers = new Dictionary<Type, PropertyComparer<T>>();
         }
 
         public SortableBindingList(IEnumerable<T> enumeration)
             : base(new List<T>(enumeration))
         {
-            this.comparers = new Dictionary<Type, PropertyComparer<T>>();
+            _comparers = new Dictionary<Type, PropertyComparer<T>>();
         }
 
         protected override bool SupportsSortingCore
@@ -30,17 +30,17 @@ namespace StockAnalysis.Share
 
         protected override bool IsSortedCore
         {
-            get { return this.isSorted; }
+            get { return _isSorted; }
         }
 
         protected override PropertyDescriptor SortPropertyCore
         {
-            get { return this.propertyDescriptor; }
+            get { return _propertyDescriptor; }
         }
 
         protected override ListSortDirection SortDirectionCore
         {
-            get { return this.listSortDirection; }
+            get { return _listSortDirection; }
         }
 
         protected override bool SupportsSearchingCore
@@ -50,41 +50,41 @@ namespace StockAnalysis.Share
 
         protected override void ApplySortCore(PropertyDescriptor property, ListSortDirection direction)
         {
-            List<T> itemsList = (List<T>)this.Items;
+            var itemsList = (List<T>)Items;
 
-            Type propertyType = property.PropertyType;
+            var propertyType = property.PropertyType;
             PropertyComparer<T> comparer;
-            if (!this.comparers.TryGetValue(propertyType, out comparer))
+            if (!_comparers.TryGetValue(propertyType, out comparer))
             {
                 comparer = new PropertyComparer<T>(property, direction);
-                this.comparers.Add(propertyType, comparer);
+                _comparers.Add(propertyType, comparer);
             }
 
             comparer.SetPropertyAndDirection(property, direction);
             itemsList.Sort(comparer);
 
-            this.propertyDescriptor = property;
-            this.listSortDirection = direction;
-            this.isSorted = true;
+            _propertyDescriptor = property;
+            _listSortDirection = direction;
+            _isSorted = true;
 
-            this.OnListChanged(new ListChangedEventArgs(ListChangedType.Reset, -1));
+            OnListChanged(new ListChangedEventArgs(ListChangedType.Reset, -1));
         }
 
         protected override void RemoveSortCore()
         {
-            this.isSorted = false;
-            this.propertyDescriptor = base.SortPropertyCore;
-            this.listSortDirection = base.SortDirectionCore;
+            _isSorted = false;
+            _propertyDescriptor = base.SortPropertyCore;
+            _listSortDirection = base.SortDirectionCore;
 
-            this.OnListChanged(new ListChangedEventArgs(ListChangedType.Reset, -1));
+            OnListChanged(new ListChangedEventArgs(ListChangedType.Reset, -1));
         }
 
         protected override int FindCore(PropertyDescriptor property, object key)
         {
-            int count = this.Count;
-            for (int i = 0; i < count; ++i)
+            var count = Count;
+            for (var i = 0; i < count; ++i)
             {
-                T element = this[i];
+                var element = this[i];
                 if (property.GetValue(element).Equals(key))
                 {
                     return i;

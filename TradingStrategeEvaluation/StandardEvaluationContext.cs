@@ -1,19 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-
 using TradingStrategy;
 
 namespace TradingStrategyEvaluation
 {
     internal sealed class StandardEvaluationContext : IEvaluationContext
     {
-        private EquityManager _equityManager;
-        private ILogger _logger;
-        private ITradingDataProvider _provider;
+        private readonly EquityManager _equityManager;
+        private readonly ILogger _logger;
+        private readonly ITradingDataProvider _provider;
 
         public StandardEvaluationContext(
             ITradingDataProvider provider, 

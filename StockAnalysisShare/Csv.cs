@@ -2,15 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.IO;
 
 namespace StockAnalysis.Share
 {
     public sealed class Csv
     {
-        private string[] _header;
-        private List<string[]> _rows = new List<string[]>();
+        private readonly string[] _header;
+        private readonly List<string[]> _rows = new List<string[]>();
         public string[] Header
         {
             get { return _header; }
@@ -59,10 +58,10 @@ namespace StockAnalysis.Share
 
         public static Csv Load(string file, Encoding encoding, string separator, StringSplitOptions options = StringSplitOptions.None, int skipLineCount = 0, bool skipInvalidLine = true)
         {
-            using (StreamReader reader = new StreamReader(file, encoding))
+            using (var reader = new StreamReader(file, encoding))
             {
                 // skip first several lines
-                for (int i = 0; i < skipLineCount; ++i)
+                for (var i = 0; i < skipLineCount; ++i)
                 {
                     if (reader.ReadLine() == null)
                     {
@@ -71,17 +70,17 @@ namespace StockAnalysis.Share
                 }
 
                 // read header
-                string headerLine = reader.ReadLine();
+                var headerLine = reader.ReadLine();
                 if (headerLine == null)
                 {
                     return null;
                 }
 
-                string[] splitter = new string[] { separator };
+                var splitter = new[] { separator };
 
-                string[] header = headerLine.Split(splitter, options).Select(s => s.Trim()).ToArray();
+                var header = headerLine.Split(splitter, options).Select(s => s.Trim()).ToArray();
 
-                Csv csv = new Csv(header);
+                var csv = new Csv(header);
 
                 string line;
                 while ((line = reader.ReadLine()) != null)
@@ -91,7 +90,7 @@ namespace StockAnalysis.Share
                         continue;
                     }
 
-                    string[] row = line.Split(splitter, options);
+                    var row = line.Split(splitter, options);
 
                     if (row.Length != header.Length)
                     {
@@ -117,11 +116,11 @@ namespace StockAnalysis.Share
                 throw new ArgumentNullException("csv");
             }
 
-            using (StreamWriter writer = new StreamWriter(file, false, encoding))
+            using (var writer = new StreamWriter(file, false, encoding))
             {
                 writer.WriteLine(string.Join(separator, csv.Header));
 
-                for (int i = 0; i < csv.RowCount; ++i)
+                for (var i = 0; i < csv.RowCount; ++i)
                 {
                     writer.WriteLine(string.Join(separator, csv[i]));
                 }

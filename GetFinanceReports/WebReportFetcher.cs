@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.Net;
 using System.IO;
 using StockAnalysis.Share;
@@ -42,7 +39,7 @@ namespace GetFinanceReports
                 throw new ArgumentNullException("outputFile");
             }
 
-            string address = ReportServerAddressFormatter.Format(FinanceReportServerAddress, stock, ReportServerAddressFormatter.DefaultAbbrevationMarketFormatter);
+            var address = ReportServerAddressFormatter.Format(FinanceReportServerAddress, stock, ReportServerAddressFormatter.DefaultAbbrevationMarketFormatter);
 
             return FetchReport(address, stock, outputFile, out errorMessage);
         }
@@ -53,9 +50,9 @@ namespace GetFinanceReports
 
             try
             {
-                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(serverAddress);
+                var request = (HttpWebRequest)WebRequest.Create(serverAddress);
 
-                using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
+                using (var response = (HttpWebResponse)request.GetResponse())
                 {
                     if (response.StatusCode != HttpStatusCode.OK)
                     {
@@ -64,29 +61,29 @@ namespace GetFinanceReports
                     }
 
                     string body = null;
-                    string charset = response.CharacterSet;
-                    Encoding encoding = string.IsNullOrWhiteSpace(charset) ? Encoding.UTF8 : Encoding.GetEncoding(charset);
+                    var charset = response.CharacterSet;
+                    var encoding = string.IsNullOrWhiteSpace(charset) ? Encoding.UTF8 : Encoding.GetEncoding(charset);
 
                     // save the response body to memory stream to avoid send web request twice if 
                     // the character set specified in HTTP header is different with what specified in body.
-                    using (MemoryStream bodyStream = new MemoryStream())
+                    using (var bodyStream = new MemoryStream())
                     {
                         response.GetResponseStream().CopyTo(bodyStream);
 
                         bodyStream.Seek(0, SeekOrigin.Begin);
                     
                         // do not use "using" or close the reader to avoid the memory stream being closed.
-                        StreamReader sr = new StreamReader(bodyStream, encoding); 
+                        var sr = new StreamReader(bodyStream, encoding); 
                         body = sr.ReadToEnd();
 
                         // Check real charset meta-tag in HTML
                         const string meta = "charset=";
-                        int charsetStart = body.IndexOf(meta);
+                        var charsetStart = body.IndexOf(meta);
                         if (charsetStart > 0)
                         {
                             charsetStart += meta.Length;
-                            int charsetEnd = body.IndexOfAny(new[] { ' ', '\"', ';' }, charsetStart);
-                            string realCharset = body.Substring(charsetStart, charsetEnd - charsetStart);
+                            var charsetEnd = body.IndexOfAny(new[] { ' ', '\"', ';' }, charsetStart);
+                            var realCharset = body.Substring(charsetStart, charsetEnd - charsetStart);
 
                             // real charset meta-tag in HTML differs from supplied server header???
                             if (realCharset != response.CharacterSet)
@@ -105,7 +102,7 @@ namespace GetFinanceReports
                         }
                     }
 
-                    using (StreamWriter writer = new StreamWriter(outputFile, false, Encoding.UTF8))
+                    using (var writer = new StreamWriter(outputFile, false, Encoding.UTF8))
                     {
                         writer.Write(body);
                     }

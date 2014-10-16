@@ -1,16 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using StockAnalysis.Share;
 
 namespace TradingStrategy.Strategy
 {
     public sealed class RuntimeMetricManager<T> 
         where T : IRuntimeMetric
     {
-        private Func<T> _creator;
-        private T[] _metrics;
+        private readonly Func<T> _creator;
+        private readonly T[] _metrics;
 
         public RuntimeMetricManager(Func<T> creator, int maxNumberOfTradingObjects)
         {
@@ -29,9 +26,9 @@ namespace TradingStrategy.Strategy
             _metrics = new T[maxNumberOfTradingObjects];
         }
 
-        public void Update(ITradingObject tradingObject, StockAnalysis.Share.Bar bar)
+        public void Update(ITradingObject tradingObject, Bar bar)
         {
-            T metric = GetOrCreateRuntimeMetric(tradingObject);
+            var metric = GetOrCreateRuntimeMetric(tradingObject);
 
             metric.Update(bar);
         }
@@ -43,11 +40,13 @@ namespace TradingStrategy.Strategy
                 throw new ArgumentNullException("tradingObject");
             }
 
-            int index = tradingObject.Index;
+            var index = tradingObject.Index;
 
-            T metric = _metrics[index];
+            var metric = _metrics[index];
 
+// ReSharper disable CompareNonConstrainedGenericWithNull
             if (metric == null)
+// ReSharper restore CompareNonConstrainedGenericWithNull
             {
                 metric = _creator();
 

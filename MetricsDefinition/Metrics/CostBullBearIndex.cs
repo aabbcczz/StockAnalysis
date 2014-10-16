@@ -1,18 +1,15 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using StockAnalysis.Share;
 
-namespace MetricsDefinition
+namespace MetricsDefinition.Metrics
 {
     [Metric("CBBI")]
     public sealed class CostBullBearIndex : SingleOutputBarInputSerialMetric
     {
-        private CostMovingAverage _cma1;
-        private CostMovingAverage _cma2;
-        private CostMovingAverage _cma3;
-        private CostMovingAverage _cma4;
+        private readonly CostMovingAverage _cma1;
+        private readonly CostMovingAverage _cma2;
+        private readonly CostMovingAverage _cma3;
+        private readonly CostMovingAverage _cma4;
 
         public CostBullBearIndex(int windowSize1, int windowSize2, int windowSize3, int windowSize4)
             : base(1)
@@ -28,7 +25,7 @@ namespace MetricsDefinition
             _cma4 = new CostMovingAverage(windowSize4);
         }
 
-        public override double Update(StockAnalysis.Share.Bar bar)
+        public override double Update(Bar bar)
         {
             return (_cma1.Update(bar) +
                 _cma2.Update(bar) +
