@@ -65,7 +65,6 @@ namespace TradingStrategyEvaluation
 
         public EquityPoint[] OrderedEquitySequence { get; private set; } // 所有权益按周期排序
         public CompletedTransaction[] OrderedCompletedTransactionSequence { get; private set; } // all completed transactions, ordered by execution time and code
-
         public Transaction[] OrderedTransactionSequence { get; private set; }
 
         public void Initialize(
