@@ -81,6 +81,8 @@ namespace EvaluatorCmdClient
         public string ParameterValue39 { get; set; }
         public string ParameterValue40 { get; set; }
 
+        public DateTime StartDate { get; set; }
+        public DateTime EndDate { get; set; }
         public double InitialEquity { get; set; } // 期初权益
         public double FinalEquity { get; set; } // 期末权益
         public double NetProfit { get; set; } // 净利润 = TotalProfit - TotalLoss - TotalCommission
@@ -126,6 +128,8 @@ namespace EvaluatorCmdClient
         public void Initialize(
             EvaluationResultContext context,
             IDictionary<ParameterAttribute, object> parameterValues, 
+            DateTime startDate,
+            DateTime endDate,
             TradeMetric metric)
         {
             if (context == null || parameterValues == null || metric == null)
@@ -141,6 +145,8 @@ namespace EvaluatorCmdClient
                 _parameterValueProperties[i].SetValue(this, serializableParameterValues.Parameters[i].Value);
             }
 
+            StartDate = startDate;
+            EndDate = endDate;
             InitialEquity = metric.InitialEquity;
             FinalEquity = metric.FinalEquity;
             NetProfit = metric.NetProfit;

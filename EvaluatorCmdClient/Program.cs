@@ -85,6 +85,32 @@ namespace EvaluatorCmdClient
             return File.ReadAllLines(codeFile).Where(s => !string.IsNullOrWhiteSpace(s)).ToArray();
         }
 
+        static IEnumerable<Tuple<DateTime, DateTime>> GenerateIntervals(DateTime startDate, DateTime endDate, int yearInterval)
+        {
+            if (yearInterval <= 0)
+            {
+                yearInterval = 1000; // a big enough interval
+            }
+
+            DateTime actualEndDate;
+            do
+            {
+                actualEndDate = startDate.AddYears(yearInterval).AddDays(-1);
+                if (actualEndDate >= endDate)
+                {
+                    actualEndDate = endDate;
+                }
+
+                yield return Tuple.Create(startDate, actualEndDate);
+
+                startDate = startDate.AddYears(1);
+                if (startDate >= endDate)
+                {
+                    yield break;
+                }
+            } while (actualEndDate < endDate);
+        }
+
         static void Run(Options options)
         {
             // check the validation of options
@@ -97,6 +123,7 @@ namespace EvaluatorCmdClient
                 return;
             }
 
+            // register handler for Ctrl+C/Ctrl+Break
             Console.CancelKeyPress += ConsoleCancelKeyPress;
 
             // load settings from files
@@ -104,23 +131,20 @@ namespace EvaluatorCmdClient
             var combinedStrategySettings = CombinedStrategySettings.LoadFromFile(options.CombinedStrategySettingsFile);
             var stockDataSettings = ChinaStockDataSettings.LoadFromFile(options.StockDataSettingsFile);
 
-            // initialize combined strategy assembler
-            var combinedStrategyAssembler = new CombinedStrategyAssembler(combinedStrategySettings);
-            
-            // load codes and stock name table, and initialize data provider
+            // load codes and stock name table
             var stockNameTable = new StockNameTable(stockDataSettings.StockNameTableFile);
             var codes = LoadCodeOfStocks(options.CodeFile);
             var dataFiles = codes
                 .Select(stockDataSettings.BuildActualDataFilePathAndName)
                 .ToArray();
 
-            var dataProvider 
-                = new ChinaStockDataProvider(
-                    stockNameTable,
-                    dataFiles,
-                    options.StartDate,
-                    options.EndDate,
-                    options.WarmupPeriods);
+            // generate evaluation time intervals
+            var intervals = 
+                GenerateIntervals(
+                    options.StartDate, 
+                    options.EndDate, 
+                    options.YearInterval)
+                .ToArray();
 
             using (_contextManager = new EvaluationResultContextManager(options.EvaluationName))
             {
@@ -132,52 +156,70 @@ namespace EvaluatorCmdClient
                     DataSettings = stockDataSettings,
                     StartTime = options.StartDate,
                     EndTime = options.EndDate,
+                    YearInterval = options.YearInterval,
                     ObjectNames = codes
-                        .Select(c => stockNameTable.ContainsStock(c) 
-                            ? c + '|' + stockNameTable[c].Names[0] 
+                        .Select(c => stockNameTable.ContainsStock(c)
+                            ? c + '|' + stockNameTable[c].Names[0]
                             : c)
                         .ToArray()
                 };
 
                 _contextManager.SaveEvaluationSummary(evaluationSummary);
 
-                var strategyInstances
-                    = new List<Tuple<CombinedStrategy, IDictionary<ParameterAttribute, object>>>();
-
-                IDictionary<ParameterAttribute, object> values;
-                while ((values = combinedStrategyAssembler.GetNextSetOfParameterValues()) != null)
+                foreach (var interval in intervals)
                 {
-                    var strategy = combinedStrategyAssembler.NewStrategy();
+                    // initialize data provider
+                    var dataProvider
+                        = new ChinaStockDataProvider(
+                            stockNameTable,
+                            dataFiles,
+                            interval.Item1, // interval start date
+                            interval.Item2, // interval end date
+                            options.WarmupPeriods);
 
-                    strategyInstances.Add(Tuple.Create(strategy, values));
-                }
+                    // initialize combined strategy assembler
+                    var combinedStrategyAssembler = new CombinedStrategyAssembler(combinedStrategySettings);
 
-                if (strategyInstances.Count > 0)
-                {
-                    // initialize ResultSummary
-                    ResultSummary.Initialize(strategyInstances.First().Item2);
-                }
+                    var strategyInstances
+                        = new List<Tuple<CombinedStrategy, IDictionary<ParameterAttribute, object>>>();
 
-                try
-                {
-                    Parallel.ForEach(
-                        strategyInstances,
-                        // below line is for performance profiling only.
-                        // new ParallelOptions() { MaxDegreeOfParallelism = 1 }, 
-                        t => EvaluateStrategy(
-                                _contextManager,
-                                t.Item1,
-                                t.Item2,
-                                options.InitialCapital,
-                                dataProvider,
-                                tradingSettings));
-                }
-                finally
-                {
-                    lock (_contextManager)
+                    IDictionary<ParameterAttribute, object> values;
+                    while ((values = combinedStrategyAssembler.GetNextSetOfParameterValues()) != null)
                     {
-                        // save result summary
-                        _contextManager.SaveResultSummaries();
+                        var strategy = combinedStrategyAssembler.NewStrategy();
+
+                        strategyInstances.Add(Tuple.Create(strategy, values));
+                    }
+
+                    if (strategyInstances.Any())
+                    {
+                        // initialize ResultSummary
+                        ResultSummary.Initialize(strategyInstances.First().Item2);
+                    }
+
+                    try
+                    {
+                        Parallel.ForEach(
+                            strategyInstances,
+                            // below line is for performance profiling only.
+                            // new ParallelOptions() { MaxDegreeOfParallelism = 1 }, 
+                            t => EvaluateStrategy(
+                                    _contextManager,
+                                    t.Item1,
+                                    t.Item2,
+                                    interval.Item1,
+                                    interval.Item2,
+                                    options.InitialCapital,
+                                    dataProvider,
+                                    tradingSettings));
+                    }
+                    finally
+                    {
+                        lock (_contextManager)
+                        {
+                            // save result summary
+                            _contextManager.SaveResultSummaries();
+                        }
                     }
                 }
             }
@@ -203,6 +245,8 @@ namespace EvaluatorCmdClient
             EvaluationResultContextManager contextManager, 
             ITradingStrategy strategy,
             IDictionary<ParameterAttribute, object> parameterValues,
+            DateTime startDate,
+            DateTime endDate,
             double initialCapital,
             ITradingDataProvider dataProvider,
             TradingSettings tradingSettings)
@@ -270,7 +314,12 @@ namespace EvaluatorCmdClient
 
                 // create result summary;
                 var resultSummary = new ResultSummary();
-                resultSummary.Initialize(context, parameterValues, overallMetric);
+                resultSummary.Initialize(
+                    context, 
+                    parameterValues,
+                    startDate,
+                    endDate,
+                    overallMetric);
 
                 lock (contextManager)
                 {

@@ -40,6 +40,8 @@ namespace EvaluatorCmdClient
         [Option('n', "Name", HelpText = "The name of evaluation")]
         public string EvaluationName { get; set; }
 
+        [Option('y', "YearInterval", HelpText = "Year interval for evaluation")]
+        public int YearInterval { get; set; }
 
         [HelpOption]
         public string GetUsage()
@@ -78,6 +80,11 @@ namespace EvaluatorCmdClient
             if (WarmupPeriods <= 0)
             {
                 WarmupPeriods = 0;
+            }
+
+            if (YearInterval < 0)
+            {
+                YearInterval = 0;
             }
         }
     }
