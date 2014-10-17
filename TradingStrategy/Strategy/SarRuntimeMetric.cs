@@ -1,4 +1,4 @@
-﻿using MetricsDefinition.Metrics;
+﻿﻿using MetricsDefinition.Metrics;
 using StockAnalysis.Share;
 
 namespace TradingStrategy.Strategy
