@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace MetricsDefinition
+namespace MetricsDefinition.Metrics
 {
     [Metric("SD")]
     public sealed class StdDev : SingleOutputRawInputSerialMetric
@@ -28,18 +24,18 @@ namespace MetricsDefinition
                 return 0.0;
             }
 
-            double sum = 0.0;
-            for (int i = 0; i < Data.Length; ++i)
+            var sum = 0.0;
+            for (var i = 0; i < Data.Length; ++i)
             {
                 sum += Data[i];
             }
 
-            double average = sum / Data.Length;
-            double sumOfSquares = 0.0;
+            var average = sum / Data.Length;
+            var sumOfSquares = 0.0;
 
-            for (int i = 0; i < Data.Length; ++i)
+            for (var i = 0; i < Data.Length; ++i)
             {
-                double data = Data[i];
+                var data = Data[i];
                 sumOfSquares += (data - average) * (data - average);
             }
 

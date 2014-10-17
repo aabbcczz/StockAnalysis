@@ -1,17 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Reflection;
+﻿using StockAnalysis.Share;
 
-namespace MetricsDefinition
+namespace MetricsDefinition.Metrics
 {
     [Metric("AD")]
     public sealed class AccumulationDistribution : SingleOutputBarInputSerialMetric
     {
-        private MovingSum _sumCost;
-        private MovingSum _sumVolume;
+        private readonly MovingSum _sumCost;
+        private readonly MovingSum _sumVolume;
 
         public AccumulationDistribution(int windowSize)
             : base(1)
@@ -20,9 +15,9 @@ namespace MetricsDefinition
             _sumVolume = new MovingSum(windowSize);
         }
 
-        public override double Update(StockAnalysis.Share.Bar bar)
+        public override double Update(Bar bar)
         {
-            double cost = ((bar.ClosePrice - bar.LowestPrice) 
+            var cost = ((bar.ClosePrice - bar.LowestPrice) 
                 - (bar.HighestPrice - bar.ClosePrice)) 
                 / (bar.HighestPrice - bar.LowestPrice)
                 * bar.Volume;

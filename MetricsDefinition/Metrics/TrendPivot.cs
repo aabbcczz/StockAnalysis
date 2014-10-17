@@ -1,12 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-
-namespace MetricsDefinition
-{
+﻿//namespace MetricsDefinition.Metrics
+//{
     //[Metric("TP")]
     //public sealed class TrendPivot : SerialMetric
     //{
@@ -173,4 +166,4 @@ namespace MetricsDefinition
     //        return -1;
     //    }
     //}
-}
+//}

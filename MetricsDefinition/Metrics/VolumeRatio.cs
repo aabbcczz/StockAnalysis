@@ -1,21 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Reflection;
+﻿using StockAnalysis.Share;
 
-namespace MetricsDefinition
+namespace MetricsDefinition.Metrics
 {
     [Metric("VR")]
     public sealed class VolumeRatio : SingleOutputBarInputSerialMetric
     {
-        private double _prevClosePrice = 0.0;
+        private double _prevClosePrice;
         private bool _firstBar = true;
 
-        private MovingSum _msPv;
-        private MovingSum _msNv;
-        private MovingSum _msZv;
+        private readonly MovingSum _msPv;
+        private readonly MovingSum _msNv;
+        private readonly MovingSum _msZv;
 
         public VolumeRatio(int windowSize)
             : base(1)
@@ -25,15 +20,15 @@ namespace MetricsDefinition
             _msZv = new MovingSum(windowSize);
         }
 
-        public override double Update(StockAnalysis.Share.Bar bar)
+        public override double Update(Bar bar)
         {
-            const double SmallValue = 1e-10;
+            const double smallValue = 1e-10;
    
             double pv, nv, zv;
             
             if (_firstBar)
             {
-                pv = nv = SmallValue;
+                pv = nv = smallValue;
                 zv = bar.Volume;
             }
             else
@@ -55,11 +50,11 @@ namespace MetricsDefinition
                 }
             }
 
-            double msPv = _msPv.Update(pv) + SmallValue;
-            double msNv = _msNv.Update(nv) + SmallValue;
-            double msZv = _msZv.Update(zv) + SmallValue;
+            var msPv = _msPv.Update(pv) + smallValue;
+            var msNv = _msNv.Update(nv) + smallValue;
+            var msZv = _msZv.Update(zv) + smallValue;
 
-            double result = (msPv + msZv / 2.0) / (msNv + msZv / 2.0) * 100.0;
+            var result = (msPv + msZv / 2.0) / (msNv + msZv / 2.0) * 100.0;
 
             // update status
             _prevClosePrice = bar.ClosePrice;

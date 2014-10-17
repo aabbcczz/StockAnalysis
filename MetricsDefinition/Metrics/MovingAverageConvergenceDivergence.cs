@@ -1,17 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace MetricsDefinition
+namespace MetricsDefinition.Metrics
 {
     [Metric("MACD", "DIFF,DEA")]
     public sealed class MovingAverageConvergenceDivergence : MultipleOutputRawInputSerialMetric
     {
-        private ExponentialMovingAverage _emaShort;
-        private ExponentialMovingAverage _emaLong;
-        private ExponentialMovingAverage _emaDiff;
+        private readonly ExponentialMovingAverage _emaShort;
+        private readonly ExponentialMovingAverage _emaLong;
+        private readonly ExponentialMovingAverage _emaDiff;
 
         public MovingAverageConvergenceDivergence(int shortWindowSize, int longWindowSize, int diffWindowSize)
             : base(1)
@@ -33,12 +29,12 @@ namespace MetricsDefinition
 
         public override double[] Update(double dataPoint)
         {
-            double emaShort = _emaShort.Update(dataPoint);
-            double emaLong = _emaLong.Update(dataPoint);
-            double diff = emaShort - emaLong;
-            double dea = _emaDiff.Update(diff);
+            var emaShort = _emaShort.Update(dataPoint);
+            var emaLong = _emaLong.Update(dataPoint);
+            var diff = emaShort - emaLong;
+            var dea = _emaDiff.Update(diff);
 
-            return new double[2] { diff, dea };
+            return new[] { diff, dea };
         }
     }
 }

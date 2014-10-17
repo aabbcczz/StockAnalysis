@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.IO;
 using CommandLine;
 using CommandLine.Text;
@@ -72,7 +69,7 @@ namespace GetFinanceReports
                 RandomRange = 10;
             }
 
-            if (OutputFolder.IndexOf(DateMark) >= 0)
+            if (OutputFolder.IndexOf(DateMark, StringComparison.Ordinal) >= 0)
             {
                 OutputFolder = OutputFolder.Replace(DateMark, string.Format("{0:yyyymmdd}", DateTime.Today));
             }

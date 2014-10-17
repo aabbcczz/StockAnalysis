@@ -1,15 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace MetricsDefinition
+﻿namespace MetricsDefinition.Metrics
 {
     [Metric("MS")]
     public sealed class MovingSum : SingleOutputRawInputSerialMetric
     {
-        private double _sum = 0.0;
+        private double _sum;
 
         public MovingSum(int windowSize)
             : base(windowSize)

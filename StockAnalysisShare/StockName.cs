@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace StockAnalysis.Share
 {
@@ -29,33 +26,55 @@ namespace StockAnalysis.Share
             {
                 return StockExchangeMarket.ShengZhen;
             }
-            else if (code.StartsWith("6"))
+            if (code.StartsWith("6"))
             {
                 return StockExchangeMarket.ShangHai;
             }
-            else
-            {
-                return StockExchangeMarket.Unknown;
-            }
+            return StockExchangeMarket.Unknown;
         }
 
-        public StockName(string stockName)
+        private StockName()
+        {
+        }
+
+        public StockName(string code, string name)
+        {
+            Code = code;
+            Names = new[] { name };
+        }
+
+        public StockName(string code, string[] names)
+        {
+            Code = code;
+            Names = names;
+        }
+
+        public override string ToString()
+        {
+            return Code + "|" + String.Join("|", Names);
+        }
+
+        public static StockName Parse(string stockName)
         {
             if (string.IsNullOrWhiteSpace(stockName))
             {
                 throw new ArgumentNullException("stockName");
             }
 
-            string[] fields = stockName.Trim().Split(new char[] { '|' }, StringSplitOptions.RemoveEmptyEntries);
+            var fields = stockName.Trim().Split(new[] { '|' }, StringSplitOptions.RemoveEmptyEntries);
 
             if (fields == null || fields.Length == 0)
             {
-                throw new ArgumentException(string.Format("stock name [{0}] is invalid", stockName));
+                throw new FormatException(string.Format("stock name [{0}] is invalid", stockName));
             }
 
-            Code = fields[0];
+            var name = new StockName
+            {
+                Code = fields[0],
+                Names = fields.Length > 1 ? fields.Skip(1).ToArray() : new[] {string.Empty}
+            };
 
-            Names = fields.Length > 1 ? fields.Skip(1).ToArray() : new string[0];
+            return name;
         }
     }
 }

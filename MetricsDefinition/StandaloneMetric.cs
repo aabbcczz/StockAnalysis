@@ -1,24 +1,21 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 using System.Reflection;
+using StockAnalysis.Share;
 
 namespace MetricsDefinition
 {
     sealed class StandaloneMetric : MetricExpression
     {
-        private SerialMetric _metric;
-        private string[] _fieldNames;
-        private bool _acceptBarInput;
-        private bool _singleOutput;
+        private readonly SerialMetric _metric;
+        private readonly string[] _fieldNames;
+        private readonly bool _acceptBarInput;
+        private readonly bool _singleOutput;
 
-        private SingleOutputBarInputSerialMetric _sobiMetric;
-        private SingleOutputRawInputSerialMetric _soriMetric;
-        private MultipleOutputBarInputSerialMetric _mobiMetric;
-        private MultipleOutputRawInputSerialMetric _moriMetric;
+        private readonly SingleOutputBarInputSerialMetric _sobiMetric;
+        private readonly SingleOutputRawInputSerialMetric _soriMetric;
+        private readonly MultipleOutputBarInputSerialMetric _mobiMetric;
+        private readonly MultipleOutputRawInputSerialMetric _moriMetric;
 
         public SerialMetric Metric { get { return _metric; } }
 
@@ -36,7 +33,7 @@ namespace MetricsDefinition
 
             _metric = metric;
 
-            MetricAttribute attribute = _metric.GetType().GetCustomAttribute<MetricAttribute>();
+            var attribute = _metric.GetType().GetCustomAttribute<MetricAttribute>();
 
             _fieldNames = attribute.NameToFieldIndexMap
                 .OrderBy(kvp => kvp.Value)
@@ -64,11 +61,8 @@ namespace MetricsDefinition
             {
                 return _soriMetric.Update(data);
             }
-            else
-            {
-                throw new NotSupportedException(
-                    string.Format("Metric {0} has multiple output", _metric.GetType().Name));
-            }
+            throw new NotSupportedException(
+                string.Format("Metric {0} has multiple output", _metric.GetType().Name));
         }
 
         public override double[] MultipleOutputUpdate(double data)
@@ -79,17 +73,10 @@ namespace MetricsDefinition
                     string.Format("Metric {0} requires Bar as input", _metric.GetType().Name));
             }
 
-            if (_singleOutput)
-            {
-                return new double[1] { _soriMetric.Update(data) };
-            }
-            else
-            {
-                return _moriMetric.Update(data);
-            }
+            return _singleOutput ? new[] { _soriMetric.Update(data) } : _moriMetric.Update(data);
         }
 
-        public override double SingleOutputUpdate(StockAnalysis.Share.Bar data)
+        public override double SingleOutputUpdate(Bar data)
         {
             if (!_singleOutput)
             {
@@ -97,41 +84,17 @@ namespace MetricsDefinition
                     string.Format("Metric {0} has multiple output", _metric.GetType().Name));
             }
 
-            if (!_acceptBarInput)
-            {
-                return _soriMetric.Update(data.ClosePrice);
-            }
-            else
-            {
-                return _sobiMetric.Update(data);
-            }
+            return !_acceptBarInput ? _soriMetric.Update(data.ClosePrice) : _sobiMetric.Update(data);
         }
 
-        public override double[] MultipleOutputUpdate(StockAnalysis.Share.Bar data)
+        public override double[] MultipleOutputUpdate(Bar data)
         {
             if (_acceptBarInput)
             {
-                if (_singleOutput)
-                {
-                    return new double[1] { _sobiMetric.Update(data) };
-                }
-                else
-                {
-                    return _mobiMetric.Update(data);
-                }
+                return _singleOutput ? new[] { _sobiMetric.Update(data) } : _mobiMetric.Update(data);
             }
-            else
-            {
 
-                if (_singleOutput)
-                {
-                    return new double[1] { _soriMetric.Update(data.ClosePrice) };
-                }
-                else
-                {
-                    return _moriMetric.Update(data.ClosePrice);
-                }
-            }
+            return _singleOutput ? new[] { _soriMetric.Update(data.ClosePrice) } : _moriMetric.Update(data.ClosePrice);
         }
     }
 }

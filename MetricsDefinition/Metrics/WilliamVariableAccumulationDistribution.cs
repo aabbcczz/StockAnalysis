@@ -1,16 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Reflection;
+﻿using StockAnalysis.Share;
 
-namespace MetricsDefinition
+namespace MetricsDefinition.Metrics
 {
     [Metric("WVAD")]
     public sealed class WilliamVariableAccumulationDistribution : SingleOutputBarInputSerialMetric
     {
-        private MovingSum _ms;
+        private readonly MovingSum _ms;
 
         public WilliamVariableAccumulationDistribution(int windowSize)
             : base(1)
@@ -18,9 +13,9 @@ namespace MetricsDefinition
             _ms = new MovingSum(windowSize);
         }
 
-        public override double Update(StockAnalysis.Share.Bar bar)
+        public override double Update(Bar bar)
         {
-            double index = (bar.ClosePrice - bar.OpenPrice) * bar.Volume / (bar.HighestPrice - bar.LowestPrice);
+            var index = (bar.ClosePrice - bar.OpenPrice) * bar.Volume / (bar.HighestPrice - bar.LowestPrice);
 
             return _ms.Update(index);
         }

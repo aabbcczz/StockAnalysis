@@ -1,16 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace MetricsDefinition
+namespace MetricsDefinition.Metrics
 {
     [Metric("RSI")]
     public sealed class RelativeStrengthIndex : SingleOutputRawInputSerialMetric
     {
-        private MovingSum _msUc;
-        private MovingSum _msDc;
+        private readonly MovingSum _msUc;
+        private readonly MovingSum _msDc;
         private double _prevData;
         private bool _firstData = true;
         public RelativeStrengthIndex(int windowSize)
@@ -22,22 +18,22 @@ namespace MetricsDefinition
 
         public override double Update(double dataPoint)
         {
-            double uc = _firstData
+            var uc = _firstData
                 ? 0.0
                 : Math.Max(0.0, dataPoint - _prevData);
 
-            double dc = _firstData
+            var dc = _firstData
                 ? 0.0
                 : Math.Max(0.0, _prevData - dataPoint);
 
-            double msuc = _msUc.Update(uc);
-            double msdc = _msDc.Update(dc);
+            var msuc = _msUc.Update(uc);
+            var msdc = _msDc.Update(dc);
 
             // update status
             _prevData = dataPoint;
             _firstData = false;
 
-            return (msuc + msdc == 0.0) ? 0.0 : msuc / (msuc + msdc) * 100.0;
+            return (Math.Abs(msuc + msdc) < 1e-6) ? 0.0 : msuc / (msuc + msdc) * 100.0;
         }
     }
 }

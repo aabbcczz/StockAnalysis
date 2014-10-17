@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Xml;
 
 namespace StockAnalysis.Share
@@ -14,9 +12,9 @@ namespace StockAnalysis.Share
         private const string AliasesAttributeName = "aliases";
         private const string AliasSeparator = "|";
 
-        private Dictionary<string, List<string>> _normalizedNameToAliasesMap = new Dictionary<string, List<string>>();
+        private readonly Dictionary<string, List<string>> _normalizedNameToAliasesMap = new Dictionary<string, List<string>>();
 
-        private Dictionary<string, string> _aliasToNormalizedNameMap = new Dictionary<string, string>();
+        private readonly Dictionary<string, string> _aliasToNormalizedNameMap = new Dictionary<string, string>();
 
         public AliasNameMapping()
         {
@@ -37,8 +35,8 @@ namespace StockAnalysis.Share
 
             foreach (var kvp in aliasToNormalizedNameMap)
             {
-                string normalizedName = kvp.Value;
-                string alias = kvp.Key;
+                var normalizedName = kvp.Value;
+                var alias = kvp.Key;
 
                 Add(alias, normalizedName);
             }
@@ -48,22 +46,22 @@ namespace StockAnalysis.Share
         {
             foreach (var mapNode in parentElement.ChildNodes)
             {
-                XmlElement mapElement = mapNode as XmlElement;
+                var mapElement = mapNode as XmlElement;
                 if (mapElement == null || mapElement.Name != MapElementName)
                 {
                     continue;
                 }
 
-                string name = mapElement.GetAttribute(NameAttributeName);
-                string aliasesString = mapElement.GetAttribute(AliasesAttributeName);
+                var name = mapElement.GetAttribute(NameAttributeName);
+                var aliasesString = mapElement.GetAttribute(AliasesAttributeName);
 
-                string[] aliases = aliasesString.Split(new string[] { AliasSeparator }, StringSplitOptions.RemoveEmptyEntries);
+                var aliases = aliasesString.Split(new[] { AliasSeparator }, StringSplitOptions.RemoveEmptyEntries);
 
                 foreach (var alias in aliases)
                 {
                     if (ContainsAlias(alias))
                     {
-                        string existingName = GetNormalizedNameForAlias(alias);
+                        var existingName = GetNormalizedNameForAlias(alias);
                         if (existingName != name)
                         {
                             // same alias, different names
@@ -73,16 +71,10 @@ namespace StockAnalysis.Share
                                     name,
                                     existingName));
                         }
-                        else
-                        {
-                            // duplicated <alias, name>
-                            continue;
-                        }
+                        // duplicated <alias, name>
+                        continue;
                     }
-                    else
-                    {
-                        Add(alias, name);
-                    }
+                    Add(alias, name);
                 }
             }
         }
@@ -90,13 +82,13 @@ namespace StockAnalysis.Share
         public void SaveToXml(XmlDocument doc, XmlElement parentElement)
         {
             var sortedNames = GetAllNormalizedNames().OrderBy(s => s);
-            if (sortedNames.Count() > 0)
+            if (sortedNames.Any())
             {
                 foreach (var name in sortedNames)
                 {
-                    string aliases = string.Join(AliasSeparator, GetAliasesForNormalizedName(name));
+                    var aliases = string.Join(AliasSeparator, GetAliasesForNormalizedName(name));
 
-                    XmlElement mapElement = doc.CreateElement(MapElementName);
+                    var mapElement = doc.CreateElement(MapElementName);
                     mapElement.SetAttribute(AliasesAttributeName, aliases);
                     mapElement.SetAttribute(NameAttributeName, name);
 
@@ -126,8 +118,7 @@ namespace StockAnalysis.Share
             }
             else
             {
-                List<string> aliases = new List<string>();
-                aliases.Add(alias);
+                var aliases = new List<string> { alias };
 
                 _normalizedNameToAliasesMap.Add(normalizedName, aliases);
             }

@@ -1,16 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Reflection;
 
 namespace MetricsDefinition
 {
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
     public sealed class MetricAttribute : Attribute
     {
-        private Dictionary<string, int> _subfields = new Dictionary<string, int>();
+        private readonly Dictionary<string, int> _subfields = new Dictionary<string, int>();
         public string[] ShortNames { get; private set; }
         public IDictionary<string, int> NameToFieldIndexMap { get { return _subfields; } }
 
@@ -21,14 +18,14 @@ namespace MetricsDefinition
         /// <param name="subfields">subfields' description. Each subfield is separated by ',', e.g. "DIF,DEA" for MACD</param>
         public MetricAttribute(string shortNames, string subfields = "V")
         {
-            ShortNames = shortNames.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+            ShortNames = shortNames.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
                 .Select(s => s.Trim())
                 .ToArray();
 
             if (!string.IsNullOrWhiteSpace(subfields))
             {
-                string[] fields = subfields.Split(new char[] { ',' });
-                for (int i = 0; i < fields.Length; ++i)
+                var fields = subfields.Split(new[] { ',' });
+                for (var i = 0; i < fields.Length; ++i)
                 {
                     if (string.IsNullOrWhiteSpace(fields[i]))
                     {

@@ -1,18 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace MetricsDefinition
+namespace MetricsDefinition.Metrics
 {
     [Metric("BBI")]
     public sealed class BullBearIndex : SingleOutputRawInputSerialMetric
     {
-        private MovingAverage _ma1;
-        private MovingAverage _ma2;
-        private MovingAverage _ma3;
-        private MovingAverage _ma4;
+        private readonly MovingAverage _ma1;
+        private readonly MovingAverage _ma2;
+        private readonly MovingAverage _ma3;
+        private readonly MovingAverage _ma4;
 
         public BullBearIndex(int windowSize1, int windowSize2, int windowSize3, int windowSize4)
             : base(1)

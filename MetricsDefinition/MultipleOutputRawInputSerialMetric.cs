@@ -1,16 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using StockAnalysis.Share;
-
-namespace MetricsDefinition
+﻿namespace MetricsDefinition
 {
     public abstract class MultipleOutputRawInputSerialMetric : RawInputSerialMetric
     {
-        public MultipleOutputRawInputSerialMetric(int windowSize)
+        protected MultipleOutputRawInputSerialMetric(int windowSize)
             : base(windowSize)
         {
         }

@@ -1,15 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace MetricsDefinition
+﻿namespace MetricsDefinition.Metrics
 {
     [Metric("MA")]
     public sealed class MovingAverage : SingleOutputRawInputSerialMetric
     {
-        private MovingSum _movingSum;
+        private readonly MovingSum _movingSum;
 
         public MovingAverage(int windowSize)
             : base(1)
@@ -19,7 +13,7 @@ namespace MetricsDefinition
 
         public override double Update(double dataPoint)
         {
-            double sum = _movingSum.Update(dataPoint);
+            var sum = _movingSum.Update(dataPoint);
             
             return sum / _movingSum.Data.Length;
         }

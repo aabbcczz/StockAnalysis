@@ -1,15 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace MetricsDefinition
+namespace MetricsDefinition.Metrics
 {
     [Metric("EMA, EXPMA")]
     public sealed class ExponentialMovingAverage : SingleOutputRawInputSerialMetric
     {
-        private double _lastResult = 0.0;
+        private double _lastResult;
 
         public ExponentialMovingAverage(int windowSize)
             : base(windowSize)

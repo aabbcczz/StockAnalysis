@@ -1,18 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace MetricsDefinition
+namespace MetricsDefinition.Metrics
 {
     [Metric("KST")]
     public sealed class KnowSureThings : SingleOutputRawInputSerialMetric
     {
-        private RateOfChange _roc1;
-        private RateOfChange _roc2;
-        private RateOfChange _roc3;
-        private RateOfChange _roc4;
+        private readonly RateOfChange _roc1;
+        private readonly RateOfChange _roc2;
+        private readonly RateOfChange _roc3;
+        private readonly RateOfChange _roc4;
 
         public KnowSureThings(int windowSize1, int windowSize2, int windowSize3, int windowSize4)
             : base(1)
@@ -30,10 +26,10 @@ namespace MetricsDefinition
 
         public override double Update(double dataPoint)
         {
-            double roc1 = _roc1.Update(dataPoint);
-            double roc2 = _roc2.Update(dataPoint);
-            double roc3 = _roc3.Update(dataPoint);
-            double roc4 = _roc4.Update(dataPoint);
+            var roc1 = _roc1.Update(dataPoint);
+            var roc2 = _roc2.Update(dataPoint);
+            var roc3 = _roc3.Update(dataPoint);
+            var roc4 = _roc4.Update(dataPoint);
 
             return roc1 + 2 * roc2 + 3 * roc3 + 4 * roc4 / (1 + 2 + 3 + 4);
         } 

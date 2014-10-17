@@ -1,16 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using StockAnalysis.Share;
+﻿using StockAnalysis.Share;
 
 namespace MetricsDefinition
 {
     public abstract class SingleOutputBarInputSerialMetric : BarInputSerialMetric
     {
-        public SingleOutputBarInputSerialMetric(int windowSize)
+        protected SingleOutputBarInputSerialMetric(int windowSize)
             : base(windowSize)
         {
         }

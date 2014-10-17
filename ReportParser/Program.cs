@@ -2,21 +2,20 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.IO;
-
+using CommandLine;
 using StockAnalysis.Share;
 
 namespace ReportParser
 {
-    class Program
+    static class Program
     {
         static void Main(string[] args)
         {
             var options = new Options();
-            var parser = new CommandLine.Parser(with => with.HelpWriter = Console.Error);
+            var parser = new Parser(with => with.HelpWriter = Console.Error);
 
-            if (parser.ParseArgumentsStrict(args, options, () => { Environment.Exit(-2); }))
+            if (parser.ParseArgumentsStrict(args, options, () => Environment.Exit(-2)))
             {
                 options.BoundaryCheck();
 
@@ -28,7 +27,7 @@ namespace ReportParser
         {
             options.Print(Console.Out);
 
-            string inputFolder = Path.GetFullPath(options.InputFolder);
+            var inputFolder = Path.GetFullPath(options.InputFolder);
 
             if (!Directory.Exists(inputFolder))
             {
@@ -36,29 +35,29 @@ namespace ReportParser
                 return;
             }
 
-            DataDictionary dataDictionary = new DataDictionary();
+            var dataDictionary = new DataDictionary();
 
             if (!string.IsNullOrEmpty(options.DataDictionaryFile))
             {
                 dataDictionary.Load(options.DataDictionaryFile);
             }
 
-            DataDictionary newDataDictionary = new DataDictionary(dataDictionary);
+            var newDataDictionary = new DataDictionary(dataDictionary);
 
-            IReportParser parser = ReportParserFactory.Create(options.FinanceReportFileType, dataDictionary, Console.Error);
+            var parser = ReportParserFactory.Create(options.FinanceReportFileType, dataDictionary, Console.Error);
 
-            List<FinanceReport> reports = new List<FinanceReport>();
+            var reports = new List<FinanceReport>();
 
             foreach (var file in Directory.EnumerateFiles(inputFolder))
             {
-                string code = Path.GetFileNameWithoutExtension(file);
+                var code = Path.GetFileNameWithoutExtension(file);
 
                 if (string.IsNullOrWhiteSpace(code))
                 {
                     Console.WriteLine("The file name {0} is not expected", file);
                 }
 
-                FinanceReport report = parser.ParseReport(code, file);
+                var report = parser.ParseReport(code, file);
 
                 if (report == null)
                 {
@@ -136,10 +135,11 @@ namespace ReportParser
                 var tables = reports.SelectMany(r => r.Tables.Where(t => t.Name == tableName));
 
                 // get all possible row names
-                HashSet<string> uniqueRowNames = new HashSet<string>();
-                List<string> orderedRowNames = new List<string>();
+                var uniqueRowNames = new HashSet<string>();
+                var orderedRowNames = new List<string>();
 
-                foreach (var table in tables)
+                var financeReportTables = tables as FinanceReportTable[] ?? tables.ToArray();
+                foreach (var table in financeReportTables)
                 {
                     foreach (var rowName in table.Rows.Select(r => r.Name))
                     {
@@ -152,15 +152,15 @@ namespace ReportParser
                 }
 
                 // get all possible column definitions
-                HashSet<string> uniqueColumnTexts = new HashSet<string>();
-                List<string> orderedColumnTexts = new List<string>();
-                foreach (var table in tables)
+                var uniqueColumnTexts = new HashSet<string>();
+                var orderedColumnTexts = new List<string>();
+                foreach (var table in financeReportTables)
                 {
                     foreach (var columnDefinition in table.ColumnDefinitions)
                     {
                         if (columnDefinition.Type == FinanceReportColumnDefinition.ColumnType.Text)
                         {
-                            string columnText = columnDefinition.Text;
+                            var columnText = columnDefinition.Text;
 
                             if (!uniqueColumnTexts.Contains(columnText))
                             {
@@ -171,7 +171,7 @@ namespace ReportParser
                     }
                 }
 
-                List<DateTime> orderedColumnDate = tables
+                var orderedColumnDate = financeReportTables
                     .SelectMany(t => t.ColumnDefinitions)
                     .Where(c => c.Type == FinanceReportColumnDefinition.ColumnType.Date)
                     .Select(c => c.Date)
@@ -191,62 +191,61 @@ namespace ReportParser
         {
             // all reports has been expanded and merged.
             // get all possible table names
-            var uniqueTableNames = reports
+            var financeReports = reports as FinanceReport[] ?? reports.ToArray();
+            var uniqueTableNames = financeReports
                 .SelectMany(r => r.Tables.Select(t => t.Name))
                 .GroupBy(k => k)
                 .Select(g => g.Key);
 
-            if (uniqueTableNames.Count() == 0)
+            var tableNames = uniqueTableNames as string[] ?? uniqueTableNames.ToArray();
+            if (!tableNames.Any())
             {
                 return;
             }
 
-            foreach (var tableName in uniqueTableNames)
+            foreach (var tableName in tableNames)
             {
-                string outputFileName = Path.Combine(outputFolder, tableName + ".csv");
+                var outputFileName = Path.Combine(outputFolder, tableName + ".csv");
 
-                using (StreamWriter writer = new StreamWriter(outputFileName, false, Encoding.UTF8))
+                using (var writer = new StreamWriter(outputFileName, false, Encoding.UTF8))
                 {
-                    var tables = reports.SelectMany(r => r.Tables.Where(t => t.Name == tableName));
-                    if (tables.Count() == 0)
+                    var tables = financeReports.SelectMany(r => r.Tables.Where(t => t.Name == tableName));
+                    var financeReportTables = tables as FinanceReportTable[] ?? tables.ToArray();
+                    if (!financeReportTables.Any())
                     {
                         continue;
                     }
 
-                    List<string> outputColumnsForHeader = new List<string>();
-                    outputColumnsForHeader.Add("CODE");
-                    outputColumnsForHeader.Add("PeriodOrColumn");
-                    outputColumnsForHeader.AddRange(tables.First().Rows.Select(r => r.Name));
+                    var outputColumnsForHeader = new List<string> {"CODE", "PeriodOrColumn"};
+                    outputColumnsForHeader.AddRange(financeReportTables.First().Rows.Select(r => r.Name));
 
                     // write header
                     writer.WriteLine(string.Join(",", outputColumnsForHeader));
 
-                    foreach (var report in reports)
+                    foreach (var report in financeReports)
                     {
-                        string code = GetNormalizedCode(report.CompanyCode);
+                        var code = GetNormalizedCode(report.CompanyCode);
 
-                        foreach (var table in report.Tables.Where(t => t.Name == tableName))
+                        string name = tableName;
+                        foreach (var table in report.Tables.Where(t => t.Name == name))
                         {
-                            string[] tableColumnNames = table.ColumnDefinitions
+                            var tableColumnNames = table.ColumnDefinitions
                                 .Select(c => (c.Type == FinanceReportColumnDefinition.ColumnType.Date) ? c.Date.ToString("yyyy-MM-dd") : c.Text)
                                 .ToArray();
 
-                            for (int i = 0; i < tableColumnNames.Length; ++i)
+                            for (var i = 0; i < tableColumnNames.Length; ++i)
                             {
-                                if (table.Rows.All(r => r[i].Type == FinanceReportCell.CellType.NotApplicable))
+                                int i1 = i;
+                                if (table.Rows.All(r => r[i1].Type == FinanceReportCell.CellType.NotApplicable))
                                 {
                                     continue;
                                 }
 
-                                List<string> outputColumnsForRow = new List<string>();
-
-                                outputColumnsForRow.Add(code);
-
-                                outputColumnsForRow.Add(tableColumnNames[i]);
+                                var outputColumnsForRow = new List<string> {code, tableColumnNames[i]};
 
                                 foreach (var row in table.Rows)
                                 {
-                                    string s = row[i].ToString();
+                                    var s = row[i].ToString();
                                     if (string.IsNullOrEmpty(s))
                                     {
                                         s = "0.0";
@@ -265,9 +264,9 @@ namespace ReportParser
 
         private static string GetNormalizedCode(string code)
         {
-            StockName name = new StockName(code);
+            var name = StockName.Parse(code);
 
-            string prefix = string.Empty;
+            var prefix = string.Empty;
             if (name.Market == StockExchangeMarket.ShangHai)
             {
                 prefix = "SH";
@@ -286,26 +285,27 @@ namespace ReportParser
             {
                 // assume the tables in report has been expanded and merged.
                 var tables = report.Tables.Where(t => t.Name == "利润表");
-                if (tables.Count() == 0)
+                var financeReportTables = tables as FinanceReportTable[] ?? tables.ToArray();
+                if (!financeReportTables.Any())
                 {
                     continue;
                 }
 
-                if (tables.Count() > 1)
+                if (financeReportTables.Count() > 1)
                 {
                     throw new InvalidOperationException(
                         string.Format("there are more than one revenue table in the report for company {0}", report.CompanyCode));
                 }
 
-                var table = tables.First();
+                var table = financeReportTables.First();
 
-                FinanceReportColumnDefinition[] columns = table.ColumnDefinitions.ToArray();
-                for (int i = 0; i < columns.Length; ++i)
+                var columns = table.ColumnDefinitions.ToArray();
+                for (var i = 0; i < columns.Length; ++i)
                 {
                     columns[i].Tag = i;
                 }
 
-                FinanceReportColumnDefinition[] dateColumns = columns
+                var dateColumns = columns
                     .Where(c => c.Type == FinanceReportColumnDefinition.ColumnType.Date)
                     .OrderByDescending(c => c.Date)
                     .ToArray();
@@ -317,9 +317,10 @@ namespace ReportParser
 
                 // find first non-empty column (it is important to avoid outliers)
                 FinanceReportColumnDefinition firstActiveColumn = null;
-                for (int i = 0; i < dateColumns.Length; ++i)
+                for (var i = 0; i < dateColumns.Length; ++i)
                 {
-                    if (!table.Rows.All(r => r[dateColumns[i].Tag].Type != FinanceReportCell.CellType.Decimal)
+                    int i1 = i;
+                    if (table.Rows.Any(r => r[dateColumns[i1].Tag].Type == FinanceReportCell.CellType.Decimal)
                         && dateColumns[i].Date < DateTime.Now)
                     {
                         firstActiveColumn = dateColumns[i];
@@ -332,9 +333,9 @@ namespace ReportParser
                     return;
                 }
 
-                FinanceReportColumnDefinition[] newColumns = new FinanceReportColumnDefinition[] { firstActiveColumn };
+                var newColumns = new[] { firstActiveColumn };
 
-                FinanceReportTable newRevenueTable 
+                var newRevenueTable 
                     = new FinanceReportTable(
                         "跨年度利润表", 
                         table.RowDefinition, 
@@ -346,7 +347,7 @@ namespace ReportParser
                     // just copy rows
                     foreach (var row in table.Rows)
                     {
-                        int rowIndex = newRevenueTable.AddRow(row.Name);
+                        var rowIndex = newRevenueTable.AddRow(row.Name);
                         newRevenueTable[rowIndex][0].Copy(row[firstActiveColumn.Tag]);
                     }
 
@@ -359,15 +360,15 @@ namespace ReportParser
                     // Last 12 month data = latest data + lastest annual report data - last year corresponding month data.
                     // for example:
                     //    data(2012/9~2013/9) = data(2013/9)+data(2012/12)-data(2012/9)
-                    int firstColumnIndex = firstActiveColumn.Tag;
+                    var firstColumnIndex = firstActiveColumn.Tag;
 
-                    int secondColumnIndex = -1;
-                    for (int i = 0; i < dateColumns.Length; ++i)
+                    var secondColumnIndex = -1;
+                    foreach (FinanceReportColumnDefinition t in dateColumns)
                     {
-                        if (dateColumns[i].Date.Year == firstActiveColumn.Date.Year - 1
-                            && dateColumns[i].Date.Month == 12)
+                        if (t.Date.Year == firstActiveColumn.Date.Year - 1
+                            && t.Date.Month == 12)
                         {
-                            secondColumnIndex = dateColumns[i].Tag;
+                            secondColumnIndex = t.Tag;
                             break;
                         }
                     }
@@ -378,13 +379,13 @@ namespace ReportParser
                         return;
                     }
 
-                    int thirdColumnIndex = -1;
-                    for (int i = 0; i < dateColumns.Length; ++i)
+                    var thirdColumnIndex = -1;
+                    foreach (FinanceReportColumnDefinition t in dateColumns)
                     {
-                        if (dateColumns[i].Date.Year == firstActiveColumn.Date.Year - 1
-                            && dateColumns[i].Date.Month == firstActiveColumn.Date.Month)
+                        if (t.Date.Year == firstActiveColumn.Date.Year - 1
+                            && t.Date.Month == firstActiveColumn.Date.Month)
                         {
-                            thirdColumnIndex = dateColumns[i].Tag;
+                            thirdColumnIndex = t.Tag;
                             break;
                         }
                     }
@@ -397,11 +398,11 @@ namespace ReportParser
 
                     foreach (var row in table.Rows)
                     {
-                        decimal v1 = GetCellDecimalValue(row[firstColumnIndex]);
-                        decimal v2 = GetCellDecimalValue(row[secondColumnIndex]);
-                        decimal v3 = GetCellDecimalValue(row[thirdColumnIndex]);
+                        var v1 = GetCellDecimalValue(row[firstColumnIndex]);
+                        var v2 = GetCellDecimalValue(row[secondColumnIndex]);
+                        var v3 = GetCellDecimalValue(row[thirdColumnIndex]);
 
-                        int rowIndex = newRevenueTable.AddRow(row.Name);
+                        var rowIndex = newRevenueTable.AddRow(row.Name);
                         newRevenueTable[rowIndex][0].DecimalValue = v1 + v2 - v3;
                     }
 

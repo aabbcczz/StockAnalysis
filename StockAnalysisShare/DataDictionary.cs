@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.IO;
 using System.Xml;
 
@@ -12,10 +9,10 @@ namespace StockAnalysis.Share
     {
         public sealed class TableDataDictionary
         {
-            public const string RootElementName = "Table";
-            public const string NameAttributeName = "name";
-            public const string RowElementName = "Row";
-            public const string ColumnElementName = "Column";
+            public const string TableRootElementName = "Table";
+            private const string NameAttributeName = "name";
+            private const string RowElementName = "Row";
+            private const string ColumnElementName = "Column";
 
             public string TableName { get; private set; }
             public AliasNameMapping RowNameMap { get; private set; }
@@ -46,16 +43,16 @@ namespace StockAnalysis.Share
 
             public void LoadFromXml(XmlElement element)
             {
-                if (element.Name != RootElementName)
+                if (element.Name != TableRootElementName)
                 {
-                    throw new InvalidDataException(string.Format("root element is not expected {0}", RootElementName));
+                    throw new InvalidDataException(string.Format("root element is not expected {0}", TableRootElementName));
                 }
 
                 TableName = element.GetAttribute(NameAttributeName);
 
                 foreach (var child in element.ChildNodes)
                 {
-                    XmlElement childElement = child as XmlElement;
+                    var childElement = child as XmlElement;
 
                     if (childElement != null)
                     {
@@ -73,13 +70,13 @@ namespace StockAnalysis.Share
 
             public XmlElement SaveToXml(XmlDocument doc)
             {
-                XmlElement rootElement = doc.CreateElement(RootElementName);
+                var rootElement = doc.CreateElement(TableRootElementName);
                 rootElement.SetAttribute(NameAttributeName, TableName);
 
-                XmlElement rowElement = doc.CreateElement(RowElementName);
+                var rowElement = doc.CreateElement(RowElementName);
                 RowNameMap.SaveToXml(doc, rowElement);
 
-                XmlElement columnElement = doc.CreateElement(ColumnElementName);
+                var columnElement = doc.CreateElement(ColumnElementName);
                 ColumnNameMap.SaveToXml(doc, columnElement);
 
                 rootElement.AppendChild(rowElement);
@@ -92,9 +89,9 @@ namespace StockAnalysis.Share
         private const string RootElementName = "DataDictionary";
         private const string TableNamesElementName = "TableName";
 
-        private AliasNameMapping _tableNames = new AliasNameMapping();
+        private readonly AliasNameMapping _tableNames = new AliasNameMapping();
 
-        private Dictionary<string, TableDataDictionary> _tableDataDictionaries = new Dictionary<string, TableDataDictionary>();
+        private readonly Dictionary<string, TableDataDictionary> _tableDataDictionaries = new Dictionary<string, TableDataDictionary>();
 
         public DataDictionary()
         {
@@ -117,7 +114,7 @@ namespace StockAnalysis.Share
 
         public void Load(string dataFile)
         {
-            XmlDocument doc = new XmlDocument();
+            var doc = new XmlDocument();
             doc.Load(dataFile);
 
             if (doc.DocumentElement.Name != RootElementName)
@@ -127,7 +124,7 @@ namespace StockAnalysis.Share
 
             foreach (var node in doc.DocumentElement.ChildNodes)
             {
-                XmlElement element = node as XmlElement;
+                var element = node as XmlElement;
                 if (element == null)
                 {
                     continue;
@@ -137,9 +134,9 @@ namespace StockAnalysis.Share
                 {
                     _tableNames.LoadFromXml(element);
                 }
-                else if (element.Name == TableDataDictionary.RootElementName)
+                else if (element.Name == TableDataDictionary.TableRootElementName)
                 {
-                    TableDataDictionary dict = new TableDataDictionary();
+                    var dict = new TableDataDictionary();
                     dict.LoadFromXml(element);
 
                     _tableDataDictionaries.Add(dict.TableName, dict);
@@ -149,16 +146,16 @@ namespace StockAnalysis.Share
 
         public void Save(string dataFile)
         {
-            XmlDocument doc = new XmlDocument();
+            var doc = new XmlDocument();
 
-            XmlDeclaration xmlDeclaration = doc.CreateXmlDeclaration("1.0", "utf-8", null);
+            var xmlDeclaration = doc.CreateXmlDeclaration("1.0", "utf-8", null);
 
             // Create the root element
-            XmlElement rootNode = doc.CreateElement(RootElementName);
+            var rootNode = doc.CreateElement(RootElementName);
             doc.InsertBefore(xmlDeclaration, doc.DocumentElement);
             doc.AppendChild(rootNode);
 
-            XmlElement tableNamesElement = doc.CreateElement(TableNamesElementName);
+            var tableNamesElement = doc.CreateElement(TableNamesElementName);
             _tableNames.SaveToXml(doc, tableNamesElement);
 
             rootNode.AppendChild(tableNamesElement);
@@ -184,9 +181,9 @@ namespace StockAnalysis.Share
 
         public string GetNormalizedRowName(string tableName, string rowName)
         {
-            string normalizedTableName = GetNormalizedTableName(tableName);
+            var normalizedTableName = GetNormalizedTableName(tableName);
 
-            string normalizedRowName = rowName;
+            var normalizedRowName = rowName;
             TableDataDictionary tableDictionary;
             if (_tableDataDictionaries.TryGetValue(normalizedTableName, out tableDictionary))
             {
@@ -206,9 +203,9 @@ namespace StockAnalysis.Share
 
         public string GetNormalizedColumnName(string tableName, string columnName)
         {
-            string normalizedTableName = GetNormalizedTableName(tableName);
+            var normalizedTableName = GetNormalizedTableName(tableName);
 
-            string normalizedColumnName = columnName;
+            var normalizedColumnName = columnName;
             TableDataDictionary tableDictionary;
             if (_tableDataDictionaries.TryGetValue(normalizedTableName, out tableDictionary))
             {
@@ -231,7 +228,7 @@ namespace StockAnalysis.Share
 
         public void AddRowName(string tableName, string rowName)
         {
-            string normalizedTableName = GetNormalizedTableName(tableName);
+            var normalizedTableName = GetNormalizedTableName(tableName);
 
             TableDataDictionary tableDictionary;
 
@@ -250,7 +247,7 @@ namespace StockAnalysis.Share
 
         public void AddColumnName(string tableName, string columnName)
         {
-            string normalizedTableName = GetNormalizedTableName(tableName);
+            var normalizedTableName = GetNormalizedTableName(tableName);
 
             TableDataDictionary tableDictionary;
 

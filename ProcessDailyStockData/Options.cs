@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.IO;
 using CommandLine;
 using CommandLine.Text;
@@ -22,6 +18,10 @@ namespace ProcessDailyStockData
 
         [Option('o', "OutputFolder", Required = true, HelpText = "The output file folder")]
         public string OutputFileFolder { get; set; }
+
+        [Option('n', "NameFile", HelpText = "The output file that stores stock names")]
+        public string NameFile { get; set; }
+
 
         [Option('s', "StartDate", HelpText = "The start date of data being processed")]
         public DateTime StartDate { get; set; }

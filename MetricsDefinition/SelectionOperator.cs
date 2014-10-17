@@ -1,15 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using StockAnalysis.Share;
 
 namespace MetricsDefinition
 {
     sealed class SelectionOperator : MetricUnaryOperator
     {
-        private int _fieldIndex;
-        private string[] _fieldNames;
+        private readonly int _fieldIndex;
+        private readonly string[] _fieldNames;
 
         public override string[] FieldNames
         {
@@ -31,7 +28,7 @@ namespace MetricsDefinition
 
             _fieldIndex = fieldIndex;
 
-            _fieldNames = new string[1] { host.FieldNames[fieldIndex] };
+            _fieldNames = new[] { host.FieldNames[fieldIndex] };
         }
 
         public override double SingleOutputUpdate(double data)
@@ -41,17 +38,17 @@ namespace MetricsDefinition
 
         public override double[] MultipleOutputUpdate(double data)
         {
-            return new double[1] { Operand.MultipleOutputUpdate(data)[_fieldIndex] };
+            return new[] { Operand.MultipleOutputUpdate(data)[_fieldIndex] };
         }
 
-        public override double SingleOutputUpdate(StockAnalysis.Share.Bar data)
+        public override double SingleOutputUpdate(Bar data)
         {
             return Operand.SingleOutputUpdate(data);
         }
 
-        public override double[] MultipleOutputUpdate(StockAnalysis.Share.Bar data)
+        public override double[] MultipleOutputUpdate(Bar data)
         {
-            return new double[1] { Operand.MultipleOutputUpdate(data)[_fieldIndex] };
+            return new[] { Operand.MultipleOutputUpdate(data)[_fieldIndex] };
         }
     }
 }

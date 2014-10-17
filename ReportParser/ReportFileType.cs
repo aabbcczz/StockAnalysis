@@ -1,14 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace ReportParser
+﻿namespace ReportParser
 {
-    public enum ReportFileType : int
+    public enum ReportFileType
     {
-        Unknown = 0,
         EastMoneyPlainHtml = 1
     }
 }

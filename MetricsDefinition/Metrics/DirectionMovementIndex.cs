@@ -1,13 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Reflection;
-
 using StockAnalysis.Share;
 
-namespace MetricsDefinition
+namespace MetricsDefinition.Metrics
 {
     [Metric("DMI", "PDI,NDI,ADX,ADXR")]
     public sealed class DirectionMovementIndex : MultipleOutputBarInputSerialMetric
@@ -15,11 +9,11 @@ namespace MetricsDefinition
         private Bar _prevBar;
         private bool _firstBar = true;
 
-        private MovingSum _msPdm;
-        private MovingSum _msNdm;
-        private MovingSum _msTr;
-        private MovingAverage _maDx;
-        private CirculatedArray<double> _adx;
+        private readonly MovingSum _msPdm;
+        private readonly MovingSum _msNdm;
+        private readonly MovingSum _msTr;
+        private readonly MovingAverage _maDx;
+        private readonly CirculatedArray<double> _adx;
 
         public DirectionMovementIndex(int windowSize)
             : base (1)
@@ -31,7 +25,7 @@ namespace MetricsDefinition
             _adx = new CirculatedArray<double>(windowSize);
         }
 
-        public override double[] Update(StockAnalysis.Share.Bar bar)
+        public override double[] Update(Bar bar)
         {
             // calculate +DM and -DM
             double pdm, ndm;
@@ -61,7 +55,7 @@ namespace MetricsDefinition
             }
 
             // Calculate +DI and -DI
-            double tr, pdi, ndi;
+            double tr;
 
             if (_firstBar)
             {
@@ -73,32 +67,30 @@ namespace MetricsDefinition
                         Math.Max(Math.Abs(bar.HighestPrice - _prevBar.ClosePrice), Math.Abs(bar.LowestPrice - _prevBar.ClosePrice)));
             }
 
-            pdi = pdm * 100.0 / tr;
-            ndi = ndm * 100.0 / tr;
-
             // calculate +DIM and -DIM
-            double mspdm = _msPdm.Update(pdm);
-            double msndm = _msNdm.Update(ndm);
-            double mstr = _msTr.Update(tr);
+            var mspdm = _msPdm.Update(pdm);
+            var msndm = _msNdm.Update(ndm);
+            var mstr = _msTr.Update(tr);
 
-            double pdim = mspdm * 100.0 / mstr;
-            double ndim = msndm * 100.0 / mstr;
+            var pdim = mspdm * 100.0 / mstr;
+            var ndim = msndm * 100.0 / mstr;
 
             // calculate DX and ADX
-            double dx = (pdim + ndim) == 0.0 ? 0.0 : Math.Abs(pdim - ndim) / (pdim + ndim);
+            var dx = Math.Abs((pdim + ndim)) < 1e-6 ? 0.0 : Math.Abs(pdim - ndim) / (pdim + ndim);
+            dx *= 100.0;
 
-            double adx = _maDx.Update(dx);
+            var adx = _maDx.Update(dx);
 
             // calculate ADXR
             _adx.Add(adx);
-            double adxr = (_adx[_adx.Length - 1] + _adx[0]) / 2.0;
+            var adxr = _adx.Length < 2 ? _adx[0] : (_adx[-1] + _adx[0]) / 2.0;
 
             // update internal status
             _prevBar = bar;
             _firstBar = false;
 
             // return result
-            return new double[4] { pdim, ndim, adx, adxr };
+            return new[] { pdim, ndim, adx, adxr };
         }
     }
 }

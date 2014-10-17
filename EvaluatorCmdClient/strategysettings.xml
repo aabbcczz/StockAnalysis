@@ -1,0 +1,417 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CombinedStrategySettings xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <ComponentSettings>
+    <TradingStrategyComponentSettings Enabled="false">
+      <ClassType>TradingStrategy.Strategy.AtrDevTraceStopLossMarketExiting, TradingStrategy, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</ClassType>
+      <Name>ATR标准差跟踪停价退市</Name>
+      <Description>当价格向有利方向变动时，持续跟踪设置止损价为当前价格减去ATR的标准差*ATR标准差停价倍数*(1+ATR标准差调整百分比/100)</Description>
+      <ImplementedInterfaces>ITradingStrategyComponent;IMarketExitingComponent</ImplementedInterfaces>
+      <ComponentParameterSettings>
+        <ParameterSettings>
+          <Name>AtrWindowSize</Name>
+          <Description>ATR计算窗口大小</Description>
+          <ValueType>System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
+          <DefaultValue xsi:type="xsd:int">10</DefaultValue>
+          <Values>20</Values>
+        </ParameterSettings>
+        <ParameterSettings>
+          <Name>AtrDevStopLossFactor</Name>
+          <Description>ATR标准差停价倍数</Description>
+          <ValueType>System.Double, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
+          <DefaultValue xsi:type="xsd:double">3</DefaultValue>
+          <Values>2</Values>
+        </ParameterSettings>
+        <ParameterSettings>
+          <Name>AdjustmentPercentage</Name>
+          <Description>ATR标准差调整百分比</Description>
+          <ValueType>System.Double, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
+          <DefaultValue xsi:type="xsd:double">10</DefaultValue>
+          <Values>10</Values>
+        </ParameterSettings>
+      </ComponentParameterSettings>
+    </TradingStrategyComponentSettings>
+    <TradingStrategyComponentSettings Enabled="false">
+      <ClassType>TradingStrategy.Strategy.AtrDevStopLoss, TradingStrategy, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</ClassType>
+      <Name>ATR标准差停价</Name>
+      <Description>当价格低于买入价，并且差值&gt;ATR的标准差*ATR标准差停价倍数*(1+ATR标准差调整百分比/100)时停价</Description>
+      <ImplementedInterfaces>ITradingStrategyComponent;IStopLossComponent</ImplementedInterfaces>
+      <ComponentParameterSettings>
+        <ParameterSettings>
+          <Name>AtrWindowSize</Name>
+          <Description>ATR计算窗口大小</Description>
+          <ValueType>System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
+          <DefaultValue xsi:type="xsd:int">10</DefaultValue>
+          <Values>20</Values>
+        </ParameterSettings>
+        <ParameterSettings>
+          <Name>AtrDevStopLossFactor</Name>
+          <Description>ATR标准差停价倍数</Description>
+          <ValueType>System.Double, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
+          <DefaultValue xsi:type="xsd:double">3</DefaultValue>
+          <Values>2</Values>
+        </ParameterSettings>
+        <ParameterSettings>
+          <Name>AdjustmentPercentage</Name>
+          <Description>ATR标准差调整百分比</Description>
+          <ValueType>System.Double, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
+          <DefaultValue xsi:type="xsd:double">10</DefaultValue>
+          <Values>10</Values>
+        </ParameterSettings>
+      </ComponentParameterSettings>
+    </TradingStrategyComponentSettings>
+    <TradingStrategyComponentSettings Enabled="false">
+      <ClassType>TradingStrategy.Strategy.BreakthroughMarketExiting, TradingStrategy, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</ClassType>
+      <Name>通道突破退市</Name>
+      <Description>当最低价格突破通道后退市</Description>
+      <ImplementedInterfaces>ITradingStrategyComponent;IMarketExitingComponent</ImplementedInterfaces>
+      <ComponentParameterSettings>
+        <ParameterSettings>
+          <Name>BreakthroughWindow</Name>
+          <Description>通道突破窗口</Description>
+          <ValueType>System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
+          <DefaultValue xsi:type="xsd:int">20</DefaultValue>
+          <Values>20</Values>
+        </ParameterSettings>
+      </ComponentParameterSettings>
+    </TradingStrategyComponentSettings>
+    <TradingStrategyComponentSettings Enabled="false">
+      <ClassType>TradingStrategy.Strategy.BreakthroughMarketEntering, TradingStrategy, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</ClassType>
+      <Name>通道突破入市</Name>
+      <Description>当最高价格突破通道后入市</Description>
+      <ImplementedInterfaces>ITradingStrategyComponent;IMarketEnteringComponent</ImplementedInterfaces>
+      <ComponentParameterSettings>
+        <ParameterSettings>
+          <Name>BreakthroughWindow</Name>
+          <Description>通道突破窗口</Description>
+          <ValueType>System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
+          <DefaultValue xsi:type="xsd:int">20</DefaultValue>
+          <Values>55</Values>
+        </ParameterSettings>
+      </ComponentParameterSettings>
+    </TradingStrategyComponentSettings>    
+    <TradingStrategyComponentSettings Enabled="true">
+      <ClassType>TradingStrategy.Strategy.RelativeStrengthFilterMarketEntering, TradingStrategy, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</ClassType>
+      <Name>相对强度入市过滤器</Name>
+      <Description>当本交易对象的变化率（ROC）超过RelativeStrengthThreshold%的交易对象的变化率时允许入市</Description>
+      <ImplementedInterfaces>ITradingStrategyComponent;IMarketEnteringComponent</ImplementedInterfaces>
+      <ComponentParameterSettings>
+        <ParameterSettings>
+          <Name>RocWindowSize</Name>
+          <Description>ROC周期</Description>
+          <ValueType>System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
+          <DefaultValue xsi:type="xsd:int">30</DefaultValue>
+          <Values>95</Values>
+        </ParameterSettings>
+        <ParameterSettings>
+          <Name>RelativeStrengthThreshold</Name>
+          <Description>相对强度阈值</Description>
+          <ValueType>System.Double, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
+          <DefaultValue xsi:type="xsd:double">95</DefaultValue>
+          <Values>96</Values>
+        </ParameterSettings>
+      </ComponentParameterSettings>
+    </TradingStrategyComponentSettings>    
+    <TradingStrategyComponentSettings Enabled="true">
+      <ClassType>TradingStrategy.Strategy.DmiFilterMarketEntering, TradingStrategy, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</ClassType>
+      <Name>DMI入市过滤器</Name>
+      <Description>当ADX处于上升并且超过AdxThreshold时允许入市</Description>
+      <ImplementedInterfaces>ITradingStrategyComponent;IMarketEnteringComponent</ImplementedInterfaces>
+      <ComponentParameterSettings>
+        <ParameterSettings>
+          <Name>DmiWindowSize</Name>
+          <Description>DMI周期</Description>
+          <ValueType>System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
+          <DefaultValue xsi:type="xsd:int">10</DefaultValue>
+          <Values>22</Values>
+        </ParameterSettings>
+        <ParameterSettings>
+          <Name>AdxThreshold</Name>
+          <Description>ADX阈值</Description>
+          <ValueType>System.Double, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
+          <DefaultValue xsi:type="xsd:double">20</DefaultValue>
+          <Values>15.0</Values>
+        </ParameterSettings>
+      </ComponentParameterSettings>
+    </TradingStrategyComponentSettings>
+    <TradingStrategyComponentSettings Enabled="true">
+      <ClassType>TradingStrategy.Strategy.RiskPercentagePositionSizing, TradingStrategy, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</ClassType>
+      <Name>风险百分比模型</Name>
+      <Description>每份头寸的风险是总权益的固定比例(PecentageOfEquityForEachRisk / 100.0)</Description>
+      <ImplementedInterfaces>ITradingStrategyComponent;IPositionSizingComponent</ImplementedInterfaces>
+      <ComponentParameterSettings>
+        <ParameterSettings>
+          <Name>PercentageOfEquityForEachRisk</Name>
+          <Description>每份头寸的风险占权益的百分比</Description>
+          <ValueType>System.Double, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
+          <DefaultValue xsi:type="xsd:double">1</DefaultValue>
+          <Values>1</Values>
+        </ParameterSettings>
+        <ParameterSettings>
+          <Name>EquityEvaluationMethod</Name>
+          <Description>权益计算方法。0：核心权益法，1：总权益法，2：抵减总权益法</Description>
+          <ValueType>System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
+          <DefaultValue xsi:type="xsd:int">0</DefaultValue>
+          <Values>1</Values>
+        </ParameterSettings>
+      </ComponentParameterSettings>
+    </TradingStrategyComponentSettings>
+    <TradingStrategyComponentSettings Enabled="false">
+      <ClassType>TradingStrategy.Strategy.VolatilityPercentagePositionSizing, TradingStrategy, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</ClassType>
+      <Name>波动率百分比模型</Name>
+      <Description>每份头寸的波动率是总权益的固定比例(PercentageOfEquityForEachPositionVolatility / 100.0)</Description>
+      <ImplementedInterfaces>ITradingStrategyComponent;IPositionSizingComponent</ImplementedInterfaces>
+      <ComponentParameterSettings>
+        <ParameterSettings>
+          <Name>VolatilityWindowSize</Name>
+          <Description>波动率计算时间窗口大小</Description>
+          <ValueType>System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
+          <DefaultValue xsi:type="xsd:int">10</DefaultValue>
+          <Values>20</Values>
+        </ParameterSettings>
+        <ParameterSettings>
+          <Name>PercentageOfEquityForEachPositionVolatility</Name>
+          <Description>每份头寸的波动率占权益的百分比</Description>
+          <ValueType>System.Double, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
+          <DefaultValue xsi:type="xsd:double">1</DefaultValue>
+          <Values>1.5</Values>
+        </ParameterSettings>
+        <ParameterSettings>
+          <Name>EquityEvaluationMethod</Name>
+          <Description>权益计算方法。0：核心权益法，1：总权益法，2：抵减总权益法</Description>
+          <ValueType>System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
+          <DefaultValue xsi:type="xsd:int">0</DefaultValue>
+          <Values>1</Values>
+        </ParameterSettings>
+      </ComponentParameterSettings>
+    </TradingStrategyComponentSettings>
+    <TradingStrategyComponentSettings Enabled="false">
+      <ClassType>TradingStrategy.Strategy.EqualValuePositionSizing, TradingStrategy, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</ClassType>
+      <Name>价格等值模型</Name>
+      <Description>每份头寸占有的价值是总资金的固定比例(1/PartsOfCapital)</Description>
+      <ImplementedInterfaces>ITradingStrategyComponent;IPositionSizingComponent</ImplementedInterfaces>
+      <ComponentParameterSettings>
+        <ParameterSettings>
+          <Name>PartsOfCapital</Name>
+          <Description>资金被分割的块数，每份头寸将占有一份</Description>
+          <ValueType>System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
+          <DefaultValue xsi:type="xsd:int">10</DefaultValue>
+          <Values>10</Values>
+        </ParameterSettings>
+      </ComponentParameterSettings>
+    </TradingStrategyComponentSettings>
+    <TradingStrategyComponentSettings Enabled="false">
+      <ClassType>TradingStrategy.Strategy.SarTraceStopLossMarketExiting, TradingStrategy, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</ClassType>
+      <Name>SAR跟踪停价退市</Name>
+      <Description>当价格向有利方向变动时，持续跟踪设置止损价为SAR值，并不超过当期价格*MaxPercentageOfPrice/100.0</Description>
+      <ImplementedInterfaces>ITradingStrategyComponent;IMarketExitingComponent</ImplementedInterfaces>
+      <ComponentParameterSettings>
+        <ParameterSettings>
+          <Name>MaxPercentageOfPrice</Name>
+          <Description>SAR占价格的最大百分比</Description>
+          <ValueType>System.Double, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
+          <DefaultValue xsi:type="xsd:double">95</DefaultValue>
+          <Values>95</Values>
+        </ParameterSettings>
+      </ComponentParameterSettings>
+    </TradingStrategyComponentSettings>
+    <TradingStrategyComponentSettings Enabled="true">
+      <ClassType>TradingStrategy.Strategy.AtrTraceStopLossMarketExiting, TradingStrategy, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</ClassType>
+      <Name>ATR跟踪停价退市</Name>
+      <Description>当价格向有利方向变动时，持续跟踪设置止损价为当前价格减去ATR乘以Atr停价倍数</Description>
+      <ImplementedInterfaces>ITradingStrategyComponent;IMarketExitingComponent</ImplementedInterfaces>
+      <ComponentParameterSettings>
+        <ParameterSettings>
+          <Name>AtrWindowSize</Name>
+          <Description>ATR计算窗口大小</Description>
+          <ValueType>System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
+          <DefaultValue xsi:type="xsd:int">10</DefaultValue>
+          <Values>20</Values>
+        </ParameterSettings>
+        <ParameterSettings>
+          <Name>AtrStopLossFactor</Name>
+          <Description>ATR停价倍数</Description>
+          <ValueType>System.Double, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
+          <DefaultValue xsi:type="xsd:double">3</DefaultValue>
+          <Values>3.1</Values>
+        </ParameterSettings>
+      </ComponentParameterSettings>
+    </TradingStrategyComponentSettings>
+    <TradingStrategyComponentSettings Enabled="true">
+      <ClassType>TradingStrategy.Strategy.AtrStopLoss, TradingStrategy, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</ClassType>
+      <Name>ATR停价</Name>
+      <Description>当价格低于买入价，并且差值大于ATR乘以Atr停价倍数时停价</Description>
+      <ImplementedInterfaces>ITradingStrategyComponent;IStopLossComponent</ImplementedInterfaces>
+      <ComponentParameterSettings>
+        <ParameterSettings>
+          <Name>AtrWindowSize</Name>
+          <Description>ATR计算窗口大小</Description>
+          <ValueType>System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
+          <DefaultValue xsi:type="xsd:int">10</DefaultValue>
+          <Values>20</Values>
+        </ParameterSettings>
+        <ParameterSettings>
+          <Name>AtrStopLossFactor</Name>
+          <Description>ATR停价倍数</Description>
+          <ValueType>System.Double, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
+          <DefaultValue xsi:type="xsd:double">3</DefaultValue>
+          <Values>1.2</Values>
+        </ParameterSettings>
+      </ComponentParameterSettings>
+    </TradingStrategyComponentSettings>
+    <TradingStrategyComponentSettings Enabled="false">
+      <ClassType>TradingStrategy.Strategy.MovingAverageMarketExiting, TradingStrategy, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</ClassType>
+      <Name>移动平均出市</Name>
+      <Description>当短期平均向下交叉长期平均时出市</Description>
+      <ImplementedInterfaces>ITradingStrategyComponent;IMarketExitingComponent</ImplementedInterfaces>
+      <ComponentParameterSettings>
+        <ParameterSettings>
+          <Name>Short</Name>
+          <Description>短期移动平均周期</Description>
+          <ValueType>System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
+          <DefaultValue xsi:type="xsd:int">5</DefaultValue>
+          <Values>5</Values>
+        </ParameterSettings>
+        <ParameterSettings>
+          <Name>Long</Name>
+          <Description>长期移动平均周期</Description>
+          <ValueType>System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
+          <DefaultValue xsi:type="xsd:int">20</DefaultValue>
+          <Values>20</Values>
+        </ParameterSettings>
+      </ComponentParameterSettings>
+    </TradingStrategyComponentSettings>
+    <TradingStrategyComponentSettings Enabled="true">
+      <ClassType>TradingStrategy.Strategy.MovingAverageMarketEntering, TradingStrategy, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</ClassType>
+      <Name>移动平均入市</Name>
+      <Description>当短期平均向上交叉长期平均时入市</Description>
+      <ImplementedInterfaces>ITradingStrategyComponent;IMarketEnteringComponent</ImplementedInterfaces>
+      <ComponentParameterSettings>
+        <ParameterSettings>
+          <Name>Short</Name>
+          <Description>短期移动平均周期</Description>
+          <ValueType>System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
+          <DefaultValue xsi:type="xsd:int">5</DefaultValue>
+          <Values>5</Values>
+        </ParameterSettings>
+        <ParameterSettings>
+          <Name>Long</Name>
+          <Description>长期移动平均周期</Description>
+          <ValueType>System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
+          <DefaultValue xsi:type="xsd:int">20</DefaultValue>
+          <Values>20</Values>
+        </ParameterSettings>
+      </ComponentParameterSettings>
+    </TradingStrategyComponentSettings>
+    <TradingStrategyComponentSettings Enabled="false">
+      <ClassType>TradingStrategy.Strategy.MovingAverageMarketEnteringExiting, TradingStrategy, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</ClassType>
+      <Name>移动平均入市出市</Name>
+      <Description>当短期平均向上交叉长期平均时入市，当短期平均向下交叉长期平均时出市</Description>
+      <ImplementedInterfaces>ITradingStrategyComponent;IMarketEnteringComponent;IMarketExitingComponent</ImplementedInterfaces>
+      <ComponentParameterSettings>
+        <ParameterSettings>
+          <Name>Short</Name>
+          <Description>短期移动平均周期</Description>
+          <ValueType>System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
+          <DefaultValue xsi:type="xsd:int">5</DefaultValue>
+          <Values>5</Values>
+        </ParameterSettings>
+        <ParameterSettings>
+          <Name>Long</Name>
+          <Description>长期移动平均周期</Description>
+          <ValueType>System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
+          <DefaultValue xsi:type="xsd:int">20</DefaultValue>
+          <Values>20</Values>
+        </ParameterSettings>
+      </ComponentParameterSettings>
+    </TradingStrategyComponentSettings>
+    <TradingStrategyComponentSettings Enabled="false">
+      <ClassType>TradingStrategy.Strategy.NeverMarketExiting, TradingStrategy, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</ClassType>
+      <Name>从不退市</Name>
+      <Description>从不退市，依赖于初始止损或者其他模块退市</Description>
+      <ImplementedInterfaces>ITradingStrategyComponent;IMarketExitingComponent</ImplementedInterfaces>
+      <ComponentParameterSettings />
+    </TradingStrategyComponentSettings>
+    <TradingStrategyComponentSettings Enabled="false">
+      <ClassType>TradingStrategy.Strategy.ProfitTraceStopLossMarketExiting, TradingStrategy, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</ClassType>
+      <Name>利润折回跟踪停价退市</Name>
+      <Description>当利润超过一定程度后，从最高点损失一定百分比则触发停价退市</Description>
+      <ImplementedInterfaces>ITradingStrategyComponent;IMarketExitingComponent</ImplementedInterfaces>
+      <ComponentParameterSettings>
+        <ParameterSettings>
+          <Name>MaxPercentageOfProfitDrawdownString</Name>
+          <Description>利润折回参数串。参数由冒号（:）分割的浮点数构成。按照顺序这些数代表利润为1到N个R（初始风险）时允许利润折回的最大百分比。连续的冒号表示值与前一个相同。</Description>
+          <ValueType>System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
+          <DefaultValue xsi:type="xsd:string">50:25</DefaultValue>
+          <Values>100:75:50:25:25:20:10:5</Values>
+        </ParameterSettings>
+      </ComponentParameterSettings>
+    </TradingStrategyComponentSettings>
+    <TradingStrategyComponentSettings Enabled="false">
+      <ClassType>TradingStrategy.Strategy.PercentageTraceStopLossMarketExiting, TradingStrategy, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</ClassType>
+      <Name>百分比折回跟踪停价退市</Name>
+      <Description>如果当前价格低于最高价的一定百分比则触发停价退市</Description>
+      <ImplementedInterfaces>ITradingStrategyComponent;IMarketExitingComponent</ImplementedInterfaces>
+      <ComponentParameterSettings>
+        <ParameterSettings>
+          <Name>MaxPercentageOfDrawDown</Name>
+          <Description>从最高点回撤的最大百分比</Description>
+          <ValueType>System.Double, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
+          <DefaultValue xsi:type="xsd:double">5</DefaultValue>
+          <Values>15</Values>
+        </ParameterSettings>
+      </ComponentParameterSettings>
+    </TradingStrategyComponentSettings>
+    <TradingStrategyComponentSettings Enabled="false">
+      <ClassType>TradingStrategy.Strategy.PercentageStopLoss, TradingStrategy, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</ClassType>
+      <Name>百分比折回停价</Name>
+      <Description>如果当前价格低于买入价的一定百分比则触发停价</Description>
+      <ImplementedInterfaces>ITradingStrategyComponent;IStopLossComponent</ImplementedInterfaces>
+      <ComponentParameterSettings>
+        <ParameterSettings>
+          <Name>MaxPercentageOfLoss</Name>
+          <Description>最大损失的百分比</Description>
+          <ValueType>System.Double, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
+          <DefaultValue xsi:type="xsd:double">5</DefaultValue>
+          <Values>6</Values>
+        </ParameterSettings>
+      </ComponentParameterSettings>
+    </TradingStrategyComponentSettings>
+    <TradingStrategyComponentSettings Enabled="false">
+      <ClassType>TradingStrategy.Strategy.NoEnoughProfitMarketExiting, TradingStrategy, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</ClassType>
+      <Name>限期未盈利退出</Name>
+      <Description>当头寸持有超过一段时间后若没有获得足够利润则退出市场</Description>
+      <ImplementedInterfaces>ITradingStrategyComponent;IMarketExitingComponent</ImplementedInterfaces>
+      <ComponentParameterSettings>
+        <ParameterSettings>
+          <Name>HoldingPeriods</Name>
+          <Description>头寸持有周期数</Description>
+          <ValueType>System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
+          <DefaultValue xsi:type="xsd:int">3</DefaultValue>
+          <Values>4</Values>
+        </ParameterSettings>
+        <ParameterSettings>
+          <Name>ExpectedProfitPercentage</Name>
+          <Description>期待盈利百分比</Description>
+          <ValueType>System.Double, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
+          <DefaultValue xsi:type="xsd:double">0</DefaultValue>
+          <Values>0</Values>
+        </ParameterSettings>
+      </ComponentParameterSettings>
+    </TradingStrategyComponentSettings>
+    <TradingStrategyComponentSettings Enabled="false">
+      <ClassType>TradingStrategy.Strategy.TimeoutMarketExiting, TradingStrategy, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</ClassType>
+      <Name>定时退出</Name>
+      <Description>当头寸持有超过一段时间后立即退出市场</Description>
+      <ImplementedInterfaces>ITradingStrategyComponent;IMarketExitingComponent</ImplementedInterfaces>
+      <ComponentParameterSettings>
+        <ParameterSettings>
+          <Name>HoldingPeriods</Name>
+          <Description>头寸持有周期数</Description>
+          <ValueType>System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
+          <DefaultValue xsi:type="xsd:int">20</DefaultValue>
+          <Values>80</Values>
+        </ParameterSettings>
+      </ComponentParameterSettings>
+    </TradingStrategyComponentSettings>
+  </ComponentSettings>
+</CombinedStrategySettings>

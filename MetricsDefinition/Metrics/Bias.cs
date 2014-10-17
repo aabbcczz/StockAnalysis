@@ -1,15 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace MetricsDefinition
+﻿namespace MetricsDefinition.Metrics
 {
     [Metric("BIAS")]
     public sealed class Bias : SingleOutputRawInputSerialMetric
     {
-        private MovingAverage _ma;
+        private readonly MovingAverage _ma;
 
         public Bias(int windowSize)
             : base(1)
@@ -19,7 +13,7 @@ namespace MetricsDefinition
 
         public override double Update(double dataPoint)
         {
-            double average = _ma.Update(dataPoint);
+            var average = _ma.Update(dataPoint);
 
             return (dataPoint - average) / average;
         }

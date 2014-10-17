@@ -1,18 +1,15 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using StockAnalysis.Share;
 
-namespace MetricsDefinition
+namespace MetricsDefinition.Metrics
 {
     [Metric("UOS")]
     public sealed class UltimateOscillator : SingleOutputBarInputSerialMetric
     {
-        private MovingSum[] _msBp = new MovingSum[3];
-        private MovingSum[] _msTr = new MovingSum[3];
-        private double[] _weight = new double[3];
-        private double _prevClosePrice = 0.0;
+        private readonly MovingSum[] _msBp = new MovingSum[3];
+        private readonly MovingSum[] _msTr = new MovingSum[3];
+        private readonly double[] _weight = new double[3];
+        private double _prevClosePrice;
         public UltimateOscillator(int windowSize1, int windowSize2, int windowSize3, double weight1, double weight2, double weight3)
             : base(1)
         {
@@ -33,21 +30,21 @@ namespace MetricsDefinition
             _msTr[2] = new MovingSum(windowSize3);
         }
 
-        public override double Update(StockAnalysis.Share.Bar bar)
+        public override double Update(Bar bar)
         {
-            double bp = bar.ClosePrice - Math.Min(bar.LowestPrice, _prevClosePrice);
-            double tr = Math.Max(bar.HighestPrice, _prevClosePrice) - Math.Min(bar.LowestPrice, _prevClosePrice);
+            var bp = bar.ClosePrice - Math.Min(bar.LowestPrice, _prevClosePrice);
+            var tr = Math.Max(bar.HighestPrice, _prevClosePrice) - Math.Min(bar.LowestPrice, _prevClosePrice);
 
-            double[] average = new double[3];
+            var average = new double[3];
 
-            for (int i = 0; i < 3; ++i)
+            for (var i = 0; i < 3; ++i)
             {
                 average[i] = _msBp[i].Update(bp) / _msTr[i].Update(tr);
             }
 
-            double sumWeight = (_weight[0] + _weight[1] + _weight[2]) / 100.0;
+            var sumWeight = (_weight[0] + _weight[1] + _weight[2]) / 100.0;
 
-            double result = (_weight[0] * average[0] 
+            var result = (_weight[0] * average[0] 
                 + _weight[1] * average[1] 
                 + _weight[2] * average[2])
                 / sumWeight;

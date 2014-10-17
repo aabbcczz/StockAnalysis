@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace StockAnalysis.Share
 {
@@ -17,7 +13,7 @@ namespace StockAnalysis.Share
 
         public CellType Type { get; private set; }
 
-        private Object _value = null;
+        private Object _value;
 
         public decimal DecimalValue 
         { 
@@ -89,10 +85,7 @@ namespace StockAnalysis.Share
                 {
                     return;
                 }
-                else
-                {
-                    Copy(cell);
-                }
+                Copy(cell);
             }
         }
 
@@ -102,10 +95,7 @@ namespace StockAnalysis.Share
             {
                 return string.Empty;
             }
-            else 
-            {
-                return _value.ToString();
-            }
+            return _value.ToString();
         }
     }
 }

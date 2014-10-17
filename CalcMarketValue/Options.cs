@@ -1,11 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.IO;
+﻿using System.IO;
 using CommandLine;
-using CommandLine.Text;
 
 namespace CalcMarketValue
 {
@@ -23,18 +17,14 @@ namespace CalcMarketValue
         [Option('v', "Verbose", HelpText = "Verbose level, Range: from 0 to 2.", DefaultValue = 0)]
         public int VerboseLevel { get; set; }
 
-        [ValueList(typeof(List<string>))]
-        public IList<string> Files { get; set; }
-
-        [ParserState]
-        public IParserState LastParserState { get; set; }
-
+/*
         [HelpOption]
         public string GetUsage()
         {
             string usage = HelpText.AutoBuild(this, current => HelpText.DefaultParsingErrorsHandler(this, current));
             return usage;
         }
+*/
 
         public void Print(TextWriter writer)
         {

@@ -1,17 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Reflection;
+﻿using StockAnalysis.Share;
 
-namespace MetricsDefinition
+namespace MetricsDefinition.Metrics
 {
     [Metric("WR, WMSR")]
     public sealed class WilliamOverboughtOversoldIndex : SingleOutputBarInputSerialMetric
     {
-        private Highest _highest;
-        private Lowest _lowest;
+        private readonly Highest _highest;
+        private readonly Lowest _lowest;
         
         public WilliamOverboughtOversoldIndex(int windowSize)
             : base(1)
@@ -20,12 +15,12 @@ namespace MetricsDefinition
             _lowest = new Lowest(windowSize);
         }
 
-        public override double Update(StockAnalysis.Share.Bar bar)
+        public override double Update(Bar bar)
         {
-            double highest = _highest.Update(bar.HighestPrice);
-            double lowest = _lowest.Update(bar.LowestPrice);
+            var highest = _highest.Update(bar.HighestPrice);
+            var lowest = _lowest.Update(bar.LowestPrice);
 
-            double rsv = (bar.ClosePrice - lowest) / (highest - lowest) * 100;
+            var rsv = (bar.ClosePrice - lowest) / (highest - lowest) * 100;
 
             return 100.0 - rsv;
         }

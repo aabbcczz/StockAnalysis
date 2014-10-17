@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using HtmlAgilityPack;
 using System.IO;
 using System.Web;
@@ -21,8 +19,8 @@ namespace ReportParser
         private const string TableSectionSeparatorStartPattern = "├";
         private const string TableLastRowStartPattern = "└─";
 
-        private TextWriter _errorWriter = null;
-        private DataDictionary _dataDictionary = null;
+        private readonly TextWriter _errorWriter;
+        private readonly DataDictionary _dataDictionary;
 
         public EastMoneyPlainHtmlReportParser(DataDictionary dataDictionary, TextWriter errorWriter)
         {
@@ -42,27 +40,15 @@ namespace ReportParser
 
         public FinanceReport ParseReport(string code, string file)
         {
-            List<string> lines = new List<string>();
-
-            foreach (var line in Parse(file))
-            {
-                if (string.IsNullOrWhiteSpace(line))
-                {
-                    continue;
-                }
-
-                lines.Add(line.Trim());
-            }
-
             // recursive descending analysis
-            return ParseReport(code, lines.ToArray());
+            return ParseReport(code, (from line in Parse(file) where !string.IsNullOrWhiteSpace(line) select line.Trim()).ToArray());
         }
 
         private FinanceReport ParseReport(string code, string[] lines)
         {
-            FinanceReport report = new FinanceReport();
+            var report = new FinanceReport();
 
-            int lineIndex = 0;
+            var lineIndex = 0;
             
             string companyName;
             if (!ParseHeader(code, lines, ref lineIndex, out companyName))
@@ -76,9 +62,9 @@ namespace ReportParser
 
             while (lineIndex < lines.Length)
             {
-                int currentLineIndex = lineIndex;
+                var currentLineIndex = lineIndex;
 
-                FinanceReportTable table = ParseTable(lines, ref lineIndex);
+                var table = ParseTable(lines, ref lineIndex);
 
                 if (table != null && table.Name != "环比分析")
                 {
@@ -103,7 +89,7 @@ namespace ReportParser
         {
             while (lineIndex < lines.Length)
             {
-                string currentLine = lines[lineIndex];
+                var currentLine = lines[lineIndex];
 
                 if (!string.IsNullOrWhiteSpace(currentLine))
                 {
@@ -135,16 +121,16 @@ namespace ReportParser
 
             if (Expect(lines, ref lineIndex, ReportHeaderStartPattern, TableNameStartPattern))
             {
-                string currentLine = lines[lineIndex];
+                var currentLine = lines[lineIndex];
 
-                int posOfCode = currentLine.IndexOf(code);
+                var posOfCode = currentLine.IndexOf(code, StringComparison.Ordinal);
                 if (posOfCode >= 0)
                 {
                     companyName = currentLine.Substring(0, posOfCode).Replace('≈', ' ').Trim();
                 }
                 else
                 {
-                    string[] fields = currentLine.Split(new char[] { '≈' }, StringSplitOptions.RemoveEmptyEntries);
+                    var fields = currentLine.Split(new[] { '≈' }, StringSplitOptions.RemoveEmptyEntries);
                     if (fields.Length > 0)
                     {
                         companyName = fields[0];
@@ -166,12 +152,12 @@ namespace ReportParser
                 return false;
             }
 
-            string currentLine = lines[lineIndex];
+            var currentLine = lines[lineIndex];
             lineIndex++;
 
             tableName = currentLine.Replace(TableNameStartPattern, string.Empty).Trim();
 
-            int pos = tableName.IndexOf("（");
+            var pos = tableName.IndexOf("（", StringComparison.Ordinal);
             if (pos >= 0)
             {
                 tableName = tableName.Substring(0, pos);
@@ -196,10 +182,10 @@ namespace ReportParser
                 return false;
             }
 
-            string currentLine = lines[lineIndex];
+            var currentLine = lines[lineIndex];
             lineIndex++;
 
-            string[] fields = currentLine.Split(new char[] { '│' }, StringSplitOptions.RemoveEmptyEntries);
+            var fields = currentLine.Split(new[] { '│' }, StringSplitOptions.RemoveEmptyEntries);
             if (fields.Length < 2)
             {
                 return false;
@@ -219,14 +205,13 @@ namespace ReportParser
             }
 
             // get valid lines
-            List<string[]> cleanedCells = new List<string[]>();
+            var cleanedCells = new List<string[]>();
 
-            int nextRow = 0;
-            int currentRow = 0;
+            var nextRow = 0;
 
             do
             {
-                currentRow = nextRow;
+                int currentRow = nextRow;
                 nextRow = currentRow + 1;
 
                 if (cells[currentRow].Length == 2
@@ -247,8 +232,9 @@ namespace ReportParser
                     continue;
                 }
 
+                int row = currentRow;
                 if (string.IsNullOrWhiteSpace(cells[currentRow][0])
-                    || Enumerable.Range(1, cells[currentRow].Length - 1).All(j => string.IsNullOrWhiteSpace(cells[currentRow][j])))
+                    || Enumerable.Range(1, cells[currentRow].Length - 1).All(j => string.IsNullOrWhiteSpace(cells[row][j])))
                 {
                     // wrong line, skip it.
                     continue;
@@ -263,8 +249,9 @@ namespace ReportParser
                         break;
                     }
 
+                    int row1 = nextRow;
                     if (string.IsNullOrWhiteSpace(cells[nextRow][0])
-                        || Enumerable.Range(1, cells[nextRow].Length - 1).All(column => string.IsNullOrWhiteSpace(cells[nextRow][column])))
+                        || Enumerable.Range(1, cells[nextRow].Length - 1).All(column => string.IsNullOrWhiteSpace(cells[row1][column])))
                     {
                         //│审计意见              │        --│标准无保留│标准无保留│标准无保留│
                         //│                      │          │      意见│      意见│      意见│
@@ -276,7 +263,7 @@ namespace ReportParser
 
 
                         // merge with current row;
-                        for (int column = 0; column < cells[nextRow].Length; ++column)
+                        for (var column = 0; column < cells[nextRow].Length; ++column)
                         {
                             cells[currentRow][column] += cells[nextRow][column];
                         }
@@ -297,19 +284,19 @@ namespace ReportParser
 
         private FinanceReportTable ParseTable(string[] lines, ref int lineIndex)
         {
-            const string UnknownTableName = "<unknown table name>";
+            const string unknownTableName = "<unknown table name>";
 
             string tableName;
 
             // parse table name
-            int startLineIndex = lineIndex;
+            var startLineIndex = lineIndex;
             if (!ParseTableName(lines, ref lineIndex, out tableName))
             {
                 _errorWriter.WriteLine("failed to find table name between line {0}~{1}", startLineIndex, lineIndex);
-                tableName = UnknownTableName;
+                tableName = unknownTableName;
             }
 
-            if (tableName != UnknownTableName)
+            if (tableName != unknownTableName)
             {
                 // get normalized table name
                 tableName = _dataDictionary.GetNormalizedTableName(tableName);
@@ -330,13 +317,13 @@ namespace ReportParser
             // get normalized column definitions
             columnDefinitions = columnDefinitions.Select(s => _dataDictionary.GetNormalizedColumnName(tableName, s)).ToArray();
 
-            FinanceReportTable table = new FinanceReportTable(tableName, rowDefinition, columnDefinitions);
+            var table = new FinanceReportTable(tableName, rowDefinition, columnDefinitions);
 
             // find out all possible rows
             startLineIndex = lineIndex;
             while (lineIndex < lines.Length)
             {
-                string currentLine = lines[lineIndex];
+                var currentLine = lines[lineIndex];
 
                 if (currentLine.StartsWith(TableLastRowStartPattern)) // end of table
                 {
@@ -354,7 +341,7 @@ namespace ReportParser
                 break;
             }
 
-            int endLineIndex = lineIndex;
+            var endLineIndex = lineIndex;
 
             if (startLineIndex == endLineIndex)
             {
@@ -363,24 +350,24 @@ namespace ReportParser
             }
 
             // get all cells
-            string[][] cells =
+            var cells =
                 Enumerable
                 .Range(startLineIndex, endLineIndex - startLineIndex)
                 .Select(i => lines[i])
                 .SkipWhile(s => !s.StartsWith(EffectiveRowStartPattern))
-                .Select(s => s.Split(new string[] { RowCellSeparator }, StringSplitOptions.RemoveEmptyEntries).Select(x => x.Trim()).ToArray())
+                .Select(s => s.Split(new[] { RowCellSeparator }, StringSplitOptions.RemoveEmptyEntries).Select(x => x.Trim()).ToArray())
                 .ToArray();
 
             // clean up cells
             cells = CleanUpCells(cells, table.ColumnCount);
 
-            FinanceReportColumnDefinition[] tableColumnDefinitions = table.ColumnDefinitions.ToArray();
+            var tableColumnDefinitions = table.ColumnDefinitions.ToArray();
 
             // create rows and adjust cell values according to unit.
-            bool isHbfxTable = (table.Name == "环比分析");
+            var isHbfxTable = (table.Name == "环比分析");
 
             // last chance of getting table name according to row names.
-            if (table.Name == UnknownTableName)
+            if (table.Name == unknownTableName)
             {
 
                 var tableNamesList = cells
@@ -398,19 +385,20 @@ namespace ReportParser
                 {
                     tableNames = tableNamesList[0];
 
-                    for (int i = 1; i < tableNamesList.Count; ++i)
+                    for (var i = 1; i < tableNamesList.Count; ++i)
                     {
                         tableNames = tableNames.Intersect(tableNamesList[i]);
                     }
                 }
 
-                if (tableNames.Count() == 0)
+                var enumerable = tableNames as string[] ?? tableNames.ToArray();
+                if (!enumerable.Any())
                 {
                     _errorWriter.WriteLine("failed to guess table name from row names, no table contains all row names");
 
                     return null;
                 }
-                else if (tableNames.Count() > 1)
+                if (enumerable.Count() > 1)
                 {
                     _errorWriter.WriteLine("failed to guess table name from row names, more than one tables contain all row names");
 
@@ -418,18 +406,18 @@ namespace ReportParser
                 }
 
                 // now we can set the table name to the unique possibility
-                table.ResetTableName(tableNames.First());
+                table.ResetTableName(enumerable.First());
                 _errorWriter.WriteLine("find table name {0} from row names", table.Name);
             }
 
             foreach (var rowCells in cells)
             {
-                string rowName = isHbfxTable ? table.RowDefinition + rowCells[0] : rowCells[0];
+                var rowName = isHbfxTable ? table.RowDefinition + rowCells[0] : rowCells[0];
 
                 // get normalized row name
                 rowName = _dataDictionary.GetNormalizedRowName(table.Name, rowName);
 
-                int rowIndex = table.AddRow(rowName);
+                var rowIndex = table.AddRow(rowName);
 
                 //if (rowCells[0] == "筹资活动产生的现金流出小计")
                 //{
@@ -437,9 +425,9 @@ namespace ReportParser
                 //    Console.ReadKey();
                 //}
 
-                FinanceReportRow row = table[rowIndex];
+                var row = table[rowIndex];
 
-                for (int i = 0; i < row.Length; ++i)
+                for (var i = 0; i < row.Length; ++i)
                 {
                     row[i].Parse(rowCells[i + 1], tableColumnDefinitions[i].HasUnit ? tableColumnDefinitions[i].Unit : row.Unit);
                 }
@@ -460,8 +448,8 @@ namespace ReportParser
 
         private IEnumerable<string> Parse(string file)
         {
-            string content = null;
-            using (StreamReader reader = new StreamReader(file))
+            string content;
+            using (var reader = new StreamReader(file))
             {
                 content = reader.ReadToEnd();
             }
@@ -471,10 +459,10 @@ namespace ReportParser
                 yield break;
             }
 
-            HtmlDocument document = new HtmlDocument();
+            var document = new HtmlDocument();
             document.LoadHtml(content);
 
-            HtmlNodeCollection nodes = document.DocumentNode.SelectNodes(@"//div[@id=""maincontent""]");
+            var nodes = document.DocumentNode.SelectNodes(@"//div[@id=""maincontent""]");
 
             if (nodes == null || nodes.Count != 1)
             {

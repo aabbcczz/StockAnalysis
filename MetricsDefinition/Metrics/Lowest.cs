@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace MetricsDefinition
+﻿namespace MetricsDefinition.Metrics
 {
     [Metric("LO")]
     public sealed class Lowest : SingleOutputRawInputSerialMetric
@@ -29,14 +23,14 @@ namespace MetricsDefinition
             }
             else
             {
-                // determine if current highest price is still valid
+                // determine if current lowest price is still valid
                 if (_lowestPriceIndex < 0)
                 {
                     _lowestPrice = double.MaxValue;
                     _lowestPriceIndex = -1;
-                    for (int i = 0; i < Data.Length; ++i)
+                    for (var i = 0; i < Data.Length; ++i)
                     {
-                        double data = Data[i];
+                        var data = Data[i];
                         if (data <= _lowestPrice)
                         {
                             _lowestPrice = data;
