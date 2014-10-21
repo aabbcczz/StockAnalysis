@@ -2,13 +2,13 @@
 
 namespace TradingStrategy.Strategy
 {
-    public sealed class MovingAverageMarketEntering 
+    public sealed class MovingAverageFilterMarketEntering 
         : MetricBasedMarketEnteringBase<MovingAverageRuntimeMetric>
     {
-        [Parameter(5, "短期移动平均周期")]
+        [Parameter(55, "短期移动平均周期")]
         public int Short { get; set; }
 
-        [Parameter(20, "长期移动平均周期")]
+        [Parameter(300, "长期移动平均周期")]
         public int Long { get; set; }
 
         protected override Func<MovingAverageRuntimeMetric> Creator
@@ -28,12 +28,12 @@ namespace TradingStrategy.Strategy
 
         public override string Name
         {
-            get { return "移动平均入市"; }
+            get { return "移动平均入市过滤器"; }
         }
 
         public override string Description
         {
-            get { return "当短期平均向上交叉长期平均时入市"; }
+            get { return "当短期平均在长期平均上方时允许入市"; }
         }
 
         public override bool CanEnter(ITradingObject tradingObject, out string comments)
@@ -41,13 +41,10 @@ namespace TradingStrategy.Strategy
             comments = string.Empty;
             var runtimeMetric = MetricManager.GetOrCreateRuntimeMetric(tradingObject);
 
-            if (runtimeMetric.ShortMa > runtimeMetric.LongMa
-                && runtimeMetric.PreviousShortMa < runtimeMetric.PreviousLongMa)
+            if (runtimeMetric.ShortMa > runtimeMetric.LongMa)
             {
                 comments = string.Format(
-                    "prevShort:{0:0.000}; prevLong:{1:0.000}; curShort:{2:0.000}; curLong:{3:0.000}",
-                    runtimeMetric.PreviousShortMa,
-                    runtimeMetric.PreviousLongMa,
+                    "Short:{0:0.000}; Long:{1:0.000}",
                     runtimeMetric.ShortMa,
                     runtimeMetric.LongMa);
 

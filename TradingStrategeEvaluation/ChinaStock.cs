@@ -18,6 +18,10 @@ namespace TradingStrategyEvaluation
 
         public double MinPriceUnit { get; private set; }
 
+        public double LimitUpRatio { get; private set; }
+
+        public double LimitDownRatio { get; private set; }
+
         public ChinaStock(
             int index,
             string code, 
@@ -25,7 +29,9 @@ namespace TradingStrategyEvaluation
             int volumePerHand = 100,
             int volumePerBuyingUnit = 100,
             int volumePerSellingUnit = 1, 
-            double minPriceUnit = 0.01)
+            double minPriceUnit = 0.01,
+            double limitUpRatio = 0.1,
+            double limitDownRatio = 0.1)
         {
             Index = index;
             Code = code;
@@ -34,6 +40,8 @@ namespace TradingStrategyEvaluation
             VolumePerBuyingUnit = volumePerBuyingUnit;
             VolumePerSellingUnit = volumePerSellingUnit;
             MinPriceUnit = minPriceUnit;
+            LimitUpRatio = limitUpRatio;
+            LimitDownRatio = limitDownRatio;
         }
     }
 }

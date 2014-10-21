@@ -8,12 +8,15 @@ using StockAnalysis.Share;
 using TradingStrategy;
 using TradingStrategy.Strategy;
 using TradingStrategyEvaluation;
+using System.Threading;
 
 namespace EvaluatorCmdClient
 {
     static class Program
     {
         private static EvaluationResultContextManager _contextManager;
+        private static long _totalNumberOfStrategies = 0;
+        private static long _numberOfEvaluatedStrategies = 0;
 
         static void Main(string[] args)
         {
@@ -111,6 +114,26 @@ namespace EvaluatorCmdClient
             } while (actualEndDate < endDate);
         }
 
+        static void SetTotalStrategyNumber(long number)
+        {
+            Interlocked.CompareExchange(ref _totalNumberOfStrategies, number, 0);
+        }
+
+        static void IncreaseProgress()
+        {
+            long numberOfEvaluatedStrategies 
+                = Interlocked.Increment(ref _numberOfEvaluatedStrategies);
+
+            long totalNumberOfEvaluatedStrategies 
+                = Interlocked.CompareExchange(ref _totalNumberOfStrategies, 0, 0);
+
+            Console.Write(
+                "\r{0}/{1} ({2}%)",
+                numberOfEvaluatedStrategies,
+                totalNumberOfEvaluatedStrategies,
+                (long)numberOfEvaluatedStrategies * 100 / totalNumberOfEvaluatedStrategies);
+        }
+
         static void Run(Options options)
         {
             // check the validation of options
@@ -196,6 +219,8 @@ namespace EvaluatorCmdClient
                         // initialize ResultSummary
                         ResultSummary.Initialize(strategyInstances.First().Item2);
                     }
+
+                    SetTotalStrategyNumber(intervals.Count() * strategyInstances.Count());
 
                     try
                     {
@@ -327,7 +352,7 @@ namespace EvaluatorCmdClient
                 }
             }
 
-            Console.Write(".");
+            IncreaseProgress();
         }
     }
 }

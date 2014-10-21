@@ -24,5 +24,11 @@
 
         // minimum price unit
         double MinPriceUnit { get; }
+
+        // limit up ratio
+        double LimitUpRatio { get;  }
+
+        // limit down ratio
+        double LimitDownRatio{ get; }
     }
 }

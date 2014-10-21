@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ChinaStockDataSettings xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <StockNameTableFile>e:\stock\stocknametable.txt</StockNameTableFile>
+  <StockDataFileDirectory>E:\Stock\ProcessedFullDailyData\IncludeRight\</StockDataFileDirectory>
+  <StockDataFileNamePattern>%c.day.csv</StockDataFileNamePattern>
+</ChinaStockDataSettings>

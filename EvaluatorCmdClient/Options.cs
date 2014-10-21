@@ -60,6 +60,7 @@ namespace EvaluatorCmdClient
                 writer.WriteLine("Code file: {0}", CodeFile);
                 writer.WriteLine("Start date: {0}", StartDate);
                 writer.WriteLine("End date: {0}", EndDate);
+                writer.WriteLine("Year interval: {0} years", YearInterval);
                 writer.WriteLine("Initial capital: {0:0.0000}", InitialCapital);
                 writer.WriteLine("Warmup periods: {0}", WarmupPeriods);
             }
