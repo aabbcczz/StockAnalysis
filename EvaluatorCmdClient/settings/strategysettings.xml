@@ -59,7 +59,7 @@
         </ParameterSettings>
       </ComponentParameterSettings>
     </TradingStrategyComponentSettings>
-    <TradingStrategyComponentSettings Enabled="true">
+    <TradingStrategyComponentSettings Enabled="false">
       <ClassType>TradingStrategy.Strategy.RebreakthroughMarketEntering, TradingStrategy, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</ClassType>
       <Name>通道再次突破入市</Name>
       <Description>当最高价格突破通道后，价格U型反转后再次突破上次最高价格后入市</Description>
@@ -88,7 +88,7 @@
         </ParameterSettings>
       </ComponentParameterSettings>
     </TradingStrategyComponentSettings>    
-    <TradingStrategyComponentSettings Enabled="false">
+    <TradingStrategyComponentSettings Enabled="true">
       <ClassType>TradingStrategy.Strategy.BreakthroughMarketExiting, TradingStrategy, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</ClassType>
       <Name>通道突破退市</Name>
       <Description>当最低价格突破通道后退市</Description>
@@ -103,7 +103,7 @@
         </ParameterSettings>
       </ComponentParameterSettings>
     </TradingStrategyComponentSettings>
-    <TradingStrategyComponentSettings Enabled="false">
+    <TradingStrategyComponentSettings Enabled="true">
       <ClassType>TradingStrategy.Strategy.BreakthroughMarketEntering, TradingStrategy, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</ClassType>
       <Name>通道突破入市</Name>
       <Description>当最高价格突破通道后入市</Description>
@@ -195,7 +195,7 @@
           <Description>每份头寸的风险占权益的百分比</Description>
           <ValueType>System.Double, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
           <DefaultValue xsi:type="xsd:double">1</DefaultValue>
-          <Values>1</Values>
+          <Values>0.1</Values>
         </ParameterSettings>
         <ParameterSettings>
           <Name>EquityEvaluationMethod</Name>
@@ -265,7 +265,7 @@
         </ParameterSettings>
       </ComponentParameterSettings>
     </TradingStrategyComponentSettings>
-    <TradingStrategyComponentSettings Enabled="false">
+    <TradingStrategyComponentSettings Enabled="true">
       <ClassType>TradingStrategy.Strategy.AtrTraceStopLossMarketExiting, TradingStrategy, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</ClassType>
       <Name>ATR跟踪停价退市</Name>
       <Description>当价格向有利方向变动时，持续跟踪设置止损价为当前价格减去ATR乘以Atr停价倍数</Description>
@@ -276,18 +276,18 @@
           <Description>ATR计算窗口大小</Description>
           <ValueType>System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
           <DefaultValue xsi:type="xsd:int">10</DefaultValue>
-          <Values>20</Values>
+          <Values>55</Values>
         </ParameterSettings>
         <ParameterSettings>
           <Name>AtrStopLossFactor</Name>
           <Description>ATR停价倍数</Description>
           <ValueType>System.Double, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
           <DefaultValue xsi:type="xsd:double">3</DefaultValue>
-          <Values>3.1</Values>
+          <Values>6.0</Values>
         </ParameterSettings>
       </ComponentParameterSettings>
     </TradingStrategyComponentSettings>
-    <TradingStrategyComponentSettings Enabled="false">
+    <TradingStrategyComponentSettings Enabled="true">
       <ClassType>TradingStrategy.Strategy.AtrStopLoss, TradingStrategy, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</ClassType>
       <Name>ATR停价</Name>
       <Description>当价格低于买入价，并且差值大于ATR乘以Atr停价倍数时停价</Description>
@@ -298,14 +298,14 @@
           <Description>ATR计算窗口大小</Description>
           <ValueType>System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
           <DefaultValue xsi:type="xsd:int">10</DefaultValue>
-          <Values>20</Values>
+          <Values>55</Values>
         </ParameterSettings>
         <ParameterSettings>
           <Name>AtrStopLossFactor</Name>
           <Description>ATR停价倍数</Description>
           <ValueType>System.Double, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
           <DefaultValue xsi:type="xsd:double">3</DefaultValue>
-          <Values>1.2</Values>
+          <Values>2.4</Values>
         </ParameterSettings>
       </ComponentParameterSettings>
     </TradingStrategyComponentSettings>
@@ -412,7 +412,7 @@
         </ParameterSettings>
       </ComponentParameterSettings>
     </TradingStrategyComponentSettings>
-    <TradingStrategyComponentSettings Enabled="true">
+    <TradingStrategyComponentSettings Enabled="false">
       <ClassType>TradingStrategy.Strategy.PercentageStopLoss, TradingStrategy, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</ClassType>
       <Name>百分比折回停价</Name>
       <Description>如果当前价格低于买入价的一定百分比则触发停价</Description>
@@ -423,7 +423,7 @@
           <Description>最大损失的百分比</Description>
           <ValueType>System.Double, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
           <DefaultValue xsi:type="xsd:double">5</DefaultValue>
-          <Values>99.9</Values>
+          <Values>5</Values>
         </ParameterSettings>
       </ComponentParameterSettings>
     </TradingStrategyComponentSettings>
@@ -438,7 +438,7 @@
           <Description>头寸持有周期数</Description>
           <ValueType>System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
           <DefaultValue xsi:type="xsd:int">3</DefaultValue>
-          <Values>4</Values>
+          <Values>1/5/1</Values>
         </ParameterSettings>
         <ParameterSettings>
           <Name>ExpectedProfitPercentage</Name>
@@ -449,7 +449,7 @@
         </ParameterSettings>
       </ComponentParameterSettings>
     </TradingStrategyComponentSettings>
-    <TradingStrategyComponentSettings Enabled="true">
+    <TradingStrategyComponentSettings Enabled="false">
       <ClassType>TradingStrategy.Strategy.TimeoutMarketExiting, TradingStrategy, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</ClassType>
       <Name>定时退出</Name>
       <Description>当头寸持有超过一段时间后立即退出市场</Description>
