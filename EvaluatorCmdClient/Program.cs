@@ -246,6 +246,9 @@ namespace EvaluatorCmdClient
                             _contextManager.SaveResultSummaries();
                         }
                     }
+
+                    // for fun.
+                    GC.Collect();
                 }
             }
 
