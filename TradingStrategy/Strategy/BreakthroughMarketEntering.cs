@@ -25,7 +25,7 @@ namespace TradingStrategy.Strategy
             var metric = MetricManager.GetOrCreateRuntimeMetric(tradingObject);
             if (metric.Breakthrough)
             {
-                comments = string.Format("Breakthrough: {0}", metric.CurrentHighest);
+                comments = string.Format("Breakthrough: {0:0.0000}", metric.CurrentHighest);
             }
 
             return metric.Breakthrough;

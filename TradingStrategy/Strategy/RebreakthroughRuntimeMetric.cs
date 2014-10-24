@@ -10,7 +10,7 @@ namespace TradingStrategy.Strategy
         private readonly int _maxInterval;
         private readonly int _minInterval;
 
-        private int _intervalSinceLastBreakthrough = 0;
+        private int _intervalSinceLastBreakthrough;
 
         public double CurrentHighest { get; private set; }
 

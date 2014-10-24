@@ -51,7 +51,7 @@ namespace TradingStrategy.Strategy
             var metric = MetricManager.GetOrCreateRuntimeMetric(tradingObject);
             if (metric.Rebreakthrough)
             {
-                comments = string.Format("Rebreakthrough: {0}, Interval: {1}", metric.CurrentHighest, metric.IntervalSinceLastBreakthrough);
+                comments = string.Format("Rebreakthrough: {0:0.0000}, Interval: {1}", metric.CurrentHighest, metric.IntervalSinceLastBreakthrough);
             }
 
             return metric.Rebreakthrough;

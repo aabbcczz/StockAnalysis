@@ -73,6 +73,8 @@
     <Compile Include="Strategy\AtrDevRuntimeMetric.cs" />
     <Compile Include="Strategy\AtrDevTraceStopLossMarketExiting.cs" />
     <Compile Include="Strategy\AtrDevStopLoss.cs" />
+    <Compile Include="Strategy\BreakthroughAndReturnMarketEntering.cs" />
+    <Compile Include="Strategy\BreakthroughAndReturnRuntimeMetric.cs" />
     <Compile Include="Strategy\RebreakthroughRuntimeMetric.cs" />
     <Compile Include="Strategy\RebreakthroughMarketEntering.cs" />
     <Compile Include="Strategy\BreakthroughMarketExiting.cs" />

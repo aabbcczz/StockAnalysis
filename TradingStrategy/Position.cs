@@ -36,6 +36,8 @@ namespace TradingStrategy
         // 止损价格
         public double StopLossPrice { get; set; }
 
+        public string Comments { get; set; }
+
         public Position()
         {
             Id = IdGenerator.Next;
@@ -63,6 +65,7 @@ namespace TradingStrategy
                     BuyPrice = transaction.Price;
                     BuyCommission = transaction.Commission;
                     IsInitialized = true;
+                    Comments = transaction.Comments;
                     break;
                 default:
                     throw new ArgumentException(string.Format("unsupported action {0}", transaction.Action));
@@ -110,6 +113,7 @@ namespace TradingStrategy
                 SellCommission = SellCommission * newPositionPercentage,
                 InitialRisk = IsStopLossPriceInitialized() ? InitialRisk * newPositionPercentage : 0.0,
                 StopLossPrice = StopLossPrice,
+                Comments = Comments,
             };
 
             // update this position
@@ -155,6 +159,11 @@ namespace TradingStrategy
                     SellAction = transaction.Action;
                     SellPrice = transaction.Price;
                     SellCommission = transaction.Commission;
+                    
+                    if (!string.IsNullOrEmpty(transaction.Comments))
+                    {
+                        Comments += ";" + transaction.Comments;
+                    }
 
                     break;
 

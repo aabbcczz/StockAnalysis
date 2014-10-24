@@ -60,6 +60,35 @@
       </ComponentParameterSettings>
     </TradingStrategyComponentSettings>
     <TradingStrategyComponentSettings Enabled="false">
+      <ClassType>TradingStrategy.Strategy.BreakthroughAndReturnMarketEntering, TradingStrategy, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</ClassType>
+      <Name>通道突破折回入市</Name>
+      <Description>当最高价格突破通道后然后在给定时间内折回到低点后入市</Description>
+      <ImplementedInterfaces>ITradingStrategyComponent;IMarketEnteringComponent</ImplementedInterfaces>
+      <ComponentParameterSettings>
+        <ParameterSettings>
+          <Name>BreakthroughWindow</Name>
+          <Description>通道突破窗口</Description>
+          <ValueType>System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
+          <DefaultValue xsi:type="xsd:int">20</DefaultValue>
+          <Values>55</Values>
+        </ParameterSettings>
+        <ParameterSettings>
+          <Name>RerisingMaxInterval</Name>
+          <Description>通道突破后价格折回后再次上升所允许的最大间隔</Description>
+          <ValueType>System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
+          <DefaultValue xsi:type="xsd:int">10</DefaultValue>
+          <Values>20</Values>
+        </ParameterSettings>
+        <ParameterSettings>
+          <Name>RerisingMinInterval</Name>
+          <Description>通道突破后价格折回后再次上升所允许的最小间隔</Description>
+          <ValueType>System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
+          <DefaultValue xsi:type="xsd:int">5</DefaultValue>
+          <Values>10</Values>
+        </ParameterSettings>
+      </ComponentParameterSettings>
+    </TradingStrategyComponentSettings>	
+    <TradingStrategyComponentSettings Enabled="false">
       <ClassType>TradingStrategy.Strategy.RebreakthroughMarketEntering, TradingStrategy, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</ClassType>
       <Name>通道再次突破入市</Name>
       <Description>当最高价格突破通道后，价格U型反转后再次突破上次最高价格后入市</Description>
