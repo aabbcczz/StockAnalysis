@@ -71,16 +71,24 @@ namespace EvaluatorCmdClient
             }
         }
 
+        static string AddPrefixToFileName(string fileName, string prefix)
+        {
+            string trueFileName = prefix + Path.GetFileName(fileName);
+            return Path.Combine(Path.GetDirectoryName(fileName), trueFileName);
+        }
+
         static void GenerateExampleFiles(Options options)
         {
+            string prefix = "gen.";
+
             var tradingSettings = TradingSettings.GenerateExampleSettings();
-            tradingSettings.SaveToFile(options.TradingSettingsFile);
+            tradingSettings.SaveToFile(AddPrefixToFileName(options.TradingSettingsFile, prefix));
 
             var combinedStrategySettings = CombinedStrategySettings.GenerateExampleSettings();
-            combinedStrategySettings.SaveToFile(options.CombinedStrategySettingsFile);
+            combinedStrategySettings.SaveToFile(AddPrefixToFileName(options.CombinedStrategySettingsFile, prefix));
 
             var stockDataSettings = ChinaStockDataSettings.GenerateExampleSettings();
-            stockDataSettings.SaveToFile(options.StockDataSettingsFile);
+            stockDataSettings.SaveToFile(AddPrefixToFileName(options.StockDataSettingsFile, prefix));
         }
 
         static string[] LoadCodeOfStocks(string codeFile)
@@ -134,6 +142,26 @@ namespace EvaluatorCmdClient
                 (long)numberOfEvaluatedStrategies * 100 / totalNumberOfEvaluatedStrategies);
         }
 
+        static void DumpData(ITradingDataProvider provider)
+        {
+            string outputFileName = @"dump.csv";
+
+            using (var writer = new StreamWriter(outputFileName, false, System.Text.Encoding.UTF8))
+            {
+                var codes = provider.GetAllTradingObjects().Select(o => o.Code).ToArray();
+
+                writer.WriteLine(string.Join(",", codes));
+
+                foreach (var period in provider.GetAllPeriodsOrdered())
+                {
+                    var data = provider.GetDataOfPeriod(period);
+                    var dataStrings = data.Select(d => string.Format("{0:0.0000}", d.ClosePrice)).ToArray();
+
+                    writer.WriteLine(string.Join(",", dataStrings));
+                }
+            }
+        }
+
         static void Run(Options options)
         {
             // check the validation of options
@@ -161,6 +189,18 @@ namespace EvaluatorCmdClient
                 .Select(stockDataSettings.BuildActualDataFilePathAndName)
                 .ToArray();
 
+            // dump data for temporary usage, will be commented out in real code
+            // create data provider
+            //var dumpDataProvider
+            //    = new ChinaStockDataProvider(
+            //        stockNameTable,
+            //        dataFiles,
+            //        options.StartDate,
+            //        options.EndDate,
+            //        0);
+
+            //DumpData(dumpDataProvider);
+            
             // generate evaluation time intervals
             var intervals = 
                 GenerateIntervals(

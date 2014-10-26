@@ -2,7 +2,7 @@
 
 namespace TradingStrategy.Strategy
 {
-    interface IPositionAdjustingComponent : ITradingStrategyComponent
+    public interface IPositionAdjustingComponent : ITradingStrategyComponent
     {
         /// <summary>
         /// Decide if new position should be added or old positions should be removed after knowing all

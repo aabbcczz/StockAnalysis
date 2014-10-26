@@ -1,6 +1,6 @@
 ﻿namespace TradingStrategy.Strategy
 {
-    interface IPositionSizingComponent : ITradingStrategyComponent
+    public interface IPositionSizingComponent : ITradingStrategyComponent
     {
         /// <summary>
         /// Estimate the size of position for a trading object according to current price

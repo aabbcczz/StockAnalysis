@@ -3,6 +3,7 @@ using System.Linq;
 using System.IO;
 using System.Xml.Serialization;
 using TradingStrategy;
+using TradingStrategy.Strategy;
 
 namespace TradingStrategyEvaluation
 {
@@ -75,11 +76,61 @@ namespace TradingStrategyEvaluation
                         && !type.IsInterface));
 
             settings.ComponentSettings = allComponents
+                .OrderBy(t => t, new TradingStrategyComponentComparer())
                 .Select(c => TradingStrategyComponentSettings.GenerateExampleSettings(
                     (ITradingStrategyComponent)Activator.CreateInstance(c)))
                 .ToArray();
 
             return settings;
+        }
+
+        private class TradingStrategyComponentComparer 
+            : System.Collections.Generic.IComparer<Type>
+        {
+            public int Compare(Type x, Type y)
+            {
+                int xOrder = GetOrderNumber(x);
+                int yOrder = GetOrderNumber(y);
+
+                if (xOrder == yOrder)
+                {
+                    return x.FullName.CompareTo(y.FullName);
+                }
+                else
+                {
+                    return xOrder.CompareTo(yOrder);
+                }
+            }
+
+            private int GetOrderNumber(Type x)
+            {
+                if (typeof(IMarketEnteringComponent).IsAssignableFrom(x))
+                {
+                    return 0;
+                }
+
+                if (typeof(IMarketExitingComponent).IsAssignableFrom(x))
+                {
+                    return 1;
+                }
+
+                if (typeof(IStopLossComponent).IsAssignableFrom(x))
+                {
+                    return 2;
+                }
+
+                if (typeof(IPositionSizingComponent).IsAssignableFrom(x))
+                {
+                    return 3;
+                }
+
+                if (typeof(IPositionAdjustingComponent).IsAssignableFrom(x))
+                {
+                    return 4;
+                }
+
+                return 100;
+            }
         }
     }
 }

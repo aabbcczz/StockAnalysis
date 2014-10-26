@@ -1,6 +1,6 @@
 ﻿namespace TradingStrategy.Strategy
 {
-    interface IStopLossComponent : ITradingStrategyComponent
+    public interface IStopLossComponent : ITradingStrategyComponent
     {
         /// <summary>
         /// Estimate the stop loss gap for trading object based on input price. 

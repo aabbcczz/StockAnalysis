@@ -51,7 +51,7 @@ namespace TradingStrategyEvaluation
                 Description = attribute.Description,
                 ValueType = attribute.ParameterType.AssemblyQualifiedName,
                 DefaultValue = attribute.DefaultValue,
-                Values = "1;2 or 1.0/10.0/1.0 or abcd(;)efgh"
+                Values = attribute.DefaultValue.ToString(),
             };
 
             return settings;

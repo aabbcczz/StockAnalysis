@@ -54,6 +54,7 @@ namespace TradingStrategy.Strategy
 
                 return true;
             }
+
             return false;
         }
 
@@ -62,20 +63,20 @@ namespace TradingStrategy.Strategy
             comments = string.Empty;
             var runtimeMetric = MetricManager.GetOrCreateRuntimeMetric(tradingObject);
 
-            if (!(runtimeMetric.ShortMa < runtimeMetric.LongMa) ||
-                !(runtimeMetric.PreviousShortMa > runtimeMetric.PreviousLongMa))
+            if (runtimeMetric.ShortMa < runtimeMetric.LongMa
+                && runtimeMetric.PreviousShortMa > runtimeMetric.PreviousLongMa)
             {
-                return false;
+                comments = string.Format(
+                    "prevShort:{0:0.000}; prevLong:{1:0.000}; curShort:{2:0.000}; curLong:{3:0.000}",
+                    runtimeMetric.PreviousShortMa,
+                    runtimeMetric.PreviousLongMa,
+                    runtimeMetric.ShortMa,
+                    runtimeMetric.LongMa);
+
+                return true;
             }
 
-            comments = string.Format(
-                "prevShort:{0:0.000}; prevLong:{1:0.000}; curShort:{2:0.000}; curLong:{3:0.000}",
-                runtimeMetric.PreviousShortMa,
-                runtimeMetric.PreviousLongMa,
-                runtimeMetric.ShortMa,
-                runtimeMetric.LongMa);
-
-            return true;
+            return false;
         }
     }
 }
