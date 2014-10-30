@@ -21,7 +21,7 @@ namespace TradingStrategy.Strategy
         {
             double newLowest = _lowest.Update(bar.LowestPrice);
 
-            Breakthrough = Math.Abs(newLowest - bar.LowestPrice) < 1e-6 && newLowest < CurrentLowest;
+            Breakthrough = Math.Abs(newLowest - bar.LowestPrice) < 1e-6;
 
             CurrentLowest = newLowest;
         }

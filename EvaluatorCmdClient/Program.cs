@@ -268,15 +268,20 @@ namespace EvaluatorCmdClient
                             strategyInstances,
                             // below line is for performance profiling only.
                             // new ParallelOptions() { MaxDegreeOfParallelism = 1 }, 
-                            t => EvaluateStrategy(
-                                    _contextManager,
-                                    t.Item1,
-                                    t.Item2,
-                                    interval.Item1,
-                                    interval.Item2,
-                                    options.InitialCapital,
-                                    dataProvider,
-                                    tradingSettings));
+                            t =>
+                            {
+                                EvaluateStrategy(
+                                 _contextManager,
+                                 t.Item1,
+                                 t.Item2,
+                                 interval.Item1,
+                                 interval.Item2,
+                                 options.InitialCapital,
+                                 dataProvider,
+                                 tradingSettings);
+
+                                IncreaseProgress();
+                            });
                     }
                     finally
                     {
@@ -394,8 +399,6 @@ namespace EvaluatorCmdClient
                     contextManager.AddResultSummary(resultSummary);
                 }
             }
-
-            IncreaseProgress();
         }
     }
 }

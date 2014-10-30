@@ -75,6 +75,7 @@
     <Compile Include="Strategy\BreakthroughAndReturnMarketEntering.cs" />
     <Compile Include="Strategy\BreakthroughAndReturnRuntimeMetric.cs" />
     <Compile Include="Strategy\CommonPositionAdjusting.cs" />
+    <Compile Include="Strategy\ErFilterMarketEntering.cs" />
     <Compile Include="Strategy\GeneralPositionAdjustingBase.cs" />
     <Compile Include="Strategy\GenericRuntimeMetric.cs" />
     <Compile Include="Strategy\RebreakthroughRuntimeMetric.cs" />

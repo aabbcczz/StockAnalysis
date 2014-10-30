@@ -21,7 +21,7 @@ namespace TradingStrategy.Strategy
         {
             double newHighest = _highest.Update(bar.HighestPrice);
 
-            Breakthrough = Math.Abs(newHighest - bar.HighestPrice) < 1e-6 && newHighest > CurrentHighest;
+            Breakthrough = Math.Abs(newHighest - bar.HighestPrice) < 1e-6;
 
             CurrentHighest = newHighest;
         }
