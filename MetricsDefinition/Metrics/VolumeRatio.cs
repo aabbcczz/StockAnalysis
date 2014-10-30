@@ -13,7 +13,7 @@ namespace MetricsDefinition.Metrics
         private readonly MovingSum _msZv;
 
         public VolumeRatio(int windowSize)
-            : base(1)
+            : base(0)
         {
             _msPv = new MovingSum(windowSize);
             _msNv = new MovingSum(windowSize);

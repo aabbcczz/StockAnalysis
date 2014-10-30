@@ -8,7 +8,7 @@ namespace MetricsDefinition.Metrics
         private readonly MovingSum _ms;
 
         public WilliamVariableAccumulationDistribution(int windowSize)
-            : base(1)
+            : base(0)
         {
             _ms = new MovingSum(windowSize);
         }

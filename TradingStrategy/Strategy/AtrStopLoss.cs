@@ -3,7 +3,7 @@
 namespace TradingStrategy.Strategy
 {
     public sealed class AtrStopLoss 
-        : MetricBasedStopLossBase<AtrRuntimeMetric>
+        : MetricBasedStopLossBase<GenericRuntimeMetric>
     {
         [Parameter(10, "ATR计算窗口大小")]
         public int AtrWindowSize { get; set; }
@@ -22,11 +22,11 @@ namespace TradingStrategy.Strategy
             get { return "当价格低于买入价，并且差值大于ATR乘以Atr停价倍数时停价"; }
         }
 
-        protected override Func<AtrRuntimeMetric> Creator
+        protected override Func<GenericRuntimeMetric> Creator
         {
             get 
             {
-                return (() => new AtrRuntimeMetric(AtrWindowSize));
+                return (() => new GenericRuntimeMetric(string.Format("ATR[{0}]", AtrWindowSize)));
             }
         }
 
@@ -44,12 +44,13 @@ namespace TradingStrategy.Strategy
         {
             var metric = MetricManager.GetOrCreateRuntimeMetric(tradingObject);
 
+            var atr = metric.LatestData[0][0];
             comments = string.Format(
                 "stoplossgap = ATR({0:0.000}) * AtrStopLossFactor({1:0.000})",
-                metric.Atr,
+                atr,
                 AtrStopLossFactor);
 
-            return -metric.Atr * AtrStopLossFactor;
+            return -atr * AtrStopLossFactor;
         }
     }
 }

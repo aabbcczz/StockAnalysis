@@ -11,7 +11,7 @@ namespace MetricsDefinition.Metrics
         private readonly StdDev _sd;
 
         public BollingerBand(int windowSize, double alpha)
-            : base(1)
+            : base(0)
         {
             if (alpha <= 0.0)
             {

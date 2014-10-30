@@ -12,7 +12,7 @@ namespace MetricsDefinition.Metrics
         private readonly CostMovingAverage _cma4;
 
         public CostBullBearIndex(int windowSize1, int windowSize2, int windowSize3, int windowSize4)
-            : base(1)
+            : base(0)
         {
             if (windowSize1 <= 0 || windowSize2 <= 0 || windowSize3 <= 0 || windowSize4 <=0)
             {

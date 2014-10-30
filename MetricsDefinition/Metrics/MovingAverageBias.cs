@@ -9,7 +9,7 @@ namespace MetricsDefinition.Metrics
         private readonly MovingAverage _maLong;
 
         public MovingAverageBias(int shortWindowSize, int longWindowSize)
-            : base(1)
+            : base(0)
         {
             if (shortWindowSize <= 0 || longWindowSize <= 0)
             {

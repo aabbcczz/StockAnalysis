@@ -9,7 +9,7 @@
         private readonly MovingAverage _ma;
 
         public PsychologicalLine(int windowSize)
-            : base(1)
+            : base(0)
         {
             _ma = new MovingAverage(windowSize);
         }

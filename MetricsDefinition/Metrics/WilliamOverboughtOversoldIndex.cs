@@ -9,7 +9,7 @@ namespace MetricsDefinition.Metrics
         private readonly Lowest _lowest;
         
         public WilliamOverboughtOversoldIndex(int windowSize)
-            : base(1)
+            : base(0)
         {
             _highest = new Highest(windowSize);
             _lowest = new Lowest(windowSize);

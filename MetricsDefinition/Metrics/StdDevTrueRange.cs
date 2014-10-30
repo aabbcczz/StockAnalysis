@@ -12,7 +12,7 @@ namespace MetricsDefinition.Metrics
         private double _prevClosePrice;
         private readonly StdDev _sdTrueRange;
         public StdDevTrueRange(int windowSize)
-            : base(1)
+            : base(0)
         {
             _sdTrueRange = new StdDev(windowSize);
         }

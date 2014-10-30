@@ -2,8 +2,8 @@
 
 namespace TradingStrategy.Strategy
 {
-    public sealed class MovingAverageMarketEnteringExiting 
-        : MetricBasedMarketEnteringBase<MovingAverageRuntimeMetric>
+    public sealed class MovingAverageMarketEnteringExiting
+        : MetricBasedMarketEnteringBase<GenericRuntimeMetric>
         , IMarketExitingComponent
     {
         [Parameter(5, "短期移动平均周期")]
@@ -12,9 +12,9 @@ namespace TradingStrategy.Strategy
         [Parameter(20, "长期移动平均周期")]
         public int Long { get; set; }
 
-        protected override Func<MovingAverageRuntimeMetric> Creator
+        protected override Func<GenericRuntimeMetric> Creator
         {
-            get { return (() => new MovingAverageRuntimeMetric(Short, Long)); }
+            get { return (() => new GenericRuntimeMetric(string.Format("MA[{0}];MA[{1}]", Short, Long), true)); }
         }
 
         protected override void ValidateParameterValues()
@@ -42,15 +42,19 @@ namespace TradingStrategy.Strategy
             comments = string.Empty;
             var runtimeMetric = MetricManager.GetOrCreateRuntimeMetric(tradingObject);
 
-            if (runtimeMetric.ShortMa > runtimeMetric.LongMa
-                && runtimeMetric.PreviousShortMa < runtimeMetric.PreviousLongMa)
+            var shortMa = runtimeMetric.LatestData[0][0];
+            var longMa = runtimeMetric.LatestData[1][0];
+            var prevShortMa = runtimeMetric.PreviousData[0][0];
+            var prevLongMa = runtimeMetric.PreviousData[1][0];
+
+            if (shortMa > longMa && prevShortMa < prevLongMa)
             {
                 comments = string.Format(
                     "prevShort:{0:0.000}; prevLong:{1:0.000}; curShort:{2:0.000}; curLong:{3:0.000}",
-                    runtimeMetric.PreviousShortMa,
-                    runtimeMetric.PreviousLongMa,
-                    runtimeMetric.ShortMa,
-                    runtimeMetric.LongMa);
+                    prevShortMa,
+                    prevLongMa,
+                    shortMa,
+                    longMa);
 
                 return true;
             }
@@ -63,15 +67,19 @@ namespace TradingStrategy.Strategy
             comments = string.Empty;
             var runtimeMetric = MetricManager.GetOrCreateRuntimeMetric(tradingObject);
 
-            if (runtimeMetric.ShortMa < runtimeMetric.LongMa
-                && runtimeMetric.PreviousShortMa > runtimeMetric.PreviousLongMa)
+            var shortMa = runtimeMetric.LatestData[0][0];
+            var longMa = runtimeMetric.LatestData[1][0];
+            var prevShortMa = runtimeMetric.PreviousData[0][0];
+            var prevLongMa = runtimeMetric.PreviousData[1][0];
+
+            if (shortMa < longMa && prevShortMa > prevLongMa)
             {
                 comments = string.Format(
                     "prevShort:{0:0.000}; prevLong:{1:0.000}; curShort:{2:0.000}; curLong:{3:0.000}",
-                    runtimeMetric.PreviousShortMa,
-                    runtimeMetric.PreviousLongMa,
-                    runtimeMetric.ShortMa,
-                    runtimeMetric.LongMa);
+                    prevShortMa,
+                    prevLongMa,
+                    shortMa,
+                    longMa);
 
                 return true;
             }

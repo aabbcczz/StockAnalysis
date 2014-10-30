@@ -11,7 +11,7 @@ namespace MetricsDefinition.Metrics
         private readonly double[] _weight = new double[3];
         private double _prevClosePrice;
         public UltimateOscillator(int windowSize1, int windowSize2, int windowSize3, double weight1, double weight2, double weight3)
-            : base(1)
+            : base(0)
         {
             if (weight1 < 0.0 || weight2 < 0.0 || weight3 < 0.0)
             {

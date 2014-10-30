@@ -8,7 +8,7 @@
         private readonly ExponentialMovingAverage _ema3;
 
         public TripleExponentialMovingAverage(int windowSize)
-            : base(1)
+            : base(0)
         {
             _ema1 = new ExponentialMovingAverage(windowSize);
             _ema2 = new ExponentialMovingAverage(windowSize);

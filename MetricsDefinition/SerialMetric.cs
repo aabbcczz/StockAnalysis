@@ -10,9 +10,9 @@ namespace MetricsDefinition
 
         protected SerialMetric(int windowSize)
         {
-            if (windowSize <= 0)
+            if (windowSize < 0)
             {
-                throw new ArgumentOutOfRangeException("windowSize must be greater than 0");
+                throw new ArgumentOutOfRangeException("windowSize must be greater than or equal to 0");
             }
 
             _windowSize = windowSize;

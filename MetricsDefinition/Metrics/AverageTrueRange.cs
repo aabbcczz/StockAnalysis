@@ -12,7 +12,7 @@ namespace MetricsDefinition.Metrics
         private double _prevClosePrice;
         private readonly MovingAverage _maTrueRange;
         public AverageTrueRange(int windowSize)
-            : base(1)
+            : base(0)
         {
             _maTrueRange = new MovingAverage(windowSize);
         }

@@ -17,7 +17,7 @@ namespace MetricsDefinition.Metrics
         private readonly MovingSum _sumCrSs;
 
         public ArBrCr(int windowSize)
-            : base(1)
+            : base(0)
         {
             _sumUp = new MovingSum(windowSize);
             _sumDown = new MovingSum(windowSize);

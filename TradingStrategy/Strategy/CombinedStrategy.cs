@@ -83,8 +83,6 @@ namespace TradingStrategy.Strategy
                 throw new ArgumentException("#trading object != #bars");
             }
 
-            // remember the trading objects and bars because they could be used in AfterEvaulation()
-
             // evaluate all components
             foreach (var component in _components)
             {
@@ -96,6 +94,17 @@ namespace TradingStrategy.Strategy
                     }
 
                     component.EvaluateSingleObject(tradingObjects[i], bars[i]);
+                }
+            }
+
+            // check if positions needs to be adjusted
+            if (_positionAdjusting != null)
+            {
+                var instructions = _positionAdjusting.AdjustPositions();
+
+                if (instructions != null)
+                {
+                    _instructionsInCurrentPeriod.AddRange(instructions);
                 }
             }
 
@@ -120,7 +129,6 @@ namespace TradingStrategy.Strategy
                 {
                     positions = new Position[0];
                 }
-
 
                 // decide if we need to exit market for this trading object. This is the first priorty work
                 if (positions.Any())
@@ -198,17 +206,6 @@ namespace TradingStrategy.Strategy
                     {
                         CreateIntructionForBuying(tradingObject, bar.ClosePrice, "Entering market: " + string.Join(";", allComments));
                     }
-                }
-            }
-
-            // check if positions needs to be adjusted
-            if (_positionAdjusting != null)
-            {
-                var instructions = _positionAdjusting.AdjustPositions();
-
-                if (instructions != null)
-                {
-                    _instructionsInCurrentPeriod.AddRange(instructions);
                 }
             }
         }

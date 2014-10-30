@@ -10,7 +10,7 @@ namespace MetricsDefinition.Metrics
         private double _prevData;
         private bool _firstData = true;
         public RelativeStrengthIndex(int windowSize)
-            : base(1)
+            : base(0)
         {
             _msUc = new MovingSum(windowSize);
             _msDc = new MovingSum(windowSize);

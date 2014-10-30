@@ -6,7 +6,7 @@
         private readonly MovingSum _movingSum;
 
         public MovingAverage(int windowSize)
-            : base(1)
+            : base(0)
         {
             _movingSum = new MovingSum(windowSize);
         }

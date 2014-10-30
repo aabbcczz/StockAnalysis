@@ -11,7 +11,7 @@ namespace MetricsDefinition.Metrics
         private readonly CirculatedArray<double> _truePrices;
 
         public CommodityChannelIndex(int windowSize)
-            : base(1)
+            : base(0)
         {
             _maTruePrice = new MovingAverage(windowSize);
             _truePrices = new CirculatedArray<double>(windowSize);

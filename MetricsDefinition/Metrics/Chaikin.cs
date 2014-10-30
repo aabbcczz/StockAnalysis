@@ -14,7 +14,7 @@ namespace MetricsDefinition.Metrics
         private readonly CirculatedArray<double> _mahl;
 
         public Chaikin(int windowSize, int interval)
-            : base(1)
+            : base(0)
         {
             if (interval <= 0 || interval > windowSize)
             {

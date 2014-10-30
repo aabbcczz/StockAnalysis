@@ -10,7 +10,7 @@ namespace MetricsDefinition.Metrics
         private readonly ExponentialMovingAverage _emaDiff;
 
         public MovingAverageConvergenceDivergence(int shortWindowSize, int longWindowSize, int diffWindowSize)
-            : base(1)
+            : base(0)
         {
             if (shortWindowSize < 1 || longWindowSize < 1 || diffWindowSize < 1)
             {

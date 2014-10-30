@@ -6,7 +6,7 @@
         private readonly MovingAverage _ma;
 
         public Bias(int windowSize)
-            : base(1)
+            : base(0)
         {
             _ma = new MovingAverage(windowSize);
         }

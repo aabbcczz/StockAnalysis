@@ -6,7 +6,7 @@ namespace MetricsDefinition.Metrics
     public sealed class BarData : MultipleOutputBarInputSerialMetric
     {
         public BarData()
-            : base(1)
+            : base(0)
         {
         }
 

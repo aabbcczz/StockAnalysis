@@ -11,7 +11,7 @@ namespace MetricsDefinition.Metrics
         private bool _firstBar = true;
 
         public OnBalanceVolume()
-            : base(1)
+            : base(0)
         {
         }
 

@@ -15,7 +15,7 @@ namespace MetricsDefinition.Metrics
         private readonly Lowest _lowest;
 
         public QuickKdj(int kWindowSize, int kDecay, int jCoeff)
-            : base(1)
+            : base(0)
         {
             if (kWindowSize <= 0 || kDecay <= 0 || jCoeff <= 0)
             {

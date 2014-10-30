@@ -9,7 +9,7 @@ namespace MetricsDefinition.Metrics
         private readonly MovingSum _sumVolume;
 
         public AccumulationDistribution(int windowSize)
-            : base(1)
+            : base(0)
         {
             _sumCost = new MovingSum(windowSize);
             _sumVolume = new MovingSum(windowSize);
