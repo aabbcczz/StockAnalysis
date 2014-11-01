@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 
+using StockAnalysis.Share;
+
 namespace TradingStrategy
 {
     public interface IEvaluationContext
@@ -18,6 +20,8 @@ namespace TradingStrategy
         IEnumerable<ITradingObject> GetAllTradingObjects();
 
         int GetCountOfTradingObjects();
+
+        Bar GetBarOfTradingObjectForCurrentPeriod(ITradingObject tradingObject);
 
         void Log(string log);
     }

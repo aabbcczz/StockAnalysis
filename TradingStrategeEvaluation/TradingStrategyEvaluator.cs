@@ -102,6 +102,9 @@ namespace TradingStrategyEvaluation
                     throw new InvalidOperationException("the number of data returned does not match the number of trading object");
                 }
                 
+                // set current period data in context
+                _context.SetCurrentPeriodData(thisPeriodData);
+
                 // start a new period
                 _strategy.StartPeriod(thisPeriodTime);
                 
@@ -131,6 +134,9 @@ namespace TradingStrategyEvaluation
 
                 // end period
                 _strategy.EndPeriod();
+
+                // reset current period data in context
+                _context.SetCurrentPeriodData(null);
 
                 // update last period time and data
                 lastPeriodTime = thisPeriodTime;

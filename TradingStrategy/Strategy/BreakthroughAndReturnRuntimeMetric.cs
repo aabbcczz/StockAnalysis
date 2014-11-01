@@ -6,7 +6,7 @@ namespace TradingStrategy.Strategy
 {
     public sealed class BreakthroughAndReturnRuntimeMetric : IRuntimeMetric
     {
-        private readonly HighBreakthroughRuntimeMetric _breakthroughMetric;
+        private readonly Highest _highest;
 
         private readonly int _maxInterval;
         private readonly int _minInterval;
@@ -34,7 +34,7 @@ namespace TradingStrategy.Strategy
 
         public BreakthroughAndReturnRuntimeMetric(int windowSize, int maxInterval, int minInterval)
         {
-            _breakthroughMetric = new HighBreakthroughRuntimeMetric(windowSize);
+            _highest = new Highest(windowSize);
             _maxInterval = maxInterval;
             _minInterval = minInterval;
 
@@ -50,24 +50,26 @@ namespace TradingStrategy.Strategy
         }
         private void UpdateState(Bar bar)
         {
-            _breakthroughMetric.Update(bar);
+            double highestPrice = _highest.Update(bar.HighestPrice);
+
+            bool breakthrough = Math.Abs(highestPrice - bar.HighestPrice) < 1e-6;
 
             switch(_state)
             {
                 case PriceState.Initial:
-                    if (_breakthroughMetric.Breakthrough)
+                    if (breakthrough)
                     {
                         _state = PriceState.Breakthrough;
-                        LatestBreakthroughPrice = _breakthroughMetric.CurrentHighest;
+                        LatestBreakthroughPrice = highestPrice;
                         LowestPriceAfterBreakthrough = 0.0;
                         _intervalBetweenLastBreakthroughAndRerising = 0;
                     }
 
                     break;
                 case PriceState.Breakthrough:
-                    if (_breakthroughMetric.Breakthrough)
+                    if (breakthrough)
                     {
-                        LatestBreakthroughPrice = _breakthroughMetric.CurrentHighest;
+                        LatestBreakthroughPrice = highestPrice;
                     }
                     else
                     {

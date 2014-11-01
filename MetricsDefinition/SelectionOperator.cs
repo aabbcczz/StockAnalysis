@@ -33,7 +33,14 @@ namespace MetricsDefinition
 
         public override double SingleOutputUpdate(double data)
         {
-            return Operand.SingleOutputUpdate(data);
+            if (Operand.FieldNames.Length > 1)
+            {
+                return Operand.MultipleOutputUpdate(data)[_fieldIndex];
+            }
+            else
+            {
+                return Operand.SingleOutputUpdate(data);
+            }
         }
 
         public override double[] MultipleOutputUpdate(double data)
@@ -43,7 +50,14 @@ namespace MetricsDefinition
 
         public override double SingleOutputUpdate(Bar data)
         {
-            return Operand.SingleOutputUpdate(data);
+            if (Operand.FieldNames.Length > 1)
+            {
+                return Operand.MultipleOutputUpdate(data)[_fieldIndex];
+            }
+            else
+            {
+                return Operand.SingleOutputUpdate(data);
+            }
         }
 
         public override double[] MultipleOutputUpdate(Bar data)

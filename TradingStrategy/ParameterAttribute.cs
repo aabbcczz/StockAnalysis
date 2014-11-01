@@ -55,7 +55,7 @@ namespace TradingStrategy
 
             if (DefaultValue.GetType() != type)
             {
-                throw new InvalidProgramException("At least one value in Default/Min/Max/Step is not expected type");
+                throw new InvalidProgramException("Default value is not expected type");
             }
         }
         

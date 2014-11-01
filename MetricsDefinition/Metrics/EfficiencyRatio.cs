@@ -18,7 +18,7 @@ namespace MetricsDefinition.Metrics
         {
             var volatilitySum = _volatility.Update(Math.Abs(dataPoint - _previousData));
 
-            var movingSpeed = Data.Length == 0 ? 0.0 : Data[-1] - Data[0];
+            var movingSpeed = Data.Length == 0 ? 0.0 : Math.Abs(Data[-1] - Data[0]);
 
             Data.Add(dataPoint);
 

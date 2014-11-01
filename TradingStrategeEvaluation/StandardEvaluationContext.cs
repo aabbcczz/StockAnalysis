@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using TradingStrategy;
+using StockAnalysis.Share;
 
 namespace TradingStrategyEvaluation
 {
     internal sealed class StandardEvaluationContext : IEvaluationContext
     {
+        private Bar[] _currentPeriodData;
         private readonly EquityManager _equityManager;
         private readonly ILogger _logger;
         private readonly ITradingDataProvider _provider;
@@ -58,6 +60,26 @@ namespace TradingStrategyEvaluation
         public IEnumerable<Position> GetPositionDetails(string code)
         {
             return _equityManager.GetPositionDetails(code);
+        }
+
+        public Bar GetBarOfTradingObjectForCurrentPeriod(ITradingObject tradingObject)
+        {
+            if (tradingObject == null)
+            {
+                throw new ArgumentNullException();
+            }
+
+            if (_currentPeriodData == null)
+            {
+                throw new InvalidOperationException("There is no data for current period");
+            }
+
+            return _currentPeriodData[tradingObject.Index];
+        }
+
+        public void SetCurrentPeriodData(Bar[] data)
+        {
+            _currentPeriodData = data;
         }
 
         public void Log(string log)

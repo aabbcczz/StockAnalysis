@@ -2,8 +2,8 @@
 
 namespace TradingStrategy.Strategy
 {
-    public sealed class BreakthroughMarketEntering 
-        : MetricBasedMarketEnteringBase<HighBreakthroughRuntimeMetric>
+    public sealed class BreakthroughMarketEntering
+        : MetricBasedMarketEnteringBase<GenericRuntimeMetric>
     {
         public override string Name
         {
@@ -23,19 +23,24 @@ namespace TradingStrategy.Strategy
             comments = string.Empty;
 
             var metric = MetricManager.GetOrCreateRuntimeMetric(tradingObject);
-            if (metric.Breakthrough)
+
+            var bar = Context.GetBarOfTradingObjectForCurrentPeriod(tradingObject);
+
+            var breakthrough = Math.Abs(metric.LatestData[0][0] - bar.HighestPrice) < 1e-6;
+
+            if (breakthrough)
             {
-                comments = string.Format("Breakthrough: {0:0.0000}", metric.CurrentHighest);
+                comments = string.Format("Breakthrough: {0:0.0000}", bar.HighestPrice);
             }
 
-            return metric.Breakthrough;
+            return breakthrough;
         }
 
-        protected override Func<HighBreakthroughRuntimeMetric> Creator
+        protected override Func<GenericRuntimeMetric> Creator
         {
             get 
             {
-                return (() => new HighBreakthroughRuntimeMetric(BreakthroughWindow));    
+                return (() => new GenericRuntimeMetric(string.Format("HI[{0}](BAR.HP)", BreakthroughWindow)));    
             }
         }
     }

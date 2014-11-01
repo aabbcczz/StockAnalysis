@@ -61,6 +61,7 @@ namespace MetricsDefinition
             {
                 return _soriMetric.Update(data);
             }
+
             throw new NotSupportedException(
                 string.Format("Metric {0} has multiple output", _metric.GetType().Name));
         }
