@@ -4,16 +4,13 @@ using StockAnalysis.Share;
 
 namespace TradingStrategyEvaluation
 {
-    internal static class ChinaStockDataAccessor
+    public static class ChinaStockDataAccessor
     {
         private static Dictionary<string, StockHistoryData> _cache;
 
         public static void Initialize()
         {
-            if (_cache == null)
-            {
-                _cache = new Dictionary<string, StockHistoryData>();
-            }
+            _cache = new Dictionary<string, StockHistoryData>();
         }
 
         public static StockHistoryData Load(string file, StockNameTable nameTable)
