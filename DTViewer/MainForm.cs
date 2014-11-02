@@ -169,7 +169,7 @@ namespace DTViewer
             {
                 _viewerSettings = ViewerSettings.LoadFromFile(ViewerSettingsFileName);
             }
-            catch (Exception ex)
+            catch
             {
                 _viewerSettings = new ViewerSettings();
             }
@@ -181,7 +181,7 @@ namespace DTViewer
             {
                 _viewerSettings.SaveToFile(ViewerSettingsFileName);
             }
-            catch (Exception ex)
+            catch
             {
                 // ignore the error;
             }
@@ -205,7 +205,7 @@ namespace DTViewer
                     //}
                 }
             }
-            catch (Exception ex)
+            catch
             {
                 // ignore error;
             }
