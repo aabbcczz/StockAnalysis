@@ -19,6 +19,14 @@ namespace DTViewer
     public partial class MainForm : Form
     {
         private const string ViewerSettingsFileName = "ViewerSettings.xml";
+        private const int ProportionOfVolumeSpace = 6;
+        private const int MinScaleViewSize = 100;
+        private const int SurroundDataPointCount = 50;
+        private const int StockSeriesIndex = 0;
+        private const int VolumeSeriesIndex = 1;
+        private const int ChartAreaIndex = 0;
+        private const int StartAnnotationIndex = 0;
+        private const int EndAnnotationIndex = 1;
 
         private ChinaStockDataSettings _stockDataSettings = null;
 
@@ -46,6 +54,7 @@ namespace DTViewer
             ColumnPositionBuyPrice.DataPropertyName = "BuyPrice";
             ColumnPositionSellTime.DataPropertyName = "SellTime";
             ColumnPositionSellPrice.DataPropertyName = "SellPrice";
+            ColumnPositionVolume.DataPropertyName = "Volume";
 
             // initialize data accessor (cache)
             ChinaStockDataAccessor.Initialize();
@@ -234,11 +243,31 @@ namespace DTViewer
                 textBoxDetails.Lines = lines;
 
                 // show stock data
-                ShowStockData(position.Code, position.BuyTime, position.SellTime);
+                ShowStockData(position.Code, position.BuyTime, position.SellTime, true);
             }
         }
 
-        private void ShowStockData(string code, DateTime startTime, DateTime endTime)
+        private int GetIndexOfTimeInBars(Bar[] bars, DateTime time)
+        {
+            var compareObject = new Bar { Time = time };
+
+            // index is the index of data whose Time >= time
+            int index = Array.BinarySearch(bars, compareObject, new Bar.TimeComparer());
+            if (index < 0)
+            {
+                // not found, ~index is the index of first data that is greater than value being searched.
+                index = ~index;
+            }
+
+            if (index == bars.Length)
+            {
+                index = bars.Length - 1;
+            }
+
+            return index;
+        }
+
+        private void ShowStockData(string code, DateTime startTime, DateTime endTime, bool addAnnotation)
         {
             string file = _stockDataSettings.BuildActualDataFilePathAndName(code);
 
@@ -253,22 +282,29 @@ namespace DTViewer
                 return;
             }
 
-            var stockSeries = chartData.Series["stockSeries"];
-            var chartArea = chartData.ChartAreas["ChartArea1"];
+            // update label of code
+            labelCode.Text = code;
+
+            var stockSeries = chartData.Series[StockSeriesIndex];
+            var volumeSeries = chartData.Series[VolumeSeriesIndex];
+            var chartArea = chartData.ChartAreas[ChartAreaIndex];
 
             var bars = data.DataOrderedByTime;
 
             if (bars == null || bars.Count() == 0)
             {
                 stockSeries.Points.Clear();
+                volumeSeries.Points.Clear();
                 return;
             }
 
+            // add data to chart
             if (data != _currentShownData)
             {
-                stockSeries.Points.Clear();
+                _currentShownData = data;
 
-                var labels = chartArea.AxisX.CustomLabels;
+                stockSeries.Points.Clear();
+                volumeSeries.Points.Clear();
 
                 for (int i = 0; i < bars.Length; ++i)
                 {
@@ -279,31 +315,70 @@ namespace DTViewer
                         bar.LowestPrice,
                         bar.OpenPrice,
                         bar.ClosePrice);
+
+                    volumeSeries.Points.AddXY(bar.Time, bar.Volume);
                 }
             }
 
-            if (startTime < bars[0].Time)
+            // calculate the index of start time and end time in data
+            int startIndex = GetIndexOfTimeInBars(bars, startTime);
+            int endIndex = GetIndexOfTimeInBars(bars, endTime);
+
+            if (startIndex > endIndex)
             {
-                startTime = bars[0].Time;
+                int temp = startIndex;
+                startIndex = endIndex;
+                endIndex = temp;
             }
-            
-            if (endTime > bars[bars.Length - 1].Time)
+
+            // create scale view to cover start time and end time
+            int position = startIndex - SurroundDataPointCount;
+            int size = endIndex - startIndex + SurroundDataPointCount * 2;
+
+            position = Math.Max(0, position);
+            size = Math.Min(Math.Max(MinScaleViewSize, size), bars.Length);
+
+            if (size + position > bars.Length)
             {
-                endTime = bars[bars.Length - 1].Time;
+                position = bars.Length - size;
             }
 
             chartArea.AxisX.ScaleView = new System.Windows.Forms.DataVisualization.Charting.AxisScaleView()
             {
-                Position = 0,
-                Size = 200
+                Position = position,
+                Size = size
             };
 
+            // adjust view to accomendate the scale
             AdjustChartView();
+
+            // add annotation
+            var startAnnotation = chartData.Annotations[StartAnnotationIndex];
+            var endAnnotation = chartData.Annotations[EndAnnotationIndex];
+            if (addAnnotation)
+            {
+                startAnnotation.AnchorX = startIndex + 1;
+                endAnnotation.AnchorX = endIndex + 1;
+
+                startAnnotation.Visible = true;
+                endAnnotation.Visible = true;
+            }
+            else
+            {
+                startAnnotation.AnchorX = 0;
+                endAnnotation.AnchorX = 0;
+
+                startAnnotation.Visible = false;
+                endAnnotation.Visible = false;
+            }
+
+            chartData.Invalidate();
+            chartData.Update();
         }
 
         private void ShowStockData(string code)
         {
-            ShowStockData(code, DateTime.MinValue, DateTime.MaxValue);
+            ShowStockData(code, DateTime.MinValue, DateTime.MaxValue, false);
         }
 
         private void dataGridViewCodes_SelectionChanged(object sender, EventArgs e)
@@ -319,8 +394,9 @@ namespace DTViewer
 
         private void AdjustChartView()
         {
-            var stockSeries = chartData.Series["stockSeries"];
-            var chartArea = chartData.ChartAreas["ChartArea1"];
+            var volumeSeries = chartData.Series[VolumeSeriesIndex];
+            var stockSeries = chartData.Series[StockSeriesIndex];
+            var chartArea = chartData.ChartAreas[ChartAreaIndex];
 
             if (double.IsNaN(chartArea.AxisX.ScaleView.Position))
             {
@@ -335,22 +411,141 @@ namespace DTViewer
                 max = stockSeries.Points.Count;
             }
 
-            var points = stockSeries.Points.Skip(min).Take(max - min);
+            var stockPoints = stockSeries.Points.Skip(min).Take(max - min);
+            var volumePoints = volumeSeries.Points.Skip(min).Take(max - min);
 
-            var minValue = points.Min(x => x.YValues[1]);
-            var maxValue = points.Max(x => x.YValues[0]);
+            var minStockValue = stockPoints.Min(x => x.YValues[1]);
+            var maxStockValue = stockPoints.Max(x => x.YValues[0]);
 
-            chartArea.AxisY.Minimum = minValue;
-            chartArea.AxisY.Maximum = maxValue;
+            // left space for volume
+            minStockValue -= (maxStockValue - minStockValue) / (ProportionOfVolumeSpace - 1);
+
+            chartArea.AxisY.Minimum = minStockValue;
+            chartArea.AxisY.Maximum = maxStockValue;
+
+            var maxVolumePoints = volumePoints.Max(x => x.YValues[0]);
+            // keep volume on the bottom
+            maxVolumePoints *= ProportionOfVolumeSpace;
+
+            chartArea.AxisY2.Minimum = 0;
+            chartArea.AxisY2.Maximum = maxVolumePoints;
+
         }
 
         private void chartData_AxisViewChanged(object sender, System.Windows.Forms.DataVisualization.Charting.ViewEventArgs e)
         {
-            var chartArea = chartData.ChartAreas["ChartArea1"];
+            var chartArea = chartData.ChartAreas[ChartAreaIndex];
 
             if (e.Axis == e.ChartArea.AxisX)
             {
                 AdjustChartView();
+            }
+        }
+
+        private void buttonIncreaseShowedBars_Click(object sender, EventArgs e)
+        {
+            var chartArea = chartData.ChartAreas[ChartAreaIndex];
+            var stockSeries = chartData.Series[StockSeriesIndex];
+
+            if (chartArea.AxisX.ScaleView == null)
+            {
+                return;
+            }
+
+            int position = (int)chartArea.AxisX.ScaleView.Position;
+            int size = (int)chartArea.AxisX.ScaleView.Size;
+
+            size *= 2;
+
+            int pointsCount = stockSeries.Points.Count;
+
+            if (size >= pointsCount)
+            {
+                position = 0;
+                size = pointsCount;
+            }
+            else
+            {
+                if (position + size >= pointsCount)
+                {
+                    position = pointsCount;
+                }
+            }
+
+            chartArea.AxisX.ScaleView.Position = position;
+            chartArea.AxisX.ScaleView.Size = size;
+
+            AdjustChartView();
+        }
+
+        private void buttonDecreaseShownBars_Click(object sender, EventArgs e)
+        {
+            var chartArea = chartData.ChartAreas[ChartAreaIndex];
+            var stockSeries = chartData.Series[StockSeriesIndex];
+
+            if (chartArea.AxisX.ScaleView == null)
+            {
+                return;
+            }
+
+            int pointsCount = stockSeries.Points.Count;
+            int position = (int)chartArea.AxisX.ScaleView.Position;
+            int size = (int)chartArea.AxisX.ScaleView.Size;
+
+            size /= 2;
+
+            size = Math.Min(Math.Max(MinScaleViewSize, size), pointsCount);
+
+            if (size == pointsCount)
+            {
+                position = 0;
+            }
+
+            chartArea.AxisX.ScaleView.Position = position;
+            chartArea.AxisX.ScaleView.Size = size;
+
+            AdjustChartView();
+        }
+
+        private double GetAxisXPositionFromMouse(int x)
+        {
+            var chartArea = chartData.ChartAreas[ChartAreaIndex];
+            return chartArea.AxisX.PixelPositionToValue(x);
+        }
+
+
+        private void chartData_GetToolTipText(object sender, System.Windows.Forms.DataVisualization.Charting.ToolTipEventArgs e)
+        {
+            if (e.HitTestResult.ChartArea == chartData.ChartAreas[ChartAreaIndex])
+            {
+                double position = GetAxisXPositionFromMouse(e.X);
+                int index = (int)(position - 0.5);
+
+                if (index < 0 )
+                {
+                    index = 0;
+                }
+
+                var stockSeries = chartData.Series[StockSeriesIndex];
+
+                if (position < 0 || position >= stockSeries.Points.Count)
+                {
+                    e.Text = string.Empty;
+                }
+                else
+                {
+                    var bar = _currentShownData.DataOrderedByTime[index];
+
+                    e.Text = string.Format(
+                        "Position:{6}\nTime:{0:yyyy-MM-dd}\nOpen:{1:0.000}\nClose:{2:0.000}\nHighest:{3:0.000}\nLowest:{4:0.000}\nVolume:{5}",
+                        bar.Time,
+                        bar.OpenPrice,
+                        bar.ClosePrice,
+                        bar.HighestPrice,
+                        bar.LowestPrice,
+                        bar.Volume,
+                        position);
+                }
             }
         }
     }

@@ -28,14 +28,20 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.Windows.Forms.DataVisualization.Charting.VerticalLineAnnotation verticalLineAnnotation1 = new System.Windows.Forms.DataVisualization.Charting.VerticalLineAnnotation();
+            System.Windows.Forms.DataVisualization.Charting.VerticalLineAnnotation verticalLineAnnotation2 = new System.Windows.Forms.DataVisualization.Charting.VerticalLineAnnotation();
             System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
             System.Windows.Forms.DataVisualization.Charting.Series series1 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.Series series2 = new System.Windows.Forms.DataVisualization.Charting.Series();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle5 = new System.Windows.Forms.DataGridViewCellStyle();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
+            this.labelCode = new System.Windows.Forms.Label();
+            this.buttonDecreaseShownBars = new System.Windows.Forms.Button();
+            this.buttonIncreaseShowedBars = new System.Windows.Forms.Button();
             this.chartData = new System.Windows.Forms.DataVisualization.Charting.Chart();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.settingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -82,6 +88,9 @@
             // 
             // splitContainer1.Panel1
             // 
+            this.splitContainer1.Panel1.Controls.Add(this.labelCode);
+            this.splitContainer1.Panel1.Controls.Add(this.buttonDecreaseShownBars);
+            this.splitContainer1.Panel1.Controls.Add(this.buttonIncreaseShowedBars);
             this.splitContainer1.Panel1.Controls.Add(this.chartData);
             this.splitContainer1.Panel1.Controls.Add(this.menuStrip1);
             // 
@@ -92,11 +101,59 @@
             this.splitContainer1.SplitterDistance = 465;
             this.splitContainer1.TabIndex = 0;
             // 
+            // labelCode
+            // 
+            this.labelCode.AutoSize = true;
+            this.labelCode.Location = new System.Drawing.Point(24, 161);
+            this.labelCode.Name = "labelCode";
+            this.labelCode.Size = new System.Drawing.Size(0, 13);
+            this.labelCode.TabIndex = 6;
+            // 
+            // buttonDecreaseShownBars
+            // 
+            this.buttonDecreaseShownBars.Location = new System.Drawing.Point(24, 107);
+            this.buttonDecreaseShownBars.Name = "buttonDecreaseShownBars";
+            this.buttonDecreaseShownBars.Size = new System.Drawing.Size(17, 23);
+            this.buttonDecreaseShownBars.TabIndex = 5;
+            this.buttonDecreaseShownBars.Text = "-";
+            this.buttonDecreaseShownBars.UseVisualStyleBackColor = true;
+            this.buttonDecreaseShownBars.Click += new System.EventHandler(this.buttonDecreaseShownBars_Click);
+            // 
+            // buttonIncreaseShowedBars
+            // 
+            this.buttonIncreaseShowedBars.Location = new System.Drawing.Point(24, 78);
+            this.buttonIncreaseShowedBars.Name = "buttonIncreaseShowedBars";
+            this.buttonIncreaseShowedBars.Size = new System.Drawing.Size(17, 23);
+            this.buttonIncreaseShowedBars.TabIndex = 4;
+            this.buttonIncreaseShowedBars.Text = "+";
+            this.buttonIncreaseShowedBars.UseVisualStyleBackColor = true;
+            this.buttonIncreaseShowedBars.Click += new System.EventHandler(this.buttonIncreaseShowedBars_Click);
+            // 
             // chartData
             // 
+            verticalLineAnnotation1.AxisXName = "ChartArea1\\rX";
+            verticalLineAnnotation1.ClipToChartArea = "ChartArea1";
+            verticalLineAnnotation1.IsInfinitive = true;
+            verticalLineAnnotation1.IsSizeAlwaysRelative = false;
+            verticalLineAnnotation1.LineColor = System.Drawing.Color.White;
+            verticalLineAnnotation1.Name = "VerticalLineAnnotationStart";
+            verticalLineAnnotation1.YAxisName = "ChartArea1\\rY";
+            verticalLineAnnotation2.AxisXName = "ChartArea1\\rX";
+            verticalLineAnnotation2.ClipToChartArea = "ChartArea1";
+            verticalLineAnnotation2.IsInfinitive = true;
+            verticalLineAnnotation2.LineColor = System.Drawing.Color.Cyan;
+            verticalLineAnnotation2.Name = "VerticalLineAnnotationEnd";
+            this.chartData.Annotations.Add(verticalLineAnnotation1);
+            this.chartData.Annotations.Add(verticalLineAnnotation2);
+            chartArea1.AxisX.MinorGrid.Enabled = true;
+            chartArea1.AxisX.MinorTickMark.Enabled = true;
             chartArea1.AxisX.ScrollBar.BackColor = System.Drawing.Color.White;
             chartArea1.AxisX.ScrollBar.ButtonColor = System.Drawing.Color.Silver;
             chartArea1.AxisX.ScrollBar.ButtonStyle = System.Windows.Forms.DataVisualization.Charting.ScrollBarButtonStyles.SmallScroll;
+            chartArea1.AxisY.MinorGrid.Enabled = true;
+            chartArea1.AxisY.MinorTickMark.Enabled = true;
+            chartArea1.AxisY2.MinorGrid.Enabled = true;
+            chartArea1.AxisY2.MinorTickMark.Enabled = true;
             chartArea1.BackColor = System.Drawing.Color.Black;
             chartArea1.Name = "ChartArea1";
             this.chartData.ChartAreas.Add(chartArea1);
@@ -110,10 +167,16 @@
             series1.Name = "stockSeries";
             series1.XValueType = System.Windows.Forms.DataVisualization.Charting.ChartValueType.DateTime;
             series1.YValuesPerPoint = 4;
+            series2.ChartArea = "ChartArea1";
+            series2.IsXValueIndexed = true;
+            series2.Name = "volumeSeries";
+            series2.YAxisType = System.Windows.Forms.DataVisualization.Charting.AxisType.Secondary;
             this.chartData.Series.Add(series1);
+            this.chartData.Series.Add(series2);
             this.chartData.Size = new System.Drawing.Size(1155, 441);
             this.chartData.TabIndex = 2;
             this.chartData.Text = "chart1";
+            this.chartData.GetToolTipText += new System.EventHandler<System.Windows.Forms.DataVisualization.Charting.ToolTipEventArgs>(this.chartData_GetToolTipText);
             this.chartData.AxisViewChanged += new System.EventHandler<System.Windows.Forms.DataVisualization.Charting.ViewEventArgs>(this.chartData_AxisViewChanged);
             // 
             // menuStrip1
@@ -293,7 +356,7 @@
             // textBoxDetails
             // 
             this.textBoxDetails.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.textBoxDetails.Font = new System.Drawing.Font("Calibri", 18F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.textBoxDetails.Font = new System.Drawing.Font("Calibri", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.textBoxDetails.Location = new System.Drawing.Point(0, 0);
             this.textBoxDetails.Multiline = true;
             this.textBoxDetails.Name = "textBoxDetails";
@@ -364,6 +427,9 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn ColumnPositionSellTime;
         private System.Windows.Forms.DataGridViewTextBoxColumn ColumnPositionSellPrice;
         private System.Windows.Forms.DataGridViewTextBoxColumn ColumnPositionVolume;
+        private System.Windows.Forms.Button buttonDecreaseShownBars;
+        private System.Windows.Forms.Button buttonIncreaseShowedBars;
+        private System.Windows.Forms.Label labelCode;
 
     }
 }
