@@ -2,6 +2,28 @@
 <CombinedStrategySettings xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <ComponentSettings>
     <TradingStrategyComponentSettings Enabled="false">
+      <ClassType>TradingStrategy.Strategy.BounceMarketEntering, TradingStrategy, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</ClassType>
+      <Name>低点反弹入市</Name>
+      <Description>当价格达到回看周期(WindowSize)内最低点后然后反弹超过最小反弹百分比（MinBouncePercentage）时入市</Description>
+      <ImplementedInterfaces>ITradingStrategyComponent;IMarketEnteringComponent</ImplementedInterfaces>
+      <ComponentParameterSettings>
+        <ParameterSettings>
+          <Name>WindowSize</Name>
+          <Description>回看周期</Description>
+          <ValueType>System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
+          <DefaultValue xsi:type="xsd:int">30</DefaultValue>
+          <Values>30</Values>
+        </ParameterSettings>
+        <ParameterSettings>
+          <Name>MinBouncePercentage</Name>
+          <Description>反弹百分比</Description>
+          <ValueType>System.Double, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
+          <DefaultValue xsi:type="xsd:double">5</DefaultValue>
+          <Values>5</Values>
+        </ParameterSettings>
+      </ComponentParameterSettings>
+    </TradingStrategyComponentSettings>  
+    <TradingStrategyComponentSettings Enabled="false">
       <ClassType>TradingStrategy.Strategy.BreakthroughAndReturnMarketEntering, TradingStrategy, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</ClassType>
       <Name>通道突破折回入市</Name>
       <Description>当最高价格突破通道后然后在给定时间内折回到低点后入市</Description>
@@ -27,10 +49,10 @@
           <ValueType>System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
           <DefaultValue xsi:type="xsd:int">5</DefaultValue>
           <Values>5</Values>
-        </ParameterSettings>
+        </ParameterSettings>	
       </ComponentParameterSettings>
     </TradingStrategyComponentSettings>
-    <TradingStrategyComponentSettings Enabled="false">
+    <TradingStrategyComponentSettings Enabled="true">
       <ClassType>TradingStrategy.Strategy.BreakthroughMarketEntering, TradingStrategy, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</ClassType>
       <Name>通道突破入市</Name>
       <Description>当最高价格突破通道后入市</Description>
@@ -67,6 +89,28 @@
         </ParameterSettings>
       </ComponentParameterSettings>
     </TradingStrategyComponentSettings>
+    <TradingStrategyComponentSettings Enabled="true">
+      <ClassType>TradingStrategy.Strategy.ErFilterMarketEntering, TradingStrategy, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</ClassType>
+      <Name>EfficiencyRatio入市过滤器</Name>
+      <Description>当EfficiencyRatio超过ErThreshold时允许入市</Description>
+      <ImplementedInterfaces>ITradingStrategyComponent;IMarketEnteringComponent</ImplementedInterfaces>
+      <ComponentParameterSettings>
+        <ParameterSettings>
+          <Name>ErWindowSize</Name>
+          <Description>EfficiencyRatio周期</Description>
+          <ValueType>System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
+          <DefaultValue xsi:type="xsd:int">10</DefaultValue>
+          <Values>20</Values>
+        </ParameterSettings>
+        <ParameterSettings>
+          <Name>ErThreshold</Name>
+          <Description>EfficiencyRatio阈值</Description>
+          <ValueType>System.Double, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
+          <DefaultValue xsi:type="xsd:double">0.8</DefaultValue>
+          <Values>0.7</Values>
+        </ParameterSettings>
+      </ComponentParameterSettings>
+    </TradingStrategyComponentSettings>    
     <TradingStrategyComponentSettings Enabled="false">
       <ClassType>TradingStrategy.Strategy.MovingAverageFilterMarketEntering, TradingStrategy, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</ClassType>
       <Name>移动平均入市过滤器</Name>
@@ -111,7 +155,7 @@
         </ParameterSettings>
       </ComponentParameterSettings>
     </TradingStrategyComponentSettings>
-    <TradingStrategyComponentSettings Enabled="true">
+    <TradingStrategyComponentSettings Enabled="false">
       <ClassType>TradingStrategy.Strategy.MovingAverageMarketEnteringExiting, TradingStrategy, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</ClassType>
       <Name>移动平均入市出市</Name>
       <Description>当短期平均向上交叉长期平均时入市，当短期平均向下交叉长期平均时出市</Description>
@@ -133,6 +177,13 @@
         </ParameterSettings>
       </ComponentParameterSettings>
     </TradingStrategyComponentSettings>    
+    <TradingStrategyComponentSettings Enabled="true">
+      <ClassType>TradingStrategy.Strategy.PriceChangeFilterMarketEntering, TradingStrategy, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</ClassType>
+      <Name>价格变化入市过滤器</Name>
+      <Description>当天价格上涨则允许入市，否则将不允许入市。</Description>
+      <ImplementedInterfaces>ITradingStrategyComponent;IMarketEnteringComponent</ImplementedInterfaces>
+      <ComponentParameterSettings />
+    </TradingStrategyComponentSettings>	
     <TradingStrategyComponentSettings Enabled="false">
       <ClassType>TradingStrategy.Strategy.RebreakthroughMarketEntering, TradingStrategy, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</ClassType>
       <Name>通道再次突破入市</Name>
@@ -231,11 +282,11 @@
           <Description>ATR停价倍数</Description>
           <ValueType>System.Double, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
           <DefaultValue xsi:type="xsd:double">3</DefaultValue>
-          <Values>3</Values>
+          <Values>2.2</Values>
         </ParameterSettings>
       </ComponentParameterSettings>
     </TradingStrategyComponentSettings>
-    <TradingStrategyComponentSettings Enabled="false">
+    <TradingStrategyComponentSettings Enabled="true">
       <ClassType>TradingStrategy.Strategy.BreakthroughMarketExiting, TradingStrategy, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</ClassType>
       <Name>通道突破退市</Name>
       <Description>当最低价格突破通道后退市</Description>
@@ -246,7 +297,7 @@
           <Description>通道突破窗口</Description>
           <ValueType>System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
           <DefaultValue xsi:type="xsd:int">20</DefaultValue>
-          <Values>5/30/1</Values>
+          <Values>10</Values>
         </ParameterSettings>
       </ComponentParameterSettings>
     </TradingStrategyComponentSettings>
@@ -408,7 +459,7 @@
           <Description>ATR停价倍数</Description>
           <ValueType>System.Double, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
           <DefaultValue xsi:type="xsd:double">3</DefaultValue>
-          <Values>20</Values>
+          <Values>2.2</Values>
         </ParameterSettings>
       </ComponentParameterSettings>
     </TradingStrategyComponentSettings>

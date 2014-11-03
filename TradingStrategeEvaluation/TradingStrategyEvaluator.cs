@@ -315,6 +315,20 @@ namespace TradingStrategyEvaluation
                     }
                 }
 
+                // exclude 一字板
+                if (currentTradingDataOfObject.HighestPrice == currentTradingDataOfObject.LowestPrice)
+                {
+                    _context.Log(
+                        string.Format(
+                            "{0} price is locked down in {1:yyyy-MM-dd}, failed to execute transaction",
+                            instruction.TradingObject.Code,
+                            time));
+
+                    // remove the instruction and continue;
+                    _pendingInstructions[i] = null;
+                    continue;
+                }
+
                 var transaction = BuildTransactionFromInstruction(
                     instruction,
                     time,

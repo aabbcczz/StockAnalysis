@@ -140,6 +140,10 @@ namespace TradingStrategyEvaluation
 
             ChinaStockDataAccessor.Initialize();
 
+            // shuffle data files to avoid data conflict when multiple data provider are initialized simultaneously
+            // the algorithm here is a hacking way, but it works well
+            dataFiles = dataFiles.OrderBy(s => Guid.NewGuid()).ToArray();
+
             Parallel.ForEach(
                 dataFiles,
                 file =>

@@ -116,8 +116,8 @@ namespace DTViewer
 
             dataGridViewCodes.DataSource = new SortableBindingList<StockProperty>(stockProperties);
 
-            // re-initialize data accessor (cache)
-            ChinaStockDataAccessor.Initialize();
+            // reset data accessor (cache)
+            ChinaStockDataAccessor.Reset();
         }
 
         private void LoadClosedPositionFile(string fileName)

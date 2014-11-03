@@ -43,6 +43,9 @@ namespace EvaluatorCmdClient
         [Option('y', "YearInterval", HelpText = "Year interval for evaluation")]
         public int YearInterval { get; set; }
 
+        [Option('p', "Parallel", HelpText = "Enable parallel execution on different year's interval")]
+        public bool ParallelExecution { get; set; }
+
         [HelpOption]
         public string GetUsage()
         {
@@ -63,6 +66,7 @@ namespace EvaluatorCmdClient
                 writer.WriteLine("Year interval: {0} years", YearInterval);
                 writer.WriteLine("Initial capital: {0:0.0000}", InitialCapital);
                 writer.WriteLine("Warmup periods: {0}", WarmupPeriods);
+                writer.WriteLine("Parallel execution: {0}", ParallelExecution);
             }
         }
 

@@ -80,6 +80,7 @@
     <Compile Include="Strategy\GeneralPositionAdjustingBase.cs" />
     <Compile Include="Strategy\GenericRuntimeMetric.cs" />
     <Compile Include="Strategy\BounceMarketEntering.cs" />
+    <Compile Include="Strategy\PriceChangeFilterMarketEntering.cs" />
     <Compile Include="Strategy\RebreakthroughRuntimeMetric.cs" />
     <Compile Include="Strategy\RebreakthroughMarketEntering.cs" />
     <Compile Include="Strategy\BreakthroughMarketExiting.cs" />

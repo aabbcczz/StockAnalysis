@@ -229,72 +229,86 @@ namespace EvaluatorCmdClient
 
                 _contextManager.SaveEvaluationSummary(evaluationSummary);
 
-                foreach (var interval in intervals)
-                {
-                    // initialize data provider
-                    var dataProvider
-                        = new ChinaStockDataProvider(
-                            stockNameTable,
-                            dataFiles,
-                            interval.Item1, // interval start date
-                            interval.Item2, // interval end date
-                            options.WarmupPeriods);
-
-                    // initialize combined strategy assembler
-                    var combinedStrategyAssembler = new CombinedStrategyAssembler(combinedStrategySettings);
-
-                    var strategyInstances
-                        = new List<Tuple<CombinedStrategy, IDictionary<ParameterAttribute, object>>>();
-
-                    IDictionary<ParameterAttribute, object> values;
-                    while ((values = combinedStrategyAssembler.GetNextSetOfParameterValues()) != null)
+                Action<Tuple<DateTime, DateTime>> evaluatingAction = 
+                    (Tuple<DateTime, DateTime> interval) =>
                     {
-                        var strategy = combinedStrategyAssembler.NewStrategy();
+                        // initialize data provider
+                        var dataProvider
+                            = new ChinaStockDataProvider(
+                                stockNameTable,
+                                dataFiles,
+                                interval.Item1, // interval start date
+                                interval.Item2, // interval end date
+                                options.WarmupPeriods);
 
-                        strategyInstances.Add(Tuple.Create(strategy, values));
-                    }
+                        // initialize combined strategy assembler
+                        var combinedStrategyAssembler = new CombinedStrategyAssembler(combinedStrategySettings);
 
-                    if (strategyInstances.Any())
-                    {
-                        // initialize ResultSummary
-                        ResultSummary.Initialize(strategyInstances.First().Item2);
-                    }
+                        var strategyInstances
+                            = new List<Tuple<CombinedStrategy, IDictionary<ParameterAttribute, object>>>();
 
-                    SetTotalStrategyNumber(intervals.Count() * strategyInstances.Count());
-
-                    try
-                    {
-                        Parallel.ForEach(
-                            strategyInstances,
-                            // below line is for performance profiling only.
-                            // new ParallelOptions() { MaxDegreeOfParallelism = 1 }, 
-                            t =>
-                            {
-                                EvaluateStrategy(
-                                 _contextManager,
-                                 t.Item1,
-                                 t.Item2,
-                                 interval.Item1,
-                                 interval.Item2,
-                                 options.InitialCapital,
-                                 dataProvider,
-                                 tradingSettings);
-
-                                IncreaseProgress();
-                            });
-                    }
-                    finally
-                    {
-                        lock (_contextManager)
+                        IDictionary<ParameterAttribute, object> values;
+                        while ((values = combinedStrategyAssembler.GetNextSetOfParameterValues()) != null)
                         {
-                            // save result summary
-                            _contextManager.SaveResultSummaries();
-                        }
-                    }
+                            var strategy = combinedStrategyAssembler.NewStrategy();
 
-                    // for fun.
-                    GC.Collect();
+                            strategyInstances.Add(Tuple.Create(strategy, values));
+                        }
+
+                        if (strategyInstances.Any())
+                        {
+                            // initialize ResultSummary
+                            ResultSummary.Initialize(strategyInstances.First().Item2);
+                        }
+
+                        SetTotalStrategyNumber(intervals.Count() * strategyInstances.Count());
+
+                        try
+                        {
+                            Parallel.ForEach(
+                                strategyInstances,
+                                // below line is for performance profiling only.
+                                // new ParallelOptions() { MaxDegreeOfParallelism = 1 }, 
+                                t =>
+                                {
+                                    EvaluateStrategy(
+                                     _contextManager,
+                                     t.Item1,
+                                     t.Item2,
+                                     interval.Item1,
+                                     interval.Item2,
+                                     options.InitialCapital,
+                                     dataProvider,
+                                     tradingSettings);
+
+                                    IncreaseProgress();
+                                });
+                        }
+                        finally
+                        {
+                            lock (_contextManager)
+                            {
+                                // save result summary
+                                _contextManager.SaveResultSummaries();
+                            }
+                        }
+
+                        // for fun.
+                        GC.Collect();
+                    };
+
+                if (options.ParallelExecution)
+                {
+                    Parallel.ForEach(intervals, evaluatingAction);
                 }
+                else
+                {
+                    foreach (var interval in intervals)
+                    {
+                        evaluatingAction(interval);
+                    }
+                }
+
             }
 
             _contextManager = null;
