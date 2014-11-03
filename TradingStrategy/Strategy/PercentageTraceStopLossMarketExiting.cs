@@ -18,9 +18,16 @@ namespace TradingStrategy.Strategy
             get { return "如果当前价格低于最高价的一定百分比则触发停价退市"; }
         }
 
-        protected override double CalculateStopLossPrice(ITradingObject tradingObject, double currentPrice)
+        protected override double CalculateStopLossPrice(ITradingObject tradingObject, double currentPrice, out string comments)
         {
-            return currentPrice * (1 - MaxPercentageOfDrawDown / 100.0);
+            var stoploss = currentPrice * (1 - MaxPercentageOfDrawDown / 100.0);
+            comments = string.Format(
+                "stoploss({0:0.000}) = Price({1:0.000)) * (1 - MaxPercentageOfDrawDown({2:0.000}) / 100.0)",
+                stoploss,
+                currentPrice,
+                MaxPercentageOfDrawDown);
+
+            return stoploss;
         }
 
         protected override void ValidateParameterValues()

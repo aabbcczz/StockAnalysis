@@ -43,13 +43,15 @@ namespace TradingStrategy.Strategy
 
             var atr = metric.LatestData[0][0];
 
+            var stoploss = currentPrice - atr * AtrStopLossFactor;
             comments = string.Format(
-                "stoploss = price({2:0.000}) - ATR({0:0.000}) * AtrStopLossFactor({1:0.000})",
+                "stoploss({3:0.000}) = price({2:0.000}) - ATR({0:0.000}) * AtrStopLossFactor({1:0.000})",
                 atr,
                 AtrStopLossFactor,
-                currentPrice);
+                currentPrice,
+                stoploss);
 
-            return currentPrice - atr * AtrStopLossFactor;
+            return stoploss;
         }
     }
 }

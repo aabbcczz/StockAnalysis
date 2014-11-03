@@ -45,12 +45,14 @@ namespace TradingStrategy.Strategy
             var metric = MetricManager.GetOrCreateRuntimeMetric(tradingObject);
 
             var atr = metric.LatestData[0][0];
+            var stoplossGap = -atr * AtrStopLossFactor;
             comments = string.Format(
-                "stoplossgap = ATR({0:0.000}) * AtrStopLossFactor({1:0.000})",
+                "stoplossgap({2:0.000}) = ATR({0:0.000}) * AtrStopLossFactor({1:0.000})",
                 atr,
-                AtrStopLossFactor);
+                AtrStopLossFactor,
+                stoplossGap);
 
-            return -atr * AtrStopLossFactor;
+            return stoplossGap;
         }
     }
 }

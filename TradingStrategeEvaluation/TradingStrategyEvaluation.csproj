@@ -66,6 +66,7 @@
     <Compile Include="CombinedStrategySettings.cs" />
     <Compile Include="EquityManager.cs" />
     <Compile Include="EquityPoint.cs" />
+    <Compile Include="EvaluationProgressEventArgs.cs" />
     <Compile Include="FileLogger.cs" />
     <Compile Include="MemoryLogger.cs" />
     <Compile Include="MetricCalculator.cs" />

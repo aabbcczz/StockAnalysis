@@ -61,7 +61,6 @@
     <Compile Include="EquityEvaluationMethod.cs" />
     <Compile Include="IdGenerator.cs" />
     <Compile Include="Position.cs" />
-    <Compile Include="EvaluationProgressEventArgs.cs" />
     <Compile Include="ILogger.cs" />
     <Compile Include="Instruction.cs" />
     <Compile Include="ITradingDataProvider.cs" />
@@ -72,6 +71,7 @@
     <Compile Include="SellingType.cs" />
     <Compile Include="Strategy\AtrDevTraceStopLossMarketExiting.cs" />
     <Compile Include="Strategy\AtrDevStopLoss.cs" />
+    <Compile Include="Strategy\BarPriceSelector.cs" />
     <Compile Include="Strategy\BreakthroughAndReturnMarketEntering.cs" />
     <Compile Include="Strategy\BounceRuntimeMetric.cs" />
     <Compile Include="Strategy\BreakthroughAndReturnRuntimeMetric.cs" />

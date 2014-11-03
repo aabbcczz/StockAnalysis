@@ -7,6 +7,8 @@ namespace TradingStrategy.Strategy
 {
     public sealed class CombinedStrategy : ITradingStrategy
     {
+        private static bool _forceLoaded;
+
         private readonly ITradingStrategyComponent[] _components;
         private readonly IPositionSizingComponent _positionSizing;
         private readonly List<IMarketEnteringComponent> _marketEntering = new List<IMarketEnteringComponent>();
@@ -32,6 +34,14 @@ namespace TradingStrategy.Strategy
             get { return _description;  }
         }
 
+        public static void ForceLoad()
+        {
+            // this function is used just for forcing loading the container assembly into app domain.
+            if (!_forceLoaded)
+            {
+                _forceLoaded = true;
+            }
+        }
         public IEnumerable<ParameterAttribute> GetParameterDefinitions()
         {
             return _components.SelectMany(component => component.GetParameterDefinitions());

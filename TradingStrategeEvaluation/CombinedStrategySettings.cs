@@ -65,6 +65,8 @@ namespace TradingStrategyEvaluation
 
         public static CombinedStrategySettings GenerateExampleSettings()
         {
+            CombinedStrategy.ForceLoad();
+
             var settings = new CombinedStrategySettings();
 
             var allComponents = AppDomain.CurrentDomain.GetAssemblies()

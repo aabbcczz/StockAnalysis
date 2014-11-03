@@ -18,6 +18,9 @@ namespace TradingStrategy.Strategy
         [Parameter(20, "通道突破窗口")]
         public int BreakthroughWindow { get; set; }
 
+        [Parameter(0, "价格选择选项。0为最高价，1为最低价，2为收盘价，3为开盘价")]
+        public int PriceSelector { get; set; }
+
         [Parameter(10, "通道再次突破允许的最大间隔")]
         public int RebreakthroughMaxInterval { get; set; }
 
@@ -27,6 +30,11 @@ namespace TradingStrategy.Strategy
         protected override void ValidateParameterValues()
         {
             base.ValidateParameterValues();
+
+            if (!BarPriceSelector.IsValidSelector(PriceSelector))
+            {
+                throw new ArgumentException("价格选择项非法");
+            }
 
             if (RebreakthroughMinInterval <=0 || RebreakthroughMaxInterval <= 0)
             {
@@ -63,6 +71,7 @@ namespace TradingStrategy.Strategy
             {
                 return (() => new RebreakthroughRuntimeMetric(
                     BreakthroughWindow, 
+                    PriceSelector,
                     RebreakthroughMaxInterval,
                     RebreakthroughMinInterval));    
             }

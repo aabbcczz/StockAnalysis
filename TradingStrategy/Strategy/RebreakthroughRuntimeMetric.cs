@@ -6,6 +6,7 @@ namespace TradingStrategy.Strategy
     public sealed class RebreakthroughRuntimeMetric : IRuntimeMetric
     {
         private readonly Highest _highest;
+        private readonly int _priceSelector;
 
         private readonly int _maxInterval;
         private readonly int _minInterval;
@@ -20,9 +21,10 @@ namespace TradingStrategy.Strategy
 
         public int IntervalSinceLastBreakthrough { get; private set; }
 
-        public RebreakthroughRuntimeMetric(int windowSize, int maxInterval, int minInterval)
+        public RebreakthroughRuntimeMetric(int windowSize, int priceSelector, int maxInterval, int minInterval)
         {
             _highest = new Highest(windowSize);
+            _priceSelector = priceSelector;
             _maxInterval = maxInterval;
             _minInterval = minInterval;
 
@@ -33,11 +35,13 @@ namespace TradingStrategy.Strategy
 
         public void Update(StockAnalysis.Share.Bar bar)
         {
-            double newHighest = _highest.Update(bar.HighestPrice);
+            double price = BarPriceSelector.Select(bar, _priceSelector);
+
+            double newHighest = _highest.Update(price);
 
             bool oldBreakthrough = Breakthrough;
 
-            Breakthrough = Math.Abs(newHighest - bar.HighestPrice) < 1e-6 && newHighest > CurrentHighest;
+            Breakthrough = Math.Abs(newHighest - price) < 1e-6;
 
             CurrentHighest = newHighest;
 

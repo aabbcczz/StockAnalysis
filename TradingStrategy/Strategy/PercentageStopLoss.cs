@@ -20,12 +20,14 @@ namespace TradingStrategy.Strategy
 
         public override double EstimateStopLossGap(ITradingObject tradingObject, double assumedPrice, out string comments)
         {
+            var stoplossGap = -(assumedPrice * MaxPercentageOfLoss / 100.0);
             comments = string.Format(
-                "stoplossgap = price({0:0.000}) * MaxPercentageOfLoss({1:0.000}) / 100.0",
+                "stoplossgap({2:0.000}) = price({0:0.000}) * MaxPercentageOfLoss({1:0.000}) / 100.0",
                 assumedPrice,
-                MaxPercentageOfLoss);
+                MaxPercentageOfLoss,
+                stoplossGap);
 
-            return -(assumedPrice * MaxPercentageOfLoss / 100.0);
+            return stoplossGap;
         }
 
         protected override void ValidateParameterValues()

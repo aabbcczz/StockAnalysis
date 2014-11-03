@@ -36,8 +36,10 @@ namespace TradingStrategy.Strategy
                             .Select(d => string.Format("0.00", d)))));
         }
 
-        protected override double CalculateStopLossPrice(ITradingObject tradingObject, double currentPrice)
+        protected override double CalculateStopLossPrice(ITradingObject tradingObject, double currentPrice, out string comments)
         {
+            comments = string.Empty;
+
             if (!Context.ExistsPosition(tradingObject.Code))
             {
                 return 0.0;
@@ -71,7 +73,16 @@ namespace TradingStrategy.Strategy
             // calculate the price that can keep profit as m * totalProfit.
             // by simple induction, we know 
             //    new price = m * current price + (1 - m) * totalCost / totalVolume
-            return m * currentPrice + (1.0 - m) * totalCost / totalVolume;
+            var stoploss = m * currentPrice + (1.0 - m) * totalCost / totalVolume;
+            comments = string.Format(
+                "stoploss({0:0.000}) = m({1:0.000}) * Price({2:0.000)) + (1 - m) * totalCost({3:0.000}) / totalVolume({4:0.000})",
+                stoploss,
+                m,
+                currentPrice,
+                totalCost,
+                totalVolume);
+
+            return stoploss;
         }
 
         protected override void ValidateParameterValues()

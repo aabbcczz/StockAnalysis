@@ -9,7 +9,9 @@ namespace TradingStrategy.Strategy
         : GeneralMarketExitingBase
     {
         private readonly Dictionary<string, int> _activePositionHoldingPeriods = new Dictionary<string, int>();
-        private readonly HashSet<string> _codesShouldExit = new HashSet<string>();
+        private readonly Dictionary<string, int> _codesShouldExit = new Dictionary<string, int>();
+
+        private int[] _holdingPeriods;
 
         public override string Name
         {
@@ -21,8 +23,8 @@ namespace TradingStrategy.Strategy
             get { return "当头寸持有超过一段时间后若没有获得足够利润则退出市场"; }
         }
 
-        [Parameter(3, "头寸持有周期数")]
-        public int HoldingPeriods { get; set; }
+        [Parameter("3", "头寸持有周期数。多个周期用','分割")]
+        public string HoldingPeriods { get; set; }
 
         [Parameter(0.0, "期待盈利百分比")]
         public double ExpectedProfitPercentage { get; set; }
@@ -32,15 +34,19 @@ namespace TradingStrategy.Strategy
         {
             base.ValidateParameterValues();
 
-            if (HoldingPeriods < 0)
+            _holdingPeriods = HoldingPeriods.Split(new char[] { ',' }).Select(int.Parse).Where(i => i > 0).ToArray();
+
+            if (_holdingPeriods.Any(i => i < 0))
             {
-                throw new ArgumentOutOfRangeException("HoldingPeriods must be great than 0");
+                throw new ArgumentOutOfRangeException("Holding periods can't be empty and must be great than 0");
             }
+
+            Array.Sort(_holdingPeriods);
         }
 
         public override void EvaluateSingleObject(ITradingObject tradingObject, Bar bar)
         {
-            if (HoldingPeriods == 0)
+            if (_holdingPeriods.Length == 0)
             {
                 return;
             }
@@ -68,11 +74,15 @@ namespace TradingStrategy.Strategy
                         _activePositionHoldingPeriods[code] = _activePositionHoldingPeriods[code] + 1;
                     }
 
-                    if (_activePositionHoldingPeriods[code] == HoldingPeriods)
+                    foreach (var period in _holdingPeriods)
                     {
-                        if (positions.First().BuyPrice * (1.0 + ExpectedProfitPercentage / 100.0) >= bar.ClosePrice)
+                        if (_activePositionHoldingPeriods[code] == period)
                         {
-                            _codesShouldExit.Add(code);
+                            if (positions.First().BuyPrice * (1.0 + ExpectedProfitPercentage / 100.0) >= bar.ClosePrice)
+                            {
+                                _codesShouldExit.Add(code, period);
+                                break;
+                            }
                         }
                     }
                 }
@@ -110,14 +120,15 @@ namespace TradingStrategy.Strategy
         {
             comments = string.Empty;
 
-            if (HoldingPeriods == 0)
+            if (_holdingPeriods.Length == 0)
             {
                 return false;
             }
 
-            if (_codesShouldExit.Contains(tradingObject.Code))
+            int period;
+            if (_codesShouldExit.TryGetValue(tradingObject.Code, out period))
             {
-                comments = string.Format("hold for {0} periods, but no profit", HoldingPeriods);
+                comments = string.Format("hold for {0} periods, but no profit", period);
                 return true;
             }
 

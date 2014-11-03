@@ -7,7 +7,7 @@ namespace TradingStrategy.Strategy
     public sealed class BreakthroughAndReturnRuntimeMetric : IRuntimeMetric
     {
         private readonly Highest _highest;
-
+        private readonly int _priceSelector;
         private readonly int _maxInterval;
         private readonly int _minInterval;
 
@@ -32,9 +32,10 @@ namespace TradingStrategy.Strategy
             get { return _state == PriceState.Rising; }
         }
 
-        public BreakthroughAndReturnRuntimeMetric(int windowSize, int maxInterval, int minInterval)
+        public BreakthroughAndReturnRuntimeMetric(int windowSize, int priceSelector, int maxInterval, int minInterval)
         {
             _highest = new Highest(windowSize);
+            _priceSelector = priceSelector;
             _maxInterval = maxInterval;
             _minInterval = minInterval;
 
@@ -50,9 +51,10 @@ namespace TradingStrategy.Strategy
         }
         private void UpdateState(Bar bar)
         {
-            double highestPrice = _highest.Update(bar.HighestPrice);
+            double price = BarPriceSelector.Select(bar, _priceSelector);
+            double highestPrice = _highest.Update(price);
 
-            bool breakthrough = Math.Abs(highestPrice - bar.HighestPrice) < 1e-6;
+            bool breakthrough = Math.Abs(highestPrice - price) < 1e-6;
 
             switch(_state)
             {

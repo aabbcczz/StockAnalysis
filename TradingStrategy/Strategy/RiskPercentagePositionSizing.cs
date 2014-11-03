@@ -9,7 +9,7 @@ namespace TradingStrategy.Strategy
         [Parameter(1.0, "每份头寸的风险占权益的百分比")]
         public double PercentageOfEquityForEachRisk { get; set; }
 
-        [Parameter(0, "权益计算方法。0：核心权益法，1：总权益法，2：抵减总权益法")]
+        [Parameter(0, "权益计算方法。0：核心权益法，1：总权益法，2：抵减总权益法，3：初始权益法，4：控制损失初始权益法，5：控制损失总权益法，6：控制损失抵减总权益法")]
         public int EquityEvaluationMethod { get; set; }
 
         public override string Name
@@ -42,13 +42,16 @@ namespace TradingStrategy.Strategy
         {
             var currentEquity = Context.GetCurrentEquity(Period, _equityEvaluationMethod);
 
+            var size = (int)(currentEquity * PercentageOfEquityForEachRisk / 100.0 / Math.Abs(stopLossGap));
+
             comments = string.Format(
-                "positionsize = CurrentEquity({0:0.000}) * PercentageOfEquityForEachRisk({1:0.000}) / 100.0 / Risk({2:0.000})",
+                "positionsize({3}) = CurrentEquity({0:0.000}) * PercentageOfEquityForEachRisk({1:0.000}) / 100.0 / Risk({2:0.000})",
                 currentEquity,
                 PercentageOfEquityForEachRisk,
-                Math.Abs(stopLossGap));
+                Math.Abs(stopLossGap),
+                size);
 
-            return (int)(currentEquity * PercentageOfEquityForEachRisk / 100.0 / Math.Abs(stopLossGap));
+            return size;
         }
     }
 }

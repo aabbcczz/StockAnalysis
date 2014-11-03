@@ -283,46 +283,73 @@ namespace TradingStrategyEvaluation
                 return InitialCapital;
             }
 
-            double totalEquity = CurrentCapital;
+            double equity = CurrentCapital;
 
             // cash is the core equity
             if (method == EquityEvaluationMethod.CoreEquity)
             {
-                // do nothing
+                return equity;
             }
-            else
+
+            foreach (var kvp in _activePositions)
             {
-                foreach (var kvp in _activePositions)
+                var code = kvp.Key;
+
+                Bar bar;
+
+                var index = provider.GetIndexOfTradingObject(code);
+                if (index < 0)
                 {
-                    var code = kvp.Key;
+                    throw new InvalidOperationException(string.Format("Can't get index for code {0}", code));
+                }
 
-                    Bar bar;
+                if (!provider.GetLastEffectiveBar(index, period, out bar))
+                {
+                    throw new InvalidOperationException(
+                        string.Format("Can't get data from data provider for code {0}, time {1}", code, period));
+                }
 
-                    var index = provider.GetIndexOfTradingObject(code);
-                    if (index < 0)
-                    {
-                        throw new InvalidOperationException(string.Format("Can't get index for code {0}", code));
-                    }
-
-                    if (!provider.GetLastEffectiveBar(index, period, out bar))
-                    {
-                        throw new InvalidOperationException(
-                            string.Format("Can't get data from data provider for code {0}, time {1}", code, period));
-                    }
-
-                    if (method == EquityEvaluationMethod.TotalEquity)
-                    {
-                        var volume = kvp.Value.Sum(e => e.Volume);
-                        totalEquity += volume * bar.ClosePrice;
-                    }
-                    else if (method == EquityEvaluationMethod.ReducedTotalEquity)
-                    {
-                        totalEquity += kvp.Value.Sum(position => position.Volume*Math.Min(bar.ClosePrice, position.StopLossPrice));
-                    }
+                if (method == EquityEvaluationMethod.TotalEquity
+                    || method == EquityEvaluationMethod.LossControlTotalEquity
+                    || method == EquityEvaluationMethod.LossControlInitialEquity)
+                {
+                    var volume = kvp.Value.Sum(e => e.Volume);
+                    equity += volume * bar.ClosePrice;
+                }
+                else if (method == EquityEvaluationMethod.ReducedTotalEquity 
+                        || method == EquityEvaluationMethod.LossControlReducedTotalEquity)
+                {
+                    equity += kvp.Value.Sum(position => position.Volume * Math.Min(bar.ClosePrice, position.StopLossPrice));
                 }
             }
 
-            return totalEquity;
+            if (method == EquityEvaluationMethod.TotalEquity
+                || method == EquityEvaluationMethod.ReducedTotalEquity)
+            {
+                return equity;
+            }
+            else if (method == EquityEvaluationMethod.LossControlInitialEquity)
+            {
+                return equity > InitialCapital
+                    ? InitialCapital
+                    : 2 * equity - InitialCapital;
+            }
+            else if (method == EquityEvaluationMethod.LossControlTotalEquity)
+            {
+                return equity > InitialCapital
+                    ? equity
+                    : 2 * equity - InitialCapital;
+            }
+            else if (method == EquityEvaluationMethod.LossControlReducedTotalEquity)
+            {
+                return equity > InitialCapital
+                    ? equity
+                    : 2 * equity - InitialCapital;
+            }
+            else
+            {
+                throw new NotImplementedException();
+            }
         }
 
         public double GetPositionMarketValue(ITradingDataProvider provider, string code, DateTime time)
