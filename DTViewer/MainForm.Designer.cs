@@ -38,6 +38,8 @@
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle5 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle6 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle7 = new System.Windows.Forms.DataGridViewCellStyle();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.labelCode = new System.Windows.Forms.Label();
@@ -54,14 +56,16 @@
             this.ColumnCodesCode = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.ColumnCodesName = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dataGridViewClosedPosition = new System.Windows.Forms.DataGridView();
+            this.textBoxDetails = new System.Windows.Forms.TextBox();
+            this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
             this.ColumnPositionCode = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.ColumnPositionBuyTime = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.ColumnPositionBuyPrice = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.ColumnPositionSellTime = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.ColumnPositionSellPrice = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.ColumnPositionVolume = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.textBoxDetails = new System.Windows.Forms.TextBox();
-            this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
+            this.ColumnPositionGain = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.ColumnPositionR = new System.Windows.Forms.DataGridViewTextBoxColumn();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -290,7 +294,9 @@
             this.ColumnPositionBuyPrice,
             this.ColumnPositionSellTime,
             this.ColumnPositionSellPrice,
-            this.ColumnPositionVolume});
+            this.ColumnPositionVolume,
+            this.ColumnPositionGain,
+            this.ColumnPositionR});
             this.dataGridViewClosedPosition.Dock = System.Windows.Forms.DockStyle.Fill;
             this.dataGridViewClosedPosition.Location = new System.Drawing.Point(0, 0);
             this.dataGridViewClosedPosition.MultiSelect = false;
@@ -301,6 +307,23 @@
             this.dataGridViewClosedPosition.Size = new System.Drawing.Size(569, 196);
             this.dataGridViewClosedPosition.TabIndex = 1;
             this.dataGridViewClosedPosition.SelectionChanged += new System.EventHandler(this.dataGridViewClosedPosition_SelectionChanged);
+            // 
+            // textBoxDetails
+            // 
+            this.textBoxDetails.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.textBoxDetails.Font = new System.Drawing.Font("Calibri", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.textBoxDetails.Location = new System.Drawing.Point(0, 0);
+            this.textBoxDetails.Multiline = true;
+            this.textBoxDetails.Name = "textBoxDetails";
+            this.textBoxDetails.ReadOnly = true;
+            this.textBoxDetails.ScrollBars = System.Windows.Forms.ScrollBars.Both;
+            this.textBoxDetails.Size = new System.Drawing.Size(321, 196);
+            this.textBoxDetails.TabIndex = 0;
+            // 
+            // openFileDialog1
+            // 
+            this.openFileDialog1.Filter = "Data settings file|*.xml|Closed position file|*.csv|All files|*.*";
+            this.openFileDialog1.RestoreDirectory = true;
             // 
             // ColumnPositionCode
             // 
@@ -354,22 +377,23 @@
             this.ColumnPositionVolume.Name = "ColumnPositionVolume";
             this.ColumnPositionVolume.ReadOnly = true;
             // 
-            // textBoxDetails
+            // ColumnPositionGain
             // 
-            this.textBoxDetails.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.textBoxDetails.Font = new System.Drawing.Font("Calibri", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.textBoxDetails.Location = new System.Drawing.Point(0, 0);
-            this.textBoxDetails.Multiline = true;
-            this.textBoxDetails.Name = "textBoxDetails";
-            this.textBoxDetails.ReadOnly = true;
-            this.textBoxDetails.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.textBoxDetails.Size = new System.Drawing.Size(321, 196);
-            this.textBoxDetails.TabIndex = 0;
+            dataGridViewCellStyle6.Format = "N3";
+            dataGridViewCellStyle6.NullValue = null;
+            this.ColumnPositionGain.DefaultCellStyle = dataGridViewCellStyle6;
+            this.ColumnPositionGain.HeaderText = "Gain";
+            this.ColumnPositionGain.Name = "ColumnPositionGain";
+            this.ColumnPositionGain.ReadOnly = true;
             // 
-            // openFileDialog1
+            // ColumnPositionR
             // 
-            this.openFileDialog1.Filter = "Data settings file|*.xml|Closed position file|*.csv|All files|*.*";
-            this.openFileDialog1.RestoreDirectory = true;
+            dataGridViewCellStyle7.Format = "N3";
+            dataGridViewCellStyle7.NullValue = null;
+            this.ColumnPositionR.DefaultCellStyle = dataGridViewCellStyle7;
+            this.ColumnPositionR.HeaderText = "R";
+            this.ColumnPositionR.Name = "ColumnPositionR";
+            this.ColumnPositionR.ReadOnly = true;
             // 
             // MainForm
             // 
@@ -423,15 +447,17 @@
         private System.Windows.Forms.DataGridView dataGridViewClosedPosition;
         private System.Windows.Forms.DataGridViewTextBoxColumn ColumnCodesCode;
         private System.Windows.Forms.DataGridViewTextBoxColumn ColumnCodesName;
+        private System.Windows.Forms.Button buttonDecreaseShownBars;
+        private System.Windows.Forms.Button buttonIncreaseShowedBars;
+        private System.Windows.Forms.Label labelCode;
         private System.Windows.Forms.DataGridViewTextBoxColumn ColumnPositionCode;
         private System.Windows.Forms.DataGridViewTextBoxColumn ColumnPositionBuyTime;
         private System.Windows.Forms.DataGridViewTextBoxColumn ColumnPositionBuyPrice;
         private System.Windows.Forms.DataGridViewTextBoxColumn ColumnPositionSellTime;
         private System.Windows.Forms.DataGridViewTextBoxColumn ColumnPositionSellPrice;
         private System.Windows.Forms.DataGridViewTextBoxColumn ColumnPositionVolume;
-        private System.Windows.Forms.Button buttonDecreaseShownBars;
-        private System.Windows.Forms.Button buttonIncreaseShowedBars;
-        private System.Windows.Forms.Label labelCode;
+        private System.Windows.Forms.DataGridViewTextBoxColumn ColumnPositionGain;
+        private System.Windows.Forms.DataGridViewTextBoxColumn ColumnPositionR;
 
     }
 }

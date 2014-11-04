@@ -55,6 +55,8 @@ namespace DTViewer
             ColumnPositionSellTime.DataPropertyName = "SellTime";
             ColumnPositionSellPrice.DataPropertyName = "SellPrice";
             ColumnPositionVolume.DataPropertyName = "Volume";
+            ColumnPositionGain.DataPropertyName = "Gain";
+            ColumnPositionR.DataPropertyName = "R";
 
             // initialize data accessor (cache)
             ChinaStockDataAccessor.Initialize();
@@ -135,7 +137,9 @@ namespace DTViewer
             }
 
             // fill the positions to grid view
-            dataGridViewClosedPosition.DataSource = new SortableBindingList<Position>(_closedPositions);
+            var positionSlims = _closedPositions.Select(p => new PositionSlim(p)).ToArray();
+
+            dataGridViewClosedPosition.DataSource = new SortableBindingList<PositionSlim>(positionSlims);
         }
 
         private void loadClosedPositionFileToolStripMenuItem_Click(object sender, EventArgs e)
@@ -216,34 +220,17 @@ namespace DTViewer
             if (dataGridViewClosedPosition.SelectedRows != null
                 && dataGridViewClosedPosition.SelectedRows.Count > 0)
             {
-                Position position = (Position)dataGridViewClosedPosition.SelectedRows[0].DataBoundItem;
+                PositionSlim positionSlim = (PositionSlim)dataGridViewClosedPosition.SelectedRows[0].DataBoundItem;
 
-                if (position == null)
+                if (positionSlim == null)
                 {
                     return;
                 }
 
-                string[] lines;
-                if (!_positionDetails.TryGetValue(position, out lines))
-                {
-                    lines = new string[]
-                    {
-                        string.Format("Buy Action: {0}", position.BuyAction),
-                        string.Format("Sell Action: {0}", position.SellAction),
-                        string.Format("Buy Commission: {0:0.000}", position.BuyCommission),
-                        string.Format("Sell Commission: {0:0.000}", position.SellCommission),
-                        string.Format("Initial Risk: {0:0.000}", position.InitialRisk),
-                        string.Format("Stoploss Price: {0:0.000}", position.StopLossPrice),
-                        position.Comments
-                    };
-
-                    _positionDetails.Add(position, lines);
-                }
-
-                textBoxDetails.Lines = lines;
+                textBoxDetails.Text = positionSlim.Annotation;
 
                 // show stock data
-                ShowStockData(position.Code, position.BuyTime, position.SellTime, true);
+                ShowStockData(positionSlim.Code, positionSlim.BuyTime, positionSlim.SellTime, true);
             }
         }
 

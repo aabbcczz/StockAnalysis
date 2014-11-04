@@ -135,6 +135,11 @@ namespace EvaluatorCmdClient
             long totalNumberOfEvaluatedStrategies 
                 = Interlocked.CompareExchange(ref _totalNumberOfStrategies, 0, 0);
 
+            if (numberOfEvaluatedStrategies % 5 == 0)
+            {
+                GC.Collect();
+            }
+
             Console.Write(
                 "\r{0}/{1} ({2}%)",
                 numberOfEvaluatedStrategies,
@@ -292,9 +297,6 @@ namespace EvaluatorCmdClient
                                 _contextManager.SaveResultSummaries();
                             }
                         }
-
-                        // for fun.
-                        GC.Collect();
                     };
 
                 if (options.ParallelExecution)

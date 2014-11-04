@@ -33,7 +33,7 @@ namespace TradingStrategy.Strategy
                     string.Join(
                         ":", 
                         _maxPercentageOfProfitDrawdown
-                            .Select(d => string.Format("0.00", d)))));
+                            .Select(d => string.Format("0.000", d)))));
         }
 
         protected override double CalculateStopLossPrice(ITradingObject tradingObject, double currentPrice, out string comments)

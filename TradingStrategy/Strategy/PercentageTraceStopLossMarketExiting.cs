@@ -22,7 +22,7 @@ namespace TradingStrategy.Strategy
         {
             var stoploss = currentPrice * (1 - MaxPercentageOfDrawDown / 100.0);
             comments = string.Format(
-                "stoploss({0:0.000}) = Price({1:0.000)) * (1 - MaxPercentageOfDrawDown({2:0.000}) / 100.0)",
+                "stoploss({0:0.000}) = Price({1:0.000}) * (1 - MaxPercentageOfDrawDown({2:0.000}) / 100.0)",
                 stoploss,
                 currentPrice,
                 MaxPercentageOfDrawDown);
