@@ -66,6 +66,7 @@
     <Compile Include="FinanceReportHelper.cs" />
     <Compile Include="FinanceReportRow.cs" />
     <Compile Include="FinanceReportTable.cs" />
+    <Compile Include="LinearRegression.cs" />
     <Compile Include="MetricHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="PropertyComparer.cs" />
