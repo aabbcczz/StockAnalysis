@@ -8,21 +8,85 @@ namespace StockAnalysis.Share
 {
     public static class LinearRegression
     {
-        public sealed class RegressionResult
+        public sealed class FinalResult
         {
             public double Slope { get; set; }
             public double Intercept { get; set; }
-            public double ResidualSquare { get; set; }
+            public double SquareResidual { get; set; }
+            public double SquareStandardError { get; set; }
         }
 
-        public sealed class RegressionState
+        public sealed class IntermediateResult
         {
-            public double N { get; set; }
-            public double SumX { get; set; }
-            public double SumY {get; set; }
-            public double SumXSquare {get; set; }
-            public double SumYSquare {get; set; }
-            public double SumXY { get; set; }
+            public double N { get; private set; }
+            public double SumX { get; private set; }
+            public double SumY {get; private set; }
+            public double SumXSquare {get; private set; }
+            public double SumYSquare {get; private set; }
+            public double SumXY { get; private set; }
+
+            public IntermediateResult()
+            {
+            }
+
+            // add a point
+            public void Add(double x, double y)
+            {
+                N += 1.0;
+                SumX += x;
+                SumY += y;
+                SumXSquare += x * x;
+                SumYSquare += y * y;
+                SumXY += x * y;
+            }
+
+            // remove a point. caller needs to ensure the point has been added before.
+            public void Remove(double x, double y)
+            {
+                N -= 1.0;
+                SumX -= x;
+                SumY -= y;
+                SumXSquare -= x * x;
+                SumYSquare -= y * y;
+                SumXY -= x * y;
+            }
+
+            // shift all points on X axis, original point (x, y) becomes (x + deltaX, y)
+            public void ShiftX(double deltaX)
+            {
+                SumXSquare += 2 * deltaX * SumX + N * deltaX * deltaX;
+                SumXY += deltaX * SumY;
+                SumX += N * deltaX;
+            }
+
+            // shift all points on Y axis. original point (x, y) becomes (x, y + deltaY)
+            public void ShiftY(double deltaY)
+            {
+                SumYSquare += 2 * deltaY * SumY + N * deltaY * deltaY;
+                SumXY += deltaY * SumX;
+                SumY += N * deltaY;
+            }
+
+            // scale all points on X axis. original point (x, y) becomes (x * scaleX, y)
+            public void ScaleX(double scaleX)
+            {
+                SumX *= scaleX;
+                SumXSquare *= scaleX * scaleX;
+                SumXY *= scaleX;
+            }
+
+            // scale all points on Y axis. original point (x, y) becomes (x, y * scaleY)
+            public void ScaleY(double scaleY)
+            {
+                SumY *= scaleY;
+                SumYSquare *= scaleY * scaleY;
+                SumXY *= scaleY;
+            }
+
+            public FinalResult Compute()
+            {
+                return LinearRegression.Compute(N, SumX, SumY, SumXSquare, SumYSquare, SumXY);
+            }
         }
 
         // Refer to http://mathworld.wolfram.com/LeastSquaresFitting.html
@@ -35,8 +99,9 @@ namespace StockAnalysis.Share
         //      a = SSxy / SSxx
         //      b = avg(y) - a * avg(x)
         //      r^2 = SSxy^2 / (SSxx * SSyy)
+        //      s^2 = (SSyy - a * SSxy) / (n - 2)
 
-        private static RegressionResult FinalStep(
+        public static FinalResult Compute(
             double n,
             double sumX,
             double sumY,
@@ -44,6 +109,12 @@ namespace StockAnalysis.Share
             double sumYSquare,
             double sumXY)
         {
+#if DEBUG
+            if (Math.Abs(n) < 1e-6)
+            {
+                throw new DivideByZeroException();
+            }
+#endif
             double avgX = sumX / n;
             double avgY = sumY / n;
 
@@ -51,26 +122,24 @@ namespace StockAnalysis.Share
             double SSyy = sumYSquare - n * avgY * avgY;
             double SSxy = sumXY - n * avgX * avgY;
 
-            if (Math.Abs(SSxx) < 1e-10)
+#if DEBUG
+            if (Math.Abs(SSxx) < 1e-6 || Math.Abs(SSyy) < 1e-6)
             {
-                throw new OverflowException("Regression can't be calculate because SSxx is 0.0");
+                throw new DivideByZeroException();
             }
-
+#endif
             double slope = SSxy / SSxx;
             double intercept = avgY - slope * avgX;
-            double residualSquare = SSxy * SSxy / SSxx / SSyy;
+            double squareResidual = SSxy * SSxy / SSxx / SSyy;
+            double squareStandardError = Math.Abs(n - 2.0) < 1e-6 ? 0.0 : (SSyy - slope * SSxy) / (n - 2.0);
 
-            return new RegressionResult
+            return new FinalResult
             {
                 Slope = slope,
                 Intercept = intercept,
-                ResidualSquare = residualSquare
+                SquareResidual = squareResidual,
+                SquareStandardError = squareStandardError
             };
-        }
-
-        public RegressionResult Compute(RegressionState state)
-        {
-            return FinalStep(state.N, state.SumX, state.SumY, state.SumXSquare, state.SumYSquare, state.SumXY);
         }
 
         /// <summary>
@@ -79,7 +148,7 @@ namespace StockAnalysis.Share
         /// <param name="x"></param>
         /// <param name="y"></param>
         /// <returns></returns>
-        public static RegressionResult Compute(double[] x, double[] y)
+        public static FinalResult Compute(double[] x, double[] y)
         {
             if (x == null || y == null || x.Length <= 1 || y.Length <= 1)
             {
@@ -113,7 +182,7 @@ namespace StockAnalysis.Share
                 }
             }
 
-            return FinalStep(n, sumX, sumY, sumXSquare, sumYSquare, sumXY);
+            return Compute(n, sumX, sumY, sumXSquare, sumYSquare, sumXY);
         }
 
         /// <summary>
@@ -121,7 +190,7 @@ namespace StockAnalysis.Share
         /// </summary>
         /// <param name="y"></param>
         /// <returns></returns>
-        public static RegressionResult Compute(double[] y)
+        public static FinalResult ComputeSeries(double[] y)
         {
             if (y == null || y.Length <= 1)
             {
@@ -147,13 +216,13 @@ namespace StockAnalysis.Share
                 }
             }
 
-            return FinalStep(n, sumX, sumY, sumXSquare, sumYSquare, sumXY);
+            return Compute(n, sumX, sumY, sumXSquare, sumYSquare, sumXY);
         }
 
         /// <summary>
         /// Calculate the regression of (0, y1[0]), (0, y2[0])..., (n-1, y1[n-1]), (n-1, y2[n-1])
         /// </summary>
-        public static RegressionResult Compute(double[] y1, double[] y2)
+        public static FinalResult ComputeSeries(double[] y1, double[] y2)
         {
             if (y1 == null || y1.Length <= 1 || y2 == null || y2.Length <= 1)
             {
@@ -185,7 +254,7 @@ namespace StockAnalysis.Share
                 }
             }
 
-            return FinalStep(n, sumX, sumY, sumXSquare, sumYSquare, sumXY);
+            return Compute(n, sumX, sumY, sumXSquare, sumYSquare, sumXY);
         }
     }
 }

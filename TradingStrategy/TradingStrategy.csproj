@@ -76,10 +76,12 @@
     <Compile Include="Strategy\BounceRuntimeMetric.cs" />
     <Compile Include="Strategy\BreakthroughAndReturnRuntimeMetric.cs" />
     <Compile Include="Strategy\CommonPositionAdjusting.cs" />
+    <Compile Include="Strategy\LinearRegressionSlopeFilterMarketEntering.cs" />
     <Compile Include="Strategy\ErFilterMarketEntering.cs" />
     <Compile Include="Strategy\GeneralPositionAdjustingBase.cs" />
     <Compile Include="Strategy\GenericRuntimeMetric.cs" />
     <Compile Include="Strategy\BounceMarketEntering.cs" />
+    <Compile Include="Strategy\RandomMarketEntering.cs" />
     <Compile Include="Strategy\PriceChangeFilterMarketEntering.cs" />
     <Compile Include="Strategy\RebreakthroughRuntimeMetric.cs" />
     <Compile Include="Strategy\RebreakthroughMarketEntering.cs" />

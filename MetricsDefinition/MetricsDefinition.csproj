@@ -60,6 +60,7 @@
     <Compile Include="BarInputSerialMetric.cs" />
     <Compile Include="CirculatedArray.cs" />
     <Compile Include="Metrics\AdaptiveMovingAverage.cs" />
+    <Compile Include="Metrics\LinearRegressionMetric.cs" />
     <Compile Include="Metrics\StdDevTrueRange.cs" />
     <Compile Include="Metrics\StopAndReverse.cs" />
     <Compile Include="Metrics\BollingerBand.cs" />

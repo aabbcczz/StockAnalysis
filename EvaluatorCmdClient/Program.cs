@@ -91,9 +91,20 @@ namespace EvaluatorCmdClient
             stockDataSettings.SaveToFile(AddPrefixToFileName(options.StockDataSettingsFile, prefix));
         }
 
-        static string[] LoadCodeOfStocks(string codeFile)
+        static string[] LoadCodeOfStocks(string codeFile, int randomSelectedTradingObjectCount)
         {
-            return File.ReadAllLines(codeFile).Where(s => !string.IsNullOrWhiteSpace(s)).ToArray();
+            var codes = File.ReadAllLines(codeFile).Where(s => !string.IsNullOrWhiteSpace(s)).ToArray();
+
+            if (randomSelectedTradingObjectCount == 0 || randomSelectedTradingObjectCount >= codes.Length)
+            {
+                return codes;
+            }
+
+            Console.WriteLine("Selected {0} codes from {1} codes", randomSelectedTradingObjectCount, codes.Length);
+
+            codes = codes.OrderBy(s => Guid.NewGuid()).Take(randomSelectedTradingObjectCount).ToArray();
+
+            return codes;
         }
 
         static IEnumerable<Tuple<DateTime, DateTime>> GenerateIntervals(DateTime startDate, DateTime endDate, int yearInterval)
@@ -189,7 +200,7 @@ namespace EvaluatorCmdClient
 
             // load codes and stock name table
             var stockNameTable = new StockNameTable(stockDataSettings.StockNameTableFile);
-            var codes = LoadCodeOfStocks(options.CodeFile);
+            var codes = LoadCodeOfStocks(options.CodeFile, options.RandomSelectedTradingObjectCount);
             var dataFiles = codes
                 .Select(stockDataSettings.BuildActualDataFilePathAndName)
                 .ToArray();

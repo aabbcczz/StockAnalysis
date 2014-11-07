@@ -46,6 +46,9 @@ namespace EvaluatorCmdClient
         [Option('p', "Parallel", HelpText = "Enable parallel execution on different year's interval")]
         public bool ParallelExecution { get; set; }
 
+        [Option('r', "RandomSelect", HelpText = "Number of random selected trading objects")]
+        public int RandomSelectedTradingObjectCount { get; set; }
+
         [HelpOption]
         public string GetUsage()
         {
@@ -67,6 +70,7 @@ namespace EvaluatorCmdClient
                 writer.WriteLine("Initial capital: {0:0.0000}", InitialCapital);
                 writer.WriteLine("Warmup periods: {0}", WarmupPeriods);
                 writer.WriteLine("Parallel execution: {0}", ParallelExecution);
+                writer.WriteLine("# of random selected trading objects: {0}", RandomSelectedTradingObjectCount);
             }
         }
 
@@ -90,6 +94,11 @@ namespace EvaluatorCmdClient
             if (YearInterval < 0)
             {
                 YearInterval = 0;
+            }
+
+            if (RandomSelectedTradingObjectCount < 0)
+            {
+                RandomSelectedTradingObjectCount = 0;
             }
         }
     }

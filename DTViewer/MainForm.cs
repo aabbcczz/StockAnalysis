@@ -455,7 +455,7 @@ namespace DTViewer
             {
                 if (position + size >= pointsCount)
                 {
-                    position = pointsCount;
+                    position = pointsCount - size;
                 }
             }
 
