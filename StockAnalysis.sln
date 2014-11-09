@@ -33,6 +33,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EvaluatorCmdClient", "Evalu
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DTViewer", "DTViewer\DTViewer.csproj", "{C7AEA6A8-7698-45A5-B2FC-F43F7DB7D7D8}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConvertTdxBlockData", "ConvertTdxBlockData\ConvertTdxBlockData.csproj", "{DDD61826-AB2D-477F-A742-E5433775E3B0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -99,6 +101,10 @@ Global
 		{C7AEA6A8-7698-45A5-B2FC-F43F7DB7D7D8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C7AEA6A8-7698-45A5-B2FC-F43F7DB7D7D8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C7AEA6A8-7698-45A5-B2FC-F43F7DB7D7D8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DDD61826-AB2D-477F-A742-E5433775E3B0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DDD61826-AB2D-477F-A742-E5433775E3B0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DDD61826-AB2D-477F-A742-E5433775E3B0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DDD61826-AB2D-477F-A742-E5433775E3B0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
