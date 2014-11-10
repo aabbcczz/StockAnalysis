@@ -3,8 +3,10 @@
 namespace TradingStrategy.Strategy
 {
     public sealed class BreakthroughAndReturnMarketEntering 
-        : MetricBasedMarketEnteringBase<BreakthroughAndReturnRuntimeMetric>
+        : GeneralMarketEnteringBase
     {
+        private int _metricIndex;
+
         public override string Name
         {
             get { return "通道突破折回入市"; }
@@ -56,21 +58,27 @@ namespace TradingStrategy.Strategy
         {
             comments = string.Empty;
 
-            var metric = MetricManager.GetOrCreateRuntimeMetric(tradingObject);
+            var metric = (BreakthroughAndReturnRuntimeMetric)Context.MetricManager.GetMetric(tradingObject, _metricIndex);
             if (metric.Triggered)
             {
-                comments = string.Format("Breakthrough: {0:0.0000}, LowestPrice: {1:0.0000}", metric.LatestBreakthroughPrice, metric.LowestPriceAfterBreakthrough);
+                comments = string.Format(
+                    "Breakthrough: {0:0.0000}, LowestPrice: {1:0.0000}", 
+                    metric.LatestBreakthroughPrice,
+                    metric.LowestPriceAfterBreakthrough);
+
+                return true;
             }
 
-            return metric.Triggered;
+            return false;
         }
 
-        protected override Func<BreakthroughAndReturnRuntimeMetric> Creator
+        protected override void RegisterMetric()
         {
-            get 
-            {
-                return (() => new BreakthroughAndReturnRuntimeMetric(BreakthroughWindow, PriceSelector, RerisingMaxInterval, RerisingMinInterval));    
-            }
+            base.RegisterMetric();
+
+            _metricIndex = Context.MetricManager.RegisterMetric(
+                string.Format("BreakthroughAndReturn[{0},{1},{2},{3}]", BreakthroughWindow, PriceSelector, RerisingMaxInterval, RerisingMinInterval),
+                (string s) => new BreakthroughAndReturnRuntimeMetric(BreakthroughWindow, PriceSelector, RerisingMaxInterval, RerisingMinInterval)); 
         }
     }
 }

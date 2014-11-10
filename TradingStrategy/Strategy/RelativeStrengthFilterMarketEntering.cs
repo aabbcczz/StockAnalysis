@@ -4,9 +4,11 @@ using StockAnalysis.Share;
 namespace TradingStrategy.Strategy
 {
     public sealed class RelativeStrengthFilterMarketEntering
-        : MetricBasedMarketEnteringBase<GenericRuntimeMetric>
+        : GeneralMarketEnteringBase
     {
         private const double InvalidRateOfChanges = double.MaxValue;
+
+        private int _metricIndex;
 
         private double[] _rateOfChanges;
         private int[] _rateOfChangesIndex;
@@ -20,9 +22,10 @@ namespace TradingStrategy.Strategy
         [Parameter(95.0, "相对强度阈值")]
         public double RelativeStrengthThreshold { get; set; }
 
-        protected override Func<GenericRuntimeMetric> Creator
+        protected override void RegisterMetric()
         {
-            get { return (() => new GenericRuntimeMetric(string.Format("ROC[{0}]", RocWindowSize))); }
+ 	        base.RegisterMetric();
+            _metricIndex = Context.MetricManager.RegisterMetric(string.Format("ROC[{0}]", RocWindowSize));
         }
 
         protected override void ValidateParameterValues()
@@ -82,7 +85,7 @@ namespace TradingStrategy.Strategy
             base.EvaluateSingleObject(tradingObject, bar);
 
             _rateOfChanges[tradingObject.Index] 
-                = MetricManager.GetOrCreateRuntimeMetric(tradingObject).LatestData[0][0];
+                = Context.MetricManager.GetMetricValues(tradingObject, _metricIndex)[0];
 
             _numberOfValidTradingObjectsInThisPeriod++;
         }

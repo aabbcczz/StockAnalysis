@@ -4,8 +4,12 @@ using MetricsDefinition;
 namespace TradingStrategy.Strategy
 {
     public sealed class LinearRegressionSlopeFilterMarketEntering 
-        : MetricBasedMarketEnteringBase<GenericRuntimeMetric>
+        : GeneralMarketEnteringBase
     {
+        private int _longMetricIndex;
+        private int _middleMetricIndex;
+        private int _shortMetricIndex;
+
         [Parameter(70, "长期回看周期")]
         public int LongWindowSize { get; set; }
 
@@ -24,9 +28,14 @@ namespace TradingStrategy.Strategy
         [Parameter(-90.0, "短期线性回归斜率角度阈值，取值为[-90.0..90.0]")]
         public double ShortDegreeThreshold { get; set; }
 
-        protected override Func<GenericRuntimeMetric> Creator
+        protected override void RegisterMetric()
         {
-            get { return (() => new GenericRuntimeMetric(string.Format("LR[{0}];LR[{1}];LR[{2}]", LongWindowSize, MiddleWindowSize, ShortWindowSize))); }
+            base.RegisterMetric();
+
+            _shortMetricIndex = Context.MetricManager.RegisterMetric(string.Format("LR[{0}]", ShortWindowSize));
+            _middleMetricIndex = Context.MetricManager.RegisterMetric(string.Format("LR[{0}]", MiddleWindowSize));
+            _longMetricIndex = Context.MetricManager.RegisterMetric(string.Format("LR[{0}]", LongWindowSize));
+
         }
 
         protected override void ValidateParameterValues()
@@ -52,13 +61,12 @@ namespace TradingStrategy.Strategy
         public override bool CanEnter(ITradingObject tradingObject, out string comments)
         {
             comments = string.Empty;
-            var runtimeMetric = MetricManager.GetOrCreateRuntimeMetric(tradingObject);
 
-            var longSlope = runtimeMetric.LatestData[0][0];
+            var longSlope = Context.MetricManager.GetMetricValues(tradingObject, _longMetricIndex)[0];
             var longDegree = Math.Atan(longSlope) * 180.0 / Math.PI;
-            var middleSlope = runtimeMetric.LatestData[1][0];
+            var middleSlope = Context.MetricManager.GetMetricValues(tradingObject, _middleMetricIndex)[0];
             var middleDegree = Math.Atan(middleSlope) * 180.0 / Math.PI;
-            var shortSlope = runtimeMetric.LatestData[2][0];
+            var shortSlope = Context.MetricManager.GetMetricValues(tradingObject, _shortMetricIndex)[0];
             var shortDegree = Math.Atan(shortSlope) * 180.0 / Math.PI;
 
             if (longDegree > LongDegreeThreshold 

@@ -1,9 +1,11 @@
 ﻿using StockAnalysis.Share;
 
-namespace TradingStrategy.Strategy
+namespace TradingStrategy
 {
     public interface IRuntimeMetric
     {
+        double[] Values { get; }
+
         void Update(Bar bar);
     }
 }

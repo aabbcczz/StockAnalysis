@@ -60,6 +60,7 @@
     <Compile Include="CompletedTransaction.cs" />
     <Compile Include="EquityEvaluationMethod.cs" />
     <Compile Include="IdGenerator.cs" />
+    <Compile Include="IRuntimeMetricManager.cs" />
     <Compile Include="Position.cs" />
     <Compile Include="ILogger.cs" />
     <Compile Include="Instruction.cs" />
@@ -79,7 +80,6 @@
     <Compile Include="Strategy\LinearRegressionSlopeFilterMarketEntering.cs" />
     <Compile Include="Strategy\ErFilterMarketEntering.cs" />
     <Compile Include="Strategy\GeneralPositionAdjustingBase.cs" />
-    <Compile Include="Strategy\GenericRuntimeMetric.cs" />
     <Compile Include="Strategy\BounceMarketEntering.cs" />
     <Compile Include="Strategy\RandomMarketEntering.cs" />
     <Compile Include="Strategy\PriceChangeFilterMarketEntering.cs" />
@@ -101,10 +101,6 @@
     <Compile Include="Strategy\GeneralStopLossBase.cs" />
     <Compile Include="Strategy\GeneralMarketExitingBase.cs" />
     <Compile Include="Strategy\GeneralMarketEnteringBase.cs" />
-    <Compile Include="Strategy\MetricBasedStopLossBase.cs" />
-    <Compile Include="Strategy\MetricBasedMarketExitingBase.cs" />
-    <Compile Include="Strategy\MetricBasedPositionSizingBase.cs" />
-    <Compile Include="Strategy\MetricBasedTraceStopLossMarketExitingBase.cs" />
     <Compile Include="Strategy\AtrTraceStopLossMarketExiting.cs" />
     <Compile Include="Strategy\AtrStopLoss.cs" />
     <Compile Include="Strategy\CombinedStrategy.cs" />
@@ -112,19 +108,15 @@
     <Compile Include="Strategy\IMarketEnteringComponent.cs" />
     <Compile Include="ITradingStrategyComponent.cs" />
     <Compile Include="Strategy\IMarketExitingComponent.cs" />
-    <Compile Include="Strategy\IRuntimeMetric.cs" />
+    <Compile Include="IRuntimeMetric.cs" />
     <Compile Include="Strategy\IStopLossComponent.cs" />
     <Compile Include="Strategy\GeneralTradingStrategyComponentBase.cs" />
-    <Compile Include="Strategy\MetricBasedMarketEnteringBase.cs" />
-    <Compile Include="Strategy\MetricBasedTradingStrategyComponentBase.cs" />
     <Compile Include="Strategy\MovingAverageMarketExiting.cs" />
     <Compile Include="Strategy\MovingAverageMarketEntering.cs" />
-    <Compile Include="Strategy\MovingAverageMarketEnteringExiting.cs" />
     <Compile Include="Strategy\NeverMarketExiting.cs" />
     <Compile Include="Strategy\ProfitTraceStopLossMarketExiting.cs" />
     <Compile Include="Strategy\PercentageTraceStopLossMarketExiting.cs" />
     <Compile Include="Strategy\PercentageStopLoss.cs" />
-    <Compile Include="Strategy\RuntimeMetricManager.cs" />
     <Compile Include="Strategy\NoEnoughProfitMarketExiting.cs" />
     <Compile Include="Strategy\TimeoutMarketExiting.cs" />
     <Compile Include="TradingAction.cs" />

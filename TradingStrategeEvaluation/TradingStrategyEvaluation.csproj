@@ -68,8 +68,10 @@
     <Compile Include="EquityPoint.cs" />
     <Compile Include="EvaluationProgressEventArgs.cs" />
     <Compile Include="FileLogger.cs" />
+    <Compile Include="GenericRuntimeMetric.cs" />
     <Compile Include="MemoryLogger.cs" />
-    <Compile Include="MetricCalculator.cs" />
+    <Compile Include="StandardRuntimeMetricManager.cs" />
+    <Compile Include="TradeMetricsCalculator.cs" />
     <Compile Include="ParameterSettings.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="StandardEvaluationContext.cs" />

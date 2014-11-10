@@ -7,6 +7,8 @@ namespace TradingStrategy
 {
     public interface IEvaluationContext
     {
+        IRuntimeMetricManager MetricManager { get; }
+
         double GetInitialEquity();
 
         double GetCurrentEquity(DateTime period, EquityEvaluationMethod method);

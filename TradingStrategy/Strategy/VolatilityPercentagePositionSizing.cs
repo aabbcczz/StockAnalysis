@@ -3,8 +3,10 @@
 namespace TradingStrategy.Strategy
 {
     public sealed class VolatilityPercentagePositionSizing
-        : MetricBasedPositionSizingBase<GenericRuntimeMetric>
+        : GeneralPositionSizingBase
     {
+        private int _metricIndex;
+
         private EquityEvaluationMethod _equityEvaluationMethod;
 
         [Parameter(10, "波动率计算时间窗口大小")]
@@ -47,16 +49,17 @@ namespace TradingStrategy.Strategy
             }
         }
 
-        protected override Func<GenericRuntimeMetric> Creator
+        protected override void RegisterMetric()
         {
-            get { return (() => new GenericRuntimeMetric(string.Format("ATR[{0}]", VolatilityWindowSize))); }
+            base.RegisterMetric();
+            _metricIndex = Context.MetricManager.RegisterMetric(string.Format("ATR[{0}]", VolatilityWindowSize));
         }
 
         public override int EstimatePositionSize(ITradingObject tradingObject, double price, double stopLossGap, out string comments)
         {
-            var metric = MetricManager.GetOrCreateRuntimeMetric(tradingObject);
+            var values = Context.MetricManager.GetMetricValues(tradingObject, _metricIndex);
 
-            var volatility = metric.LatestData[0][0];
+            var volatility = values[0];
 
             var currentEquity = Context.GetCurrentEquity(Period, _equityEvaluationMethod);
 

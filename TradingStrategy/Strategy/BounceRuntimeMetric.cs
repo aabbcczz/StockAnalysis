@@ -21,6 +21,11 @@ namespace TradingStrategy.Strategy
 
         private PriceState _state;
 
+        public double[] Values
+        {
+            get { return null; }
+        }
+
         public double LowestPrice { get; private set; }
 
         public double BouncePrice { get; private set; }

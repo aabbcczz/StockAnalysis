@@ -398,7 +398,7 @@ namespace EvaluatorCmdClient
                 }
 
                 var calculator
-                    = new MetricCalculator(
+                    = new TradeMetricsCalculator(
                         //stockNameTable,
                         evaluator.Tracker,
                         dataProvider);

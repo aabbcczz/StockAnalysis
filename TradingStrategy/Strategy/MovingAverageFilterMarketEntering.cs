@@ -3,17 +3,22 @@
 namespace TradingStrategy.Strategy
 {
     public sealed class MovingAverageFilterMarketEntering
-        : MetricBasedMarketEnteringBase<GenericRuntimeMetric>
+        : GeneralMarketEnteringBase
     {
+        private int _shortMetricIndex;
+        private int _longMetricIndex;
+
         [Parameter(55, "短期移动平均周期")]
         public int Short { get; set; }
 
         [Parameter(300, "长期移动平均周期")]
         public int Long { get; set; }
 
-        protected override Func<GenericRuntimeMetric> Creator
+        protected override void RegisterMetric()
         {
-            get { return (() => new GenericRuntimeMetric(string.Format("MA[{0}];MA[{1}]", Short, Long))); }
+            base.RegisterMetric();
+            _shortMetricIndex = Context.MetricManager.RegisterMetric(string.Format("MA[{0}]", Short));
+            _longMetricIndex = Context.MetricManager.RegisterMetric(string.Format("MA[{0}]", Long));
         }
 
         protected override void ValidateParameterValues()
@@ -39,10 +44,9 @@ namespace TradingStrategy.Strategy
         public override bool CanEnter(ITradingObject tradingObject, out string comments)
         {
             comments = string.Empty;
-            var runtimeMetric = MetricManager.GetOrCreateRuntimeMetric(tradingObject);
+            var shortMa = Context.MetricManager.GetMetricValues(tradingObject, _shortMetricIndex)[0];
+            var longMa = Context.MetricManager.GetMetricValues(tradingObject, _longMetricIndex)[0];
 
-            var shortMa = runtimeMetric.LatestData[0][0];
-            var longMa = runtimeMetric.LatestData[1][0];
             if (shortMa > longMa)
             {
                 comments = string.Format(

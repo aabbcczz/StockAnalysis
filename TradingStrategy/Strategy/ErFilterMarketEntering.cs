@@ -4,17 +4,20 @@ using MetricsDefinition;
 namespace TradingStrategy.Strategy
 {
     public sealed class ErFilterMarketEntering 
-        : MetricBasedMarketEnteringBase<GenericRuntimeMetric>
+        : GeneralMarketEnteringBase
     {
+        private int _metricIndex;
+
         [Parameter(10, "EfficiencyRatio周期")]
         public int ErWindowSize { get; set; }
 
         [Parameter(0.8, "EfficiencyRatio阈值")]
         public double ErThreshold { get; set; }
 
-        protected override Func<GenericRuntimeMetric> Creator
+        protected override void RegisterMetric()
         {
-            get { return (() => new GenericRuntimeMetric(string.Format("ER[{0}]", ErWindowSize))); }
+            base.RegisterMetric();
+            _metricIndex = Context.MetricManager.RegisterMetric(string.Format("ER[{0}]", ErWindowSize));
         }
 
         protected override void ValidateParameterValues()
@@ -45,9 +48,9 @@ namespace TradingStrategy.Strategy
         public override bool CanEnter(ITradingObject tradingObject, out string comments)
         {
             comments = string.Empty;
-            var runtimeMetric = MetricManager.GetOrCreateRuntimeMetric(tradingObject);
+            var values = Context.MetricManager.GetMetricValues(tradingObject, _metricIndex);
 
-            var efficiencyRatio = runtimeMetric.LatestData[0][0];
+            var efficiencyRatio = values[0];
 
             if (efficiencyRatio > ErThreshold)
             {

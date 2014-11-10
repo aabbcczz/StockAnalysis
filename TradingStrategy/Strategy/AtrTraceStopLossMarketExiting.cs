@@ -3,8 +3,10 @@
 namespace TradingStrategy.Strategy
 {
     public sealed class AtrTraceStopLossMarketExiting
-        : MetricBasedTraceStopLossMarketExiting<GenericRuntimeMetric>
+        : GeneralTraceStopLossMarketExitingBase
     {
+        private int _atrMetricIndex;
+
         [Parameter(10, "ATR计算窗口大小")]
         public int AtrWindowSize { get; set; }
 
@@ -22,9 +24,11 @@ namespace TradingStrategy.Strategy
             get { return "当价格向有利方向变动时，持续跟踪设置止损价为当前价格减去ATR乘以Atr停价倍数"; }
         }
 
-        protected override Func<GenericRuntimeMetric> Creator
+        protected override void RegisterMetric()
         {
-            get { return (() => new GenericRuntimeMetric(string.Format("ATR[{0}]", AtrWindowSize))); }
+            base.RegisterMetric();
+
+            _atrMetricIndex = Context.MetricManager.RegisterMetric(string.Format("ATR[{0}]", AtrWindowSize));
         }
 
         protected override void ValidateParameterValues()
@@ -39,9 +43,9 @@ namespace TradingStrategy.Strategy
 
         protected override double CalculateStopLossPrice(ITradingObject tradingObject, double currentPrice, out string comments)
         {
-            var metric = MetricManager.GetOrCreateRuntimeMetric(tradingObject);
+            var values = Context.MetricManager.GetMetricValues(tradingObject, _atrMetricIndex);
 
-            var atr = metric.LatestData[0][0];
+            var atr = values[0];
 
             var stoploss = currentPrice - atr * AtrStopLossFactor;
             comments = string.Format(

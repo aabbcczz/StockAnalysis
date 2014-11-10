@@ -23,6 +23,13 @@ namespace TradingStrategy.Strategy
         {
         }
 
+        /// <summary>
+        /// opportunity for subclass to register metric to the metric manager in context
+        /// </summary>
+        protected virtual void RegisterMetric()
+        {
+        }
+
         public virtual void Initialize(
             IEvaluationContext context, 
             IDictionary<ParameterAttribute, object> parameterValues)
@@ -37,6 +44,9 @@ namespace TradingStrategy.Strategy
             ValidateParameterValues();
 
             Context = context;
+
+            // register metric if necessary.
+            RegisterMetric();
         }
 
         public virtual void WarmUp(ITradingObject tradingObject, Bar bar)
@@ -51,7 +61,6 @@ namespace TradingStrategy.Strategy
 
         public virtual void EvaluateSingleObject(ITradingObject tradingObject, Bar bar)
         {
-            // do nothing
         }
 
         public virtual void EndPeriod()

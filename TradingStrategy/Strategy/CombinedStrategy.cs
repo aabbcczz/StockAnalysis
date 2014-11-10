@@ -93,6 +93,17 @@ namespace TradingStrategy.Strategy
                 throw new ArgumentException("#trading object != #bars");
             }
 
+            // update metrics that registered by all components
+            for (var i = 0; i < bars.Length; ++i)
+            {
+                if (bars[i].Time == Bar.InvalidTime)
+                {
+                    continue;
+                }
+
+                _context.MetricManager.UpdateMetric(tradingObjects[i], bars[i]);
+            }
+
             // evaluate all components
             foreach (var component in _components)
             {

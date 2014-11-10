@@ -211,27 +211,6 @@
         </ParameterSettings>
       </ComponentParameterSettings>
     </TradingStrategyComponentSettings>
-    <TradingStrategyComponentSettings Enabled="false" Name="移动平均入市出市">
-      <ClassType>TradingStrategy.Strategy.MovingAverageMarketEnteringExiting, TradingStrategy, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</ClassType>
-      <Description>当短期平均向上交叉长期平均时入市，当短期平均向下交叉长期平均时出市</Description>
-      <ImplementedInterfaces>ITradingStrategyComponent;IMarketEnteringComponent;IMarketExitingComponent</ImplementedInterfaces>
-      <ComponentParameterSettings>
-        <ParameterSettings>
-          <Name>Short</Name>
-          <Description>短期移动平均周期</Description>
-          <ValueType>System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
-          <DefaultValue xsi:type="xsd:int">5</DefaultValue>
-          <Values>5</Values>
-        </ParameterSettings>
-        <ParameterSettings>
-          <Name>Long</Name>
-          <Description>长期移动平均周期</Description>
-          <ValueType>System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
-          <DefaultValue xsi:type="xsd:int">20</DefaultValue>
-          <Values>20</Values>
-        </ParameterSettings>
-      </ComponentParameterSettings>
-    </TradingStrategyComponentSettings>
     <TradingStrategyComponentSettings Enabled="false" Name="价格变化入市过滤器">
       <ClassType>TradingStrategy.Strategy.PriceChangeFilterMarketEntering, TradingStrategy, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</ClassType>
       <Description>当天价格上涨且上影线没有超过一定比例则允许入市，否则将不允许入市。</Description>

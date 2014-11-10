@@ -6,10 +6,15 @@ namespace TradingStrategy.Strategy
 {
     public sealed class DmiRuntimeMetric : IRuntimeMetric
     {
-        public double Pdi { get; private set; }
-        public double Ndi { get; private set; }
+        public double[] Values
+        {
+            get
+            {
+                return _dmi.Values;
+            }
+        }
+
         public double Adx { get; private set; }
-        public double Adxr { get; private set; }
 
         public CirculatedArray<double> HistoricalAdxValues { get; private set;}
 
@@ -24,17 +29,25 @@ namespace TradingStrategy.Strategy
         public void Update(Bar bar)
         {
             _dmi.Update(bar);
-            var values = _dmi.Values;
 
-            unchecked
+            Adx = _dmi.Values[2];
+            HistoricalAdxValues.Add(Adx);
+        }
+
+        public bool IsAdxIncreasing()
+        {
+            if (HistoricalAdxValues.Length < 3)
             {
-                Pdi = values[0];
-                Ndi = values[1];
-                Adx = values[2];
-                Adxr = values[3];
+                return false;
             }
 
-            HistoricalAdxValues.Add(Adx);
+            if (HistoricalAdxValues[-1] > HistoricalAdxValues[-2] 
+                && HistoricalAdxValues[-2] > HistoricalAdxValues[-3])
+            {
+                return true;
+            }
+
+            return false;
         }
     }
 }

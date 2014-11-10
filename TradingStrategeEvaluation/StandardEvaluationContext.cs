@@ -11,6 +11,12 @@ namespace TradingStrategyEvaluation
         private readonly EquityManager _equityManager;
         private readonly ILogger _logger;
         private readonly ITradingDataProvider _provider;
+        private readonly IRuntimeMetricManager _metricManager;
+
+        public IRuntimeMetricManager MetricManager
+        {
+            get { return _metricManager; }
+        }
 
         public StandardEvaluationContext(
             ITradingDataProvider provider, 
@@ -25,6 +31,8 @@ namespace TradingStrategyEvaluation
             _provider = provider;
             _equityManager = manager;
             _logger = logger;
+
+            _metricManager = new StandardRuntimeMetricManager(_provider.GetAllTradingObjects().Length);
         }
 
         public double GetInitialEquity()

@@ -23,6 +23,8 @@ namespace TradingStrategy.Strategy
 
         private PriceState _state;
 
+        public double[] Values { get { return null; } }
+
         public double LatestBreakthroughPrice { get; private set; }
 
         public double LowestPriceAfterBreakthrough { get; private set; }

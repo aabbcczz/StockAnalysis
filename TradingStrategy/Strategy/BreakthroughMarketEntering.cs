@@ -3,8 +3,10 @@
 namespace TradingStrategy.Strategy
 {
     public sealed class BreakthroughMarketEntering
-        : MetricBasedMarketEnteringBase<GenericRuntimeMetric>
+        : GeneralMarketEnteringBase
     {
+        private int _metricIndex;
+
         public override string Name
         {
             get { return "通道突破入市"; }
@@ -21,17 +23,28 @@ namespace TradingStrategy.Strategy
         [Parameter(0, "价格选择选项。0为最高价，1为最低价，2为收盘价，3为开盘价")]
         public int PriceSelector { get; set; }
 
+        protected override void RegisterMetric()
+        {
+            base.RegisterMetric();
+
+            _metricIndex = Context.MetricManager.RegisterMetric(
+                string.Format(
+                        "HI[{0}](BAR.{1})",
+                        BreakthroughWindow,
+                        BarPriceSelector.GetSelectorString(PriceSelector)));
+        }
+
         public override bool CanEnter(ITradingObject tradingObject, out string comments)
         {
             comments = string.Empty;
 
-            var metric = MetricManager.GetOrCreateRuntimeMetric(tradingObject);
+            var values = Context.MetricManager.GetMetricValues(tradingObject, _metricIndex);
 
             var bar = Context.GetBarOfTradingObjectForCurrentPeriod(tradingObject);
 
             var price = BarPriceSelector.Select(bar, PriceSelector);
 
-            var breakthrough = Math.Abs(metric.LatestData[0][0] - price) < 1e-6;
+            var breakthrough = Math.Abs(values[0] - price) < 1e-6;
 
             if (breakthrough)
             {
@@ -39,18 +52,6 @@ namespace TradingStrategy.Strategy
             }
 
             return breakthrough;
-        }
-
-        protected override Func<GenericRuntimeMetric> Creator
-        {
-            get 
-            {
-                return (() => new GenericRuntimeMetric(
-                    string.Format(
-                        "HI[{0}](BAR.{1})", 
-                        BreakthroughWindow, 
-                        BarPriceSelector.GetSelectorString(PriceSelector))));    
-            }
         }
     }
 }

@@ -3,8 +3,10 @@
 namespace TradingStrategy.Strategy
 {
     public sealed class BreakthroughMarketExiting
-        : MetricBasedMarketExitingBase<GenericRuntimeMetric>
+        : GeneralMarketExitingBase
     {
+        private int _metricIndex;
+
         public override string Name
         {
             get { return "通道突破退市"; }
@@ -21,29 +23,28 @@ namespace TradingStrategy.Strategy
         [Parameter(1, "价格选择选项。0为最高价，1为最低价，2为收盘价，3为开盘价")]
         public int PriceSelector { get; set; }
 
-        protected override Func<GenericRuntimeMetric> Creator
+        protected override void RegisterMetric()
         {
-            get
-            {
-                return (() => new GenericRuntimeMetric(
-                    string.Format(
+            base.RegisterMetric();
+
+            _metricIndex = Context.MetricManager.RegisterMetric(
+                string.Format(
                     "LO[{0}](BAR.{1})",
                     BreakthroughWindow,
-                    BarPriceSelector.GetSelectorString(PriceSelector))));
-            }
+                    BarPriceSelector.GetSelectorString(PriceSelector)));
         }
 
         public override bool ShouldExit(ITradingObject tradingObject, out string comments)
         {
             comments = string.Empty;
 
-            var metric = MetricManager.GetOrCreateRuntimeMetric(tradingObject);
+            var values = Context.MetricManager.GetMetricValues(tradingObject, _metricIndex);
 
             var bar = Context.GetBarOfTradingObjectForCurrentPeriod(tradingObject);
 
             var price = BarPriceSelector.Select(bar, PriceSelector);
 
-            bool breakthough = Math.Abs(price - metric.LatestData[0][0]) < 1e-6;
+            bool breakthough = Math.Abs(price - values[0]) < 1e-6;
 
             if (breakthough)
             {

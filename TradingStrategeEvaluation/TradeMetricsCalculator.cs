@@ -6,7 +6,7 @@ using TradingStrategy;
 
 namespace TradingStrategyEvaluation
 {
-    public sealed class MetricCalculator
+    public sealed class TradeMetricsCalculator
     {
         private readonly Transaction[] _orderedTransactionHistory;
         private readonly CompletedTransaction[] _orderedCompletedTransactionHistory;
@@ -20,7 +20,7 @@ namespace TradingStrategyEvaluation
         private readonly ITradingDataProvider _dataProvider;
         private readonly DateTime[] _periods;
 
-        public MetricCalculator(
+        public TradeMetricsCalculator(
             //StockNameTable nameTable,
             TradingTracker tracker, 
             ITradingDataProvider provider)

@@ -3,8 +3,10 @@
 namespace TradingStrategy.Strategy
 {
     public sealed class RebreakthroughMarketEntering 
-        : MetricBasedMarketEnteringBase<RebreakthroughRuntimeMetric>
+        : GeneralMarketEnteringBase
     {
+        private int _metricIndex;
+
         public override string Name
         {
             get { return "通道再次突破入市"; }
@@ -56,7 +58,7 @@ namespace TradingStrategy.Strategy
         {
             comments = string.Empty;
 
-            var metric = MetricManager.GetOrCreateRuntimeMetric(tradingObject);
+            var metric = (RebreakthroughRuntimeMetric)Context.MetricManager.GetMetric(tradingObject, _metricIndex);
             if (metric.Rebreakthrough)
             {
                 comments = string.Format("Rebreakthrough: {0:0.0000}, Interval: {1}", metric.CurrentHighest, metric.IntervalSinceLastBreakthrough);
@@ -65,16 +67,21 @@ namespace TradingStrategy.Strategy
             return metric.Rebreakthrough;
         }
 
-        protected override Func<RebreakthroughRuntimeMetric> Creator
+        protected override void RegisterMetric()
         {
-            get 
-            {
-                return (() => new RebreakthroughRuntimeMetric(
+            base.RegisterMetric();
+
+            _metricIndex = Context.MetricManager.RegisterMetric(
+                string.Format("Rebreakthrough[{0},{1},{2},{3}]",
+                    BreakthroughWindow,
+                    PriceSelector,
+                    RebreakthroughMaxInterval,
+                    RebreakthroughMinInterval),
+                (string s) => new RebreakthroughRuntimeMetric(
                     BreakthroughWindow, 
                     PriceSelector,
                     RebreakthroughMaxInterval,
-                    RebreakthroughMinInterval));    
-            }
+                    RebreakthroughMinInterval));
         }
     }
 }

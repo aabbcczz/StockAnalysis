@@ -3,17 +3,23 @@
 namespace TradingStrategy.Strategy
 {
     public sealed class BounceMarketEntering
-        : MetricBasedMarketEnteringBase<BounceRuntimeMetric>
+        : GeneralMarketEnteringBase
     {
+        private int _bounceMetricIndex;
+
         [Parameter(30, "回看周期")]
         public int WindowSize { get; set; }
 
         [Parameter(5.0, "反弹百分比")]
         public double MinBouncePercentage { get; set; }
 
-        protected override Func<BounceRuntimeMetric> Creator
+        protected override void RegisterMetric()
         {
-            get { return (() => new BounceRuntimeMetric(WindowSize, MinBouncePercentage)); }
+            base.RegisterMetric();
+
+            _bounceMetricIndex = Context.MetricManager.RegisterMetric(
+                string.Format("BounceRuntimeMetric[{0},{1}]", WindowSize, MinBouncePercentage),
+                (string s) => new BounceRuntimeMetric(WindowSize, MinBouncePercentage));
         }
 
         protected override void ValidateParameterValues()
@@ -39,14 +45,14 @@ namespace TradingStrategy.Strategy
         public override bool CanEnter(ITradingObject tradingObject, out string comments)
         {
             comments = string.Empty;
-            var runtimeMetric = MetricManager.GetOrCreateRuntimeMetric(tradingObject);
-            if (runtimeMetric.Triggered)
+            var metric = (BounceRuntimeMetric)Context.MetricManager.GetMetric(tradingObject, _bounceMetricIndex);
+            if (metric.Triggered)
             {
                 comments = string.Format(
                     "Lowest:{0:0.000}; Current:{1:0.000}; BouncePercentage:{2:0.000}%",
-                    runtimeMetric.LowestPrice,
-                    runtimeMetric.BouncePrice,
-                    runtimeMetric.BouncePercentage);
+                    metric.LowestPrice,
+                    metric.BouncePrice,
+                    metric.BouncePercentage);
 
                 return true;
             }

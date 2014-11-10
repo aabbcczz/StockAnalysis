@@ -13,6 +13,8 @@ namespace TradingStrategy.Strategy
 
         private int _intervalSinceLastBreakthrough;
 
+        public double[] Values { get { return null; } }
+
         public double CurrentHighest { get; private set; }
 
         public bool Breakthrough { get; private set; }
