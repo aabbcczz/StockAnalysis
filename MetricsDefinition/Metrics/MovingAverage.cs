@@ -11,11 +11,12 @@
             _movingSum = new MovingSum(windowSize);
         }
 
-        public override double Update(double dataPoint)
+        public override void Update(double dataPoint)
         {
-            var sum = _movingSum.Update(dataPoint);
+            _movingSum.Update(dataPoint);
+            var sum = _movingSum.Value;
             
-            return sum / _movingSum.Data.Length;
+            SetValue(sum / _movingSum.Data.Length);
         }
     }
 }

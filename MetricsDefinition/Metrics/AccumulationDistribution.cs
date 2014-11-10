@@ -15,14 +15,17 @@ namespace MetricsDefinition.Metrics
             _sumVolume = new MovingSum(windowSize);
         }
 
-        public override double Update(Bar bar)
+        public override void Update(Bar bar)
         {
             var cost = ((bar.ClosePrice - bar.LowestPrice) 
                 - (bar.HighestPrice - bar.ClosePrice)) 
                 / (bar.HighestPrice - bar.LowestPrice)
                 * bar.Volume;
 
-            return _sumCost.Update(cost) / _sumVolume.Update(bar.Volume);
+            _sumCost.Update(cost);
+            _sumVolume.Update(bar.Volume);
+
+            SetValue(_sumCost.Value / _sumVolume.Value);
         }
     }
 }

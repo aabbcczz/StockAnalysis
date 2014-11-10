@@ -25,12 +25,15 @@ namespace MetricsDefinition.Metrics
             _cma4 = new CostMovingAverage(windowSize4);
         }
 
-        public override double Update(Bar bar)
+        public override void Update(Bar bar)
         {
-            return (_cma1.Update(bar) +
-                _cma2.Update(bar) +
-                _cma3.Update(bar) +
-                _cma4.Update(bar)) / 4;
+            _cma1.Update(bar);
+            _cma2.Update(bar);
+            _cma3.Update(bar);
+            _cma4.Update(bar);
+
+            var cbbi = (_cma1.Value + _cma2.Value + _cma3.Value + _cma4.Value) / 4.0;
+            SetValue(cbbi);
         }
     }
 }

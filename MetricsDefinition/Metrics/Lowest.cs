@@ -11,7 +11,7 @@
         {
         }
 
-        public override double Update(double dataPoint)
+        public override void Update(double dataPoint)
         {
             Data.Add(dataPoint);
             --_lowestPriceIndex;
@@ -40,7 +40,7 @@
                 }
             }
 
-            return _lowestPrice;
+            SetValue(_lowestPrice);
         }
     }
 }

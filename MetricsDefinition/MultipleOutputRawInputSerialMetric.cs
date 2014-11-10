@@ -7,6 +7,6 @@
         {
         }
 
-        public abstract double[] Update(double dataPoint);
+        public abstract void Update(double dataPoint);
     }
 }

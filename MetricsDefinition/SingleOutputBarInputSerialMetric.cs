@@ -7,8 +7,9 @@ namespace MetricsDefinition
         protected SingleOutputBarInputSerialMetric(int windowSize)
             : base(windowSize)
         {
+            Values = new double[1];
         }
 
-        public abstract double Update(Bar bar);
+        public abstract void Update(Bar bar);
     }
 }

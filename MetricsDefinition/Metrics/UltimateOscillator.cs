@@ -30,7 +30,7 @@ namespace MetricsDefinition.Metrics
             _msTr[2] = new MovingSum(windowSize3);
         }
 
-        public override double Update(Bar bar)
+        public override void Update(Bar bar)
         {
             var bp = bar.ClosePrice - Math.Min(bar.LowestPrice, _prevClosePrice);
             var tr = Math.Max(bar.HighestPrice, _prevClosePrice) - Math.Min(bar.LowestPrice, _prevClosePrice);
@@ -39,12 +39,15 @@ namespace MetricsDefinition.Metrics
 
             for (var i = 0; i < 3; ++i)
             {
-                average[i] = _msBp[i].Update(bp) / _msTr[i].Update(tr);
+                _msBp[i].Update(bp);
+                _msTr[i].Update(tr);
+
+                average[i] =  _msBp[i].Value / _msTr[i].Value;
             }
 
             var sumWeight = (_weight[0] + _weight[1] + _weight[2]) / 100.0;
 
-            var result = (_weight[0] * average[0] 
+            var uos = (_weight[0] * average[0] 
                 + _weight[1] * average[1] 
                 + _weight[2] * average[2])
                 / sumWeight;
@@ -52,7 +55,7 @@ namespace MetricsDefinition.Metrics
             // update status;
             _prevClosePrice = bar.ClosePrice;
 
-            return result;
+            SetValue(uos);
         }
     }
 }

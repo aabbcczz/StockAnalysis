@@ -37,7 +37,8 @@ namespace TradingStrategy.Strategy
         {
             double price = BarPriceSelector.Select(bar, _priceSelector);
 
-            double newHighest = _highest.Update(price);
+            _highest.Update(price);
+            double newHighest = _highest.Value;
 
             bool oldBreakthrough = Breakthrough;
 

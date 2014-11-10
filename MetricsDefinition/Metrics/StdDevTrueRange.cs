@@ -17,7 +17,7 @@ namespace MetricsDefinition.Metrics
             _sdTrueRange = new StdDev(windowSize);
         }
 
-        public override double Update(Bar bar)
+        public override void Update(Bar bar)
         {
             var trueRange = 
                 Math.Max(
@@ -26,7 +26,10 @@ namespace MetricsDefinition.Metrics
 
             _prevClosePrice = bar.ClosePrice;
 
-            return _sdTrueRange.Update(trueRange);
+            _sdTrueRange.Update(trueRange);
+
+            var sdtr = _sdTrueRange.Value;
+            SetValue(sdtr);
         }
     }
 }

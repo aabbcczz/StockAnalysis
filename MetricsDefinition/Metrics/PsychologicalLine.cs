@@ -14,7 +14,7 @@
             _ma = new MovingAverage(windowSize);
         }
 
-        public override double Update(double dataPoint)
+        public override void Update(double dataPoint)
         {
             var up = _firstData
                 ? 0.0
@@ -27,7 +27,9 @@
             _firstData = false;
 
             // return result
-            return _ma.Update(up);
+            _ma.Update(up);
+
+            SetValue(_ma.Value);
         }
     }
 }

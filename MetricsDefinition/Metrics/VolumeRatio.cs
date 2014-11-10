@@ -20,7 +20,7 @@ namespace MetricsDefinition.Metrics
             _msZv = new MovingSum(windowSize);
         }
 
-        public override double Update(Bar bar)
+        public override void Update(Bar bar)
         {
             const double smallValue = 1e-10;
    
@@ -50,18 +50,22 @@ namespace MetricsDefinition.Metrics
                 }
             }
 
-            var msPv = _msPv.Update(pv) + smallValue;
-            var msNv = _msNv.Update(nv) + smallValue;
-            var msZv = _msZv.Update(zv) + smallValue;
+            _msPv.Update(pv);
+            _msNv.Update(nv);
+            _msZv.Update(zv);
 
-            var result = (msPv + msZv / 2.0) / (msNv + msZv / 2.0) * 100.0;
+            var msPv = _msPv.Value + smallValue;
+            var msNv = _msNv.Value + smallValue;
+            var msZv = _msZv.Value + smallValue;
+
+            var volumeRatio = (msPv + msZv / 2.0) / (msNv + msZv / 2.0) * 100.0;
 
             // update status
             _prevClosePrice = bar.ClosePrice;
             _firstBar = false;
 
             // return result;
-            return result;
+            SetValue(volumeRatio);
         }
     }
 }

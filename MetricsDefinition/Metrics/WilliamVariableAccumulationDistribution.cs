@@ -13,11 +13,13 @@ namespace MetricsDefinition.Metrics
             _ms = new MovingSum(windowSize);
         }
 
-        public override double Update(Bar bar)
+        public override void Update(Bar bar)
         {
             var index = (bar.ClosePrice - bar.OpenPrice) * bar.Volume / (bar.HighestPrice - bar.LowestPrice);
 
-            return _ms.Update(index);
+            _ms.Update(index);
+
+            SetValue(_ms.Value);
         }
     }
 }

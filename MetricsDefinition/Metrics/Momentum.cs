@@ -10,13 +10,15 @@ namespace MetricsDefinition.Metrics
         {
         }
 
-         public override double Update(double dataPoint)
+         public override void Update(double dataPoint)
          {
              Data.Add(dataPoint);
 
              var oldData = Data[0];
 
-             return Math.Abs(oldData) < 1e-6 ? 0.0 : dataPoint * 100.0 / oldData;
+             var mtm = Math.Abs(oldData) < 1e-6 ? 0.0 : dataPoint * 100.0 / oldData;
+
+             SetValue(mtm);
          }
     }
 }

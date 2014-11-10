@@ -21,9 +21,11 @@ namespace MetricsDefinition.Metrics
             {
                 throw new ArgumentException("window size for linear regression metric must be greater than 1");
             }
+
+            Values = new double[4];
         }
 
-        public override double[] Update(Bar bar)
+        public override void Update(Bar bar)
         {
             double scale;
             if (Data.Length < WindowSize)
@@ -61,13 +63,13 @@ namespace MetricsDefinition.Metrics
 
             if (Data.Length < 2)
             {
-                return new double[] { 0.0, 0.0, 0.0, 0.0};
+                SetValue(0.0, 0.0, 0.0, 0.0);
             }
             else
             {
                 var result = _intermediateResult.Compute();
 
-                return new double[] { result.Slope, result.Intercept, result.SquareResidual, result.SquareStandardError };
+                SetValue(result.Slope, result.Intercept, result.SquareResidual, result.SquareStandardError);
             }
         }
     }

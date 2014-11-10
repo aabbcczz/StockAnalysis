@@ -52,7 +52,9 @@ namespace TradingStrategy.Strategy
         private void UpdateState(Bar bar)
         {
             double price = BarPriceSelector.Select(bar, _priceSelector);
-            double highestPrice = _highest.Update(price);
+
+            _highest.Update(price);
+            double highestPrice = _highest.Value;
 
             bool breakthrough = Math.Abs(highestPrice - price) < 1e-6;
 

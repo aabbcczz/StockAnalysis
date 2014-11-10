@@ -7,10 +7,16 @@ namespace MetricsDefinition
     {
         private readonly int _fieldIndex;
         private readonly string[] _fieldNames;
+        private double[] _values;
 
         public override string[] FieldNames
         {
             get { return _fieldNames; }
+        }
+
+        public override double[] Values
+        {
+            get { return _values; }
         }
 
         public SelectionOperator(MetricExpression host, int fieldIndex)
@@ -29,40 +35,48 @@ namespace MetricsDefinition
             _fieldIndex = fieldIndex;
 
             _fieldNames = new[] { host.FieldNames[fieldIndex] };
+
+            _values = new double[1];
         }
 
-        public override double SingleOutputUpdate(double data)
+        public override void SingleOutputUpdate(double data)
         {
             if (Operand.FieldNames.Length > 1)
             {
-                return Operand.MultipleOutputUpdate(data)[_fieldIndex];
+                Operand.MultipleOutputUpdate(data);
+                _values[0] = Operand.Values[_fieldIndex];
             }
             else
             {
-                return Operand.SingleOutputUpdate(data);
+                Operand.SingleOutputUpdate(data);
+                _values[0] = Operand.Value;
             }
         }
 
-        public override double[] MultipleOutputUpdate(double data)
+        public override void MultipleOutputUpdate(double data)
         {
-            return new[] { Operand.MultipleOutputUpdate(data)[_fieldIndex] };
+            Operand.MultipleOutputUpdate(data);
+            _values[0] = Operand.Values[_fieldIndex];
         }
 
-        public override double SingleOutputUpdate(Bar data)
+        public override void SingleOutputUpdate(Bar data)
         {
             if (Operand.FieldNames.Length > 1)
             {
-                return Operand.MultipleOutputUpdate(data)[_fieldIndex];
+                Operand.MultipleOutputUpdate(data);
+                _values[0] = Operand.Values[_fieldIndex];
             }
             else
             {
-                return Operand.SingleOutputUpdate(data);
+                Operand.SingleOutputUpdate(data);
+                _values[0] = Operand.Value;
             }
         }
 
-        public override double[] MultipleOutputUpdate(Bar data)
+        public override void MultipleOutputUpdate(Bar data)
         {
-            return new[] { Operand.MultipleOutputUpdate(data)[_fieldIndex] };
+            Operand.MultipleOutputUpdate(data);
+            _values[0] = Operand.Values[_fieldIndex];
         }
     }
 }

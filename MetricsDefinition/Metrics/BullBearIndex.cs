@@ -24,13 +24,16 @@ namespace MetricsDefinition.Metrics
             _ma4 = new MovingAverage(windowSize4);
         }
 
-        public override double Update(double dataPoint)
+        public override void Update(double dataPoint)
         {
-            return (_ma1.Update(dataPoint) +
-                   _ma2.Update(dataPoint) +
-                   _ma3.Update(dataPoint) +
-                   _ma4.Update(dataPoint)) / 4.0;
-        }
+            _ma1.Update(dataPoint);
+            _ma2.Update(dataPoint);
+            _ma3.Update(dataPoint);
+            _ma4.Update(dataPoint);
 
+            var bbi = (_ma1.Value + _ma2.Value + _ma3.Value + _ma4.Value) / 4.0;
+
+            SetValue(bbi);
+        }
     }
 }

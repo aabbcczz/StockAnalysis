@@ -28,9 +28,10 @@ namespace MetricsDefinition.Metrics
             _efficiencyRatio = new EfficiencyRatio(windowSize);
         }
 
-        public override double Update(double dataPoint)
+        public override void Update(double dataPoint)
         {
-            var efficiencyRatio = _efficiencyRatio.Update(dataPoint);
+            _efficiencyRatio.Update(dataPoint);
+            var efficiencyRatio = _efficiencyRatio.Value;
 
             var smoothCoefficient = efficiencyRatio * _smoothCoefficientDifference + _slowSmoothCoefficient;
 
@@ -38,7 +39,7 @@ namespace MetricsDefinition.Metrics
 
             _lastAma = ama;
 
-            return ama;
+            SetValue(ama);
         }
     }
 }

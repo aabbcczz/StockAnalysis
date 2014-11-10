@@ -11,11 +11,12 @@
             _ma = new MovingAverage(windowSize);
         }
 
-        public override double Update(double dataPoint)
+        public override void Update(double dataPoint)
         {
-            var average = _ma.Update(dataPoint);
+            _ma.Update(dataPoint);
+            var average = _ma.Value;
 
-            return (dataPoint - average) / average;
+            SetValue((dataPoint - average) / average);
         }
     }
 }

@@ -17,7 +17,7 @@ namespace MetricsDefinition.Metrics
             _maTrueRange = new MovingAverage(windowSize);
         }
 
-        public override double Update(Bar bar)
+        public override void Update(Bar bar)
         {
             var trueRange = 
                 Math.Max(
@@ -26,7 +26,9 @@ namespace MetricsDefinition.Metrics
 
             _prevClosePrice = bar.ClosePrice;
 
-            return _maTrueRange.Update(trueRange);
+            _maTrueRange.Update(trueRange);
+
+            SetValue(_maTrueRange.Value);
         }
     }
 }

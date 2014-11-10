@@ -8,19 +8,18 @@ namespace MetricsDefinition.Metrics
         public BarData()
             : base(0)
         {
+            Values = new double[6];
         }
 
-        public override double[] Update(Bar bar)
+        public override void Update(Bar bar)
         {
-            return new[] 
-            { 
+            SetValue(
                 bar.ClosePrice,
                 bar.OpenPrice,
                 bar.HighestPrice,
                 bar.LowestPrice,
                 bar.Volume,
-                bar.Amount
-            };
+                bar.Amount);
         }
     }
 }

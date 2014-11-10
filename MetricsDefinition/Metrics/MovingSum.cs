@@ -10,7 +10,7 @@
         {
         }
 
-        public override double Update(double dataPoint)
+        public override void Update(double dataPoint)
         {
             _sum += dataPoint;
 
@@ -21,7 +21,7 @@
 
             Data.Add(dataPoint);
 
-            return _sum;
+            SetValue(_sum);
         }
 
     }

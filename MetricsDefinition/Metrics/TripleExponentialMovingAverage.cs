@@ -15,9 +15,13 @@
             _ema3 = new ExponentialMovingAverage(windowSize);
         }
 
-        public override double Update(double dataPoint)
+        public override void Update(double dataPoint)
         {
-            return _ema1.Update(_ema2.Update(_ema3.Update(dataPoint)));
+            _ema3.Update(dataPoint);
+            _ema2.Update(_ema3.Value);
+            _ema1.Update(_ema2.Value);
+
+            SetValue(_ema1.Value);
         }
     }
 }

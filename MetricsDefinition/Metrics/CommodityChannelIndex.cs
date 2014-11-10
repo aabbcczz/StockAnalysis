@@ -17,12 +17,13 @@ namespace MetricsDefinition.Metrics
             _truePrices = new CirculatedArray<double>(windowSize);
         }
 
-        public override double Update(Bar bar)
+        public override void Update(Bar bar)
         {
             var truePrice = (bar.HighestPrice + bar.LowestPrice + 2 * bar.ClosePrice ) / 4;
             _truePrices.Add(truePrice);
 
-            var maTruePrice = _maTruePrice.Update(truePrice);
+            _maTruePrice.Update(truePrice);
+            var maTruePrice = _maTruePrice.Value;
 
             var sum = 0.0;
             for (var i = 0; i < _truePrices.Length; ++i)
@@ -32,7 +33,9 @@ namespace MetricsDefinition.Metrics
 
             var d = sum / _truePrices.Length;
 
-            return Math.Abs(d) < 1e-6 ? 0.0 : (truePrice - maTruePrice) / d / Alpha;
+            var cci = Math.Abs(d) < 1e-6 ? 0.0 : (truePrice - maTruePrice) / d / Alpha;
+
+            SetValue(cci);
         }
     }
 }

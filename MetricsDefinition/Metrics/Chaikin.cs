@@ -27,19 +27,20 @@ namespace MetricsDefinition.Metrics
             _mahl = new CirculatedArray<double>(interval);
         }
 
-        public override double Update(Bar bar)
+        public override void Update(Bar bar)
         {
-            var mahl = _ema.Update(bar.HighestPrice - bar.LowestPrice);
+            _ema.Update(bar.HighestPrice - bar.LowestPrice);
+            var mahl = _ema.Value;
 
             _mahl.Add(mahl);
 
             var index = _mahl.Length < _interval ? 0 : _mahl.Length - _interval;
 
-            if (Math.Abs(_mahl[index]) < 1e-6)
-            {
-                return 0.0;
-            }
-            return (_mahl[-1] - _mahl[index]) / _mahl[index] * 100.0;
+            var chaikin = Math.Abs(_mahl[index]) < 1e-6
+                ? 0.0
+                : (_mahl[-1] - _mahl[index]) / _mahl[index] * 100.0;
+
+            SetValue(chaikin);
         }
     }
 }

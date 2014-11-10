@@ -7,22 +7,26 @@ namespace MetricsDefinition
     {
         public abstract string[] FieldNames { get; }
 
-        public virtual double SingleOutputUpdate(Bar data)
+        public abstract double[] Values { get; }
+
+        public double Value { get { return Values[0]; } }
+
+        public virtual void SingleOutputUpdate(Bar data)
         {
             throw new NotImplementedException();
         }
 
-        public virtual double[] MultipleOutputUpdate(Bar data)
+        public virtual void MultipleOutputUpdate(Bar data)
         {
             throw new NotImplementedException();
         }
 
-        public virtual double SingleOutputUpdate(double data)
+        public virtual void SingleOutputUpdate(double data)
         {
             throw new NotImplementedException();
         }
 
-        public virtual double[] MultipleOutputUpdate(double data)
+        public virtual void MultipleOutputUpdate(double data)
         {
             throw new NotImplementedException();
         }

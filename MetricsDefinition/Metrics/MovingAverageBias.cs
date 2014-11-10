@@ -25,9 +25,12 @@ namespace MetricsDefinition.Metrics
             _maLong = new MovingAverage(longWindowSize);
         }
 
-        public override double Update(double dataPoint)
+        public override void Update(double dataPoint)
         {
-            return _maShort.Update(dataPoint) - _maLong.Update(dataPoint);
+            _maShort.Update(dataPoint);
+            _maLong.Update(dataPoint);
+
+            SetValue(_maShort.Value - _maLong.Value);
         }
     }
 }

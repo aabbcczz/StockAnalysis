@@ -11,7 +11,7 @@
         {
         }
 
-        public override double Update(double dataPoint)
+        public override void Update(double dataPoint)
         {
             Data.Add(dataPoint);
             --_highestPriceIndex;
@@ -40,7 +40,7 @@
                 }
             }
 
-            return _highestPrice;
+            SetValue(_highestPrice);
         }
      }
 }

@@ -56,7 +56,14 @@ namespace TradingStrategy.Strategy
                 PreviousData = LatestData;
             }
 
-            LatestData = _expressions.Select(me => me.MultipleOutputUpdate(bar)).ToArray();
+            LatestData = _expressions
+                .Select(
+                    me =>
+                    {
+                        me.MultipleOutputUpdate(bar);
+                        return me.Values;
+                    })
+                .ToArray();
         }
     }
 }

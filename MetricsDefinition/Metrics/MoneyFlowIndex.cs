@@ -17,7 +17,7 @@ namespace MetricsDefinition.Metrics
             _msPmf = new MovingSum(windowSize);
         }
 
-        public override double Update(Bar bar)
+        public override void Update(Bar bar)
         {
             const double smallValue = 1e-10;
         
@@ -49,15 +49,19 @@ namespace MetricsDefinition.Metrics
                 }
             }
 
-            var sumPmf = _msPmf.Update(positiveMoneyFlow);
-            var sumNmf = _msNmf.Update(negativeMoneyFlow);
+            _msPmf.Update(positiveMoneyFlow);
+            var sumPmf = _msPmf.Value;
+
+            _msNmf.Update(negativeMoneyFlow);
+            var sumNmf = _msNmf.Value;
 
             // update status
             _prevTruePrice = truePrice;
             _firstData = false;
 
             // return result
-            return 100.0 / (1.0 + sumPmf / sumNmf);
+            var mfi = 100.0 / (1.0 + sumPmf / sumNmf);
+            SetValue(mfi);
         }
     }
 }

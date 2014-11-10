@@ -23,12 +23,16 @@ namespace TradingStrategy.Strategy
 
         public void Update(Bar bar)
         {
-            var values = _dmi.Update(bar);
+            _dmi.Update(bar);
+            var values = _dmi.Values;
 
-            Pdi = values[0];
-            Ndi = values[1];
-            Adx = values[2];
-            Adxr = values[3];
+            unchecked
+            {
+                Pdi = values[0];
+                Ndi = values[1];
+                Adx = values[2];
+                Adxr = values[3];
+            }
 
             HistoricalAdxValues.Add(Adx);
         }

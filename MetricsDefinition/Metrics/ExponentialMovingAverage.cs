@@ -16,7 +16,7 @@ namespace MetricsDefinition.Metrics
             }
         }
 
-        public override double Update(double dataPoint)
+        public override void Update(double dataPoint)
         {
             Data.Add(dataPoint);
 
@@ -29,7 +29,7 @@ namespace MetricsDefinition.Metrics
                 _lastResult = (_lastResult * (WindowSize - 1) + dataPoint * 2.0) / (WindowSize + 1);
             }
 
-            return _lastResult;
+            SetValue(_lastResult);
         }
     }
 }

@@ -60,7 +60,8 @@ namespace TradingStrategy.Strategy
 
         private void UpdateState(Bar bar)
         {
-            double lowestPrice = _lowest.Update(bar.ClosePrice);
+            _lowest.Update(bar.ClosePrice);
+            double lowestPrice = _lowest.Value;
 
             bool breakthrough = Math.Abs(lowestPrice - bar.ClosePrice) < 1e-6;
 

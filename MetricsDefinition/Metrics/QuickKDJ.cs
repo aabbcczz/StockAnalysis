@@ -27,12 +27,17 @@ namespace MetricsDefinition.Metrics
 
             _highest = new Highest(kWindowSize);
             _lowest = new Lowest(kWindowSize);
+
+            Values = new double[3];
         }
 
-        public override double[] Update(Bar bar)
+        public override void Update(Bar bar)
         {
-            var lowestPrice = _lowest.Update(bar.LowestPrice);
-            var highestPrice = _highest.Update(bar.HighestPrice);
+            _lowest.Update(bar.LowestPrice);
+            var lowestPrice = _lowest.Value;
+
+            _highest.Update(bar.HighestPrice);
+            var highestPrice = _highest.Value;
 
             var rsv = (bar.ClosePrice - lowestPrice) / (highestPrice - lowestPrice) * 100.0;
 
@@ -43,8 +48,7 @@ namespace MetricsDefinition.Metrics
             // update status;
             _prevD = d;
 
-            return new[]{ k, d, j};
-
+            SetValue(k, d, j);
         }
     }
 }
