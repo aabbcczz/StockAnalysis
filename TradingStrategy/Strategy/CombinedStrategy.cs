@@ -94,15 +94,7 @@ namespace TradingStrategy.Strategy
             }
 
             // update metrics that registered by all components
-            for (var i = 0; i < bars.Length; ++i)
-            {
-                if (bars[i].Time == Bar.InvalidTime)
-                {
-                    continue;
-                }
-
-                _context.MetricManager.UpdateMetric(tradingObjects[i], bars[i]);
-            }
+            _context.MetricManager.UpdateMetrics(tradingObjects, bars);
 
             // evaluate all components
             foreach (var component in _components)

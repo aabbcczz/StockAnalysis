@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 using TradingStrategy;
 using MetricsDefinition;
+using StockAnalysis.Share;
 
 namespace TradingStrategyEvaluation
 {
@@ -60,19 +61,40 @@ namespace TradingStrategyEvaluation
             return metricIndex;
         }
 
-        public void UpdateMetric(ITradingObject tradingObject, StockAnalysis.Share.Bar bar)
+        public void UpdateMetrics(ITradingObject[] tradingObjects, StockAnalysis.Share.Bar[] bars)
         {
-            int tradingObjectIndex = tradingObject.Index;
-            for (int metricIndex = 0; metricIndex < _metrics.Count; ++metricIndex)
+            if (tradingObjects.Length != bars.Length
+                || tradingObjects.Length != _maxTradingObjectNumber)
             {
-                IRuntimeMetric metric = _metrics[metricIndex][tradingObjectIndex];
-                if (metric == null)
-                {
-                    metric = _metricCreators[metricIndex](_metricNames[metricIndex]);
-                    _metrics[metricIndex][tradingObjectIndex] = metric;
-                }
+                throw new ArgumentException("unexpected number of input data");
+            }
 
-                metric.Update(bar);
+            unchecked
+            {
+                for (int metricIndex = 0; metricIndex < _metrics.Count; ++metricIndex)
+                {
+                    var currentMetricColumn = _metrics[metricIndex];
+                    var metricCreator = _metricCreators[metricIndex];
+                    var metricName = _metricNames[metricIndex];
+
+                    for (int barIndex = 0; barIndex < bars.Length; ++barIndex)
+                    {
+                        var bar = bars[barIndex];
+                        if (bar.Time == Bar.InvalidTime)
+                        {
+                            continue;
+                        }
+
+                        IRuntimeMetric metric = currentMetricColumn[barIndex];
+                        if (metric == null)
+                        {
+                            metric = metricCreator(metricName);
+                            currentMetricColumn[barIndex] = metric;
+                        }
+
+                        metric.Update(bar);
+                    }
+                }
             }
         }
 
