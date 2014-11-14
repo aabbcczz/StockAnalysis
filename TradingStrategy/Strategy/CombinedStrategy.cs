@@ -93,9 +93,6 @@ namespace TradingStrategy.Strategy
                 throw new ArgumentException("#trading object != #bars");
             }
 
-            // update metrics that registered by all components
-            _context.MetricManager.UpdateMetrics(tradingObjects, bars);
-
             // evaluate all components
             foreach (var component in _components)
             {

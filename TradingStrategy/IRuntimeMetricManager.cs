@@ -26,11 +26,28 @@ namespace TradingStrategy
         int RegisterMetric(string metricName, Func<string, IRuntimeMetric> creator);
 
         /// <summary>
-        /// Update metrics for all trading object
+        /// Begin to update metrics
+        /// </summary>
+        void BeginUpdateMetrics();
+
+        /// <summary>
+        /// Update metrics for all trading objects
         /// </summary>
         /// <param name="tradingObjects">trading objects, should be all trading objects returned by stock data provider</param>
         /// <param name="bars">Bar data of trading objects</param>
         void UpdateMetrics(ITradingObject[] tradingObjects, Bar[] bars);
+
+        /// <summary>
+        /// Update metrics for a trading object
+        /// </summary>
+        /// <param name="tradingObject">trading object whose metric should be updated</param>
+        /// <param name="bar">Bar data of trading object</param>
+        void UpdateMetrics(ITradingObject tradingObject, Bar bar);
+
+        /// <summary>
+        /// End update metrics
+        /// </summary>
+        void EndUpdateMetrics();
 
         /// <summary>
         /// Get specific metric values for given trading object

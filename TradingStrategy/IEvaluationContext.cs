@@ -9,6 +9,8 @@ namespace TradingStrategy
     {
         IRuntimeMetricManager MetricManager { get; }
 
+        IGroupRuntimeMetricManager GroupMetricManager { get; }
+
         double GetInitialEquity();
 
         double GetCurrentEquity(DateTime period, EquityEvaluationMethod method);

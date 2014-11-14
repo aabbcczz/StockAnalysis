@@ -27,6 +27,10 @@ namespace TradingStrategyEvaluation
         /// </summary>
         private List<IRuntimeMetric[]> _metrics = new List<IRuntimeMetric[]>();
 
+        public delegate void AfterUpdatedMetricsDelegate(IRuntimeMetricManager manager);
+
+        public AfterUpdatedMetricsDelegate AfterUpdatedMetrics { get; set; }
+
         public StandardRuntimeMetricManager(int maxTradingObjectNumber)
         {
             if (maxTradingObjectNumber <= 0)
@@ -61,6 +65,44 @@ namespace TradingStrategyEvaluation
             return metricIndex;
         }
 
+        public void BeginUpdateMetrics()
+        {
+        }
+
+        public void UpdateMetrics(ITradingObject tradingObject, Bar bar)
+        {
+            if (tradingObject == null)
+            {
+                throw new ArgumentNullException();
+            }
+
+            if (bar.Time == Bar.InvalidTime)
+            {
+                return;
+            }
+
+            unchecked
+            {
+                int tradingObjectIndex = tradingObject.Index;
+                for (int metricIndex = 0; metricIndex < _metrics.Count; ++metricIndex)
+                {
+                    var currentMetricColumn = _metrics[metricIndex];
+
+                    IRuntimeMetric metric = currentMetricColumn[tradingObjectIndex];
+                    if (metric == null)
+                    {
+                        var metricCreator = _metricCreators[metricIndex];
+                        var metricName = _metricNames[metricIndex];
+
+                        metric = metricCreator(metricName);
+                        currentMetricColumn[tradingObjectIndex] = metric;
+                    }
+
+                    metric.Update(bar);
+                }
+            }
+
+        }
         public void UpdateMetrics(ITradingObject[] tradingObjects, StockAnalysis.Share.Bar[] bars)
         {
             if (tradingObjects.Length != bars.Length
@@ -95,6 +137,14 @@ namespace TradingStrategyEvaluation
                         metric.Update(bar);
                     }
                 }
+            }
+        }
+
+        public void EndUpdateMetrics()
+        {
+            if (AfterUpdatedMetrics != null)
+            {
+                AfterUpdatedMetrics(this);
             }
         }
 

@@ -3,7 +3,7 @@ using MetricsDefinition.Metrics;
 
 namespace TradingStrategy.Strategy
 {
-    public sealed class RebreakthroughRuntimeMetric : IRuntimeMetric
+    public sealed class RebreakoutRuntimeMetric : IRuntimeMetric
     {
         private readonly Highest _highest;
         private readonly int _priceSelector;
@@ -23,7 +23,7 @@ namespace TradingStrategy.Strategy
 
         public int IntervalSinceLastBreakthrough { get; private set; }
 
-        public RebreakthroughRuntimeMetric(int windowSize, int priceSelector, int maxInterval, int minInterval)
+        public RebreakoutRuntimeMetric(int windowSize, int priceSelector, int maxInterval, int minInterval)
         {
             _highest = new Highest(windowSize);
             _priceSelector = priceSelector;

@@ -77,16 +77,22 @@ namespace TradingStrategyEvaluation
                     {
                         foreach (var bar in warmupData)
                         {
+                            _context.MetricManager.UpdateMetrics(obj, bar);
+
                             _strategy.WarmUp(obj, bar);
                         }
                     }
                 };
 
             // warm up
+            _context.MetricManager.BeginUpdateMetrics();
+
             foreach (var tradingObject in _allTradingObjects)
             {
                 warmupAction(tradingObject);
             }
+
+            _context.MetricManager.EndUpdateMetrics();
 
             // evaluating
             var lastPeriodTime = DateTime.MinValue;
@@ -116,6 +122,11 @@ namespace TradingStrategyEvaluation
                 {
                     throw new InvalidOperationException("Time in bar data is different with the time returned by data provider");
                 }
+
+                // update metrics that registered by strategy
+                _context.MetricManager.BeginUpdateMetrics();
+                _context.MetricManager.UpdateMetrics(_allTradingObjects, thisPeriodData);
+                _context.MetricManager.EndUpdateMetrics();
 
                 // evaluate bar data
                 _strategy.Evaluate(_allTradingObjects, thisPeriodData);

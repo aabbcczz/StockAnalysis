@@ -2,7 +2,7 @@
 
 namespace TradingStrategy.Strategy
 {
-    public sealed class BreakthroughAndReturnMarketEntering 
+    public sealed class BreakoutAndReturnMarketEntering 
         : GeneralMarketEnteringBase
     {
         private int _metricIndex;
@@ -58,7 +58,7 @@ namespace TradingStrategy.Strategy
         {
             comments = string.Empty;
 
-            var metric = (BreakthroughAndReturnRuntimeMetric)Context.MetricManager.GetMetric(tradingObject, _metricIndex);
+            var metric = (BreakoutAndReturnRuntimeMetric)Context.MetricManager.GetMetric(tradingObject, _metricIndex);
             if (metric.Triggered)
             {
                 comments = string.Format(
@@ -78,7 +78,7 @@ namespace TradingStrategy.Strategy
 
             _metricIndex = Context.MetricManager.RegisterMetric(
                 string.Format("BreakthroughAndReturn[{0},{1},{2},{3}]", BreakthroughWindow, PriceSelector, RerisingMaxInterval, RerisingMinInterval),
-                (string s) => new BreakthroughAndReturnRuntimeMetric(BreakthroughWindow, PriceSelector, RerisingMaxInterval, RerisingMinInterval)); 
+                (string s) => new BreakoutAndReturnRuntimeMetric(BreakthroughWindow, PriceSelector, RerisingMaxInterval, RerisingMinInterval)); 
         }
     }
 }

@@ -70,6 +70,7 @@
     <Compile Include="FileLogger.cs" />
     <Compile Include="GenericRuntimeMetric.cs" />
     <Compile Include="MemoryLogger.cs" />
+    <Compile Include="StandardGroupRuntimeMetricManager.cs" />
     <Compile Include="StandardRuntimeMetricManager.cs" />
     <Compile Include="TradeMetricsCalculator.cs" />
     <Compile Include="ParameterSettings.cs" />

@@ -2,7 +2,7 @@
 
 namespace TradingStrategy.Strategy
 {
-    public sealed class RebreakthroughMarketEntering 
+    public sealed class RebreakoutMarketEntering 
         : GeneralMarketEnteringBase
     {
         private int _metricIndex;
@@ -58,7 +58,7 @@ namespace TradingStrategy.Strategy
         {
             comments = string.Empty;
 
-            var metric = (RebreakthroughRuntimeMetric)Context.MetricManager.GetMetric(tradingObject, _metricIndex);
+            var metric = (RebreakoutRuntimeMetric)Context.MetricManager.GetMetric(tradingObject, _metricIndex);
             if (metric.Rebreakthrough)
             {
                 comments = string.Format("Rebreakthrough: {0:0.0000}, Interval: {1}", metric.CurrentHighest, metric.IntervalSinceLastBreakthrough);
@@ -77,7 +77,7 @@ namespace TradingStrategy.Strategy
                     PriceSelector,
                     RebreakthroughMaxInterval,
                     RebreakthroughMinInterval),
-                (string s) => new RebreakthroughRuntimeMetric(
+                (string s) => new RebreakoutRuntimeMetric(
                     BreakthroughWindow, 
                     PriceSelector,
                     RebreakthroughMaxInterval,

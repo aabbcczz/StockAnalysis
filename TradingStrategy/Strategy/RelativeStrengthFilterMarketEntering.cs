@@ -6,15 +6,8 @@ namespace TradingStrategy.Strategy
     public sealed class RelativeStrengthFilterMarketEntering
         : GeneralMarketEnteringBase
     {
-        private const double InvalidRateOfChanges = double.MaxValue;
-
-        private int _metricIndex;
-
-        private double[] _rateOfChanges;
-        private int[] _rateOfChangesIndex;
-        private double[] _relativeStrengths;
+        private RelativeStrengthGroupRuntimeMetric _metric;
         private int _numberOfValidTradingObjectsInThisPeriod;
-        private bool _isRelativeStrengthsGenerated;
 
         [Parameter(30, "ROC周期")]
         public int RocWindowSize { get; set; }
@@ -25,7 +18,10 @@ namespace TradingStrategy.Strategy
         protected override void RegisterMetric()
         {
  	        base.RegisterMetric();
-            _metricIndex = Context.MetricManager.RegisterMetric(string.Format("ROC[{0}]", RocWindowSize));
+
+            _metric = new RelativeStrengthGroupRuntimeMetric(Context.GetAllTradingObjects(), RocWindowSize);
+
+            Context.GroupMetricManager.RegisterMetric(_metric);
         }
 
         protected override void ValidateParameterValues()
@@ -57,62 +53,23 @@ namespace TradingStrategy.Strategy
         {
  	        base.StartPeriod(time);
 
-            if (_relativeStrengths == null)
-            {
-                _relativeStrengths = new double[Context.GetCountOfTradingObjects()];
-            }
-
-            Array.Clear(_relativeStrengths, 0, _relativeStrengths.Length);
-
-            if (_rateOfChanges == null)
-            {
-                _rateOfChanges = new double[Context.GetCountOfTradingObjects()];
-                _rateOfChangesIndex = new int[_rateOfChanges.Length];
-            }
-
-            for (var i = 0; i < _rateOfChanges.Length; ++i)
-            {
-                _rateOfChanges[i] = InvalidRateOfChanges;
-                _rateOfChangesIndex[i] = i;
-            }
-
             _numberOfValidTradingObjectsInThisPeriod = 0;
-            _isRelativeStrengthsGenerated = false;
         }
 
         public override void EvaluateSingleObject(ITradingObject tradingObject, Bar bar)
         {
             base.EvaluateSingleObject(tradingObject, bar);
 
-            _rateOfChanges[tradingObject.Index] 
-                = Context.MetricManager.GetMetricValues(tradingObject, _metricIndex)[0];
-
             _numberOfValidTradingObjectsInThisPeriod++;
-        }
-
-        private void GenerateRelativeStrength()
-        {
-            // sort the rate of changes and index ascending
-            Array.Sort(_rateOfChanges, _rateOfChangesIndex);
-
-            for (var i = 0; i < _numberOfValidTradingObjectsInThisPeriod; ++i)
-            {
-                _relativeStrengths[_rateOfChangesIndex[i]] 
-                    = (i + 1) * 100.0 / _numberOfValidTradingObjectsInThisPeriod;
-            }
         }
 
         public override bool CanEnter(ITradingObject tradingObject, out string comments)
         {
             comments = string.Empty;
 
-            if (!_isRelativeStrengthsGenerated)
-            {
-                GenerateRelativeStrength();
-                _isRelativeStrengthsGenerated = true;
-            }
+            var order = _metric.OrderOfTradingObjectMetricValues[tradingObject.Index];
+            var relativeStrength = (double)(_numberOfValidTradingObjectsInThisPeriod - order) / _numberOfValidTradingObjectsInThisPeriod * 100.0;
 
-            var relativeStrength = _relativeStrengths[tradingObject.Index];
             if (relativeStrength > RelativeStrengthThreshold)
             {
                 comments = string.Format(

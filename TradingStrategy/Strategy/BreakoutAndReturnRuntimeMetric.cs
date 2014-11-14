@@ -4,7 +4,7 @@ using StockAnalysis.Share;
 
 namespace TradingStrategy.Strategy
 {
-    public sealed class BreakthroughAndReturnRuntimeMetric : IRuntimeMetric
+    public sealed class BreakoutAndReturnRuntimeMetric : IRuntimeMetric
     {
         private readonly Highest _highest;
         private readonly int _priceSelector;
@@ -34,7 +34,7 @@ namespace TradingStrategy.Strategy
             get { return _state == PriceState.Rising; }
         }
 
-        public BreakthroughAndReturnRuntimeMetric(int windowSize, int priceSelector, int maxInterval, int minInterval)
+        public BreakoutAndReturnRuntimeMetric(int windowSize, int priceSelector, int maxInterval, int minInterval)
         {
             _highest = new Highest(windowSize);
             _priceSelector = priceSelector;
