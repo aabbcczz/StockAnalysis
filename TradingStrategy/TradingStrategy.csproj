@@ -59,10 +59,13 @@
   <ItemGroup>
     <Compile Include="CompletedTransaction.cs" />
     <Compile Include="EquityEvaluationMethod.cs" />
+    <Compile Include="IRuntimeMetricManagerObserver.cs" />
+    <Compile Include="MetricGroupSorter.cs" />
     <Compile Include="IdGenerator.cs" />
     <Compile Include="IGroupRuntimeMetric.cs" />
     <Compile Include="IGroupRuntimeMetricManager.cs" />
     <Compile Include="IRuntimeMetricManager.cs" />
+    <Compile Include="TradingGroup.cs" />
     <Compile Include="Position.cs" />
     <Compile Include="ILogger.cs" />
     <Compile Include="Instruction.cs" />
@@ -94,7 +97,6 @@
     <Compile Include="Strategy\DmiFilterMarketEntering.cs" />
     <Compile Include="Strategy\DmiRuntimeMetric.cs" />
     <Compile Include="Strategy\IPositionAdjustingComponent.cs" />
-    <Compile Include="Strategy\RelativeStrengthGroupRuntimeMetric.cs" />
     <Compile Include="Strategy\RiskPercentagePositionSizing.cs" />
     <Compile Include="Strategy\VolatilityPercentagePositionSizing.cs" />
     <Compile Include="Strategy\EqualValuePositionSizing.cs" />

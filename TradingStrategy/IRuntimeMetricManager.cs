@@ -50,6 +50,12 @@ namespace TradingStrategy
         void EndUpdateMetrics();
 
         /// <summary>
+        /// Register observer that will be notified each time after the metrics have been updated
+        /// </summary>
+        /// <param name="action"></param>
+        void RegisterAfterUpdatedMetricsObserver(IRuntimeMetricManagerObserver observer);
+
+        /// <summary>
         /// Get specific metric values for given trading object
         /// </summary>
         /// <param name="tradingObject">trading object whose metric values should be fetched</param>

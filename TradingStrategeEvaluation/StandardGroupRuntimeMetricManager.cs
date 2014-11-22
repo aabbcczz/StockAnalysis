@@ -7,7 +7,9 @@ using System.Threading.Tasks;
 using TradingStrategy;
 namespace TradingStrategyEvaluation
 {
-    internal sealed class StandardGroupRuntimeMetricManager : IGroupRuntimeMetricManager
+    internal sealed class StandardGroupRuntimeMetricManager 
+        : IGroupRuntimeMetricManager
+        , IRuntimeMetricManagerObserver
     {
         private IRuntimeMetricManager _manager;
 
@@ -34,13 +36,13 @@ namespace TradingStrategyEvaluation
                 throw new ArgumentNullException();
             }
 
-            var dependedMetricIndices = metric.DependedMetrics
+            var dependedMetricIndices = metric.DependedRawMetrics
                 .Select(s => _manager.RegisterMetric(s))
                 .ToArray();
 
             _dependedMetrics.Add(dependedMetricIndices);
 
-            var tradingObjectIndices = metric.GroupedTradingObjects
+            var tradingObjectIndices = metric.TradingGroup.TradingObjects
                 .Select(t => t.Index)
                 .ToArray();
 
@@ -61,7 +63,16 @@ namespace TradingStrategyEvaluation
             return _metrics[index];
         }
 
-        public void UpdateMetrics(IRuntimeMetricManager manager)
+        public void Observe(IRuntimeMetricManager manager)
+        {
+            UpdateMetrics(manager);
+        }
+
+        /// <summary>
+        /// Update all registered group runtime metric according to the value of depended metric value
+        /// </summary>
+        /// <param name="manager">the runtime metric manager which manages all metrics depended by the group runtime metrics</param>
+        private void UpdateMetrics(IRuntimeMetricManager manager)
         {
             if (manager != _manager)
             {

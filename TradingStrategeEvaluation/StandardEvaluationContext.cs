@@ -39,10 +39,13 @@ namespace TradingStrategyEvaluation
             _logger = logger;
 
             var metricManager = new StandardRuntimeMetricManager(_provider.GetAllTradingObjects().Length);
-            _groupMetricManager = new StandardGroupRuntimeMetricManager(metricManager);
+            var groupMetricManager = new StandardGroupRuntimeMetricManager(metricManager);
 
-            metricManager.AfterUpdatedMetrics += _groupMetricManager.UpdateMetrics;
+            // register the group metric manager as observer of metric manager.
+            metricManager.RegisterAfterUpdatedMetricsObserver(groupMetricManager);
+
             _metricManager = metricManager;
+            _groupMetricManager = groupMetricManager;
         }
 
         public double GetInitialEquity()

@@ -21,11 +21,5 @@ namespace TradingStrategy
         /// <param name="index">the index of metric returned by <c>RegisterMetric</c> function</param>
         /// <returns>the registered metric</returns>
         IGroupRuntimeMetric GetMetric(int index);
-
-        /// <summary>
-        /// Update all registered group runtime metric according to the value of depended metric value
-        /// </summary>
-        /// <param name="manager">the runtime metric manager which manages all metrics depended by the group runtime metrics</param>
-        void UpdateMetrics(IRuntimeMetricManager manager);
     }
 }

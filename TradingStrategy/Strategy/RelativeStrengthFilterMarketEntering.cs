@@ -5,9 +5,11 @@ namespace TradingStrategy.Strategy
 {
     public sealed class RelativeStrengthFilterMarketEntering
         : GeneralMarketEnteringBase
+        , IRuntimeMetricManagerObserver
     {
-        private RelativeStrengthGroupRuntimeMetric _metric;
+        private int _rocMetricIndex;
         private int _numberOfValidTradingObjectsInThisPeriod;
+        private MetricGroupSorter _sorter;
 
         [Parameter(30, "ROC周期")]
         public int RocWindowSize { get; set; }
@@ -19,9 +21,12 @@ namespace TradingStrategy.Strategy
         {
  	        base.RegisterMetric();
 
-            _metric = new RelativeStrengthGroupRuntimeMetric(Context.GetAllTradingObjects(), RocWindowSize);
+            _rocMetricIndex = Context.MetricManager.RegisterMetric(
+                string.Format("ROC[{0}]", RocWindowSize));
 
-            Context.GroupMetricManager.RegisterMetric(_metric);
+            Context.MetricManager.RegisterAfterUpdatedMetricsObserver(this);
+
+            _sorter = new MetricGroupSorter(Context.GetAllTradingObjects());
         }
 
         protected override void ValidateParameterValues()
@@ -67,8 +72,17 @@ namespace TradingStrategy.Strategy
         {
             comments = string.Empty;
 
-            var order = _metric.OrderOfTradingObjectMetricValues[tradingObject.Index];
-            var relativeStrength = (double)(_numberOfValidTradingObjectsInThisPeriod - order) / _numberOfValidTradingObjectsInThisPeriod * 100.0;
+            if (_numberOfValidTradingObjectsInThisPeriod == 0)
+            {
+                return false;
+            }
+
+            var order = _sorter.LatestOrders[tradingObject.Index];
+
+            var relativeStrength = 
+                (double)(_numberOfValidTradingObjectsInThisPeriod - order) 
+                / _numberOfValidTradingObjectsInThisPeriod 
+                * 100.0;
 
             if (relativeStrength > RelativeStrengthThreshold)
             {
@@ -80,6 +94,18 @@ namespace TradingStrategy.Strategy
             }
 
             return false;
+        }
+
+        public void Observe(IRuntimeMetricManager manager)
+        {
+            if (manager == null)
+            {
+                throw new ArgumentNullException();
+            }
+
+            var metrics = manager.GetMetrics(_rocMetricIndex);
+
+            _sorter.OrderByDescending(metrics);
         }
     }
 }

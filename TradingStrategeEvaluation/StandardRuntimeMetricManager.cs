@@ -27,9 +27,7 @@ namespace TradingStrategyEvaluation
         /// </summary>
         private List<IRuntimeMetric[]> _metrics = new List<IRuntimeMetric[]>();
 
-        public delegate void AfterUpdatedMetricsDelegate(IRuntimeMetricManager manager);
-
-        public AfterUpdatedMetricsDelegate AfterUpdatedMetrics { get; set; }
+        private List<IRuntimeMetricManagerObserver> _observers = new List<IRuntimeMetricManagerObserver>();
 
         public StandardRuntimeMetricManager(int maxTradingObjectNumber)
         {
@@ -142,10 +140,20 @@ namespace TradingStrategyEvaluation
 
         public void EndUpdateMetrics()
         {
-            if (AfterUpdatedMetrics != null)
+            foreach (var observer in _observers)
             {
-                AfterUpdatedMetrics(this);
+                observer.Observe(this);
             }
+        }
+
+        public void RegisterAfterUpdatedMetricsObserver(IRuntimeMetricManagerObserver observer)
+        {
+            if (observer == null)
+            {
+                throw new ArgumentNullException();
+            }
+
+            _observers.Add(observer);
         }
 
         public IRuntimeMetric GetMetric(ITradingObject tradingObject, int metricIndex)
