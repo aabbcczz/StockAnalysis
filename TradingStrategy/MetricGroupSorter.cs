@@ -62,11 +62,6 @@ namespace TradingStrategy
             _values = new double[_tradingObjects.Length][];
         }
 
-        public MetricGroupSorter(TradingGroup group)
-            : this(group == null ? null : group.TradingObjects)
-        {
-        }
-
         public void OrderByAscending(IRuntimeMetric[] metrics)
         {
             OrderBy(metrics, new DefaultAscendingOrderComparer());

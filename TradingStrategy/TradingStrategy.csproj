@@ -59,13 +59,15 @@
   <ItemGroup>
     <Compile Include="CompletedTransaction.cs" />
     <Compile Include="EquityEvaluationMethod.cs" />
+    <Compile Include="GroupMetrics\GroupSum.cs" />
+    <Compile Include="GroupMetrics\AdvanceDeclineLineAndRatio.cs" />
+    <Compile Include="GroupMetrics\GeneralGroupRuntimeMetricBase.cs" />
     <Compile Include="IRuntimeMetricManagerObserver.cs" />
     <Compile Include="MetricGroupSorter.cs" />
     <Compile Include="IdGenerator.cs" />
     <Compile Include="IGroupRuntimeMetric.cs" />
     <Compile Include="IGroupRuntimeMetricManager.cs" />
     <Compile Include="IRuntimeMetricManager.cs" />
-    <Compile Include="TradingGroup.cs" />
     <Compile Include="Position.cs" />
     <Compile Include="ILogger.cs" />
     <Compile Include="Instruction.cs" />

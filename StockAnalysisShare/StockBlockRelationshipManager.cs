@@ -9,14 +9,14 @@ namespace StockAnalysis.Share
     public sealed class StockBlockRelationshipManager
     {
         // map from stock to blocks that the stock belongs to.
-        private Dictionary<string, string[]> _blocksOfStock = new Dictionary<string, string[]>();
+        private Dictionary<string, string[]> _stockToBlocksMap = new Dictionary<string, string[]>();
 
         // map from block to stocks that the block contains
-        private Dictionary<string, string[]> _stocksOfBlock = new Dictionary<string, string[]>();
+        private Dictionary<string, string[]> _blockToStocksMap = new Dictionary<string, string[]>();
 
         public StockBlockRelationshipManager(IEnumerable<StockBlockRelationship> relationships)
         {
-            _blocksOfStock = relationships
+            _stockToBlocksMap = relationships
                 .GroupBy(sbr => sbr.StockCode)
                 .ToDictionary(
                     g => g.Key, 
@@ -24,7 +24,7 @@ namespace StockAnalysis.Share
                         .OrderBy(s => s)
                         .ToArray());
 
-            _stocksOfBlock = relationships
+            _blockToStocksMap = relationships
                 .GroupBy(sbr => sbr.BlockName)
                 .ToDictionary(
                     g => g.Key, 
@@ -35,22 +35,22 @@ namespace StockAnalysis.Share
 
         public IEnumerable<string> Stocks
         {
-            get { return _blocksOfStock.Keys; }
+            get { return _stockToBlocksMap.Keys; }
         }
 
         public IEnumerable<string> Blocks
         {
-            get { return _stocksOfBlock.Keys; }
+            get { return _blockToStocksMap.Keys; }
         }
 
         public IEnumerable<string> GetBlocksForStock(string stock)
         {
-            return _blocksOfStock[stock];
+            return _stockToBlocksMap[stock];
         }
 
         public IEnumerable<string> GetStocksInBlock(string block)
         {
-            return _stocksOfBlock[block];
+            return _blockToStocksMap[block];
         }
     }
 }

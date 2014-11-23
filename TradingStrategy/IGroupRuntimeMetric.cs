@@ -37,9 +37,9 @@ namespace TradingStrategy
         }
 
         /// <summary>
-        /// The trading group for calculating the metric
+        /// The trading objects for calculating the metric
         /// </summary>
-        TradingGroup TradingGroup
+        IEnumerable<ITradingObject> TradingObjects
         {
             get;
         }

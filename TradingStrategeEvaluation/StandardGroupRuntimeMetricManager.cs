@@ -42,7 +42,7 @@ namespace TradingStrategyEvaluation
 
             _dependedMetrics.Add(dependedMetricIndices);
 
-            var tradingObjectIndices = metric.TradingGroup.TradingObjects
+            var tradingObjectIndices = metric.TradingObjects
                 .Select(t => t.Index)
                 .ToArray();
 
