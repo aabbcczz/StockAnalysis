@@ -16,6 +16,8 @@ namespace TradingStrategyEvaluation
         private readonly TradingSettings _settings;
         private readonly TradingTracker _tradingTracker;
         private ITradingObject[] _allTradingObjects;
+        private DateTime[] _firstNonWarmupDataPeriods;
+
         private List<Instruction> _pendingInstructions = new List<Instruction>();
 
         private bool _evaluatable = true;
@@ -70,35 +72,17 @@ namespace TradingStrategyEvaluation
 
             // Get all trading objects
             _allTradingObjects = _provider.GetAllTradingObjects();
-            Action<ITradingObject> warmupAction = 
-                obj =>
-                {
-                    var warmupData = _provider.GetWarmUpData(obj.Index);
-                    if (warmupData != null)
-                    {
-                        foreach (var bar in warmupData)
-                        {
-                            _context.MetricManager.UpdateMetrics(obj, bar);
 
-                            _strategy.WarmUp(obj, bar);
-                        }
-                    }
-                };
-
-            // warm up
-            _context.MetricManager.BeginUpdateMetrics();
-
-            foreach (var tradingObject in _allTradingObjects)
-            {
-                warmupAction(tradingObject);
-            }
-
-            _context.MetricManager.EndUpdateMetrics();
+            // Get last warm up data periods
+            _firstNonWarmupDataPeriods = _provider.GetFirstNonWarmupDataPeriods();
 
             // evaluating
             var lastPeriodTime = DateTime.MinValue;
             Bar[] lastPeriodData = null;
             var periods = _provider.GetAllPeriodsOrdered();
+
+            bool fullTradingDataReached = false;
+
             for (var periodIndex = 0; periodIndex < periods.Length; ++periodIndex)
             {
                 var thisPeriodTime = periods[periodIndex];
@@ -109,29 +93,68 @@ namespace TradingStrategyEvaluation
                     throw new InvalidOperationException("the number of data returned does not match the number of trading object");
                 }
                 
+                // process pure warm up data.
+                if (_firstNonWarmupDataPeriods.All(t => t > thisPeriodTime))
+                {
+                    // update metrics that registered by strategy
+                    _context.MetricManager.BeginUpdateMetrics();
+
+                    _context.MetricManager.UpdateMetrics(_allTradingObjects, thisPeriodData);
+                    
+                    _context.MetricManager.EndUpdateMetrics();
+
+                    continue;
+                }
+
+                // remove warm up data if necessary
+                var originalThisPeriodData = thisPeriodData;
+                if (!fullTradingDataReached)
+                {
+                    if (_firstNonWarmupDataPeriods.All(t => t <= thisPeriodTime))
+                    {
+                        // from now on, all data are useful trading data
+                        fullTradingDataReached = true;
+                    }
+                    else
+                    {
+                        thisPeriodData = new Bar[originalThisPeriodData.Length];
+                        Array.Copy(originalThisPeriodData, thisPeriodData, thisPeriodData.Length);
+
+                        for (int i =0; i < thisPeriodData.Length; ++i)
+                        {
+                            if (thisPeriodData[i].Time < _firstNonWarmupDataPeriods[i])
+                            {
+                                thisPeriodData[i].Time = Bar.InvalidTime;
+                            }
+                        }
+                    }
+                }
+
                 // set current period data in context
                 _context.SetCurrentPeriodData(thisPeriodData);
 
                 // start a new period
                 _strategy.StartPeriod(thisPeriodTime);
-                
+
                 // run pending instructions left over from previous period
                 RunPendingInstructions(lastPeriodData, thisPeriodData, thisPeriodTime, false);
 
+#if DEBUG
                 // check data
                 if (thisPeriodData.Any(bar => bar.Time != Bar.InvalidTime && bar.Time != thisPeriodTime))
                 {
                     throw new InvalidOperationException("Time in bar data is different with the time returned by data provider");
                 }
+#endif
 
-                // update metrics that registered by strategy
+                // update metrics that registered by strategy. 
+                // here we should always use original data to update metrics.
                 _context.MetricManager.BeginUpdateMetrics();
-                _context.MetricManager.UpdateMetrics(_allTradingObjects, thisPeriodData);
+                _context.MetricManager.UpdateMetrics(_allTradingObjects, originalThisPeriodData);
                 _context.MetricManager.EndUpdateMetrics();
 
                 // evaluate bar data
                 _strategy.Evaluate(_allTradingObjects, thisPeriodData);
-
 
                 // get instructions and add them to pending instruction list
                 var instructions = _strategy.RetrieveInstructions().ToArray();

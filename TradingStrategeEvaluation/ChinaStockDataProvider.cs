@@ -15,7 +15,7 @@ namespace TradingStrategyEvaluation
 
         private readonly Dictionary<string, int> _stockIndices = new Dictionary<string, int>();
 
-        private readonly Bar[][] _allWarmupData;
+        private readonly DateTime[] _firstNonWarmupDataPeriods;
 
         private readonly DateTime[] _allPeriodsOrdered;
 
@@ -44,9 +44,9 @@ namespace TradingStrategyEvaluation
             return -1;
         }
 
-        public Bar[] GetWarmUpData(int index)
+        public DateTime[] GetFirstNonWarmupDataPeriods()
         {
-            return _allWarmupData[index];
+            return _firstNonWarmupDataPeriods;
         }
 
         public Bar[] GetDataOfPeriod(DateTime period)
@@ -68,9 +68,14 @@ namespace TradingStrategyEvaluation
 
         public bool GetLastEffectiveBar(int index, DateTime period, out Bar bar)
         {
-            bar = new Bar {Time = Bar.InvalidTime};
+            bar = new Bar { Time = Bar.InvalidTime };
 
             if (period < _allPeriodsOrdered[0] || period > _allPeriodsOrdered[_allPeriodsOrdered.Length - 1])
+            {
+                return false;
+            }
+
+            if (period < _firstNonWarmupDataPeriods[index])
             {
                 return false;
             }
@@ -97,8 +102,9 @@ namespace TradingStrategyEvaluation
                     --periodIndex;
                     continue;
                 }
+
                 bar = _allTradingData[periodIndex][index];
-                return true;
+                return bar.Time >= _firstNonWarmupDataPeriods[index];
             }
 
             return false;
@@ -136,7 +142,7 @@ namespace TradingStrategyEvaluation
 
             // load data
             var allTradingData = new List<StockHistoryData>(dataFiles.Length);
-            var allWarmupData = new Dictionary<string, Bar[]>();
+            var allFirstNonWarmupDataPeriods = new Dictionary<string, DateTime>();
 
             ChinaStockDataAccessor.Initialize();
 
@@ -170,26 +176,24 @@ namespace TradingStrategyEvaluation
 
                         // now we have ensured endIndex >= startIndex;
 
-                        Bar[] warmupData = null;
+                        DateTime firstNonWarmupDataPeriod = DateTime.MaxValue;
                         Bar[] tradingData;
 
                         if (warmupDataSize > 0)
                         {
                             if (startIndex >= warmupDataSize)
                             {
-                                warmupData = new Bar[warmupDataSize];
-                                Array.Copy(data.DataOrderedByTime, startIndex - warmupDataSize, warmupData, 0, warmupData.Length);
+                                firstNonWarmupDataPeriod = data.DataOrderedByTime[startIndex].Time;
 
-                                tradingData = new Bar[endIndex - startIndex + 1];
-                                Array.Copy(data.DataOrderedByTime, startIndex, tradingData, 0, tradingData.Length);
+                                tradingData = new Bar[endIndex - startIndex + warmupDataSize + 1];
+                                Array.Copy(data.DataOrderedByTime, startIndex - warmupDataSize, tradingData, 0, tradingData.Length);
                             }
                             else if (endIndex >= warmupDataSize)
                             {
-                                warmupData = new Bar[warmupDataSize];
-                                Array.Copy(data.DataOrderedByTime, 0, warmupData, 0, warmupData.Length);
+                                firstNonWarmupDataPeriod = data.DataOrderedByTime[warmupDataSize].Time;
 
-                                tradingData = new Bar[endIndex - warmupDataSize + 1];
-                                Array.Copy(data.DataOrderedByTime, warmupDataSize, tradingData, 0, tradingData.Length);
+                                tradingData = new Bar[endIndex + 1];
+                                Array.Copy(data.DataOrderedByTime, 0, tradingData, 0, tradingData.Length);
                             }
                             else
                             {
@@ -200,16 +204,15 @@ namespace TradingStrategyEvaluation
                         }
                         else
                         {
+                            firstNonWarmupDataPeriod = data.DataOrderedByTime[startIndex].Time;
+
                             tradingData = new Bar[endIndex - startIndex + 1];
                             Array.Copy(data.DataOrderedByTime, startIndex, tradingData, 0, tradingData.Length);
                         }
 
-                        if (warmupData != null)
+                        lock (allFirstNonWarmupDataPeriods)
                         {
-                            lock (allWarmupData)
-                            {
-                                allWarmupData.Add(data.Name.Code, warmupData);
-                            }
+                            allFirstNonWarmupDataPeriods.Add(data.Name.Code, firstNonWarmupDataPeriod);
                         }
 
                         lock (allTradingData)
@@ -249,11 +252,13 @@ namespace TradingStrategyEvaluation
                 _stockIndices.Add(_stocks[i].Code, i);
             }
             
-            // prepare warmup data
-            _allWarmupData = new Bar[_stocks.Length][];
-            for (var i = 0; i < _allWarmupData.Length; ++i)
+            // prepare first non-warmup data periods
+            _firstNonWarmupDataPeriods = new DateTime[_stocks.Length];
+            for (var i = 0; i < _firstNonWarmupDataPeriods.Length; ++i)
             {
-                _allWarmupData[i] = allWarmupData.ContainsKey(_stocks[i].Code) ? allWarmupData[_stocks[i].Code] : null;
+                _firstNonWarmupDataPeriods[i] = allFirstNonWarmupDataPeriods.ContainsKey(_stocks[i].Code)
+                    ? allFirstNonWarmupDataPeriods[_stocks[i].Code] 
+                    : DateTime.MaxValue;
             }
 
             // expand data to #period * #stock
