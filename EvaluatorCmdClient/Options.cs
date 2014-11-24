@@ -49,6 +49,12 @@ namespace EvaluatorCmdClient
         [Option('r', "RandomSelect", HelpText = "Number of random selected trading objects")]
         public int RandomSelectedTradingObjectCount { get; set; }
 
+        [Option('k', "StockBlock", HelpText = "The stock block relationship file name")]
+        public string StockBlockRelationshipFile { get; set; }
+
+        [Option('m', "MininumStockPerBlock", HelpText = "The mininum number of stocks in each blocks for stock selection")]
+        public int MininumStockPerBlock { get; set; }
+
         [HelpOption]
         public string GetUsage()
         {
@@ -63,6 +69,7 @@ namespace EvaluatorCmdClient
                 writer.WriteLine("Trading settings file: {0}", TradingSettingsFile);
                 writer.WriteLine("Combined strategy settings file: {0}", CombinedStrategySettingsFile);
                 writer.WriteLine("Stock data settings file: {0}", StockDataSettingsFile);
+                writer.WriteLine("Stock block relationship file: {0}", StockBlockRelationshipFile);
                 writer.WriteLine("Code file: {0}", CodeFile);
                 writer.WriteLine("Start date: {0}", StartDate);
                 writer.WriteLine("End date: {0}", EndDate);
@@ -70,6 +77,7 @@ namespace EvaluatorCmdClient
                 writer.WriteLine("Initial capital: {0:0.0000}", InitialCapital);
                 writer.WriteLine("Warmup periods: {0}", WarmupPeriods);
                 writer.WriteLine("Parallel execution: {0}", ParallelExecution);
+                writer.WriteLine("Mininum stock per block: {0}", MininumStockPerBlock);
                 writer.WriteLine("# of random selected trading objects: {0}", RandomSelectedTradingObjectCount);
             }
         }
@@ -99,6 +107,11 @@ namespace EvaluatorCmdClient
             if (RandomSelectedTradingObjectCount < 0)
             {
                 RandomSelectedTradingObjectCount = 0;
+            }
+
+            if (MininumStockPerBlock < 0)
+            {
+                MininumStockPerBlock = 0;
             }
         }
     }

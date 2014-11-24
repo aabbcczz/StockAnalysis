@@ -18,16 +18,16 @@ namespace TradingStrategy.Strategy
         }
 
         [Parameter(20, "通道突破窗口")]
-        public int BreakthroughWindow { get; set; }
+        public int BreakoutWindow { get; set; }
 
         [Parameter(0, "价格选择选项。0为最高价，1为最低价，2为收盘价，3为开盘价")]
         public int PriceSelector { get; set; }
 
         [Parameter(10, "通道再次突破允许的最大间隔")]
-        public int RebreakthroughMaxInterval { get; set; }
+        public int RebreakoutMaxInterval { get; set; }
 
         [Parameter(5, "通道再次突破允许的最小间隔")]
-        public int RebreakthroughMinInterval { get; set; }
+        public int RebreakoutMinInterval { get; set; }
 
         protected override void ValidateParameterValues()
         {
@@ -38,17 +38,17 @@ namespace TradingStrategy.Strategy
                 throw new ArgumentException("价格选择项非法");
             }
 
-            if (RebreakthroughMinInterval <=0 || RebreakthroughMaxInterval <= 0)
+            if (RebreakoutMinInterval <=0 || RebreakoutMaxInterval <= 0)
             {
                 throw new ArgumentException("再突破最大/最小时间间隔必须大于零");
             }
 
-            if (RebreakthroughMaxInterval > BreakthroughWindow)
+            if (RebreakoutMaxInterval > BreakoutWindow)
             {
                 throw new ArgumentException("再突破最大时间间隔必须小于等于通道突破窗口");
             }
 
-            if (RebreakthroughMinInterval > RebreakthroughMaxInterval)
+            if (RebreakoutMinInterval > RebreakoutMaxInterval)
             {
                 throw new ArgumentException("再突破最小时间间隔必须小于等于最大时间间隔");
             }
@@ -59,12 +59,12 @@ namespace TradingStrategy.Strategy
             comments = string.Empty;
 
             var metric = (RebreakoutRuntimeMetric)Context.MetricManager.GetMetric(tradingObject, _metricIndex);
-            if (metric.Rebreakthrough)
+            if (metric.Rebreakout)
             {
-                comments = string.Format("Rebreakthrough: {0:0.0000}, Interval: {1}", metric.CurrentHighest, metric.IntervalSinceLastBreakthrough);
+                comments = string.Format("Rebreakout: {0:0.0000}, Interval: {1}", metric.CurrentHighest, metric.IntervalSinceLastBreakout);
             }
 
-            return metric.Rebreakthrough;
+            return metric.Rebreakout;
         }
 
         protected override void RegisterMetric()
@@ -72,16 +72,16 @@ namespace TradingStrategy.Strategy
             base.RegisterMetric();
 
             _metricIndex = Context.MetricManager.RegisterMetric(
-                string.Format("Rebreakthrough[{0},{1},{2},{3}]",
-                    BreakthroughWindow,
+                string.Format("Rebreakout[{0},{1},{2},{3}]",
+                    BreakoutWindow,
                     PriceSelector,
-                    RebreakthroughMaxInterval,
-                    RebreakthroughMinInterval),
+                    RebreakoutMaxInterval,
+                    RebreakoutMinInterval),
                 (string s) => new RebreakoutRuntimeMetric(
-                    BreakthroughWindow, 
+                    BreakoutWindow, 
                     PriceSelector,
-                    RebreakthroughMaxInterval,
-                    RebreakthroughMinInterval));
+                    RebreakoutMaxInterval,
+                    RebreakoutMinInterval));
         }
     }
 }

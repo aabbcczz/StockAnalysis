@@ -12,7 +12,7 @@ namespace StockAnalysis.Share
     /// </summary>
     public sealed class TdxHangYeBlockDataReader
     {
-        private const int FieldCount = 6;
+        private const int FieldCount = 4;
 
         private static char[] _splitter = new char[] { '|' };
 

@@ -41,7 +41,7 @@ namespace ConvertTdxBlockData
             {
                 relationships.AddRange(
                     new TdxHangYeBlockDataReader(options.HangYeFile, stockBlockManager).Relationships);
-            }
+             }
 
             if (!string.IsNullOrEmpty(options.GaiNianFile))
             {

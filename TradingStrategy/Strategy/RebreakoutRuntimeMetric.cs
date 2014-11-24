@@ -11,17 +11,17 @@ namespace TradingStrategy.Strategy
         private readonly int _maxInterval;
         private readonly int _minInterval;
 
-        private int _intervalSinceLastBreakthrough;
+        private int _intervalSinceLastBreakout;
 
         public double[] Values { get { return null; } }
 
         public double CurrentHighest { get; private set; }
 
-        public bool Breakthrough { get; private set; }
+        public bool Breakout { get; private set; }
 
-        public bool Rebreakthrough { get; private set; }
+        public bool Rebreakout { get; private set; }
 
-        public int IntervalSinceLastBreakthrough { get; private set; }
+        public int IntervalSinceLastBreakout { get; private set; }
 
         public RebreakoutRuntimeMetric(int windowSize, int priceSelector, int maxInterval, int minInterval)
         {
@@ -31,8 +31,8 @@ namespace TradingStrategy.Strategy
             _minInterval = minInterval;
 
             CurrentHighest = 0.0;
-            Breakthrough = false;
-            Rebreakthrough = false;
+            Breakout = false;
+            Rebreakout = false;
         }
 
         public void Update(StockAnalysis.Share.Bar bar)
@@ -42,54 +42,54 @@ namespace TradingStrategy.Strategy
             _highest.Update(price);
             double newHighest = _highest.Value;
 
-            bool oldBreakthrough = Breakthrough;
+            bool oldBreakout = Breakout;
 
-            Breakthrough = Math.Abs(newHighest - price) < 1e-6;
+            Breakout = Math.Abs(newHighest - price) < 1e-6;
 
             CurrentHighest = newHighest;
 
-            if (Breakthrough)
+            if (Breakout)
             {
-                // rebreakthrough is always breakthrough
-                if (oldBreakthrough)
+                // rebreakout is always breakout
+                if (oldBreakout)
                 {
-                    // continuous breakthrough is not rebreakthrough
-                    Rebreakthrough = false;
-                    _intervalSinceLastBreakthrough = 0;
+                    // continuous breakout is not rebreakout
+                    Rebreakout = false;
+                    _intervalSinceLastBreakout = 0;
                 }
                 else
                 {
-                    // possible a rebreakthrough.
-                    if (_intervalSinceLastBreakthrough > 0 
-                        && _intervalSinceLastBreakthrough <= _maxInterval
-                        && _intervalSinceLastBreakthrough >= _minInterval)
+                    // possible a rebreakout.
+                    if (_intervalSinceLastBreakout > 0 
+                        && _intervalSinceLastBreakout <= _maxInterval
+                        && _intervalSinceLastBreakout >= _minInterval)
                     {
-                        Rebreakthrough = true;
-                        IntervalSinceLastBreakthrough = _intervalSinceLastBreakthrough;
+                        Rebreakout = true;
+                        IntervalSinceLastBreakout = _intervalSinceLastBreakout;
 
-                        _intervalSinceLastBreakthrough = 0;
+                        _intervalSinceLastBreakout = 0;
                     }
                     else
                     {
-                        Rebreakthrough = false;
-                        _intervalSinceLastBreakthrough = 0;
+                        Rebreakout = false;
+                        _intervalSinceLastBreakout = 0;
                     }
                 }
             }
             else
             {
-                // rebreakthrough is always breakthrough
-                Rebreakthrough = false;
+                // rebreakout is always breakout
+                Rebreakout = false;
 
-                if (oldBreakthrough)
+                if (oldBreakout)
                 {
-                    _intervalSinceLastBreakthrough = 1;
+                    _intervalSinceLastBreakout = 1;
                 }
                 else
                 {
-                    if (_intervalSinceLastBreakthrough > 0)
+                    if (_intervalSinceLastBreakout > 0)
                     {
-                        _intervalSinceLastBreakthrough++;
+                        _intervalSinceLastBreakout++;
                     }
                 }
             }

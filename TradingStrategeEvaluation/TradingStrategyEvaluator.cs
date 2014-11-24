@@ -37,6 +37,7 @@ namespace TradingStrategyEvaluation
             ITradingStrategy strategy, 
             IDictionary<ParameterAttribute, object> strategyParameters, 
             ITradingDataProvider provider, 
+            StockBlockRelationshipManager relationshipManager,
             TradingSettings settings,
             ILogger logger)
         {
@@ -53,7 +54,7 @@ namespace TradingStrategyEvaluation
             _settings = settings;
 
             _equityManager = new EquityManager(initalCapital);
-            _context = new StandardEvaluationContext(_provider, _equityManager, logger);
+            _context = new StandardEvaluationContext(_provider, _equityManager, logger, relationshipManager);
             _tradingTracker = new TradingTracker(initalCapital);
         }
 

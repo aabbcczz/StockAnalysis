@@ -11,12 +11,12 @@ namespace TradingStrategy.Strategy
         private readonly int _maxInterval;
         private readonly int _minInterval;
 
-        private int _intervalBetweenLastBreakthroughAndRerising;
+        private int _intervalBetweenLastBreakoutAndRerising;
 
         private enum PriceState
         {
             Initial,
-            Breakthrough,
+            Breakout,
             Degrading,
             Rising,
         }
@@ -25,9 +25,9 @@ namespace TradingStrategy.Strategy
 
         public double[] Values { get { return null; } }
 
-        public double LatestBreakthroughPrice { get; private set; }
+        public double LatestBreakoutPrice { get; private set; }
 
-        public double LowestPriceAfterBreakthrough { get; private set; }
+        public double LowestPriceAfterBreakout { get; private set; }
 
         public bool Triggered
         {
@@ -47,9 +47,9 @@ namespace TradingStrategy.Strategy
         private void ResetState()
         {
             _state = PriceState.Initial;
-            LatestBreakthroughPrice = 0.0;
-            LowestPriceAfterBreakthrough = 0.0;
-            _intervalBetweenLastBreakthroughAndRerising = 0;
+            LatestBreakoutPrice = 0.0;
+            LowestPriceAfterBreakout = 0.0;
+            _intervalBetweenLastBreakoutAndRerising = 0;
         }
         private void UpdateState(Bar bar)
         {
@@ -58,43 +58,43 @@ namespace TradingStrategy.Strategy
             _highest.Update(price);
             double highestPrice = _highest.Value;
 
-            bool breakthrough = Math.Abs(highestPrice - price) < 1e-6;
+            bool breakout = Math.Abs(highestPrice - price) < 1e-6;
 
             switch(_state)
             {
                 case PriceState.Initial:
-                    if (breakthrough)
+                    if (breakout)
                     {
-                        _state = PriceState.Breakthrough;
-                        LatestBreakthroughPrice = highestPrice;
-                        LowestPriceAfterBreakthrough = 0.0;
-                        _intervalBetweenLastBreakthroughAndRerising = 0;
+                        _state = PriceState.Breakout;
+                        LatestBreakoutPrice = highestPrice;
+                        LowestPriceAfterBreakout = 0.0;
+                        _intervalBetweenLastBreakoutAndRerising = 0;
                     }
 
                     break;
-                case PriceState.Breakthrough:
-                    if (breakthrough)
+                case PriceState.Breakout:
+                    if (breakout)
                     {
-                        LatestBreakthroughPrice = highestPrice;
+                        LatestBreakoutPrice = highestPrice;
                     }
                     else
                     {
                         _state = PriceState.Degrading;
-                        LowestPriceAfterBreakthrough = bar.ClosePrice;
-                        _intervalBetweenLastBreakthroughAndRerising = 1;
+                        LowestPriceAfterBreakout = bar.ClosePrice;
+                        _intervalBetweenLastBreakoutAndRerising = 1;
                     }
 
                     break;
                 case PriceState.Degrading:
-                    if (bar.ClosePrice <= LowestPriceAfterBreakthrough)
+                    if (bar.ClosePrice <= LowestPriceAfterBreakout)
                     {
-                        LowestPriceAfterBreakthrough = bar.ClosePrice;
-                        _intervalBetweenLastBreakthroughAndRerising++;
+                        LowestPriceAfterBreakout = bar.ClosePrice;
+                        _intervalBetweenLastBreakoutAndRerising++;
                     }
                     else
                     {
-                        if (_intervalBetweenLastBreakthroughAndRerising >= _minInterval 
-                            && _intervalBetweenLastBreakthroughAndRerising <= _maxInterval)
+                        if (_intervalBetweenLastBreakoutAndRerising >= _minInterval 
+                            && _intervalBetweenLastBreakoutAndRerising <= _maxInterval)
                         {
                             _state = PriceState.Rising;
                         }

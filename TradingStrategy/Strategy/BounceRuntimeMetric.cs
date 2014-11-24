@@ -15,7 +15,7 @@ namespace TradingStrategy.Strategy
         private enum PriceState
         {
             Initial,
-            Breakthrough,
+            Breakout,
             Bounce,
         }
 
@@ -54,9 +54,9 @@ namespace TradingStrategy.Strategy
             _minBouncePrice = 0.0;
         }
 
-        private void SetBreakthroughState(double lowestPrice)
+        private void SetBreakoutState(double lowestPrice)
         {
-            _state = PriceState.Breakthrough;
+            _state = PriceState.Breakout;
             LowestPrice = lowestPrice;
             BouncePrice = 0.0;
             BouncePercentage = 0.0;
@@ -68,21 +68,21 @@ namespace TradingStrategy.Strategy
             _lowest.Update(bar.ClosePrice);
             double lowestPrice = _lowest.Value;
 
-            bool breakthrough = Math.Abs(lowestPrice - bar.ClosePrice) < 1e-6;
+            bool breakout = Math.Abs(lowestPrice - bar.ClosePrice) < 1e-6;
 
             switch(_state)
             {
                 case PriceState.Initial:
-                    if (breakthrough)
+                    if (breakout)
                     {
-                        SetBreakthroughState(lowestPrice);
+                        SetBreakoutState(lowestPrice);
                     }
 
                     break;
-                case PriceState.Breakthrough:
-                    if (breakthrough)
+                case PriceState.Breakout:
+                    if (breakout)
                     {
-                        SetBreakthroughState(lowestPrice);
+                        SetBreakoutState(lowestPrice);
                     }
                     else
                     {
@@ -96,9 +96,9 @@ namespace TradingStrategy.Strategy
 
                     break;
                 case PriceState.Bounce:
-                    if (breakthrough)
+                    if (breakout)
                     {
-                        SetBreakthroughState(lowestPrice);
+                        SetBreakoutState(lowestPrice);
                     }
                     else
                     {

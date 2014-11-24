@@ -19,6 +19,7 @@ namespace StockAnalysis.Share
         private const int MaxNumberOfStockInBlock = 400;
 
         private static Encoding _stringEncoding = Encoding.GetEncoding("GB2312");
+
         private List<StockBlockRelationship> _relationships = new List<StockBlockRelationship>();
 
         public IEnumerable<StockBlockRelationship> Relationships
@@ -87,7 +88,7 @@ namespace StockAnalysis.Share
 
         private static string ConvertRawBytesToString(byte[] bytes)
         {
-            return _stringEncoding.GetString(bytes);
+            return _stringEncoding.GetString(bytes).Trim('\0');
         }
     }
 }

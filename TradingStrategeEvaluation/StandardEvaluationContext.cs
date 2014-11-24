@@ -13,6 +13,7 @@ namespace TradingStrategyEvaluation
         private readonly ITradingDataProvider _provider;
         private readonly IRuntimeMetricManager _metricManager;
         private readonly IGroupRuntimeMetricManager _groupMetricManager;
+        private readonly StockBlockRelationshipManager _relationshipManager;
 
         public IRuntimeMetricManager MetricManager
         {
@@ -24,19 +25,26 @@ namespace TradingStrategyEvaluation
             get { return _groupMetricManager; }
         }
 
+        public StockBlockRelationshipManager RelationshipManager
+        {
+            get { return _relationshipManager; }
+        }
+
         public StandardEvaluationContext(
             ITradingDataProvider provider, 
-            EquityManager manager, 
-            ILogger logger)
+            EquityManager equityManager, 
+            ILogger logger,
+            StockBlockRelationshipManager relationshipManager  = null)
         {
-            if (manager == null || provider == null || logger == null)
+            if (equityManager == null || provider == null || logger == null)
             {
                 throw new ArgumentNullException();
             }
 
             _provider = provider;
-            _equityManager = manager;
+            _equityManager = equityManager;
             _logger = logger;
+            _relationshipManager = relationshipManager;
 
             var metricManager = new StandardRuntimeMetricManager(_provider.GetAllTradingObjects().Length);
             var groupMetricManager = new StandardGroupRuntimeMetricManager(metricManager);

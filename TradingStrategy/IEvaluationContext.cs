@@ -11,6 +11,11 @@ namespace TradingStrategy
 
         IGroupRuntimeMetricManager GroupMetricManager { get; }
 
+        /// <summary>
+        /// stock block relationship manager, could be null.
+        /// </summary>
+        StockBlockRelationshipManager RelationshipManager { get; }
+
         double GetInitialEquity();
 
         double GetCurrentEquity(DateTime period, EquityEvaluationMethod method);

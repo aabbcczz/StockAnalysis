@@ -18,7 +18,7 @@ namespace TradingStrategy.Strategy
         }
 
         [Parameter(20, "通道突破窗口")]
-        public int BreakthroughWindow { get; set; }
+        public int BreakoutWindow { get; set; }
 
         [Parameter(0, "价格选择选项。0为最高价，1为最低价，2为收盘价，3为开盘价")]
         public int PriceSelector { get; set; }
@@ -43,7 +43,7 @@ namespace TradingStrategy.Strategy
                 throw new ArgumentException("通道突破后价格折回后再次上升所允许的最大/最小时间间隔必须大于零");
             }
 
-            if (RerisingMaxInterval > BreakthroughWindow)
+            if (RerisingMaxInterval > BreakoutWindow)
             {
                 throw new ArgumentException("通道突破后价格折回后再次上升所允许的最大时间间隔必须小于等于通道突破窗口");
             }
@@ -62,9 +62,9 @@ namespace TradingStrategy.Strategy
             if (metric.Triggered)
             {
                 comments = string.Format(
-                    "Breakthrough: {0:0.0000}, LowestPrice: {1:0.0000}", 
-                    metric.LatestBreakthroughPrice,
-                    metric.LowestPriceAfterBreakthrough);
+                    "Breakout: {0:0.0000}, LowestPrice: {1:0.0000}", 
+                    metric.LatestBreakoutPrice,
+                    metric.LowestPriceAfterBreakout);
 
                 return true;
             }
@@ -77,8 +77,8 @@ namespace TradingStrategy.Strategy
             base.RegisterMetric();
 
             _metricIndex = Context.MetricManager.RegisterMetric(
-                string.Format("BreakthroughAndReturn[{0},{1},{2},{3}]", BreakthroughWindow, PriceSelector, RerisingMaxInterval, RerisingMinInterval),
-                (string s) => new BreakoutAndReturnRuntimeMetric(BreakthroughWindow, PriceSelector, RerisingMaxInterval, RerisingMinInterval)); 
+                string.Format("BreakoutAndReturn[{0},{1},{2},{3}]", BreakoutWindow, PriceSelector, RerisingMaxInterval, RerisingMinInterval),
+                (string s) => new BreakoutAndReturnRuntimeMetric(BreakoutWindow, PriceSelector, RerisingMaxInterval, RerisingMinInterval)); 
         }
     }
 }
