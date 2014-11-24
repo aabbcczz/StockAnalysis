@@ -44,6 +44,11 @@ namespace TradingStrategy
         private readonly int[] _facilityOrders;
         private double[] _defaultMetricValues = null;
 
+        public IEnumerable<ITradingObject> TradingObjects
+        {
+            get { return _tradingObjects; }
+        }
+
         public int[] LatestOrders
         {
             get { return _finalOrders; }

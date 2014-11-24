@@ -10,7 +10,7 @@ using TradingStrategy;
 namespace TradingStrategy.GroupMetrics
 {
     /// <summary>
-    /// 指数指标，即收盘价之和
+    /// sum of group of raw metrics
     /// </summary>
     public sealed class GroupSum : GeneralGroupRuntimeMetricBase
     {

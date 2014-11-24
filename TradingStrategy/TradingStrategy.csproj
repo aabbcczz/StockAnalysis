@@ -59,9 +59,12 @@
   <ItemGroup>
     <Compile Include="CompletedTransaction.cs" />
     <Compile Include="EquityEvaluationMethod.cs" />
+    <Compile Include="GroupMetrics\BlockMetricsManager.cs" />
+    <Compile Include="GroupMetrics\BlockMetricSorterManager.cs" />
     <Compile Include="GroupMetrics\GroupSum.cs" />
     <Compile Include="GroupMetrics\AdvanceDeclineLineAndRatio.cs" />
     <Compile Include="GroupMetrics\GeneralGroupRuntimeMetricBase.cs" />
+    <Compile Include="IGroupRuntimeMetricManagerObserver.cs" />
     <Compile Include="IRuntimeMetricManagerObserver.cs" />
     <Compile Include="MetricGroupSorter.cs" />
     <Compile Include="IdGenerator.cs" />
@@ -80,6 +83,7 @@
     <Compile Include="Strategy\AtrDevTraceStopLossMarketExiting.cs" />
     <Compile Include="Strategy\AtrDevStopLoss.cs" />
     <Compile Include="Strategy\BarPriceSelector.cs" />
+    <Compile Include="Strategy\BlockPriceIndexFilterMarketEntering.cs" />
     <Compile Include="Strategy\BreakoutAndReturnMarketEntering.cs" />
     <Compile Include="Strategy\BounceRuntimeMetric.cs" />
     <Compile Include="Strategy\BreakoutAndReturnRuntimeMetric.cs" />

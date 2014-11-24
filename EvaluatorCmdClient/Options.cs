@@ -52,8 +52,11 @@ namespace EvaluatorCmdClient
         [Option('k', "StockBlock", HelpText = "The stock block relationship file name")]
         public string StockBlockRelationshipFile { get; set; }
 
-        [Option('m', "MininumStockPerBlock", HelpText = "The mininum number of stocks in each blocks for stock selection")]
-        public int MininumStockPerBlock { get; set; }
+        [Option('m', "MininumStockPerBlockAfterSelection", HelpText = "The mininum number of stocks in each blocks for stock selection")]
+        public int MininumStockPerBlockAfterSelection { get; set; }
+
+        [Option('x', "BlockSizeThreshold", HelpText = "The threshold for block size")]
+        public int BlockSizeThreshold { get; set; }
 
         [HelpOption]
         public string GetUsage()
@@ -77,7 +80,8 @@ namespace EvaluatorCmdClient
                 writer.WriteLine("Initial capital: {0:0.0000}", InitialCapital);
                 writer.WriteLine("Warmup periods: {0}", WarmupPeriods);
                 writer.WriteLine("Parallel execution: {0}", ParallelExecution);
-                writer.WriteLine("Mininum stock per block: {0}", MininumStockPerBlock);
+                writer.WriteLine("Mininum stock per block after selection: {0}", MininumStockPerBlockAfterSelection);
+                writer.WriteLine("Block size threshold: {0}", BlockSizeThreshold);
                 writer.WriteLine("# of random selected trading objects: {0}", RandomSelectedTradingObjectCount);
             }
         }
@@ -109,9 +113,14 @@ namespace EvaluatorCmdClient
                 RandomSelectedTradingObjectCount = 0;
             }
 
-            if (MininumStockPerBlock < 0)
+            if (MininumStockPerBlockAfterSelection < 0)
             {
-                MininumStockPerBlock = 0;
+                MininumStockPerBlockAfterSelection = 0;
+            }
+
+            if (BlockSizeThreshold < 0)
+            {
+                BlockSizeThreshold = 0;
             }
         }
     }

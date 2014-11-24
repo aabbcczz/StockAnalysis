@@ -230,6 +230,12 @@ namespace EvaluatorCmdClient
             {
                 stockBlockRelationshipManager = LoadStockBlockRelationship(options.StockBlockRelationshipFile);
 
+                // filter blocks that with too small size
+                var largeBlocks = stockBlockRelationshipManager.Blocks
+                    .Where(block => stockBlockRelationshipManager.GetStocksInBlock(block).Count() >= options.BlockSizeThreshold);
+
+                stockBlockRelationshipManager = stockBlockRelationshipManager.CreateSubsetForBlocks(largeBlocks);
+
                 // filter stock block relationship for loaded codes only
                 stockBlockRelationshipManager = stockBlockRelationshipManager.CreateSubsetForStocks(codes);
 
@@ -300,10 +306,10 @@ namespace EvaluatorCmdClient
 
                         if (filteredStockBlockRelationshipManager != null)
                         {
-                            if (options.MininumStockPerBlock > 0)
+                            if (options.MininumStockPerBlockAfterSelection > 0)
                             {
                                 // need to select stock for maximum coverage
-                                SelectStockAndFilterBlocks(ref filteredStockBlockRelationshipManager, options.MininumStockPerBlock);
+                                SelectStockAndFilterBlocks(ref filteredStockBlockRelationshipManager, options.MininumStockPerBlockAfterSelection);
                             }
 
                             var filteredCodes = filteredStockBlockRelationshipManager.Stocks;

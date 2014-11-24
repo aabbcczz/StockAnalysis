@@ -19,6 +19,8 @@ namespace TradingStrategyEvaluation
 
         private List<int[]> _tradingObjects = new List<int[]>();
 
+        private List<IGroupRuntimeMetricManagerObserver> _observers = new List<IGroupRuntimeMetricManagerObserver>();
+
         public StandardGroupRuntimeMetricManager(IRuntimeMetricManager manager)
         {
             if (manager == null)
@@ -68,6 +70,11 @@ namespace TradingStrategyEvaluation
             UpdateMetrics(manager);
         }
 
+        public void RegisterAfterUpdatedMetricsObserver(IGroupRuntimeMetricManagerObserver observer)
+        {
+            _observers.Add(observer);
+        }
+
         /// <summary>
         /// Update all registered group runtime metric according to the value of depended metric value
         /// </summary>
@@ -107,6 +114,12 @@ namespace TradingStrategyEvaluation
 
                 // update metric
                 metric.Update(runtimeMetrics);
+            }
+
+            // call observers if any
+            foreach (var observer in _observers)
+            {
+                observer.Observe(this);
             }
         }
     }

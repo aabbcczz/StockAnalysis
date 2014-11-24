@@ -9,6 +9,12 @@ namespace TradingStrategy
     public interface IGroupRuntimeMetricManager
     {
         /// <summary>
+        /// Register observer for the group runtime metric manager after it have updated metrics
+        /// </summary>
+        /// <param name="observer"></param>
+        void RegisterAfterUpdatedMetricsObserver(IGroupRuntimeMetricManagerObserver observer);
+
+        /// <summary>
         /// Register a group runtime metric
         /// </summary>
         /// <param name="metric">metric to be registered</param>
