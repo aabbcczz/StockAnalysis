@@ -93,6 +93,17 @@ namespace ProcessDailyStockData
                     Encoding.UTF8);
             }
 
+            if (!string.IsNullOrEmpty(options.CodeFile))
+            {
+                Console.WriteLine();
+                Console.WriteLine("Output code file: {0}", options.CodeFile);
+
+                File.WriteAllLines(
+                    options.CodeFile,
+                    table.StockNames.Select(sn => sn.Code).ToArray(),
+                    Encoding.UTF8);
+            }
+
             Console.WriteLine("Done.");
 
             return 0;
