@@ -6,7 +6,6 @@ using System.IO;
 using System.Threading.Tasks;
 
 using CommandLine;
-using CsvHelper;
 using StockAnalysis.Share;
 
 namespace ConvertTdxBlockData
@@ -68,13 +67,7 @@ namespace ConvertTdxBlockData
             }
 
             // output
-            using (StreamWriter writer = new StreamWriter(options.OutputFile, false, Encoding.UTF8))
-            {
-                using (CsvWriter csvWriter = new CsvWriter(writer))
-                {
-                    csvWriter.WriteRecords(relationships);
-                }
-            }
+            StockBlockRelationship.SaveToFile(options.OutputFile, relationships);
         }
     }
 }

@@ -110,15 +110,9 @@ namespace EvaluatorCmdClient
 
         static StockBlockRelationshipManager LoadStockBlockRelationship(string relationshipFile)
         {
-            using (StreamReader reader = new StreamReader(relationshipFile, Encoding.UTF8))
-            {
-                using (CsvReader csvReader = new CsvReader(reader))
-                {
-                    var relationships = csvReader.GetRecords<StockBlockRelationship>().ToList();
+            var relationships = StockBlockRelationship.LoadFromFile(relationshipFile);
 
-                    return new StockBlockRelationshipManager(relationships);
-                }
-            }
+            return new StockBlockRelationshipManager(relationships);
         }
 
         static IEnumerable<string> SelectStockAndFilterBlocks(ref StockBlockRelationshipManager manager, int minStockPerBlock)
@@ -336,7 +330,9 @@ namespace EvaluatorCmdClient
                         IDictionary<ParameterAttribute, object> values;
                         while ((values = combinedStrategyAssembler.GetNextSetOfParameterValues()) != null)
                         {
-                            var strategy = combinedStrategyAssembler.NewStrategy();
+                            var strategy = combinedStrategyAssembler.NewStrategy(
+                                combinedStrategySettings.MaxNumberOfActiveStocks,
+                                combinedStrategySettings.MaxNumberOfActiveStocksPerBlock);
 
                             strategyInstances.Add(Tuple.Create(strategy, values));
                         }

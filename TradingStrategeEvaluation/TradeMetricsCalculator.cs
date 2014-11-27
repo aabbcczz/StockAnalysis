@@ -1,13 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-//using StockAnalysis.Share;
+using StockAnalysis.Share;
 using TradingStrategy;
+using MetricsDefinition.Metrics;
 
 namespace TradingStrategyEvaluation
 {
     public sealed class TradeMetricsCalculator
     {
+        public const int ERatioAtrWindowSize = 20;
+
+        public static readonly int[] ERatioWindowSizes = new int[]
+        {
+            5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100, 105, 110, 115, 120
+        };
+
         private readonly Transaction[] _orderedTransactionHistory;
         private readonly CompletedTransaction[] _orderedCompletedTransactionHistory;
 
@@ -185,6 +193,115 @@ namespace TradingStrategyEvaluation
             return usedCapital + 1.0; // add 1.0 to avoid accumulated precision loss.
         }
 */
+        /// <summary>
+        /// Calculate the normalized Maximum Favorable Excursion and Maximum Adversed Excursion for a given point
+        /// </summary>
+        /// <param name="bars"></param>
+        /// <param name="barIndex"></param>
+        /// <returns></returns>
+        private void CalculateNormalizedMfeAndMae(Bar[] bars, int barIndex, out double[] mfe, out double[] mae)
+        {
+            AverageTrueRange atr = new AverageTrueRange(ERatioAtrWindowSize);
+            int startIndex = Math.Max(0, barIndex - ERatioAtrWindowSize);
+
+            for (int i = startIndex; i < barIndex; ++i)
+            {
+                atr.Update(bars[i]);
+            }
+
+            double initialPrice = bars[barIndex].ClosePrice;
+
+            mfe = new double[ERatioWindowSizes.Length];
+            mae = new double[ERatioWindowSizes.Length];
+
+            for (int i = 0; i < ERatioWindowSizes.Length; ++i)
+            {
+                var windowSize = ERatioWindowSizes[i];
+
+                var highestPrice = Enumerable
+                    .Range(barIndex, Math.Min(bars.Length - barIndex, windowSize))
+                    .Max(index => bars[index].ClosePrice);
+
+                var lowestPrice = Enumerable
+                    .Range(barIndex, Math.Min(bars.Length - barIndex, windowSize))
+                    .Min(index => bars[index].ClosePrice);
+
+                mfe[i] = (highestPrice - initialPrice) / atr.Value;
+                mae[i] = (initialPrice - lowestPrice) / atr.Value;
+            }
+        }
+
+        private double[] CalculateERatio(IEnumerable<Transaction> orderedTransactions)
+        {
+            var codes = orderedTransactions
+                .Select(t => t.Code)
+                .GroupBy(c => c)
+                .Select(g => g.Key);
+
+            List<double[]> mfes = new List<double[]>();
+            List<double[]> maes = new List<double[]>();
+
+            foreach (var code in codes)
+            {
+                var bars = _dataProvider.GetAllBarsForTradingObject(_dataProvider.GetIndexOfTradingObject(code))
+                    .ToArray();
+
+                var subsetTransactions = orderedTransactions.Where(t => t.Code == code);
+
+                int volume = 0;
+                int barIndex = 0;
+                foreach (var transaction in subsetTransactions)
+                {
+                    if (transaction.Action == TradingAction.OpenLong && volume == 0)
+                    {
+                        // this transaction is for entering market
+                        // find the location of bar in bars for the transaction
+                        while (barIndex < bars.Length)
+                        {
+                            if (bars[barIndex].Time == transaction.ExecutionTime)
+                            {
+                                break;
+                            }
+
+                            ++barIndex;
+                        }
+
+                        if (barIndex >= bars.Length)
+                        {
+                            // impossible
+                            throw new InvalidOperationException("Logic error");
+                        }
+
+                        // calculate MFE and MAE
+                        double[] mfe;
+                        double[] mae;
+
+                        CalculateNormalizedMfeAndMae(bars, barIndex, out mfe, out mae);
+
+                        mfes.Add(mfe);
+                        maes.Add(mae);
+                    }
+
+                    volume += transaction.Action == TradingAction.OpenLong ? transaction.Volume : -transaction.Volume;
+                }
+            }
+
+            // calculate averge mfe and mae
+            var avgMfe = Enumerable
+                .Range(0, ERatioWindowSizes.Length)
+                .Select(i => mfes.Select(v => v[i]).Average())
+                .ToArray();
+
+            var avgMae = Enumerable
+                .Range(0, ERatioWindowSizes.Length)
+                .Select(i => maes.Select(v => v[i]).Average())
+                .ToArray();
+
+            return Enumerable
+                .Range(0, ERatioWindowSizes.Length)
+                .Select(i => avgMfe[i] / avgMae[i])
+                .ToArray();
+        }
 
         private TradeMetric GetTradeMetric(string code, string name, double startPrice, double endPrice)
         {
@@ -211,6 +328,9 @@ namespace TradingStrategyEvaluation
             var currentEquity = _initialCapital; 
 
             var equityPoints = new List<EquityPoint>(_periods.Length);
+
+            // Calculate E-Ratio
+            var eRatios = CalculateERatio(transactions);
 
             foreach (var period in _periods)
             {
@@ -278,7 +398,8 @@ namespace TradingStrategyEvaluation
                 endPrice,
                 equityPoints.OrderBy(t => t.Time).ToArray(),
                 completedTransactions,
-                transactions);
+                transactions,
+                eRatios);
 
             return metric;
         }

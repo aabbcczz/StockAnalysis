@@ -43,15 +43,26 @@ namespace TradingStrategy
         private readonly int[] _finalOrders;
         private readonly int[] _facilityOrders;
         private double[] _defaultMetricValues = null;
+        private readonly Dictionary<int, int> _tradingObjectIndexToLocalIndexMap;
 
         public IEnumerable<ITradingObject> TradingObjects
         {
             get { return _tradingObjects; }
         }
 
+        public int Count
+        {
+            get { return _tradingObjects.Length; }
+        }
+
         public int[] LatestOrders
         {
             get { return _finalOrders; }
+        }
+
+        public int this[ITradingObject tradingObject]
+        {
+            get { return _finalOrders[_tradingObjectIndexToLocalIndexMap[tradingObject.Index]]; }
         }
 
         public MetricGroupSorter(IEnumerable<ITradingObject> tradingObjects)
@@ -65,6 +76,10 @@ namespace TradingStrategy
             _finalOrders = new int[_tradingObjects.Length];
             _facilityOrders = new int[_tradingObjects.Length];
             _values = new double[_tradingObjects.Length][];
+
+            _tradingObjectIndexToLocalIndexMap = Enumerable
+                .Range(0, _tradingObjects.Length)
+                .ToDictionary(i => _tradingObjects[i].Index);
         }
 
         public void OrderByAscending(IRuntimeMetric[] metrics)

@@ -12,7 +12,9 @@ namespace TradingStrategy.Strategy
     public sealed class BlockPriceIndexFilterMarketEntering : GeneralMarketEnteringBase
     {
         private BlockMetricsManager _blockMetricManager;
+        private BlockMetricSorterManager _blockMetricSortManager;
         private Dictionary<string, RateOfChange> _blockToPriceIndexChangeRateMap;
+        private Dictionary<string, Lowest> _blockToLowestMap;
 
         public override string Name
         {
@@ -21,11 +23,23 @@ namespace TradingStrategy.Strategy
 
         public override string Description
         {
-            get { return "当股票所在板块中至少有一个板块的价格指数在给定周期（WindowSize）内上升则允许入市"; }
+            get { return @"当股票所在板块中至少有一个板块的价格指数在给定周期（WindowSize）内变化率超过MininumRateOfChange, 
+并且股票的升值比例在整个板块中排名比例高于TopPercentage, 
+并且股票从最低点上升比例超过MininumUpRateFromLowest,
+则允许入市"; }
         }
 
         [Parameter(20, "指数升降判定周期")]
         public int WindowSize { get; set; }
+
+        [Parameter(0.0, "指数变化比例最小值，按百分比计算")]
+        public double MininumRateOfChange { get; set; }
+
+        [Parameter(20.0, "股票价格变化比例在整个板块中的排名（从高到底）比例最小值")]
+        public double TopPercentage { get; set; }
+
+        [Parameter(0.0, "指数从最低点上升比例最小值，按百分比计算")]
+        public double MininumUpRateFromLowest { get; set; }
 
         protected override void ValidateParameterValues()
         {
@@ -34,6 +48,16 @@ namespace TradingStrategy.Strategy
             if (WindowSize <= 0)
             {
                 throw new ArgumentOutOfRangeException("WindowSize must be greater than 0");
+            }
+
+            if (TopPercentage < 0.0 || TopPercentage > 100.0)
+            {
+                throw new ArgumentOutOfRangeException("TopPercentage must be in [0.0..100.0]");
+            }
+
+            if (MininumUpRateFromLowest < 0.0)
+            {
+                throw new ArgumentNullException("MininumUpRateFromLowest must not be smaller than 0.0");
             }
         }
 
@@ -48,11 +72,18 @@ namespace TradingStrategy.Strategy
 
             _blockMetricManager = new BlockMetricsManager(
                 context,
-                (IEnumerable<ITradingObject> objects) => { return new GroupSum(objects, "BAR.CP"); });
+                (IEnumerable<ITradingObject> objects) => { return new GroupAverage(objects, "BAR.CP"); });
 
             _blockToPriceIndexChangeRateMap = context.RelationshipManager.Blocks.ToDictionary(b => b, b => new RateOfChange(WindowSize));
+            _blockToLowestMap = context.RelationshipManager.Blocks.ToDictionary(b => b, b => new Lowest(WindowSize));
 
             _blockMetricManager.AfterUpdatedMetrics += UpdatePriceIndex;
+
+            _blockMetricSortManager 
+                = new BlockMetricSorterManager(
+                    context, 
+                    string.Format("ROC[{0}]", WindowSize), 
+                    new MetricGroupSorter.DefaultDescendingOrderComparer());
         }
 
         public override bool CanEnter(ITradingObject tradingObject, out string comments)
@@ -68,10 +99,25 @@ namespace TradingStrategy.Strategy
 
             foreach (var block in blocks)
             {
-                var value = _blockToPriceIndexChangeRateMap[block].Value;
-                if (value > 0.0)
+                var indexValue = _blockMetricManager.GetMetricForBlock(block).MetricValues[0];
+                var indexRateOfChange = _blockToPriceIndexChangeRateMap[block].Value;
+                var indexLowestValue = _blockToLowestMap[block].Value;
+
+                var upRateFromLowest = (indexValue - indexLowestValue) / indexLowestValue * 100.0;
+
+                var sorter = _blockMetricSortManager.GetMetricSorterForBlock(block);
+                var order = sorter[tradingObject];
+                if (order <= sorter.Count * TopPercentage / 100.0 
+                    && indexRateOfChange > MininumRateOfChange
+                    && upRateFromLowest > MininumUpRateFromLowest)
                 {
-                    comments = string.Format("Block {0} price index change rate {1:0.000}", block, value);
+                    comments = string.Format(
+                        "Block {0} price index change rate {1:0.000} order: {2} up rate from lowest {3:0.000}", 
+                        block, 
+                        indexRateOfChange, 
+                        order,
+                        upRateFromLowest);
+
                     return true;
                 }
             }
@@ -83,7 +129,10 @@ namespace TradingStrategy.Strategy
         {
             foreach (var block in _blockToPriceIndexChangeRateMap.Keys)
             {
-                _blockToPriceIndexChangeRateMap[block].Update(_blockMetricManager.GetMetricForBlock(block).MetricValues[0]);
+                var value = _blockMetricManager.GetMetricForBlock(block).MetricValues[0];
+
+                _blockToPriceIndexChangeRateMap[block].Update(value);
+                _blockToLowestMap[block].Update(value);
             }
         }
     }

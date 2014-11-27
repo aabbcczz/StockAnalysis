@@ -7,6 +7,8 @@ namespace TradingStrategyEvaluation
     [Serializable]
     public sealed class TradingSettings
     {
+        public bool AllowNegativeCapital { get; set; }
+
         public CommissionSettings BuyingCommission { get; set; }
 
         public CommissionSettings SellingCommission { get; set; }

@@ -13,6 +13,7 @@ namespace EvaluatorCmdClient
     public sealed class ResultSummary
     {
         private const int MaxParameterCount = 40;
+        private const int MaxERatioCount = 40;
 
         public sealed class ResultSummaryMap : CsvClassMap<ResultSummary>
         {
@@ -34,11 +35,27 @@ namespace EvaluatorCmdClient
                         Map(e).Name(ParameterNames[i]);
                     }
                 }
+
+                for (var i = 0; i < MaxERatioCount; ++i)
+                {
+                    var exp = string.Format("m => m.ERatio{0}", i + 1);
+                    var e = DynamicExpression.ParseLambda<ResultSummary, object>(exp);
+
+                    if (i >= TradeMetricsCalculator.ERatioWindowSizes.Length)
+                    {
+                        Map(e).Ignore();
+                    }
+                    else
+                    {
+                        Map(e).Name(string.Format("ERatio{0}", TradeMetricsCalculator.ERatioWindowSizes[i]));
+                    }
+                }
             }
         }
 
         public static string[] ParameterNames;
         private static PropertyInfo[] _parameterValueProperties;
+        private static PropertyInfo[] _eRatioProperties;
 
         public string ParameterValue1 { get; set; }
         public string ParameterValue2 { get; set; }
@@ -80,6 +97,47 @@ namespace EvaluatorCmdClient
         public string ParameterValue38 { get; set; }
         public string ParameterValue39 { get; set; }
         public string ParameterValue40 { get; set; }
+
+        public double ERatio1 { get; set; }
+        public double ERatio2 { get; set; }
+        public double ERatio3 { get; set; }
+        public double ERatio4 { get; set; }
+        public double ERatio5 { get; set; }
+        public double ERatio6 { get; set; }
+        public double ERatio7 { get; set; }
+        public double ERatio8 { get; set; }
+        public double ERatio9 { get; set; }
+        public double ERatio10 { get; set; }
+        public double ERatio11 { get; set; }
+        public double ERatio12 { get; set; }
+        public double ERatio13 { get; set; }
+        public double ERatio14 { get; set; }
+        public double ERatio15 { get; set; }
+        public double ERatio16 { get; set; }
+        public double ERatio17 { get; set; }
+        public double ERatio18 { get; set; }
+        public double ERatio19 { get; set; }
+        public double ERatio20 { get; set; }
+        public double ERatio21 { get; set; }
+        public double ERatio22 { get; set; }
+        public double ERatio23 { get; set; }
+        public double ERatio24 { get; set; }
+        public double ERatio25 { get; set; }
+        public double ERatio26 { get; set; }
+        public double ERatio27 { get; set; }
+        public double ERatio28 { get; set; }
+        public double ERatio29 { get; set; }
+        public double ERatio30 { get; set; }
+        public double ERatio31 { get; set; }
+        public double ERatio32 { get; set; }
+        public double ERatio33 { get; set; }
+        public double ERatio34 { get; set; }
+        public double ERatio35 { get; set; }
+        public double ERatio36 { get; set; }
+        public double ERatio37 { get; set; }
+        public double ERatio38 { get; set; }
+        public double ERatio39 { get; set; }
+        public double ERatio40 { get; set; }
 
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
@@ -123,6 +181,15 @@ namespace EvaluatorCmdClient
 
                 _parameterValueProperties[i] = typeof(ResultSummary).GetProperty(name);
             }
+
+            _eRatioProperties = new PropertyInfo[MaxERatioCount];
+
+            for (var i = 0; i < MaxERatioCount; ++i)
+            {
+                var name = string.Format("ERatio{0}", i + 1);
+
+                _eRatioProperties[i] = typeof(ResultSummary).GetProperty(name);
+            }
         }
 
         public void Initialize(
@@ -143,6 +210,11 @@ namespace EvaluatorCmdClient
             for (var i = 0; i < serializableParameterValues.Parameters.Length; ++i)
             {
                 _parameterValueProperties[i].SetValue(this, serializableParameterValues.Parameters[i].Value);
+            }
+
+            for (var i = 0; i < metric.ERatios.Length; ++i)
+            {
+                _eRatioProperties[i].SetValue(this, metric.ERatios[i]);
             }
 
             StartDate = startDate;

@@ -10,6 +10,10 @@ namespace TradingStrategyEvaluation
     [Serializable]
     public sealed class CombinedStrategySettings
     {
+        public int MaxNumberOfActiveStocks { get; set; }
+
+        public int MaxNumberOfActiveStocksPerBlock { get; set; }
+
         public TradingStrategyComponentSettings[] ComponentSettings { get; set; }
 
         public static CombinedStrategySettings LoadFromFile(string file)
@@ -57,6 +61,8 @@ namespace TradingStrategyEvaluation
         {
             var settings = new CombinedStrategySettings
             {
+                MaxNumberOfActiveStocks = this.MaxNumberOfActiveStocks,
+                MaxNumberOfActiveStocksPerBlock = this.MaxNumberOfActiveStocksPerBlock,
                 ComponentSettings = ComponentSettings.Where(s => s.Enabled).ToArray()
             };
 
@@ -82,6 +88,9 @@ namespace TradingStrategyEvaluation
                 .Select(c => TradingStrategyComponentSettings.GenerateExampleSettings(
                     (ITradingStrategyComponent)Activator.CreateInstance(c)))
                 .ToArray();
+
+            settings.MaxNumberOfActiveStocks = 1000;
+            settings.MaxNumberOfActiveStocksPerBlock = 1000;
 
             return settings;
         }

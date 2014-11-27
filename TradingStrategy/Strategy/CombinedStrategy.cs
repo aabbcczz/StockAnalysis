@@ -7,6 +7,9 @@ namespace TradingStrategy.Strategy
 {
     public sealed class CombinedStrategy : ITradingStrategy
     {
+        private int _maxNumberOfActiveStocks = 1000;
+        private int _maxNumberOfActiveStocksPerBlock = 100;
+
         private static bool _forceLoaded;
 
         private readonly ITradingStrategyComponent[] _components;
@@ -218,6 +221,74 @@ namespace TradingStrategy.Strategy
                     }
                 }
             }
+
+            // for diversifying, limit total stocks and the number of stocks in the same stock
+            var existingCodes = _context.GetAllPositionCodes().ToList();
+
+            var codesToBeRemoved = _instructionsInCurrentPeriod
+                .Where(instruction => instruction.Action == TradingAction.CloseLong)
+                .Select(instruction => instruction.TradingObject.Code)
+                .ToList();
+
+            var codesToBeAdded = _instructionsInCurrentPeriod
+                .Where(instruction => instruction.Action == TradingAction.OpenLong)
+                .Select(instruction => instruction.TradingObject.Code)
+                .ToList();
+
+            var codesCannotBeAdded = new List<string>();
+
+            var codesAfterRemoved = existingCodes.Except(codesToBeRemoved).ToList();
+
+            // ensure each block has no too much positions
+            if (_context.RelationshipManager != null)
+            {
+                var blockSizes = codesAfterRemoved
+                    .SelectMany(code => _context.RelationshipManager.GetBlocksForStock(code))
+                    .GroupBy(code => code)
+                    .ToDictionary(g => g.Key, g => g.Count());
+
+                foreach (var code in codesToBeAdded)
+                {
+                    foreach (var block in _context.RelationshipManager.GetBlocksForStock(code))
+                    {
+                        if (blockSizes.ContainsKey(block))
+                        {
+                            if (blockSizes[block] >= _maxNumberOfActiveStocksPerBlock)
+                            {
+                                // can't add
+                                codesCannotBeAdded.Add(code);
+                                continue;
+                            }
+                            blockSizes[block] = blockSizes[block] + 1;
+                        }
+                        else
+                        {
+                            blockSizes[block] = 1;
+                        }
+                    }
+                }
+            }
+
+            // now check the overall number of stocks in active position
+            codesToBeAdded = codesToBeAdded.Except(codesCannotBeAdded).ToList();
+
+            if (codesAfterRemoved.Count + codesToBeAdded.Count > _maxNumberOfActiveStocks)
+            {
+                // need to remove some. 
+                int keptCount = Math.Max(0, _maxNumberOfActiveStocks - codesAfterRemoved.Count);
+
+                codesCannotBeAdded.AddRange(codesToBeAdded.Skip(keptCount));
+            }
+
+            // now remove all instructions about stock code in codesCannotBeAdded.
+            var instructionsToBeRemoved = _instructionsInCurrentPeriod
+                .Where(instruction => codesCannotBeAdded.Contains(instruction.TradingObject.Code))
+                .ToList();
+
+            foreach (var instruction in instructionsToBeRemoved)
+            {
+                _instructionsInCurrentPeriod.Remove(instruction);
+            }
         }
 
         private void CreateIntructionForBuying(ITradingObject tradingObject, double price, string comments)
@@ -344,7 +415,10 @@ namespace TradingStrategy.Strategy
             }
         }
 
-        public CombinedStrategy(ITradingStrategyComponent[] components)
+        public CombinedStrategy(
+            ITradingStrategyComponent[] components, 
+            int maxNumberOfActiveStocks,
+            int maxNumberOfActiveStocksPerBlock)
         {
             if (components == null || !components.Any())
             {

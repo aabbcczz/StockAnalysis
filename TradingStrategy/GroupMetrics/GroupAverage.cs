@@ -10,19 +10,19 @@ using TradingStrategy;
 namespace TradingStrategy.GroupMetrics
 {
     /// <summary>
-    /// sum of group of raw metrics
+    /// average of group of raw metrics
     /// </summary>
-    public sealed class GroupSum : GeneralGroupRuntimeMetricBase
+    public sealed class GroupAverage : GeneralGroupRuntimeMetricBase
     {
         private Func<IRuntimeMetric, double> _selector;
 
-        public GroupSum(
+        public GroupAverage(
             IEnumerable<ITradingObject> tradingObjects, 
             string rawMetric, 
             Func<IRuntimeMetric, double> selector = null)
             : base(tradingObjects)
         {
-            MetricNames = new string[] { "GROUPSUM" };
+            MetricNames = new string[] { "GROUPAVERAGE" };
             MetricValues = new double[] { 0.0 };
             DependedRawMetrics = new string[] { rawMetric };
 
@@ -42,7 +42,9 @@ namespace TradingStrategy.GroupMetrics
 
             var groupSum = rawMetrics.Sum(m => m == null ? 0.0 : _selector(m));
 
-            MetricValues[0] = groupSum;
+            var groupCount = rawMetrics.Count(m => m != null);
+
+            MetricValues[0] = groupCount == 0 ? 0.0 : groupSum / groupCount;
         }
     }
 }

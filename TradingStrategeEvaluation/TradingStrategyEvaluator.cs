@@ -35,7 +35,7 @@ namespace TradingStrategyEvaluation
         public EventHandler<EvaluationProgressEventArgs> OnEvaluationProgress;
 
         public TradingStrategyEvaluator(
-            double initalCapital, 
+            double initalCapital,
             ITradingStrategy strategy, 
             IDictionary<ParameterAttribute, object> strategyParameters, 
             ITradingDataProvider provider, 
@@ -399,7 +399,7 @@ namespace TradingStrategyEvaluation
             CompletedTransaction completedTransaction;
             var succeeded = _equityManager.ExecuteTransaction(
                 transaction,
-                true,
+                _settings.AllowNegativeCapital,
                 out completedTransaction,
                 out error);
 

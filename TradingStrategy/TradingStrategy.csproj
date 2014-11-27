@@ -61,6 +61,7 @@
     <Compile Include="EquityEvaluationMethod.cs" />
     <Compile Include="GroupMetrics\BlockMetricsManager.cs" />
     <Compile Include="GroupMetrics\BlockMetricSorterManager.cs" />
+    <Compile Include="GroupMetrics\GroupAverage.cs" />
     <Compile Include="GroupMetrics\GroupSum.cs" />
     <Compile Include="GroupMetrics\AdvanceDeclineLineAndRatio.cs" />
     <Compile Include="GroupMetrics\GeneralGroupRuntimeMetricBase.cs" />
