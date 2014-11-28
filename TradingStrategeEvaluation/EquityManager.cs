@@ -37,6 +37,19 @@ namespace TradingStrategyEvaluation
             CurrentCapital = initialCapital;
         }
 
+        public EquityManager(
+            double initialCapital, 
+            double currentCapital, 
+            IEnumerable<Position> activePositions)
+        {
+            InitialCapital = initialCapital;
+            CurrentCapital = currentCapital;
+
+            _activePositions = activePositions
+                .GroupBy(p => p.Code)
+                .ToDictionary(g => g.Key, g => g.ToList());
+        }
+
         public bool ExecuteTransaction(
             Transaction transaction, 
             bool allowNegativeCapital,

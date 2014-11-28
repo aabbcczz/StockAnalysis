@@ -2,7 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using TradingStrategy;
-namespace EvaluatorCmdClient
+
+namespace TradingStrategyEvaluation
 {
     [Serializable]
     public sealed class SerializableParameterValues

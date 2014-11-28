@@ -70,6 +70,7 @@
     <Compile Include="FileLogger.cs" />
     <Compile Include="GenericRuntimeMetric.cs" />
     <Compile Include="MemoryLogger.cs" />
+    <Compile Include="SerializableParameterValues.cs" />
     <Compile Include="StandardGroupRuntimeMetricManager.cs" />
     <Compile Include="StandardRuntimeMetricManager.cs" />
     <Compile Include="TradeMetricsCalculator.cs" />
@@ -77,6 +78,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="StandardEvaluationContext.cs" />
     <Compile Include="TradeMetric.cs" />
+    <Compile Include="TradingStrategyPredicator.cs" />
     <Compile Include="TradingTracker.cs" />
     <Compile Include="TradingPriceOption.cs" />
     <Compile Include="TradingSettings.cs" />
