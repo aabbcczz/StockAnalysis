@@ -63,7 +63,12 @@ namespace PredicatorCmdClient
             {
                 using (var csvWriter = new CsvWriter(writer))
                 {
-                    csvWriter.WriteRecords(activePositions);
+                    csvWriter.WriteHeader<Position>();
+
+                    foreach (var position in activePositions)
+                    {
+                        csvWriter.WriteRecord(position);
+                    }
                 }
             }
 
