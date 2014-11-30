@@ -27,7 +27,6 @@ namespace TradingStrategy.Strategy
         }
 
         private BlockMetricsManager _blockMetricManager;
-        private BlockMetricSorterManager _blockMetricSortManager;
         private Dictionary<string, RateOfChange> _blockToPriceIndexChangeRateMap;
         private Dictionary<string, Lowest> _blockToLowestMap;
         private Dictionary<string, BlockConfig> _blockConfigMap;
@@ -40,9 +39,7 @@ namespace TradingStrategy.Strategy
         public override string Description
         {
             get { return @"当股票所在板块中至少有一个板块的价格指数在给定周期（WindowSize）内变化率超过MininumRateOfChange, 
-并且股票的升值比例在整个板块中排名比例高于TopPercentage, 
-并且股票从最低点上升比例超过MininumUpRateFromLowest,
-则允许入市"; }
+并且股票板块从最低点上升比例符合配置文件中的规定时则允许入市"; }
         }
 
         [Parameter(20, "指数升降判定周期")]
@@ -51,10 +48,7 @@ namespace TradingStrategy.Strategy
         [Parameter(0.0, "指数变化比例最小值，按百分比计算")]
         public double MininumRateOfChange { get; set; }
 
-        [Parameter(20.0, "股票价格变化比例在整个板块中的排名（从高到底）比例最小值")]
-        public double TopPercentage { get; set; }
-
-        [Parameter("BlockUpRateConfig.csv", "板块指数从最低点上升比例配置文件")]
+        [Parameter("BlockUpRateConfig.txt", "板块指数从最低点上升比例配置文件")]
         public string BlockUpRateConfigFile { get; set; }
 
         [Parameter(0, "板块配置选择参数，0代表选择所有板块，其他数值x>0代表选择配置文件中的第x个板块")]
@@ -67,11 +61,6 @@ namespace TradingStrategy.Strategy
             if (WindowSize <= 0)
             {
                 throw new ArgumentOutOfRangeException("WindowSize must be greater than 0");
-            }
-
-            if (TopPercentage < 0.0 || TopPercentage > 100.0)
-            {
-                throw new ArgumentOutOfRangeException("TopPercentage must be in [0.0..100.0]");
             }
 
             if (string.IsNullOrWhiteSpace(BlockUpRateConfigFile))
@@ -113,12 +102,6 @@ namespace TradingStrategy.Strategy
             _blockToLowestMap = context.RelationshipManager.Blocks.ToDictionary(b => b, b => new Lowest(WindowSize));
 
             _blockMetricManager.AfterUpdatedMetrics += UpdatePriceIndex;
-
-            _blockMetricSortManager 
-                = new BlockMetricSorterManager(
-                    context, 
-                    string.Format("ROC[{0}]", WindowSize), 
-                    new MetricGroupSorter.DefaultDescendingOrderComparer());
         }
 
         private IEnumerable<BlockConfig> LoadBlockConfiguration(string configFile)
@@ -177,17 +160,13 @@ namespace TradingStrategy.Strategy
             foreach (var block in blocks)
             {
                 var indexRateOfChange = _blockToPriceIndexChangeRateMap[block].Value;
-                var sorter = _blockMetricSortManager.GetMetricSorterForBlock(block);
-                var order = sorter[tradingObject];
 
-                if (order <= sorter.Count * TopPercentage / 100.0 
-                    && indexRateOfChange > MininumRateOfChange)
+                if (indexRateOfChange > MininumRateOfChange)
                 {
                     comments = string.Format(
-                        "Block {0} price index change rate {1:0.000} order: {2}", 
+                        "Block {0} price index change rate {1:0.000}", 
                         block, 
-                        indexRateOfChange, 
-                        order);
+                        indexRateOfChange);
 
                     obj = new BlockUpRatesFromLowestForCode()
                     {
