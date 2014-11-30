@@ -48,9 +48,11 @@ namespace TradingStrategy.Strategy
             get { return "当ADX处于上升并且超过AdxThreshold时允许入市"; }
         }
 
-        public override bool CanEnter(ITradingObject tradingObject, out string comments)
+        public override bool CanEnter(ITradingObject tradingObject, out string comments, out object obj)
         {
             comments = string.Empty;
+            obj = null;
+
             var metric = (DmiRuntimeMetric)Context.MetricManager.GetMetric(tradingObject, _metricIndex);
 
             if (metric.Adx > AdxThreshold && metric.IsAdxIncreasing())

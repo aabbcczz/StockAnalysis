@@ -200,24 +200,35 @@ namespace TradingStrategy.Strategy
                 if (!positions.Any())
                 {
                     var allComments = new List<string>(_marketEntering.Count + 1);
+                    List<object> objectsForEntering = new List<object>();
 
                     var canEnter = true;
                     foreach (var component in _marketEntering)
                     {
                         string subComments;
+                        object obj;
 
-                        if (!component.CanEnter(tradingObject, out subComments))
+                        if (!component.CanEnter(tradingObject, out subComments, out obj))
                         {
                             canEnter = false;
                             break;
                         }
 
                         allComments.Add(subComments);
+
+                        if (obj != null)
+                        {
+                            objectsForEntering.Add(obj);
+                        }
                     }
 
                     if (canEnter)
                     {
-                        CreateIntructionForBuying(tradingObject, bar.ClosePrice, "Entering market: " + string.Join(";", allComments));
+                        CreateIntructionForBuying(
+                            tradingObject, 
+                            bar.ClosePrice, 
+                            "Entering market: " + string.Join(";", allComments),
+                            objectsForEntering.Count > 0 ? objectsForEntering.ToArray() : null);
                     }
                 }
             }
@@ -291,7 +302,7 @@ namespace TradingStrategy.Strategy
             }
         }
 
-        private void CreateIntructionForBuying(ITradingObject tradingObject, double price, string comments)
+        private void CreateIntructionForBuying(ITradingObject tradingObject, double price, string comments, object[] relatedObjects)
         {
             string stopLossComments;
             var stopLossGap = _stopLoss.EstimateStopLossGap(tradingObject, price, out stopLossComments);
@@ -318,7 +329,8 @@ namespace TradingStrategy.Strategy
                         Comments = string.Join(" ", comments, stopLossComments, positionSizeComments),
                         SubmissionTime = _period,
                         TradingObject = tradingObject,
-                        Volume = volume
+                        Volume = volume,
+                        RelatedObjects = relatedObjects
                     });
             }
         }

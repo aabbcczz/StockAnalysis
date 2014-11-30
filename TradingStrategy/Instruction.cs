@@ -33,6 +33,8 @@ namespace TradingStrategy
 
         public string Comments { get; set; }
 
+        public object[] RelatedObjects { get; set; }
+
         public Instruction()
         {
             Id = IdGenerator.Next;

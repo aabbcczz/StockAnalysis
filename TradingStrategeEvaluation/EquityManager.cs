@@ -142,6 +142,7 @@ namespace TradingStrategyEvaluation
                             ExecutionTime = transaction.ExecutionTime,
                             InstructionId = transaction.InstructionId,
                             Price = transaction.Price,
+                            RelatedObjects = transaction.RelatedObjects,
                             SubmissionTime = transaction.SubmissionTime,
                             Succeeded = transaction.Succeeded,
                             Volume = position.Volume

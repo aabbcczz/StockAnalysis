@@ -68,9 +68,10 @@ namespace TradingStrategy.Strategy
             _numberOfValidTradingObjectsInThisPeriod++;
         }
 
-        public override bool CanEnter(ITradingObject tradingObject, out string comments)
+        public override bool CanEnter(ITradingObject tradingObject, out string comments, out object obj)
         {
             comments = string.Empty;
+            obj = null;
 
             if (_numberOfValidTradingObjectsInThisPeriod == 0)
             {

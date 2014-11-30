@@ -13,7 +13,7 @@ namespace TradingStrategyEvaluation
 
         public static readonly int[] ERatioWindowSizes = new int[]
         {
-            5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100, 105, 110, 115, 120
+            10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120
         };
 
         private readonly Transaction[] _orderedTransactionHistory;
@@ -43,9 +43,10 @@ namespace TradingStrategyEvaluation
                 throw new ArgumentNullException("provider");
             }
 
-            var periods = provider.GetAllPeriodsOrdered();
+            var startDate = provider.GetFirstNonWarmupDataPeriods().Min();
 
-            var startDate = periods.First().Date;
+            var periods = provider.GetAllPeriodsOrdered().Where(d => d >= startDate).ToArray();
+            
             var endDate = periods.Last();
             if (endDate.Date < endDate)
             {
@@ -77,7 +78,7 @@ namespace TradingStrategyEvaluation
                 .OrderBy(ct => ct, new CompletedTransaction.DefaultComparer())
                 .ToArray();
 
-            _periods = _dataProvider.GetAllPeriodsOrdered();
+            _periods = periods;
         }
 
         public IEnumerable<TradeMetric> Calculate()
@@ -199,7 +200,7 @@ namespace TradingStrategyEvaluation
         /// <param name="bars"></param>
         /// <param name="barIndex"></param>
         /// <returns></returns>
-        private void CalculateNormalizedMfeAndMae(Bar[] bars, int barIndex, out double[] mfe, out double[] mae)
+        public static void CalculateNormalizedMfeAndMae(Bar[] bars, int barIndex, out double[] mfe, out double[] mae)
         {
             AverageTrueRange atr = new AverageTrueRange(ERatioAtrWindowSize);
             int startIndex = Math.Max(0, barIndex - ERatioAtrWindowSize);

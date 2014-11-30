@@ -54,9 +54,10 @@ namespace TradingStrategy.Strategy
             }
         }
 
-        public override bool CanEnter(ITradingObject tradingObject, out string comments)
+        public override bool CanEnter(ITradingObject tradingObject, out string comments, out object obj)
         {
             comments = string.Empty;
+            obj = null;
 
             var metric = (BreakoutAndReturnRuntimeMetric)Context.MetricManager.GetMetric(tradingObject, _metricIndex);
             if (metric.Triggered)

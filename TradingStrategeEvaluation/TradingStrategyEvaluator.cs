@@ -455,6 +455,7 @@ namespace TradingStrategyEvaluation
                 StopLossPriceForSell = instruction.StopLossPriceForSell,
                 PositionIdForSell = instruction.PositionIdForSell,
                 Comments = instruction.Comments,
+                RelatedObjects = instruction.RelatedObjects
             };
 
             // update commission

@@ -42,6 +42,8 @@ namespace TradingStrategy
 
         public string Comments { get; set; }
 
+        public object[] RelatedObjects { get; set; }
+
         public class DefaultComparer : IComparer<Transaction>
         {
                  

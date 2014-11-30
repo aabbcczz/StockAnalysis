@@ -57,6 +57,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BlockTradingDetailSummarizer.cs" />
     <Compile Include="ChinaStock.cs" />
     <Compile Include="ChinaStockDataAccessor.cs" />
     <Compile Include="ChinaStockDataProvider.cs" />

@@ -45,9 +45,11 @@ namespace TradingStrategy.Strategy
             get { return "当EfficiencyRatio超过ErThreshold时允许入市"; }
         }
 
-        public override bool CanEnter(ITradingObject tradingObject, out string comments)
+        public override bool CanEnter(ITradingObject tradingObject, out string comments, out object obj)
         {
             comments = string.Empty;
+            obj = null;
+
             var values = Context.MetricManager.GetMetricValues(tradingObject, _metricIndex);
 
             var efficiencyRatio = values[0];

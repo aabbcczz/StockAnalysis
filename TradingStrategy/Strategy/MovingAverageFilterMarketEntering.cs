@@ -41,9 +41,11 @@ namespace TradingStrategy.Strategy
             get { return "当短期平均在长期平均上方时允许入市"; }
         }
 
-        public override bool CanEnter(ITradingObject tradingObject, out string comments)
+        public override bool CanEnter(ITradingObject tradingObject, out string comments, out object obj)
         {
             comments = string.Empty;
+            obj = null;
+
             var shortMa = Context.MetricManager.GetMetricValues(tradingObject, _shortMetricIndex)[0];
             var longMa = Context.MetricManager.GetMetricValues(tradingObject, _longMetricIndex)[0];
 

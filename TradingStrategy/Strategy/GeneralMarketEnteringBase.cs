@@ -4,6 +4,6 @@
         : GeneralTradingStrategyComponentBase
         , IMarketEnteringComponent
     {
-        public abstract bool CanEnter(ITradingObject tradingObject, out string comments);
+        public abstract bool CanEnter(ITradingObject tradingObject, out string comments, out object obj);
     }
 }

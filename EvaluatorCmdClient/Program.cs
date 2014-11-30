@@ -478,8 +478,12 @@ namespace EvaluatorCmdClient
                 var tradeMetrics = metrics as TradeMetric[] ?? metrics.ToArray();
                 var overallMetric = tradeMetrics.First(m => m.Code == TradeMetric.CodeForAll);
 
+                // summarize block related data
+                BlockTradingDetailSummarizer summarizer = new BlockTradingDetailSummarizer(evaluator.Tracker, dataProvider);
+                var details = summarizer.Summarize();
+
                 // save results
-                context.SaveResults(parameterValues, tradeMetrics, evaluator.ClosedPositions);
+                context.SaveResults(parameterValues, tradeMetrics, evaluator.ClosedPositions, details);
 
                 // create result summary;
                 var resultSummary = new ResultSummary();

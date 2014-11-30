@@ -36,29 +36,33 @@ namespace ImportTable
             {
                 connection.Open();
 
-                // drop table
-                var cmdstring = BuildDropTableSql(tableName);
-                var cmd = new SqlCommand(cmdstring, connection);
-                cmd.ExecuteNonQuery();
-
-                // create table
-                cmdstring = BuildCreateTableSql(tableName, csv.Header);
-                cmd = new SqlCommand(cmdstring, connection);
-                cmd.ExecuteNonQuery();
-
-                // create index if necessary
-                cmdstring = BuildCreateIndexSql(tableName, "Index1", csv.Header);
-                if (!string.IsNullOrEmpty(cmdstring))
+                if (options.DropTable)
                 {
+                    // drop table
+                    var cmdstring = BuildDropTableSql(tableName);
+                    var cmd = new SqlCommand(cmdstring, connection);
+                    cmd.ExecuteNonQuery();
+
+                    // create table
+                    cmdstring = BuildCreateTableSql(tableName, csv.Header);
                     cmd = new SqlCommand(cmdstring, connection);
                     cmd.ExecuteNonQuery();
+
+                    // create index if necessary
+                    cmdstring = BuildCreateIndexSql(tableName, "Index1", csv.Header);
+                    if (!string.IsNullOrEmpty(cmdstring))
+                    {
+                        cmd = new SqlCommand(cmdstring, connection);
+                        cmd.ExecuteNonQuery();
+                    }
                 }
 
                 // insert values
                 for (var i = 0; i < csv.RowCount; ++i)
                 {
-                    cmdstring = BuildInsertRowSql(tableName, csv[i]);
-                    cmd = new SqlCommand(cmdstring, connection);
+                    var cmdstring = BuildInsertRowSql(tableName, csv[i]);
+                    var cmd = new SqlCommand(cmdstring, connection);
+                    
                     cmd.ExecuteNonQuery();
 
                     if (i % 100 == 0)
