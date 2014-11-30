@@ -23,7 +23,7 @@
           <Description>指数变化比例最小值，按百分比计算</Description>
           <ValueType>System.Double, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
           <DefaultValue xsi:type="xsd:double">0</DefaultValue>
-          <Values>-100</Values>
+          <Values>0</Values>
         </ParameterSettings>
         <ParameterSettings>
           <Name>TopPercentage</Name>
@@ -33,12 +33,19 @@
           <Values>100</Values>
         </ParameterSettings>
         <ParameterSettings>
-          <Name>MininumUpRateFromLowest</Name>
-          <Description>指数从最低点上升比例最小值，按百分比计算</Description>
-          <ValueType>System.Double, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
-          <DefaultValue xsi:type="xsd:double">0</DefaultValue>
-          <Values>10</Values>
+          <Name>BlockUpRateConfigFile</Name>
+          <Description>板块指数从最低点上升比例配置文件</Description>
+          <ValueType>System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
+          <DefaultValue xsi:type="xsd:string">BlockUpRateConfig.csv</DefaultValue>
+          <Values>.\stock\BlockUpRateConfig.txt</Values>
         </ParameterSettings>
+        <ParameterSettings>
+          <Name>BlockSelector</Name>
+          <Description>板块配置选择参数，0代表选择所有板块，其他数值x>0代表选择配置文件中的第x个板块</Description>
+          <ValueType>System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
+          <DefaultValue xsi:type="xsd:int">0</DefaultValue>
+          <Values>0</Values>
+        </ParameterSettings>		
       </ComponentParameterSettings>
     </TradingStrategyComponentSettings>
     <TradingStrategyComponentSettings Enabled="false" Name="低点反弹入市">
@@ -394,7 +401,7 @@
           <Description>ATR停价倍数</Description>
           <ValueType>System.Double, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
           <DefaultValue xsi:type="xsd:double">3</DefaultValue>
-          <Values>9.6</Values>
+          <Values>10</Values>
         </ParameterSettings>
       </ComponentParameterSettings>
     </TradingStrategyComponentSettings>
@@ -446,7 +453,7 @@
       <ImplementedInterfaces>ITradingStrategyComponent;IMarketExitingComponent</ImplementedInterfaces>
       <ComponentParameterSettings />
     </TradingStrategyComponentSettings>
-    <TradingStrategyComponentSettings Enabled="true" Name="限期未盈利退出">
+    <TradingStrategyComponentSettings Enabled="false" Name="限期未盈利退出">
       <ClassType>TradingStrategy.Strategy.NoEnoughProfitMarketExiting, TradingStrategy, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</ClassType>
       <Description>当头寸持有超过一段时间后若没有获得足够利润则退出市场</Description>
       <ImplementedInterfaces>ITradingStrategyComponent;IMarketExitingComponent</ImplementedInterfaces>
@@ -561,7 +568,7 @@
           <Description>ATR停价倍数</Description>
           <ValueType>System.Double, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
           <DefaultValue xsi:type="xsd:double">3</DefaultValue>
-          <Values>4.6</Values>
+          <Values>10</Values>
         </ParameterSettings>
       </ComponentParameterSettings>
     </TradingStrategyComponentSettings>
@@ -631,7 +638,7 @@
           <Description>每份头寸的波动率占权益的百分比</Description>
           <ValueType>System.Double, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
           <DefaultValue xsi:type="xsd:double">1</DefaultValue>
-          <Values>0.5</Values>
+          <Values>0.05</Values>
         </ParameterSettings>
         <ParameterSettings>
           <Name>EquityEvaluationMethod</Name>
