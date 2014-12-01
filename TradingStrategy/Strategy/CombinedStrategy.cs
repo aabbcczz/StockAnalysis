@@ -356,9 +356,15 @@ namespace TradingStrategy.Strategy
 
                 var positions = _context.GetPositionDetails(code);
 
-                // set stop loss and initial risk for all new positions
-                foreach (var position in positions)
+                if (!positions.Any())
                 {
+                    throw new InvalidProgramException("Logic error");
+                }
+
+                // set stop loss and initial risk for all new positions
+                if (positions.Count() == 1)
+                {
+                    var position = positions.First();
                     if (!position.IsStopLossPriceInitialized())
                     {
                         string comments;
@@ -375,6 +381,25 @@ namespace TradingStrategy.Strategy
                                 position.Id,
                                 position.Code,
                                 stopLossPrice));
+                    }
+                }
+                // set stop loss for positions created by PositionAdjusting component
+                else
+                {
+                    if (Math.Abs(instruction.StopLossGapForAddedPosition) > 1e-16)
+                    {
+                        var lastPosition = positions.Last();
+                        var newStopLossPrice = lastPosition.BuyPrice + instruction.StopLossGapForAddedPosition;
+
+                        // now set the new stop loss price for all positions
+                        foreach (var position in positions)
+                        {
+                            if (!position.IsStopLossPriceInitialized()
+                                || position.StopLossPrice < newStopLossPrice)
+                            {
+                                position.SetStopLossPrice(newStopLossPrice);
+                            }
+                        }
                     }
                 }
             }

@@ -160,7 +160,7 @@ namespace PredicatorCmdClient
                     stockNameTable,
                     allDataFiles,
                     options.StartDate,
-                    DateTime.Now.Date.AddDays(1),
+                    options.EndDate,
                     options.WarmupPeriods);
 
             var finalCodes = dataProvider.GetAllTradingObjects().Select(to => to.Code);
@@ -180,8 +180,8 @@ namespace PredicatorCmdClient
                 dataProvider = new ChinaStockDataProvider(
                     stockNameTable,
                     filteredDataFiles,
-                    options.StartDate, // interval start date
-                    DateTime.Now.Date.AddDays(1), // interval end date
+                    options.StartDate, 
+                    options.EndDate,
                     options.WarmupPeriods);
             }
 

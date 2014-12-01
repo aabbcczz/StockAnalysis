@@ -18,6 +18,7 @@ namespace TradingStrategyEvaluation
         private readonly StandardEvaluationContext _context;
         private ITradingObject[] _allTradingObjects;
         private DateTime[] _firstNonWarmupDataPeriods;
+        private List<Position> _unprocessedActivePositions;
 
         private List<Instruction> _pendingInstructions = new List<Instruction>();
 
@@ -56,7 +57,9 @@ namespace TradingStrategyEvaluation
 
             _provider = provider;
            
-            _equityManager = new EquityManager(initialCapital, currentCapital, activePositions);
+            _equityManager = new EquityManager(initialCapital, currentCapital);
+            _unprocessedActivePositions = activePositions.ToList();
+
             _context = new StandardEvaluationContext(_provider, _equityManager, logger, relationshipManager);
         }
 
@@ -149,6 +152,21 @@ namespace TradingStrategyEvaluation
                 _context.MetricManager.BeginUpdateMetrics();
                 _context.MetricManager.UpdateMetrics(_allTradingObjects, originalThisPeriodData);
                 _context.MetricManager.EndUpdateMetrics();
+
+                // add active positions
+                if (_unprocessedActivePositions.Any())
+                {
+                    var positions = _unprocessedActivePositions.Where(p => p.BuyTime <= thisPeriodTime);
+                    if (positions.Any())
+                    {
+                        foreach (var position in positions)
+                        {
+                            _equityManager.ManualAddPosition(position);
+                        }
+
+                        _unprocessedActivePositions = _unprocessedActivePositions.Where(p => p.BuyTime > thisPeriodTime).ToList();
+                    }
+                }
 
                 // evaluate bar data
                 _strategy.Evaluate(_allTradingObjects, thisPeriodData);

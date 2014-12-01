@@ -35,6 +35,12 @@ namespace TradingStrategy
 
         public object[] RelatedObjects { get; set; }
 
+        /// <summary>
+        /// The stop loss gap (always smaller than or equal to 0) for new positions that being 
+        /// added by PositionAdjusting component
+        /// </summary>
+        public double StopLossGapForAddedPosition { get; set; }
+
         public Instruction()
         {
             Id = IdGenerator.Next;

@@ -1,0 +1,6 @@
+SET TDXROOT=c:\zd_zxzq
+SET STOCKROOT=c:\stock
+SET BINARYSRCROOT=\\xzworks2\d$\github\stockanalysis
+SET CMDROOT=%STOCKROOT%\cmd
+SET BINROOT=%STOCKROOT%\bin
+SET SETTINGSROOT=%STOCKROOT%\settings

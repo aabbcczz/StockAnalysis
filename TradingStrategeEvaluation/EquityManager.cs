@@ -31,23 +31,26 @@ namespace TradingStrategyEvaluation
 
         public IEnumerable<Position> ClosedPositions { get { return _closedPositions; } }
 
-        public EquityManager(double initialCapital)
+        public EquityManager(double initialCapital, double currentCapital = double.NaN)
         {
             InitialCapital = initialCapital;
-            CurrentCapital = initialCapital;
+
+            CurrentCapital = double.IsNaN(currentCapital) ? initialCapital : currentCapital;
         }
 
-        public EquityManager(
-            double initialCapital, 
-            double currentCapital, 
-            IEnumerable<Position> activePositions)
+        private void AddPosition(Position position)
         {
-            InitialCapital = initialCapital;
-            CurrentCapital = currentCapital;
+            if (!_activePositions.ContainsKey(position.Code))
+            {
+                _activePositions.Add(position.Code, new List<Position>());
+            }
 
-            _activePositions = activePositions
-                .GroupBy(p => p.Code)
-                .ToDictionary(g => g.Key, g => g.ToList());
+            _activePositions[position.Code].Add(position);
+        }
+
+        public void ManualAddPosition(Position position)
+        {
+            AddPosition(position);
         }
 
         public bool ExecuteTransaction(
@@ -71,12 +74,7 @@ namespace TradingStrategyEvaluation
 
                 var position = new Position(transaction);
 
-                if (!_activePositions.ContainsKey(position.Code))
-                {
-                    _activePositions.Add(position.Code, new List<Position>());
-                }
-
-                _activePositions[position.Code].Add(position);
+                AddPosition(position);
 
                 // charge money
                 CurrentCapital -= charge;

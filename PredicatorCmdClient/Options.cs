@@ -25,6 +25,9 @@ namespace PredicatorCmdClient
         [Option('a', "StartDate", Required = true, HelpText = "The start date of evaluation")]
         public DateTime StartDate { get; set; }
 
+        [Option('b', "EndDate", Required = true, HelpText = "The end date of evaluation")]
+        public DateTime EndDate { get; set; }
+
         [Option('i', "InitialCapital", Required = true, HelpText = "The amount of initial capital")]
         public double InitialCapital { get; set; }
 
