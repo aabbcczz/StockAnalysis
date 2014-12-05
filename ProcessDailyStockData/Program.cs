@@ -186,7 +186,7 @@ namespace ProcessDailyStockData
                             }
                         }
 
-                        outputter.WriteLine("{0},{1}", code, lines[i]);
+                        outputter.WriteLine("{0},{1}", stockName.Code, lines[i]);
                     }
                 }
             }

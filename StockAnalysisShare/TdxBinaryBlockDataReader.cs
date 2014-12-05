@@ -72,7 +72,7 @@ namespace StockAnalysis.Share
                         _relationships.Add(
                             new StockBlockRelationship()
                             {
-                                StockCode = stockCode,
+                                StockCode = StockName.NormalizeCode(stockCode),
                                 BlockName = blockName
                             });
                     }

@@ -20,19 +20,7 @@ namespace StockAnalysis.Share
             {
                 using (CsvWriter csvWriter = new CsvWriter(writer))
                 {
-                    csvWriter.WriteHeader<StockBlockRelationship>();
-
-                    foreach (var record in records)
-                    {
-                        StockBlockRelationship output = new StockBlockRelationship()
-                        {
-                            // add "T" before stock code to avoid Excel convert it to number.
-                            StockCode = "T" + record.StockCode,
-                            BlockName = record.BlockName
-                        };
-
-                        csvWriter.WriteRecord(output);
-                    }
+                    csvWriter.WriteRecords(records);
                 }
             }
         }
@@ -49,17 +37,7 @@ namespace StockAnalysis.Share
                 }
             }
 
-            foreach (var record in records)
-            {
-                StockBlockRelationship output = new StockBlockRelationship()
-                {
-                    // remove "T" 
-                    StockCode = record.StockCode.Substring(1),
-                    BlockName = record.BlockName
-                };
-
-                yield return output;
-            }
+            return records;
         }
     }
 }

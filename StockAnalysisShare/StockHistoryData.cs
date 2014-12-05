@@ -44,7 +44,7 @@ namespace StockAnalysis.Share
                 return null;
             }
 
-            var code = inputData[0][0];
+            var code = StockName.NormalizeCode(inputData[0][0]);
 
             var name = 
                 nameTable != null && nameTable.ContainsStock(code)

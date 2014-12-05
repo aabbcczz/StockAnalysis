@@ -96,7 +96,10 @@ namespace EvaluatorCmdClient
 
         static IEnumerable<string> LoadCodeOfStocks(string codeFile, int randomSelectedTradingObjectCount)
         {
-            var codes = File.ReadAllLines(codeFile).Where(s => !string.IsNullOrWhiteSpace(s)).ToArray();
+            var codes = File.ReadAllLines(codeFile)
+                .Where(s => !string.IsNullOrWhiteSpace(s))
+                .Select(s => StockName.NormalizeCode(s))
+                .ToArray();
 
             if (randomSelectedTradingObjectCount == 0 || randomSelectedTradingObjectCount >= codes.Length)
             {

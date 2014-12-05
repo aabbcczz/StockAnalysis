@@ -5,13 +5,15 @@ namespace StockAnalysis.Share
 {
     public sealed class StockName
     {
+        private static string _normalizedCodeHeader = "T_";
+
         private string _code;
         public string Code 
         {
             get { return _code; }
             private set
             {
-                _code = value;
+                _code = NormalizeCode(value);
                 Market = GetMarket(value);
             }
         }
@@ -20,8 +22,33 @@ namespace StockAnalysis.Share
 
         public string[] Names { get; private set; }
 
+        public static string NormalizeCode(string code)
+        {
+            if (!code.StartsWith(_normalizedCodeHeader))
+            {
+                return _normalizedCodeHeader + code;
+            }
+            else
+            {
+                return code;
+            }
+        }
+
+        public static string UnnormalizeCode(string code)
+        {
+            if (code.StartsWith(_normalizedCodeHeader))
+            {
+                return code.Substring(_normalizedCodeHeader.Length);
+            }
+            else
+            {
+                return code;
+            }
+        }
+
         private static StockExchangeMarket GetMarket(string code)
         {
+            code = UnnormalizeCode(code);
             if (code.StartsWith("3") || code.StartsWith("0"))
             {
                 return StockExchangeMarket.ShengZhen;
@@ -39,13 +66,13 @@ namespace StockAnalysis.Share
 
         public StockName(string code, string name)
         {
-            Code = code;
+            Code = NormalizeCode(code);
             Names = new[] { name };
         }
 
         public StockName(string code, string[] names)
         {
-            Code = code;
+            Code = NormalizeCode(code);
             Names = names;
         }
 
@@ -70,7 +97,7 @@ namespace StockAnalysis.Share
 
             var name = new StockName
             {
-                Code = fields[0],
+                Code = NormalizeCode(fields[0]),
                 Names = fields.Length > 1 ? fields.Skip(1).ToArray() : new[] {string.Empty}
             };
 
