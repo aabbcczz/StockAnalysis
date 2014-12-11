@@ -5,7 +5,8 @@ namespace TradingStrategy
 {
     public sealed class CompletedTransaction
     {
-        public string Code { get; set; } // code of trading object { get; set; }
+        public string Code { get; set; } // code of trading object
+        public string Name { get; set; } // name of trading object
         public DateTime ExecutionTime { get; set; } // transaction execution time
         public double AverageBuyPrice { get; set; } // the average buy price (there might be several buys before sold)
         public double SoldPrice { get; set; } // sold price

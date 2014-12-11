@@ -16,6 +16,8 @@ namespace TradingStrategy
 
         public string Code { get; set; }
 
+        public string Name { get; set; }
+
         public TradingAction Action { get; set; }
 
         public SellingType SellingType { get; set; }
@@ -90,13 +92,14 @@ namespace TradingStrategy
         public string Print()
         {
             return string.Format(
-                "{0},{1:u},{2:u}, {3}, {4}, {5}, {6:0.00}, {7:0.00}, {8:0.00}, {9:0.00}, {10},{11}",
+                "{0},{1:u},{2:u}, {3}, {4}, {5}, {6}, {7:0.00}, {8:0.00}, {9:0.00}, {10:0.00}, {11},{12}",
                 InstructionId,
                 SubmissionTime,
                 ExecutionTime,
                 (int)Action,
                 (int)SellingType,
                 Code,
+                Name,
                 Price,
                 Volume,
                 Commission,

@@ -293,6 +293,7 @@ namespace TradingStrategyEvaluation
                 ExecutionTime = time,
                 InstructionId = instruction.Id,
                 Code = instruction.TradingObject.Code,
+                Name = instruction.TradingObject.Name,
                 Price = bar.ClosePrice,
                 Succeeded = false,
                 SubmissionTime = instruction.SubmissionTime,

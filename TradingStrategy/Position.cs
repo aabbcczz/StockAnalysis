@@ -12,6 +12,8 @@ namespace TradingStrategy
 
         public string Code { get; set; }
 
+        public string Name { get; set; }
+
         public DateTime BuyTime { get; set; }
 
         public DateTime SellTime { get; set; }
@@ -60,6 +62,7 @@ namespace TradingStrategy
                 case TradingAction.OpenLong:
                     BuyTime = transaction.ExecutionTime;
                     Code = transaction.Code;
+                    Name = transaction.Name;
                     BuyAction = transaction.Action;
                     Volume = transaction.Volume;
                     BuyPrice = transaction.Price;
@@ -102,6 +105,7 @@ namespace TradingStrategy
             {
                 IsInitialized = IsInitialized,
                 Code = Code,
+                Name = Name,
                 BuyTime = BuyTime,
                 SellTime = SellTime,
                 BuyAction = BuyAction,

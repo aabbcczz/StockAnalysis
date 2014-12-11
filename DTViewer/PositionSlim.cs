@@ -12,6 +12,8 @@ namespace DTViewer
     {
         public string Code { get; private set; }
 
+        public string Name { get; private set; }
+
         public DateTime BuyTime { get; private set; }
 
         public DateTime SellTime { get; private set; }
@@ -31,6 +33,7 @@ namespace DTViewer
         public PositionSlim(Position position)
         {
             Code = position.Code;
+            Name = position.Name;
             BuyTime = position.BuyTime;
             SellTime = position.SellTime;
             Volume = position.Volume;

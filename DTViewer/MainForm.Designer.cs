@@ -59,6 +59,7 @@
             this.textBoxDetails = new System.Windows.Forms.TextBox();
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
             this.ColumnPositionCode = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.ColumnPositionName = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.ColumnPositionBuyTime = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.ColumnPositionBuyPrice = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.ColumnPositionSellTime = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -290,6 +291,7 @@
             this.dataGridViewClosedPosition.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dataGridViewClosedPosition.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.ColumnPositionCode,
+            this.ColumnPositionName,
             this.ColumnPositionBuyTime,
             this.ColumnPositionBuyPrice,
             this.ColumnPositionSellTime,
@@ -331,6 +333,12 @@
             this.ColumnPositionCode.Name = "ColumnPositionCode";
             this.ColumnPositionCode.ReadOnly = true;
             this.ColumnPositionCode.Width = 60;
+            // 
+            // ColumnPositionName
+            // 
+            this.ColumnPositionName.HeaderText = "Name";
+            this.ColumnPositionName.Name = "ColumnPositionName";
+            this.ColumnPositionName.ReadOnly = true;
             // 
             // ColumnPositionBuyTime
             // 
@@ -451,6 +459,7 @@
         private System.Windows.Forms.Button buttonIncreaseShowedBars;
         private System.Windows.Forms.Label labelCode;
         private System.Windows.Forms.DataGridViewTextBoxColumn ColumnPositionCode;
+        private System.Windows.Forms.DataGridViewTextBoxColumn ColumnPositionName;
         private System.Windows.Forms.DataGridViewTextBoxColumn ColumnPositionBuyTime;
         private System.Windows.Forms.DataGridViewTextBoxColumn ColumnPositionBuyPrice;
         private System.Windows.Forms.DataGridViewTextBoxColumn ColumnPositionSellTime;

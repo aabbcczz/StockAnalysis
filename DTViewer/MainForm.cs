@@ -50,6 +50,7 @@ namespace DTViewer
 
             dataGridViewClosedPosition.AutoGenerateColumns = false;
             ColumnPositionCode.DataPropertyName = "Code";
+            ColumnPositionName.DataPropertyName = "Name";
             ColumnPositionBuyTime.DataPropertyName = "BuyTime";
             ColumnPositionBuyPrice.DataPropertyName = "BuyPrice";
             ColumnPositionSellTime.DataPropertyName = "SellTime";

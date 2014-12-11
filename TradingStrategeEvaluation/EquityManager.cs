@@ -134,6 +134,7 @@ namespace TradingStrategyEvaluation
                         {
                             Action = transaction.Action,
                             Code = transaction.Code,
+                            Name = transaction.Name,
                             Comments = transaction.Comments,
                             Commission = transaction.Commission / transaction.Volume * position.Volume,
                             Error = transaction.Error,
@@ -173,6 +174,7 @@ namespace TradingStrategyEvaluation
                 completedTransaction = new CompletedTransaction
                 {
                     Code = code,
+                    Name = transaction.Name,
                     ExecutionTime = transaction.ExecutionTime,
                     Volume = transaction.Volume,
                     BuyCost = buyCost,
