@@ -57,7 +57,7 @@ namespace TradingStrategyEvaluation
 
             _provider = provider;
            
-            _equityManager = new EquityManager(initialCapital, currentCapital);
+            _equityManager = new EquityManager(initialCapital, 1.0, currentCapital);
             _unprocessedActivePositions = activePositions.ToList();
 
             _context = new StandardEvaluationContext(_provider, _equityManager, logger, relationshipManager);
@@ -218,7 +218,7 @@ namespace TradingStrategyEvaluation
             Bar[] currentTradingData, 
             DateTime time)
         {
-            var pendingTansactions = new Dictionary<int, Transaction>();
+            var pendingTransactions = new Transaction[_pendingInstructions.Count];
 
             for (var i = 0; i < _pendingInstructions.Count; ++i)
             {
@@ -238,24 +238,20 @@ namespace TradingStrategyEvaluation
                     time,
                     currentTradingDataOfObject);
 
-                pendingTansactions.Add(i, transaction);
+                pendingTransactions[i] =transaction;
             }
 
 
-            var orderedTransactions = pendingTansactions.Values
-                .OrderBy(t => t, new Transaction.DefaultComparer());
-
-            // execute the close long transaction firstly
-            foreach (var transaction in orderedTransactions)
+            // always execute transaction according to the original order, so the strategy itself
+            // can decide the order.
+            for (int i = 0; i < pendingTransactions.Length; ++i)
             {
-                // execute transaction
-                ExecuteTransaction(transaction);
-            }
+                if (pendingTransactions[i] != null)
+                {
+                    ExecuteTransaction(pendingTransactions[i]);
 
-            foreach (var index in pendingTansactions.Keys)
-            {
-                // remove instruction that has been executed
-                _pendingInstructions[index] = null;
+                    _pendingInstructions[i] = null;
+                }
             }
 
             // compact pending instruction list
@@ -299,7 +295,8 @@ namespace TradingStrategyEvaluation
                 SubmissionTime = instruction.SubmissionTime,
                 Volume = instruction.Volume,
                 SellingType = instruction.SellingType,
-                StopLossPriceForSell = instruction.StopLossPriceForSell,
+                StopLossGapForBuying = instruction.StopLossGapForBuying,
+                StopLossPriceForSelling = instruction.StopLossPriceForSelling,
                 PositionIdForSell = instruction.PositionIdForSell,
                 Comments = instruction.Comments,
                 RelatedObjects = instruction.RelatedObjects

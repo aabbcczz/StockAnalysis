@@ -14,23 +14,5 @@ namespace TradingStrategy
         public double Commission { get; set; } // buy commission + sold commission
         public double BuyCost { get; set; } // AverageBuyPrice * Volume
         public double SoldGain { get; set; } // SoldPrice * Volume
-
-        public class DefaultComparer : IComparer<CompletedTransaction>
-        {
-            public int Compare(CompletedTransaction x, CompletedTransaction y)
-            {
-                if (x.ExecutionTime != y.ExecutionTime)
-                {
-                    return x.ExecutionTime.CompareTo(y.ExecutionTime);
-                }
-
-                if (x.Code != y.Code)
-                {
-                    return String.Compare(x.Code, y.Code, StringComparison.Ordinal);
-                }
-
-                return 0;
-            }
-        }
     }
 }

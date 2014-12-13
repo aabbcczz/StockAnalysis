@@ -16,10 +16,11 @@ namespace TradingStrategyEvaluation
             10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120
         };
 
-        private readonly Transaction[] _orderedTransactionHistory;
-        private readonly CompletedTransaction[] _orderedCompletedTransactionHistory;
+        private readonly Transaction[] _transactionHistory;
+        private readonly CompletedTransaction[] _completedTransactionHistory;
 
         private readonly double _initialCapital;
+        private readonly double _leverager;
 
         private readonly DateTime _startDate;
         private readonly DateTime _endDate;
@@ -70,13 +71,10 @@ namespace TradingStrategyEvaluation
             _endDate = endDate;
 
             _initialCapital = tracker.InitialCapital;
-            _orderedTransactionHistory = tracker.TransactionHistory
-                .OrderBy(t => t, new Transaction.DefaultComparer())
-                .ToArray();
+            _leverager = tracker.Leverager;
+            _transactionHistory = tracker.TransactionHistory.ToArray();
 
-            _orderedCompletedTransactionHistory = tracker.CompletedTransactionHistory
-                .OrderBy(ct => ct, new CompletedTransaction.DefaultComparer())
-                .ToArray();
+            _completedTransactionHistory = tracker.CompletedTransactionHistory.ToArray();
 
             _periods = periods;
         }
@@ -134,7 +132,7 @@ namespace TradingStrategyEvaluation
             return metrics;   
         }
 
-/*
+
         private double EstimateUsedCapital(Transaction[] transactions)
         {
             if (transactions == null)
@@ -193,7 +191,7 @@ namespace TradingStrategyEvaluation
 
             return usedCapital + 1.0; // add 1.0 to avoid accumulated precision loss.
         }
-*/
+
         /// <summary>
         /// Calculate the normalized Maximum Favorable Excursion and Maximum Adversed Excursion for a given point
         /// </summary>
@@ -308,8 +306,8 @@ namespace TradingStrategyEvaluation
         {
             var completedTransactions =
                 code == TradeMetric.CodeForAll
-                ? _orderedCompletedTransactionHistory
-                : _orderedCompletedTransactionHistory.Where(ct => ct.Code == code).ToArray();
+                ? _completedTransactionHistory
+                : _completedTransactionHistory.Where(ct => ct.Code == code).ToArray();
 
             if (completedTransactions.Length == 0)
             {
@@ -318,15 +316,16 @@ namespace TradingStrategyEvaluation
 
             var transactions = 
                 code == TradeMetric.CodeForAll 
-                ? _orderedTransactionHistory
-                : _orderedTransactionHistory.Where(t => t.Code == code).ToArray();
+                ? _transactionHistory
+                : _transactionHistory.Where(t => t.Code == code).ToArray();
 
-            //double usedCapital = EstimateUsedCapital(transactions);
+            var usedCapital = EstimateUsedCapital(transactions);
+            var initialCapital = Math.Max(_initialCapital, usedCapital / _leverager);
 
-            var manager = new EquityManager(_initialCapital);
+            var manager = new EquityManager(initialCapital, _leverager);
 
             var transactionIndex = 0;
-            var currentEquity = _initialCapital; 
+            var currentEquity = initialCapital; 
 
             var equityPoints = new List<EquityPoint>(_periods.Length);
 

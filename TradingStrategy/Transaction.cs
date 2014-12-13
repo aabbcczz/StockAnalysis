@@ -27,10 +27,16 @@ namespace TradingStrategy
         public double Price { get; set; }
 
         /// <summary>
-        /// the stop loss price for sell, all positions that has stop loss price higher than this should be sold.
+        /// The stop loss gap (always smaller than or equal to 0.0) for buying. It means the price of buying plus
+        /// the stop loss gap will be the stop loss price of the position.
+        /// </summary>
+        public double StopLossGapForBuying { get; set; }
+
+        /// <summary>
+        /// the stop loss price for selling, all positions that has stop loss price higher than this should be sold.
         /// this field is used only when Action is CloseLong.
         /// </summary>
-        public double StopLossPriceForSell { get; set; }
+        public double StopLossPriceForSelling { get; set; }
 
         /// <summary>
         /// the id of position for sell. 
@@ -45,49 +51,6 @@ namespace TradingStrategy
         public string Comments { get; set; }
 
         public object[] RelatedObjects { get; set; }
-
-        public class DefaultComparer : IComparer<Transaction>
-        {
-                 
-            public int Compare(Transaction x, Transaction y)
-            {
- 	            if (x.ExecutionTime != y.ExecutionTime)
-                {
-                    return x.ExecutionTime.CompareTo(y.ExecutionTime);
-                }
-
-                if (x.Action != y.Action)
-                {
-                    if (x.Action == TradingAction.CloseLong)
-                    {
-                        return 1;
-                    }
-
-                    if (y.Action == TradingAction.CloseLong)
-                    {
-                        return -1;
-                    }
-                }
-
-                if (x.SubmissionTime != y.SubmissionTime)
-                {
-                    return x.SubmissionTime.CompareTo(y.SubmissionTime);
-                }
-
-                if (x.Code != y.Code)
-                {
-                    return String.Compare(x.Code, y.Code, StringComparison.Ordinal);
-                }
-
-                if (x.InstructionId != y.InstructionId)
-                {
-                    return x.InstructionId.CompareTo(y.InstructionId);
-                }
-
-                return 0;
-            }
-        }
-
 
         public string Print()
         {

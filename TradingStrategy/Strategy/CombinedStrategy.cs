@@ -7,8 +7,9 @@ namespace TradingStrategy.Strategy
 {
     public sealed class CombinedStrategy : ITradingStrategy
     {
-        private int _maxNumberOfActiveStocks = 1000;
-        private int _maxNumberOfActiveStocksPerBlock = 100;
+        private int _maxNumberOfActiveStocks;
+        private int _maxNumberOfActiveStocksPerBlock;
+        private bool _randomSelectTransactionWhenThereIsNoEnoughCapital;
 
         private static bool _forceLoaded;
 
@@ -110,6 +111,21 @@ namespace TradingStrategy.Strategy
                 }
             }
 
+            // generate all possible instructions
+            GenerateInstructions(tradingObjects, bars);
+
+            // randomize instructions if necessary
+            RandomizeInstructions();
+
+            // adjust instructions according to some limits
+            AdjustInstructions();
+
+            // sort instructions
+            SortInstructions();
+        }
+
+        private void GenerateInstructions(ITradingObject[] tradingObjects, Bar[] bars)
+        {
             // check if positions needs to be adjusted
             if (_positionAdjusting != null)
             {
@@ -189,7 +205,7 @@ namespace TradingStrategy.Strategy
                             SubmissionTime = _period,
                             TradingObject = tradingObject,
                             SellingType = SellingType.ByStopLossPrice,
-                            StopLossPriceForSell = bar.ClosePrice,
+                            StopLossPriceForSelling = bar.ClosePrice,
                             Volume = totalVolume
                         });
 
@@ -225,81 +241,129 @@ namespace TradingStrategy.Strategy
                     if (canEnter)
                     {
                         CreateIntructionForBuying(
-                            tradingObject, 
-                            bar.ClosePrice, 
+                            tradingObject,
+                            bar.ClosePrice,
                             "Entering market: " + string.Join(";", allComments),
                             objectsForEntering.Count > 0 ? objectsForEntering.ToArray() : null);
                     }
                 }
             }
+        }
 
-            // for diversifying, limit total stocks and the number of stocks in the same stock
-            var existingCodes = _context.GetAllPositionCodes().ToList();
-
-            var codesToBeRemoved = _instructionsInCurrentPeriod
-                .Where(instruction => instruction.Action == TradingAction.CloseLong)
-                .Select(instruction => instruction.TradingObject.Code)
-                .ToList();
-
-            var codesToBeAdded = _instructionsInCurrentPeriod
-                .Where(instruction => instruction.Action == TradingAction.OpenLong)
-                .Select(instruction => instruction.TradingObject.Code)
-                .ToList();
-
-            var codesCannotBeAdded = new List<string>();
-
-            var codesAfterRemoved = existingCodes.Except(codesToBeRemoved).ToList();
-
-            // ensure each block has no too much positions
-            if (_context.RelationshipManager != null)
+        private void RandomizeInstructions()
+        {
+            // randomize all buying new stock instructions if necessary
+            if (_randomSelectTransactionWhenThereIsNoEnoughCapital)
             {
-                var blockSizes = codesAfterRemoved
-                    .SelectMany(code => _context.RelationshipManager.GetBlocksForStock(code))
-                    .GroupBy(code => code)
-                    .ToDictionary(g => g.Key, g => g.Count());
+                var buyingInstructions = _instructionsInCurrentPeriod
+                    .Where(instruction => instruction.Action == TradingAction.OpenLong
+                        && !_context.ExistsPosition(instruction.TradingObject.Code))
+                    .ToList();
 
-                foreach (var code in codesToBeAdded)
+                if (buyingInstructions.Any())
                 {
-                    foreach (var block in _context.RelationshipManager.GetBlocksForStock(code))
-                    {
-                        if (blockSizes.ContainsKey(block))
-                        {
-                            if (blockSizes[block] >= _maxNumberOfActiveStocksPerBlock)
-                            {
-                                // can't add
-                                codesCannotBeAdded.Add(code);
-                                continue;
-                            }
-                            blockSizes[block] = blockSizes[block] + 1;
-                        }
-                        else
-                        {
-                            blockSizes[block] = 1;
-                        }
-                    }
+                    _instructionsInCurrentPeriod = _instructionsInCurrentPeriod
+                        .Except(buyingInstructions)
+                        .ToList();
+
+                    _instructionsInCurrentPeriod.AddRange(
+                        buyingInstructions.OrderBy(instruction => Guid.NewGuid()));
                 }
             }
+        }
 
-            // now check the overall number of stocks in active position
-            codesToBeAdded = codesToBeAdded.Except(codesCannotBeAdded).ToList();
-
-            if (codesAfterRemoved.Count + codesToBeAdded.Count > _maxNumberOfActiveStocks)
-            {
-                // need to remove some. 
-                int keptCount = Math.Max(0, _maxNumberOfActiveStocks - codesAfterRemoved.Count);
-
-                codesCannotBeAdded.AddRange(codesToBeAdded.Skip(keptCount));
-            }
-
-            // now remove all instructions about stock code in codesCannotBeAdded.
-            var instructionsToBeRemoved = _instructionsInCurrentPeriod
-                .Where(instruction => codesCannotBeAdded.Contains(instruction.TradingObject.Code))
+        private void SortInstructions()
+        {
+            // ensure the CloseLong instruction is put before OpenLong instruction, and the OpenLong instruction for
+            // increasing position is put before the OpenLong instruction for new position.
+            var closeLongInstructions = _instructionsInCurrentPeriod
+                .Where(instruction => instruction.Action == TradingAction.CloseLong)
                 .ToList();
 
-            foreach (var instruction in instructionsToBeRemoved)
-            {
-                _instructionsInCurrentPeriod.Remove(instruction);
-            }
+            var openLongForIncreasingPositionInstructions = _instructionsInCurrentPeriod
+                .Where(instruction => instruction.Action == TradingAction.OpenLong
+                     && _context.ExistsPosition(instruction.TradingObject.Code))
+                .ToList();
+
+            var openLongForNewPositionInstructions = _instructionsInCurrentPeriod
+                .Where(instruction => instruction.Action == TradingAction.OpenLong
+                    && !_context.ExistsPosition(instruction.TradingObject.Code))
+                .ToList();
+
+            _instructionsInCurrentPeriod = new List<Instruction>();
+            _instructionsInCurrentPeriod.AddRange(closeLongInstructions);
+            _instructionsInCurrentPeriod.AddRange(openLongForIncreasingPositionInstructions);
+            _instructionsInCurrentPeriod.AddRange(openLongForNewPositionInstructions);
+        }
+
+        private void AdjustInstructions()
+        {
+            // for diversifying, limit total stocks and the number of stocks in the same stock
+            //var existingCodes = _context.GetAllPositionCodes().ToList();
+
+            //var codesToBeRemoved = _instructionsInCurrentPeriod
+            //    .Where(instruction => instruction.Action == TradingAction.CloseLong)
+            //    .Select(instruction => instruction.TradingObject.Code)
+            //    .ToList();
+
+            //var codesToBeAdded = _instructionsInCurrentPeriod
+            //    .Where(instruction => instruction.Action == TradingAction.OpenLong)
+            //    .Select(instruction => instruction.TradingObject.Code)
+            //    .ToList();
+
+            //var codesCannotBeAdded = new List<string>();
+
+            //var codesAfterRemoved = existingCodes.Except(codesToBeRemoved).ToList();
+
+            //// ensure each block has no too much positions
+            //if (_context.RelationshipManager != null)
+            //{
+            //    var blockSizes = codesAfterRemoved
+            //        .SelectMany(code => _context.RelationshipManager.GetBlocksForStock(code))
+            //        .GroupBy(code => code)
+            //        .ToDictionary(g => g.Key, g => g.Count());
+
+            //    foreach (var code in codesToBeAdded)
+            //    {
+            //        foreach (var block in _context.RelationshipManager.GetBlocksForStock(code))
+            //        {
+            //            if (blockSizes.ContainsKey(block))
+            //            {
+            //                if (blockSizes[block] >= _maxNumberOfActiveStocksPerBlock)
+            //                {
+            //                    // can't add
+            //                    codesCannotBeAdded.Add(code);
+            //                    continue;
+            //                }
+            //                blockSizes[block] = blockSizes[block] + 1;
+            //            }
+            //            else            //            {
+            //                blockSizes[block] = 1;
+            //            }
+            //        }
+            //    }
+            //}
+
+            //// now check the overall number of stocks in active position
+            //codesToBeAdded = codesToBeAdded.Except(codesCannotBeAdded).ToList();
+
+            //if (codesAfterRemoved.Count + codesToBeAdded.Count > _maxNumberOfActiveStocks)
+            //{
+            //    // need to remove some. 
+            //    int keptCount = Math.Max(0, _maxNumberOfActiveStocks - codesAfterRemoved.Count);
+
+            //    codesCannotBeAdded.AddRange(codesToBeAdded.Skip(keptCount));
+            //}
+
+            //// now remove all instructions about stock code in codesCannotBeAdded.
+            //var instructionsToBeRemoved = _instructionsInCurrentPeriod
+            //    .Where(instruction => codesCannotBeAdded.Contains(instruction.TradingObject.Code))
+            //    .ToList();
+
+            //foreach (var instruction in instructionsToBeRemoved)
+            //{
+            //    _instructionsInCurrentPeriod.Remove(instruction);
+            //}
         }
 
         private void CreateIntructionForBuying(ITradingObject tradingObject, double price, string comments, object[] relatedObjects)
@@ -314,10 +378,7 @@ namespace TradingStrategy.Strategy
             string positionSizeComments;
             var volume = _positionSizing.EstimatePositionSize(tradingObject, price, stopLossGap, out positionSizeComments);
 
-            // add global contraint that no any stock can exceeds 5% of total capital
-            // volume = Math.Min(volume, (int)(_context.GetInitialEquity() / 20.0 / price));
-
-            // adjust volume to ensure it fit the trading object's contraint
+            // adjust volume to ensure it fit the trading object's constraint
             volume -= volume % tradingObject.VolumePerBuyingUnit;
 
             if (volume > 0)
@@ -330,6 +391,7 @@ namespace TradingStrategy.Strategy
                         SubmissionTime = _period,
                         TradingObject = tradingObject,
                         Volume = volume,
+                        StopLossGapForBuying = stopLossGap,
                         RelatedObjects = relatedObjects
                     });
             }
@@ -386,10 +448,10 @@ namespace TradingStrategy.Strategy
                 // set stop loss for positions created by PositionAdjusting component
                 else
                 {
-                    if (Math.Abs(instruction.StopLossGapForAddedPosition) > 1e-16)
+                    if (Math.Abs(instruction.StopLossGapForBuying) > 1e-16)
                     {
                         var lastPosition = positions.Last();
-                        var newStopLossPrice = lastPosition.BuyPrice + instruction.StopLossGapForAddedPosition;
+                        var newStopLossPrice = lastPosition.BuyPrice + instruction.StopLossGapForBuying;
 
                         // now set the new stop loss price for all positions
                         foreach (var position in positions)
@@ -455,12 +517,17 @@ namespace TradingStrategy.Strategy
         public CombinedStrategy(
             ITradingStrategyComponent[] components, 
             int maxNumberOfActiveStocks,
-            int maxNumberOfActiveStocksPerBlock)
+            int maxNumberOfActiveStocksPerBlock,
+            bool randomSelectTransactionWhenThereIsNoEnoughCapital)
         {
             if (components == null || !components.Any())
             {
                 throw new ArgumentNullException();
             }
+
+            _maxNumberOfActiveStocks = maxNumberOfActiveStocks;
+            _maxNumberOfActiveStocksPerBlock = maxNumberOfActiveStocksPerBlock;
+            _randomSelectTransactionWhenThereIsNoEnoughCapital = randomSelectTransactionWhenThereIsNoEnoughCapital;
 
             _components = components;
 

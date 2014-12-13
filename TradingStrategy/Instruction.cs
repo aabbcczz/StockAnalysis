@@ -21,7 +21,7 @@ namespace TradingStrategy
         /// the stop loss price for sell, all positions that has stop loss price higher than this should be sold.
         /// this field is used only when Action is CloseLong and SellingType is ByStopLossPrice
         /// </summary>
-        public double StopLossPriceForSell { get; set; }
+        public double StopLossPriceForSelling { get; set; }
 
         /// <summary>
         /// the id of position for sell. 
@@ -36,10 +36,9 @@ namespace TradingStrategy
         public object[] RelatedObjects { get; set; }
 
         /// <summary>
-        /// The stop loss gap (always smaller than or equal to 0) for new positions that being 
-        /// added by PositionAdjusting component
+        /// The stop loss gap (always smaller than or equal to 0) for new positions
         /// </summary>
-        public double StopLossGapForAddedPosition { get; set; }
+        public double StopLossGapForBuying { get; set; }
 
         public Instruction()
         {

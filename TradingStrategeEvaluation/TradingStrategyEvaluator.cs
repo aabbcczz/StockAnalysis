@@ -35,7 +35,7 @@ namespace TradingStrategyEvaluation
         public EventHandler<EvaluationProgressEventArgs> OnEvaluationProgress;
 
         public TradingStrategyEvaluator(
-            double initalCapital,
+            double initialCapital,
             ITradingStrategy strategy, 
             IDictionary<ParameterAttribute, object> strategyParameters, 
             ITradingDataProvider provider, 
@@ -55,9 +55,9 @@ namespace TradingStrategyEvaluation
            
             _settings = settings;
 
-            _equityManager = new EquityManager(initalCapital);
+            _equityManager = new EquityManager(initialCapital, settings.Leverager);
             _context = new StandardEvaluationContext(_provider, _equityManager, logger, relationshipManager);
-            _tradingTracker = new TradingTracker(initalCapital);
+            _tradingTracker = new TradingTracker(initialCapital, settings.Leverager);
         }
 
         public void Evaluate()
@@ -255,7 +255,7 @@ namespace TradingStrategyEvaluation
             DateTime time, 
             bool forCurrentPeriod)
         {
-            var pendingTansactions = new Dictionary<int, Transaction>();
+            var pendingTransactions = new Transaction[_pendingInstructions.Count];
 
             for (var i = 0; i < _pendingInstructions.Count; ++i)
             {
@@ -370,27 +370,23 @@ namespace TradingStrategyEvaluation
                     time,
                     currentTradingDataOfObject);
 
-                pendingTansactions.Add(i, transaction);
+                pendingTransactions[i] = transaction;
             }
 
-            var orderedTransactions = pendingTansactions.Values
-                .OrderBy(t => t, new Transaction.DefaultComparer());
-
-            // execute the close long transaction firstly
-            foreach (var transaction in orderedTransactions)
+            // always execute transaction according to the original order, so the strategy itself
+            // can decide the order.
+            for (int i = 0; i < pendingTransactions.Length; ++i)
             {
-                // execute transaction
-                ExecuteTransaction(transaction, true);
-            }
+                if (pendingTransactions[i] != null)
+                {
+                    ExecuteTransaction(pendingTransactions[i], true);
 
-            foreach (var index in pendingTansactions.Keys)
-            {
-                // remove instruction that has been executed
-                _pendingInstructions[index] = null;
+                    _pendingInstructions[i] = null;
+                }
             }
 
             // compact pending instruction list
-            _pendingInstructions = _pendingInstructions.Where(i => i != null).ToList();
+            _pendingInstructions = _pendingInstructions.Where(instruction => instruction != null).ToList();
         }
 
         private bool ExecuteTransaction(Transaction transaction, bool notifyTransactionStatus)
@@ -454,7 +450,8 @@ namespace TradingStrategyEvaluation
                 SubmissionTime = instruction.SubmissionTime,
                 Volume = instruction.Volume,
                 SellingType = instruction.SellingType,
-                StopLossPriceForSell = instruction.StopLossPriceForSell,
+                StopLossGapForBuying = instruction.StopLossGapForBuying,
+                StopLossPriceForSelling = instruction.StopLossPriceForSelling,
                 PositionIdForSell = instruction.PositionIdForSell,
                 Comments = instruction.Comments,
                 RelatedObjects = instruction.RelatedObjects

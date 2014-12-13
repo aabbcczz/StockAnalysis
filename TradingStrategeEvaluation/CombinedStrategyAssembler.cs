@@ -42,7 +42,7 @@ namespace TradingStrategyEvaluation
             // verify if component settings can be used for creating new combined strategy
             try
             {
-                NewStrategy(settings.MaxNumberOfActiveStocks, settings.MaxNumberOfActiveStocksPerBlock);
+                NewStrategy(settings.MaxNumberOfActiveStocks, settings.MaxNumberOfActiveStocksPerBlock, settings.RandomSelectTransactionWhenThereIsNoEnoughCapital);
             }
             catch (Exception ex)
             {
@@ -176,9 +176,13 @@ namespace TradingStrategyEvaluation
             return components;
         }
 
-        public CombinedStrategy NewStrategy(int maxNumberOfActiveStocks, int maxNumberOfActiveStocksPerBlock)
+        public CombinedStrategy NewStrategy(int maxNumberOfActiveStocks, int maxNumberOfActiveStocksPerBlock, bool randomSelectTransactionWhenThereIsNoEnoughCapital)
         {
-            var strategy = new CombinedStrategy(CreateComponents(), maxNumberOfActiveStocks, maxNumberOfActiveStocksPerBlock);
+            var strategy = new CombinedStrategy(
+                CreateComponents(), 
+                maxNumberOfActiveStocks, 
+                maxNumberOfActiveStocksPerBlock,
+                randomSelectTransactionWhenThereIsNoEnoughCapital);
 
             return strategy;
         }

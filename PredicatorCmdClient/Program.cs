@@ -196,7 +196,8 @@ namespace PredicatorCmdClient
             {
                 var strategy = combinedStrategyAssembler.NewStrategy(
                     combinedStrategySettings.MaxNumberOfActiveStocks,
-                    combinedStrategySettings.MaxNumberOfActiveStocksPerBlock);
+                    combinedStrategySettings.MaxNumberOfActiveStocksPerBlock,
+                    combinedStrategySettings.RandomSelectTransactionWhenThereIsNoEnoughCapital);
 
                 strategyInstances.Add(Tuple.Create(strategy, values));
             }

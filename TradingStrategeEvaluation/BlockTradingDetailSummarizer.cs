@@ -21,7 +21,7 @@ namespace TradingStrategyEvaluation
             public double[] Mae { get; set; }
         }
 
-        private readonly Transaction[] _orderedTransactionHistory;
+        private readonly Transaction[] _transactionHistory;
         private readonly ITradingDataProvider _dataProvider;
         private readonly DateTime[] _periods;
 
@@ -39,16 +39,14 @@ namespace TradingStrategyEvaluation
 
             _dataProvider = provider;
 
-            _orderedTransactionHistory = tracker.TransactionHistory
-                .OrderBy(t => t, new Transaction.DefaultComparer())
-                .ToArray();
+            _transactionHistory = tracker.TransactionHistory.ToArray();
 
             _periods = _dataProvider.GetAllPeriodsOrdered();
         }
 
         public IEnumerable<BlockTradingDetail> Summarize()
         {
-            var codes = _orderedTransactionHistory
+            var codes = _transactionHistory
                 .Select(t => t.Code)
                 .GroupBy(c => c)
                 .Select(g => g.Key);
@@ -58,7 +56,7 @@ namespace TradingStrategyEvaluation
                 var bars = _dataProvider.GetAllBarsForTradingObject(_dataProvider.GetIndexOfTradingObject(code))
                     .ToArray();
 
-                var subsetTransactions = _orderedTransactionHistory.Where(t => t.Code == code);
+                var subsetTransactions = _transactionHistory.Where(t => t.Code == code);
 
                 int barIndex = 0;
                 foreach (var transaction in subsetTransactions)

@@ -9,6 +9,8 @@ namespace TradingStrategyEvaluation
     {
         public bool AllowNegativeCapital { get; set; }
 
+        public double Leverager { get; set; }
+
         public CommissionSettings BuyingCommission { get; set; }
 
         public CommissionSettings SellingCommission { get; set; }
@@ -64,6 +66,8 @@ namespace TradingStrategyEvaluation
         {
             var settings = new TradingSettings
             {
+                AllowNegativeCapital = false,
+                Leverager = 1.0,
                 BuyingCommission =
                     new CommissionSettings {Type = CommissionSettings.CommissionType.ByAmount, Tariff = 0.0005},
                 SellingCommission = new CommissionSettings

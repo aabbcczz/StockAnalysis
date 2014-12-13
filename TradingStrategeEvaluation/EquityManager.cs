@@ -24,18 +24,22 @@ namespace TradingStrategyEvaluation
         private readonly Dictionary<string, List<Position>> _activePositions = new Dictionary<string, List<Position>>();
 
         private readonly List<Position> _closedPositions = new List<Position>();
-
+        
         public double InitialCapital { get; private set; }
+
+        public double Leverager { get; private set; }
 
         public double CurrentCapital { get; private set; }
 
         public IEnumerable<Position> ClosedPositions { get { return _closedPositions; } }
 
-        public EquityManager(double initialCapital, double currentCapital = double.NaN)
+        public EquityManager(double initialCapital, double leverager, double currentCapital = double.NaN)
         {
             InitialCapital = initialCapital;
 
-            CurrentCapital = double.IsNaN(currentCapital) ? initialCapital : currentCapital;
+            Leverager = leverager;
+
+            CurrentCapital = double.IsNaN(currentCapital) ? initialCapital * leverager : currentCapital;
         }
 
         private void AddPosition(Position position)
@@ -225,7 +229,7 @@ namespace TradingStrategyEvaluation
                 case SellingType.ByStopLossPrice:
                     for (var i = 0; i < positions.Length; ++i)
                     {
-                        if (positions[i].StopLossPrice > transaction.StopLossPriceForSell)
+                        if (positions[i].StopLossPrice > transaction.StopLossPriceForSelling)
                         {
                             remainingVolume -= positions[i].Volume;
 
