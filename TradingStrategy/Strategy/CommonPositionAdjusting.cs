@@ -93,7 +93,7 @@ namespace TradingStrategy.Strategy
                         {
                             Action = TradingAction.OpenLong,
                             Comments = string.Format(
-                                "increase position. The gain of last position ({0:0.000}) exceeds initial risk ({1:0.000)} * {2:0.000}%",
+                                "increase position. The gain of last position ({0:0.000}) exceeds initial risk ({1:0.000}) * {2:0.000}%",
                                 gain,
                                 initialRisk,
                                 RiskPercentageTrigger),
