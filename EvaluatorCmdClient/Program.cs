@@ -53,6 +53,12 @@ namespace EvaluatorCmdClient
                 ErrorExit("Initial capital must be greater than 0.0");
             }
 
+            if (options.ProportionOfCapitalForIncrementalPosition < 0.0 
+                || options.ProportionOfCapitalForIncrementalPosition > 1.0)
+            {
+                ErrorExit("Proportion of caption for incremental position must be in [0.0..1.0]");
+            }
+
             if (string.IsNullOrWhiteSpace(options.StockDataSettingsFile))
             {
                 ErrorExit("Stock data settings file is empty string");
@@ -94,21 +100,15 @@ namespace EvaluatorCmdClient
             stockDataSettings.SaveToFile(AddPrefixToFileName(options.StockDataSettingsFile, prefix));
         }
 
-        static IEnumerable<string> LoadCodeOfStocks(string codeFile, int randomSelectedTradingObjectCount)
+        static IEnumerable<string> LoadCodeOfStocks(string codeFile)
         {
             var codes = File.ReadAllLines(codeFile)
                 .Where(s => !string.IsNullOrWhiteSpace(s))
                 .Select(s => StockName.NormalizeCode(s))
+                .OrderBy(s => s)
                 .ToArray();
 
-            if (randomSelectedTradingObjectCount == 0 || randomSelectedTradingObjectCount >= codes.Length)
-            {
-                return codes;
-            }
-
-            Console.WriteLine("Selected {0} codes from {1} codes", randomSelectedTradingObjectCount, codes.Length);
-
-            return codes.OrderBy(s => Guid.NewGuid()).Take(randomSelectedTradingObjectCount);
+            return codes;
         }
 
         static StockBlockRelationshipManager LoadStockBlockRelationship(string relationshipFile)
@@ -116,14 +116,6 @@ namespace EvaluatorCmdClient
             var relationships = StockBlockRelationship.LoadFromFile(relationshipFile);
 
             return new StockBlockRelationshipManager(relationships);
-        }
-
-        static IEnumerable<string> SelectStockAndFilterBlocks(ref StockBlockRelationshipManager manager, int minStockPerBlock)
-        {
-            var stocks = manager.FindMinimumStockSetCoveredAllBlocks(minStockPerBlock);
-            manager = manager.CreateSubsetForStocks(stocks);
-
-            return stocks;
         }
 
         static IEnumerable<Tuple<DateTime, DateTime>> GenerateIntervals(DateTime startDate, DateTime endDate, int yearInterval)
@@ -219,19 +211,13 @@ namespace EvaluatorCmdClient
 
             // load codes and stock name table
             var stockNameTable = new StockNameTable(stockDataSettings.StockNameTableFile);
-            var codes = LoadCodeOfStocks(options.CodeFile, options.RandomSelectedTradingObjectCount);
+            var codes = LoadCodeOfStocks(options.CodeFile);
 
             // load stock block relationship if necessary, and filter codes
             StockBlockRelationshipManager stockBlockRelationshipManager = null;
             if (!string.IsNullOrWhiteSpace(options.StockBlockRelationshipFile))
             {
                 stockBlockRelationshipManager = LoadStockBlockRelationship(options.StockBlockRelationshipFile);
-
-                // filter blocks that with too small size
-                var largeBlocks = stockBlockRelationshipManager.Blocks
-                    .Where(block => stockBlockRelationshipManager.GetStocksInBlock(block).Count() >= options.BlockSizeThreshold);
-
-                stockBlockRelationshipManager = stockBlockRelationshipManager.CreateSubsetForBlocks(largeBlocks);
 
                 // filter stock block relationship for loaded codes only
                 stockBlockRelationshipManager = stockBlockRelationshipManager.CreateSubsetForStocks(codes);
@@ -301,29 +287,6 @@ namespace EvaluatorCmdClient
                             ? null 
                             : stockBlockRelationshipManager.CreateSubsetForStocks(finalCodes);
 
-                        if (filteredStockBlockRelationshipManager != null)
-                        {
-                            if (options.MininumStockPerBlockAfterSelection > 0)
-                            {
-                                // need to select stock for maximum coverage
-                                SelectStockAndFilterBlocks(ref filteredStockBlockRelationshipManager, options.MininumStockPerBlockAfterSelection);
-                            }
-
-                            var filteredCodes = filteredStockBlockRelationshipManager.Stocks;
-
-                            var filteredDataFiles = filteredCodes
-                                .Select(stockDataSettings.BuildActualDataFilePathAndName)
-                                .ToArray();
-
-                            // rebuild data provider according to filtered codes
-                            dataProvider = new ChinaStockDataProvider(
-                                stockNameTable,
-                                filteredDataFiles,
-                                interval.Item1, // interval start date
-                                interval.Item2, // interval end date
-                                options.WarmupPeriods);
-                        }
-
                         // initialize combined strategy assembler
                         var combinedStrategyAssembler = new CombinedStrategyAssembler(combinedStrategySettings);
 
@@ -357,13 +320,18 @@ namespace EvaluatorCmdClient
                                 // new ParallelOptions() { MaxDegreeOfParallelism = 1 }, 
                                 t =>
                                 {
+                                    ICapitalManager capitalManager = options.ProportionOfCapitalForIncrementalPosition > 0.0
+                                        ? (ICapitalManager)new AdvancedCapitalManager(options.InitialCapital, options.ProportionOfCapitalForIncrementalPosition)
+                                        : (ICapitalManager)new SimpleCapitalManager(options.InitialCapital)
+                                        ;
+
                                     EvaluateStrategy(
                                          _contextManager,
                                          t.Item1,
                                          t.Item2,
                                          interval.Item1,
                                          interval.Item2,
-                                         options.InitialCapital,
+                                         capitalManager,
                                          dataProvider,
                                          filteredStockBlockRelationshipManager,
                                          tradingSettings);
@@ -418,7 +386,7 @@ namespace EvaluatorCmdClient
             IDictionary<ParameterAttribute, object> parameterValues,
             DateTime startDate,
             DateTime endDate,
-            double initialCapital,
+            ICapitalManager capitalManager,
             ITradingDataProvider dataProvider,
             StockBlockRelationshipManager relationshipManager,
             TradingSettings tradingSettings)
@@ -437,7 +405,7 @@ namespace EvaluatorCmdClient
             {
                 var evaluator
                     = new TradingStrategyEvaluator(
-                        initialCapital,
+                        capitalManager,
                         strategy,
                         parameterValues,
                         dataProvider,

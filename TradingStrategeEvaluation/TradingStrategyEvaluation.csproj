@@ -70,8 +70,11 @@
     <Compile Include="EvaluationProgressEventArgs.cs" />
     <Compile Include="FileLogger.cs" />
     <Compile Include="GenericRuntimeMetric.cs" />
+    <Compile Include="ICapitalManager.cs" />
     <Compile Include="MemoryLogger.cs" />
     <Compile Include="SerializableParameterValues.cs" />
+    <Compile Include="AdvancedCapitalManager.cs" />
+    <Compile Include="SimpleCapitalManager.cs" />
     <Compile Include="StandardGroupRuntimeMetricManager.cs" />
     <Compile Include="StandardRuntimeMetricManager.cs" />
     <Compile Include="TradeMetricsCalculator.cs" />

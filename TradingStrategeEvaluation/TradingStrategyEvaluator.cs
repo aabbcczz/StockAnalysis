@@ -35,7 +35,7 @@ namespace TradingStrategyEvaluation
         public EventHandler<EvaluationProgressEventArgs> OnEvaluationProgress;
 
         public TradingStrategyEvaluator(
-            double initialCapital,
+            ICapitalManager capitalManager,
             ITradingStrategy strategy, 
             IDictionary<ParameterAttribute, object> strategyParameters, 
             ITradingDataProvider provider, 
@@ -55,9 +55,9 @@ namespace TradingStrategyEvaluation
            
             _settings = settings;
 
-            _equityManager = new EquityManager(initialCapital, settings.Leverager);
+            _equityManager = new EquityManager(capitalManager);
             _context = new StandardEvaluationContext(_provider, _equityManager, logger, relationshipManager);
-            _tradingTracker = new TradingTracker(initialCapital, settings.Leverager);
+            _tradingTracker = new TradingTracker(capitalManager.InitialCapital);
         }
 
         public void Evaluate()

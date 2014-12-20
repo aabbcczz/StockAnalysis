@@ -20,7 +20,6 @@ namespace TradingStrategyEvaluation
         private readonly CompletedTransaction[] _completedTransactionHistory;
 
         private readonly double _initialCapital;
-        private readonly double _leverager;
 
         private readonly DateTime _startDate;
         private readonly DateTime _endDate;
@@ -71,7 +70,6 @@ namespace TradingStrategyEvaluation
             _endDate = endDate;
 
             _initialCapital = tracker.InitialCapital;
-            _leverager = tracker.Leverager;
             _transactionHistory = tracker.TransactionHistory.ToArray();
 
             _completedTransactionHistory = tracker.CompletedTransactionHistory.ToArray();
@@ -320,9 +318,9 @@ namespace TradingStrategyEvaluation
                 : _transactionHistory.Where(t => t.Code == code).ToArray();
 
             var usedCapital = EstimateUsedCapital(transactions);
-            var initialCapital = Math.Max(_initialCapital, usedCapital / _leverager);
+            var initialCapital = Math.Max(_initialCapital, usedCapital);
 
-            var manager = new EquityManager(initialCapital, _leverager);
+            var manager = new EquityManager(new SimpleCapitalManager(initialCapital));
 
             var transactionIndex = 0;
             var currentEquity = initialCapital; 

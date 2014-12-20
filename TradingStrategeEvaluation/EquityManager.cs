@@ -24,22 +24,29 @@ namespace TradingStrategyEvaluation
         private readonly Dictionary<string, List<Position>> _activePositions = new Dictionary<string, List<Position>>();
 
         private readonly List<Position> _closedPositions = new List<Position>();
-        
-        public double InitialCapital { get; private set; }
 
-        public double Leverager { get; private set; }
+        private readonly ICapitalManager _capitalManager;
 
-        public double CurrentCapital { get; private set; }
+        public double InitialCapital 
+        {
+            get { return _capitalManager.InitialCapital; }
+        }
+
+        public double CurrentCapital 
+        {
+            get { return _capitalManager.CurrentCapital; }
+        }
 
         public IEnumerable<Position> ClosedPositions { get { return _closedPositions; } }
 
-        public EquityManager(double initialCapital, double leverager, double currentCapital = double.NaN)
+        public EquityManager(ICapitalManager capitalManager)
         {
-            InitialCapital = initialCapital;
+            if (capitalManager == null)
+            {
+                throw new ArgumentNullException();
+            }
 
-            Leverager = leverager;
-
-            CurrentCapital = double.IsNaN(currentCapital) ? initialCapital * leverager : currentCapital;
+            _capitalManager = capitalManager;
         }
 
         private void AddPosition(Position position)
@@ -70,7 +77,10 @@ namespace TradingStrategyEvaluation
             {
                 var charge = transaction.Price * transaction.Volume + transaction.Commission;
 
-                if (CurrentCapital < charge && !allowNegativeCapital)
+                // try to allocate capital
+                bool isFirstPosition = !ExistsPosition(transaction.Code);
+                if ((isFirstPosition && !_capitalManager.AllocateCapitalForFirstPosition(charge, allowNegativeCapital))
+                    || (!isFirstPosition && !_capitalManager.AllocateCapitalForIncrementalPosition(charge, allowNegativeCapital)))
                 {
                     error = "No enough capital for the transaction";
                     return false;
@@ -80,9 +90,6 @@ namespace TradingStrategyEvaluation
 
                 AddPosition(position);
 
-                // charge money
-                CurrentCapital -= charge;
-
                 return true;
             }
 
@@ -90,7 +97,7 @@ namespace TradingStrategyEvaluation
             {
                 var code = transaction.Code;
 
-                if (!_activePositions.ContainsKey(code))
+                if (!ExistsPosition(code))
                 {
                     error = string.Format("Transaction object {0} does not exists", code);
                     return false;
@@ -133,8 +140,8 @@ namespace TradingStrategyEvaluation
                         newPosition = position.Split(ptbs.Volume);
                     }
 
-                    position.Close(
-                        new Transaction
+                    // close the position
+                    var newTransaction = new Transaction
                         {
                             Action = transaction.Action,
                             Code = transaction.Code,
@@ -149,13 +156,26 @@ namespace TradingStrategyEvaluation
                             SubmissionTime = transaction.SubmissionTime,
                             Succeeded = transaction.Succeeded,
                             Volume = position.Volume
-                        });
+                        };
+
+                    position.Close(newTransaction);
 
                     // move closed position to history
                     _closedPositions.Add(position);
 
                     // use new position to replace old position.
                     positions[ptbs.Index] = newPosition;
+
+                    // free capital
+                    var earn = newTransaction.Price * newTransaction.Volume - newTransaction.Commission;
+                    if (ptbs.Index == 0)
+                    {
+                        _capitalManager.FreeCapitalForFirstPosition(earn);
+                    }
+                    else
+                    {
+                        _capitalManager.FreeCapitalForIncrementalPosition(earn);
+                    }
                 }
 
                 // update positions for given code
@@ -169,10 +189,6 @@ namespace TradingStrategyEvaluation
                 {
                     _activePositions[code] = remainingPositions;
                 }
-
-                // update current capital
-                var earn = transaction.Price * transaction.Volume - transaction.Commission;
-                CurrentCapital += earn;
 
                 // create completed transaction object
                 completedTransaction = new CompletedTransaction

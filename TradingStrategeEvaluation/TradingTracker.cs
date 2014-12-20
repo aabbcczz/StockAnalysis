@@ -12,8 +12,6 @@ namespace TradingStrategyEvaluation
 
         public double InitialCapital { get; private set; }
 
-        public double Leverager { get; private set; }
-
         public DateTime MinTransactionTime { get; private set; }
 
         public DateTime MaxTransactionTime { get; private set; }
@@ -34,20 +32,14 @@ namespace TradingStrategyEvaluation
             }
         }
 
-        public TradingTracker(double initialCapital, double leverager)
+        public TradingTracker(double initialCapital)
         {
             if (initialCapital <= 0.0)
             {
                 throw new ArgumentOutOfRangeException("initial capital must be greater than 0.0");
             }
 
-            if (leverager <= 0.0)
-            {
-                throw new ArgumentOutOfRangeException("leverager must be greater than 0.0");
-            }
-
             InitialCapital = initialCapital;
-            Leverager = leverager;
 
             MinTransactionTime = DateTime.MaxValue;
             MaxTransactionTime = DateTime.MinValue;
