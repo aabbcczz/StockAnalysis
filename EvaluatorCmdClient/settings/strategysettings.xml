@@ -1,9 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <CombinedStrategySettings xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<!-- InstructionOrder element values:
+        IncPosThenNewPos = 0,
+		NewPosThenIncPos
+	-->
+	<!-- InceasePositionInstructionSortMode and NewPositionInstructionSortMode element values:
+        NoSorting = 0,
+        Randomize,
+        SortByInstructionIdAscending,
+        SortByInstructionIdDescending,
+        SortByCodeAscending,
+        SortByCodeDescending,
+        SortByVolumeAscending,
+        SortByVolumeDescending,	
+	-->
   <GlobalSettings>
     <MaxNumberOfActiveStocks>1000</MaxNumberOfActiveStocks>
     <MaxNumberOfActiveStocksPerBlock>1000</MaxNumberOfActiveStocksPerBlock>
-    <InstructionOder>IncPosThenNewPos</InstructionOder>
+    <InstructionOder>NewPosThenIncPos</InstructionOder>
     <InceasePositionInstructionSortMode>NoSorting</InceasePositionInstructionSortMode>
     <NewPositionInstructionSortMode>NoSorting</NewPositionInstructionSortMode>
   </GlobalSettings>
