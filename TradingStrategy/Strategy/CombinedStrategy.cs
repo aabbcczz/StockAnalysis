@@ -7,11 +7,8 @@ namespace TradingStrategy.Strategy
 {
     public sealed class CombinedStrategy : ITradingStrategy
     {
-        private int _maxNumberOfActiveStocks;
-        private int _maxNumberOfActiveStocksPerBlock;
-        private bool _randomSelectTransactionWhenThereIsNoEnoughCapital;
-
         private static bool _forceLoaded;
+        private readonly CombinedStrategyGlobalSettings _globalSettings;
 
         private readonly ITradingStrategyComponent[] _components;
         private readonly IPositionSizingComponent _positionSizing;
@@ -113,9 +110,6 @@ namespace TradingStrategy.Strategy
 
             // generate all possible instructions
             GenerateInstructions(tradingObjects, bars);
-
-            // randomize instructions if necessary
-            RandomizeInstructions();
 
             // adjust instructions according to some limits
             AdjustInstructions();
@@ -250,50 +244,81 @@ namespace TradingStrategy.Strategy
             }
         }
 
-        private void RandomizeInstructions()
+        private IEnumerable<Instruction> SortInstructions(IEnumerable<Instruction> instructions, InstructionSortMode mode)
         {
-            // randomize all buying new stock instructions if necessary
-            if (_randomSelectTransactionWhenThereIsNoEnoughCapital)
+            switch (mode)
             {
-                var buyingInstructions = _instructionsInCurrentPeriod
-                    .Where(instruction => instruction.Action == TradingAction.OpenLong
-                        && !_context.ExistsPosition(instruction.TradingObject.Code))
-                    .ToList();
+                case InstructionSortMode.NoSorting:
+                    return instructions;
 
-                if (buyingInstructions.Any())
-                {
-                    _instructionsInCurrentPeriod = _instructionsInCurrentPeriod
-                        .Except(buyingInstructions)
-                        .ToList();
+                case InstructionSortMode.Randomize:
+                    return instructions.OrderBy(instruction => Guid.NewGuid());
 
-                    _instructionsInCurrentPeriod.AddRange(
-                        buyingInstructions.OrderBy(instruction => Guid.NewGuid()));
-                }
+                case InstructionSortMode.SortByCodeAscending:
+                    return instructions.OrderBy(instruction => instruction.TradingObject.Code);
+
+                case InstructionSortMode.SortByCodeDescending:
+                    return instructions.OrderBy(instruction => instruction.TradingObject.Code).Reverse();
+
+                case InstructionSortMode.SortByInstructionIdAscending:
+                    return instructions.OrderBy(instruction => instruction.Id);
+
+                case InstructionSortMode.SortByInstructionIdDescending:
+                    return instructions.OrderBy(instruction => instruction.Id).Reverse();
+
+                case InstructionSortMode.SortByVolumeAscending:
+                    return instructions.OrderBy(instruction => instruction.Volume);
+
+                case InstructionSortMode.SortByVolumeDescending:
+                    return instructions.OrderBy(instruction => -instruction.Volume);
+
+                default:
+                    throw new NotSupportedException(string.Format("unsupported instruction sort mode {0}", mode));
             }
         }
 
         private void SortInstructions()
         {
-            // ensure the CloseLong instruction is put before OpenLong instruction, and the OpenLong instruction for
-            // increasing position is put before the OpenLong instruction for new position.
             var closeLongInstructions = _instructionsInCurrentPeriod
                 .Where(instruction => instruction.Action == TradingAction.CloseLong)
                 .ToList();
 
-            var openLongForIncreasingPositionInstructions = _instructionsInCurrentPeriod
+            var IncreasePositionInstructions = _instructionsInCurrentPeriod
                 .Where(instruction => instruction.Action == TradingAction.OpenLong
                      && _context.ExistsPosition(instruction.TradingObject.Code))
                 .ToList();
 
-            var openLongForNewPositionInstructions = _instructionsInCurrentPeriod
+            var NewPositionInstructions = _instructionsInCurrentPeriod
                 .Where(instruction => instruction.Action == TradingAction.OpenLong
                     && !_context.ExistsPosition(instruction.TradingObject.Code))
                 .ToList();
 
+            // sort instructions
+            IncreasePositionInstructions = 
+                SortInstructions(IncreasePositionInstructions, _globalSettings.InceasePositionInstructionSortMode)
+                .ToList();
+
+            NewPositionInstructions =
+                SortInstructions(NewPositionInstructions, _globalSettings.NewPositionInstructionSortMode)
+                .ToList();
+
+            // reconstruct instructions in current period
             _instructionsInCurrentPeriod = new List<Instruction>();
             _instructionsInCurrentPeriod.AddRange(closeLongInstructions);
-            _instructionsInCurrentPeriod.AddRange(openLongForIncreasingPositionInstructions);
-            _instructionsInCurrentPeriod.AddRange(openLongForNewPositionInstructions);
+
+            switch(_globalSettings.InstructionOder)
+            { 
+                case OpenPositionInstructionOrder.IncPosThenNewPos:
+                    _instructionsInCurrentPeriod.AddRange(IncreasePositionInstructions);
+                    _instructionsInCurrentPeriod.AddRange(NewPositionInstructions);
+                    break;
+                case OpenPositionInstructionOrder.NewPosThenIncPos:
+                    _instructionsInCurrentPeriod.AddRange(NewPositionInstructions);
+                    _instructionsInCurrentPeriod.AddRange(IncreasePositionInstructions);
+                    break;
+                default:
+                    throw new NotImplementedException(string.Format("unsupported instruction order {0}", _globalSettings.InstructionOder));
+            }
         }
 
         private void AdjustInstructions()
@@ -515,19 +540,15 @@ namespace TradingStrategy.Strategy
         }
 
         public CombinedStrategy(
-            ITradingStrategyComponent[] components, 
-            int maxNumberOfActiveStocks,
-            int maxNumberOfActiveStocksPerBlock,
-            bool randomSelectTransactionWhenThereIsNoEnoughCapital)
+            CombinedStrategyGlobalSettings globalSettings,
+            ITradingStrategyComponent[] components)
         {
-            if (components == null || !components.Any())
+            if (components == null || !components.Any() || globalSettings == null)
             {
                 throw new ArgumentNullException();
             }
 
-            _maxNumberOfActiveStocks = maxNumberOfActiveStocks;
-            _maxNumberOfActiveStocksPerBlock = maxNumberOfActiveStocksPerBlock;
-            _randomSelectTransactionWhenThereIsNoEnoughCapital = randomSelectTransactionWhenThereIsNoEnoughCapital;
+            _globalSettings = globalSettings;
 
             _components = components;
 

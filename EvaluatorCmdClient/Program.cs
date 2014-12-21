@@ -296,10 +296,7 @@ namespace EvaluatorCmdClient
                         IDictionary<ParameterAttribute, object> values;
                         while ((values = combinedStrategyAssembler.GetNextSetOfParameterValues()) != null)
                         {
-                            var strategy = combinedStrategyAssembler.NewStrategy(
-                                combinedStrategySettings.MaxNumberOfActiveStocks,
-                                combinedStrategySettings.MaxNumberOfActiveStocksPerBlock,
-                                combinedStrategySettings.RandomSelectTransactionWhenThereIsNoEnoughCapital);
+                            var strategy = combinedStrategyAssembler.NewStrategy();
 
                             strategyInstances.Add(Tuple.Create(strategy, values));
                         }

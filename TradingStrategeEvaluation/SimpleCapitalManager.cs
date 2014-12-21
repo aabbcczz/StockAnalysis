@@ -32,7 +32,7 @@ namespace TradingStrategyEvaluation
             CurrentCapital = double.IsNaN(currentCapital) ? initialCapital : currentCapital;
         }
 
-        private bool AllocateCapital(double requiredCapital, bool allowNegativeCapital)
+        public bool AllocateCapital(double requiredCapital, bool forFirstPosition, bool allowNegativeCapital)
         {
             if (requiredCapital < 0.0)
             {
@@ -49,17 +49,7 @@ namespace TradingStrategyEvaluation
             return false;
         }
 
-        public bool AllocateCapitalForFirstPosition(double requiredCapital, bool allowNegativeCapital)
-        {
-            return AllocateCapital(requiredCapital, allowNegativeCapital);
-        }
-
-        public bool AllocateCapitalForIncrementalPosition(double requiredCapital, bool allowNegativeCapital)
-        {
-            return AllocateCapital(requiredCapital, allowNegativeCapital);
-        }
-
-        private void FreeCapital(double returnedCapital)
+        public void FreeCapital(double returnedCapital, bool forFirstPosition)
         {
             if (returnedCapital < 0.0)
             {
@@ -67,16 +57,6 @@ namespace TradingStrategyEvaluation
             }
 
             CurrentCapital += returnedCapital;
-        }
-
-        public void FreeCapitalForFirstPosition(double returnedCapital)
-        {
-            FreeCapital(returnedCapital);
-        }
-
-        public void FreeCapitalForIncrementalPosition(double returnedCapital)
-        {
-            FreeCapital(returnedCapital);
         }
     }
 }

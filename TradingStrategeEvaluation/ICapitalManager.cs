@@ -12,12 +12,8 @@ namespace TradingStrategyEvaluation
 
         double CurrentCapital { get; }
 
-        bool AllocateCapitalForFirstPosition(double requiredCapital, bool allowNegativeCapital);
+        bool AllocateCapital(double requiredCapital, bool forFirstPosition, bool allowNegativeCapital);
 
-        bool AllocateCapitalForIncrementalPosition(double requiredCapital, bool allowNegativeCapital);
-
-        void FreeCapitalForFirstPosition(double returnedCapital);
-
-        void FreeCapitalForIncrementalPosition(double returnedCapital);
+        void FreeCapital(double returnedCapital, bool forFirstPosition);
     }
 }

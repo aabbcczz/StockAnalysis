@@ -10,11 +10,7 @@ namespace TradingStrategyEvaluation
     [Serializable]
     public sealed class CombinedStrategySettings
     {
-        public int MaxNumberOfActiveStocks { get; set; }
-
-        public int MaxNumberOfActiveStocksPerBlock { get; set; }
-
-        public bool RandomSelectTransactionWhenThereIsNoEnoughCapital { get; set; }
+        public CombinedStrategyGlobalSettings GlobalSettings { get; set; }
 
         public TradingStrategyComponentSettings[] ComponentSettings { get; set; }
 
@@ -63,9 +59,7 @@ namespace TradingStrategyEvaluation
         {
             var settings = new CombinedStrategySettings
             {
-                MaxNumberOfActiveStocks = this.MaxNumberOfActiveStocks,
-                MaxNumberOfActiveStocksPerBlock = this.MaxNumberOfActiveStocksPerBlock,
-                RandomSelectTransactionWhenThereIsNoEnoughCapital = this.RandomSelectTransactionWhenThereIsNoEnoughCapital,
+                GlobalSettings = this.GlobalSettings,
                 ComponentSettings = ComponentSettings.Where(s => s.Enabled).ToArray()
             };
 
@@ -92,9 +86,7 @@ namespace TradingStrategyEvaluation
                     (ITradingStrategyComponent)Activator.CreateInstance(c)))
                 .ToArray();
 
-            settings.MaxNumberOfActiveStocks = 1000;
-            settings.MaxNumberOfActiveStocksPerBlock = 1000;
-            settings.RandomSelectTransactionWhenThereIsNoEnoughCapital = false;
+            settings.GlobalSettings = CombinedStrategyGlobalSettings.GenerateExsampleSettings();
 
             return settings;
         }

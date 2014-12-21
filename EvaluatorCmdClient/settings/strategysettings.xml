@@ -1,8 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <CombinedStrategySettings xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-  <MaxNumberOfActiveStocks>10000</MaxNumberOfActiveStocks>
-  <MaxNumberOfActiveStocksPerBlock>1000</MaxNumberOfActiveStocksPerBlock>
-  <RandomSelectTransactionWhenThereIsNoEnoughCapital>false</RandomSelectTransactionWhenThereIsNoEnoughCapital>  
+  <GlobalSettings>
+    <MaxNumberOfActiveStocks>1000</MaxNumberOfActiveStocks>
+    <MaxNumberOfActiveStocksPerBlock>1000</MaxNumberOfActiveStocksPerBlock>
+    <InstructionOder>IncPosThenNewPos</InstructionOder>
+    <InceasePositionInstructionSortMode>NoSorting</InceasePositionInstructionSortMode>
+    <NewPositionInstructionSortMode>NoSorting</NewPositionInstructionSortMode>
+  </GlobalSettings>
   <ComponentSettings>
     <TradingStrategyComponentSettings Enabled="true" Name="板块价格指数入市过滤器">
       <ClassType>TradingStrategy.Strategy.BlockPriceIndexFilterMarketEntering, TradingStrategy, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</ClassType>

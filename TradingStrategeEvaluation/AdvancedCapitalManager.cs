@@ -44,7 +44,19 @@ namespace TradingStrategyEvaluation
             _initialCapitalForIncrementalPosition = _currentCapitalForIncrementalPosition;
         }
 
-        public bool AllocateCapitalForFirstPosition(double requiredCapital, bool allowNegativeCapital)
+        public bool AllocateCapital(double requiredCapital, bool forFirstPosition, bool allowNegativeCapital)
+        {
+            if (forFirstPosition)
+            {
+                return AllocateCapitalForFirstPosition(requiredCapital, allowNegativeCapital);
+            }
+            else
+            {
+                return AllocateCapitalForIncrementalPosition(requiredCapital, allowNegativeCapital);
+            }
+        }
+
+        private bool AllocateCapitalForFirstPosition(double requiredCapital, bool allowNegativeCapital)
         {
             if (requiredCapital < 0.0)
             {
@@ -63,7 +75,7 @@ namespace TradingStrategyEvaluation
             }
         }
 
-        public bool AllocateCapitalForIncrementalPosition(double requiredCapital, bool allowNegativeCapital)
+        private bool AllocateCapitalForIncrementalPosition(double requiredCapital, bool allowNegativeCapital)
         {
             if (requiredCapital < 0.0)
             {
@@ -88,7 +100,19 @@ namespace TradingStrategyEvaluation
             }
         }
 
-        public void FreeCapitalForFirstPosition(double returnedCapital)
+        public void FreeCapital(double returnedCapital, bool forFirstPosition)
+        {
+            if (forFirstPosition)
+            {
+                FreeCapitalForFirstPosition(returnedCapital);
+            }
+            else
+            {
+                FreeCapitalForIncrementalPosition(returnedCapital);
+            }
+        }
+
+        private void FreeCapitalForFirstPosition(double returnedCapital)
         {
             if (returnedCapital < 0.0)
             {
@@ -98,7 +122,7 @@ namespace TradingStrategyEvaluation
             _currentCapitalForFirstPosition += returnedCapital;
         }
 
-        public void FreeCapitalForIncrementalPosition(double returnedCapital)
+        private void FreeCapitalForIncrementalPosition(double returnedCapital)
         {
             if (returnedCapital < 0.0)
             {

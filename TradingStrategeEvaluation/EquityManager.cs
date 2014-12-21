@@ -79,8 +79,7 @@ namespace TradingStrategyEvaluation
 
                 // try to allocate capital
                 bool isFirstPosition = !ExistsPosition(transaction.Code);
-                if ((isFirstPosition && !_capitalManager.AllocateCapitalForFirstPosition(charge, allowNegativeCapital))
-                    || (!isFirstPosition && !_capitalManager.AllocateCapitalForIncrementalPosition(charge, allowNegativeCapital)))
+                if (!_capitalManager.AllocateCapital(charge, isFirstPosition, allowNegativeCapital))
                 {
                     error = "No enough capital for the transaction";
                     return false;
@@ -168,14 +167,7 @@ namespace TradingStrategyEvaluation
 
                     // free capital
                     var earn = newTransaction.Price * newTransaction.Volume - newTransaction.Commission;
-                    if (ptbs.Index == 0)
-                    {
-                        _capitalManager.FreeCapitalForFirstPosition(earn);
-                    }
-                    else
-                    {
-                        _capitalManager.FreeCapitalForIncrementalPosition(earn);
-                    }
+                    _capitalManager.FreeCapital(earn, ptbs.Index == 0);
                 }
 
                 // update positions for given code

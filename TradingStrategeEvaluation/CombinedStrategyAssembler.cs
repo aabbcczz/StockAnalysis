@@ -16,6 +16,7 @@ namespace TradingStrategyEvaluation
             public int ValueIndex { get; set; }
         }
 
+        private readonly CombinedStrategyGlobalSettings _globalSettings;
         private readonly TradingStrategyComponentSettings[] _componentSettings;
 
         private readonly List<ParameterValueSelector> _parameterValueSelectors
@@ -32,6 +33,7 @@ namespace TradingStrategyEvaluation
                 throw new ArgumentNullException();
             }
 
+            _globalSettings = settings.GlobalSettings;
             _componentSettings = settings.ComponentSettings.Where(s => s.Enabled).ToArray();
 
             if (_componentSettings.Length == 0)
@@ -42,7 +44,7 @@ namespace TradingStrategyEvaluation
             // verify if component settings can be used for creating new combined strategy
             try
             {
-                NewStrategy(settings.MaxNumberOfActiveStocks, settings.MaxNumberOfActiveStocksPerBlock, settings.RandomSelectTransactionWhenThereIsNoEnoughCapital);
+                NewStrategy();
             }
             catch (Exception ex)
             {
@@ -176,13 +178,9 @@ namespace TradingStrategyEvaluation
             return components;
         }
 
-        public CombinedStrategy NewStrategy(int maxNumberOfActiveStocks, int maxNumberOfActiveStocksPerBlock, bool randomSelectTransactionWhenThereIsNoEnoughCapital)
+        public CombinedStrategy NewStrategy()
         {
-            var strategy = new CombinedStrategy(
-                CreateComponents(), 
-                maxNumberOfActiveStocks, 
-                maxNumberOfActiveStocksPerBlock,
-                randomSelectTransactionWhenThereIsNoEnoughCapital);
+            var strategy = new CombinedStrategy(_globalSettings, CreateComponents());
 
             return strategy;
         }

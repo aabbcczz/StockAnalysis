@@ -92,11 +92,14 @@
     <Compile Include="Strategy\BreakoutAndReturnMarketEntering.cs" />
     <Compile Include="Strategy\BounceRuntimeMetric.cs" />
     <Compile Include="Strategy\BreakoutAndReturnRuntimeMetric.cs" />
+    <Compile Include="Strategy\CombinedStrategyGlobalSettings.cs" />
     <Compile Include="Strategy\CommonPositionAdjusting.cs" />
+    <Compile Include="Strategy\InstructionSortMode.cs" />
     <Compile Include="Strategy\LinearRegressionSlopeFilterMarketEntering.cs" />
     <Compile Include="Strategy\ErFilterMarketEntering.cs" />
     <Compile Include="Strategy\GeneralPositionAdjustingBase.cs" />
     <Compile Include="Strategy\BounceMarketEntering.cs" />
+    <Compile Include="Strategy\OpenPositionInstructionOrder.cs" />
     <Compile Include="Strategy\RandomMarketEntering.cs" />
     <Compile Include="Strategy\PriceChangeFilterMarketEntering.cs" />
     <Compile Include="Strategy\RebreakoutRuntimeMetric.cs" />
