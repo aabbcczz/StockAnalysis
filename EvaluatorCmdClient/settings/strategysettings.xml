@@ -17,7 +17,7 @@
   <GlobalSettings>
     <MaxNumberOfActiveStocks>1000</MaxNumberOfActiveStocks>
     <MaxNumberOfActiveStocksPerBlock>1000</MaxNumberOfActiveStocksPerBlock>
-    <InstructionOder>NewPosThenIncPos</InstructionOder>
+    <InstructionOder>IncPosThenNewPos</InstructionOder>
     <InceasePositionInstructionSortMode>NoSorting</InceasePositionInstructionSortMode>
     <NewPositionInstructionSortMode>NoSorting</NewPositionInstructionSortMode>
   </GlobalSettings>

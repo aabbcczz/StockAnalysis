@@ -37,7 +37,7 @@ namespace TradingStrategy.Strategy
 
         public override IEnumerable<Instruction> AdjustPositions()
         {
-            var codes = Context.GetAllPositionCodes();
+            var codes = Context.GetAllPositionCodes().ToArray();
 
             // remove all codes, which had been sold out, from stored last position risk 
             var codesToBeRemoved = _lastPositionInitialRisk.Keys.Except(codes).ToList();
@@ -104,6 +104,8 @@ namespace TradingStrategy.Strategy
                         });
                 }
             }
+
+            instructions = instructions.OrderBy(instruction => instruction.TradingObject.Code).ToList();
 
             return instructions;
         }

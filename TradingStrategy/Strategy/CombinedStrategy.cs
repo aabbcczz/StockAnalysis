@@ -300,7 +300,7 @@ namespace TradingStrategy.Strategy
 
             NewPositionInstructions =
                 SortInstructions(NewPositionInstructions, _globalSettings.NewPositionInstructionSortMode)
-                .ToList();
+                .ToList(); 
 
             // reconstruct instructions in current period
             _instructionsInCurrentPeriod = new List<Instruction>();
@@ -323,6 +323,18 @@ namespace TradingStrategy.Strategy
 
         private void AdjustInstructions()
         {
+            // it is possible the open long instruction conflicts with close long instruction, and we always put close long as top priority
+            var closeLongCodes = _instructionsInCurrentPeriod
+                .Where(instruction => instruction.Action == TradingAction.CloseLong)
+                .Select(instruction => instruction.TradingObject.Code)
+                .ToDictionary(code => code);
+
+            _instructionsInCurrentPeriod = _instructionsInCurrentPeriod
+                .Where(instruction => instruction.Action == TradingAction.CloseLong 
+                    || (instruction.Action == TradingAction.OpenLong 
+                        && !closeLongCodes.ContainsKey(instruction.TradingObject.Code)))
+                .ToList();
+
             // for diversifying, limit total stocks and the number of stocks in the same stock
             //var existingCodes = _context.GetAllPositionCodes().ToList();
 
