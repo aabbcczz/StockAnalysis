@@ -8,7 +8,8 @@ namespace TradingStrategy.Strategy
 {
     public sealed class CommonPositionAdjusting : GeneralPositionAdjustingBase
     {
-        private Dictionary<string, double> _lastPositionInitialRisk = new Dictionary<string, double>();
+        private Dictionary<string, double> _highestPrices = new Dictionary<string, double>(); 
+        private Dictionary<string, double> _lastPositionInitialRisks = new Dictionary<string, double>();
         private Dictionary<string, ITradingObject> _allTradingObjects;
 
         public override string Name
@@ -28,6 +29,34 @@ namespace TradingStrategy.Strategy
 @"加仓规则，由浮点数表示. 每当一个交易对象的最后一个头寸获利超过此头寸的初始风险*RiskPercentageTrigger/100, 则添加一个新头寸")]
         public double RiskPercentageTrigger { get; set; }
 
+        [Parameter(0, "加仓标志。0表示可在任意趋势加仓，1表示只在上升趋势加仓")]
+        public int AddPositionOption { get; set; }
+
+        private bool CanAddPositionInAnyTrend()
+        {
+            return AddPositionOption == 0;
+        }
+
+        protected override void ValidateParameterValues()
+        {
+            base.ValidateParameterValues();
+
+            if (MaxPositionCountOfEachObject <= 0)
+            {
+                throw new ArgumentOutOfRangeException("MaxPositionCountFoEachObject must be greater than 0");
+            }
+
+            if (RiskPercentageTrigger <= 0.0)
+            {
+                throw new ArgumentOutOfRangeException("RiskPercentageTrigger must be greater than 0.0");
+            }
+
+            if (AddPositionOption != 0 && AddPositionOption != 1)
+            {
+                throw new ArgumentOutOfRangeException("AddPositionOption must be 0 or 1");
+            }
+        }
+
         public override void Initialize(IEvaluationContext context, IDictionary<ParameterAttribute, object> parameterValues)
         {
             base.Initialize(context, parameterValues);
@@ -35,27 +64,44 @@ namespace TradingStrategy.Strategy
             _allTradingObjects = context.GetAllTradingObjects().ToDictionary(o => o.Code);
         }
 
+        public override void EvaluateSingleObject(ITradingObject tradingObject, Bar bar)
+        {
+            base.EvaluateSingleObject(tradingObject, bar);
+
+            // record highest price.
+            double highestPrice;
+            if (_highestPrices.TryGetValue(tradingObject.Code, out highestPrice))
+            {
+                if (highestPrice < bar.ClosePrice)
+                {
+                    _highestPrices[tradingObject.Code] = bar.ClosePrice;
+                }
+            }
+        }
+
         public override IEnumerable<Instruction> AdjustPositions()
         {
             var codes = Context.GetAllPositionCodes().ToArray();
 
-            // remove all codes, which had been sold out, from stored last position risk 
-            var codesToBeRemoved = _lastPositionInitialRisk.Keys.Except(codes).ToList();
+            // remove all codes, which had been sold out, from stored last position risk and highest price.
+            var codesToBeRemoved = _lastPositionInitialRisks.Keys.Except(codes).ToList();
             foreach (var code in codesToBeRemoved)
             {
-                _lastPositionInitialRisk.Remove(code);
+                _lastPositionInitialRisks.Remove(code);
+                _highestPrices.Remove(code);
             }
 
             // add new codes in
             foreach (var code in codes)
             {
-                if (!_lastPositionInitialRisk.ContainsKey(code))
+                if (!_lastPositionInitialRisks.ContainsKey(code))
                 {
                     var position = Context.GetPositionDetails(code).OrderBy(p => p.BuyTime).Last();
 
                     if (position.IsStopLossPriceInitialized())
                     {
-                        _lastPositionInitialRisk.Add(code, position.InitialRisk);
+                        _lastPositionInitialRisks.Add(code, position.InitialRisk);
+                        _highestPrices.Add(code, position.BuyPrice);
                     }
                 }
             }
@@ -63,7 +109,7 @@ namespace TradingStrategy.Strategy
             List<Instruction> instructions = new List<Instruction>();
 
             // now check all codes if new position is required
-            foreach (var kvp in _lastPositionInitialRisk)
+            foreach (var kvp in _lastPositionInitialRisks)
             {
                 var code = kvp.Key;
                 var initialRisk = kvp.Value;
@@ -82,6 +128,12 @@ namespace TradingStrategy.Strategy
                 var bar = Context.GetBarOfTradingObjectForCurrentPeriod(tradingObject);
 
                 if (bar.Time == Bar.InvalidTime)
+                {
+                    continue;
+                }
+
+                // ensure we increase position only in incremental trends
+                if (!CanAddPositionInAnyTrend() && bar.ClosePrice < _highestPrices[code])
                 {
                     continue;
                 }
