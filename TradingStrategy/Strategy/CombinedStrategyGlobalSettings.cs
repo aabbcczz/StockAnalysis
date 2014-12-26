@@ -19,6 +19,8 @@ namespace TradingStrategy.Strategy
 
         public InstructionSortMode NewPositionInstructionSortMode { get; set; }
 
+        public bool IncreaseStoplossPriceEvenIfTransactionFailed { get; set; }
+
         public static CombinedStrategyGlobalSettings GenerateExsampleSettings()
         {
             return new CombinedStrategyGlobalSettings()
@@ -28,6 +30,7 @@ namespace TradingStrategy.Strategy
                 InstructionOder = OpenPositionInstructionOrder.IncPosThenNewPos,
                 InceasePositionInstructionSortMode = InstructionSortMode.NoSorting,
                 NewPositionInstructionSortMode = InstructionSortMode.NoSorting,
+                IncreaseStoplossPriceEvenIfTransactionFailed = false,
             };
         }
     }

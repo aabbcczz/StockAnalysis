@@ -20,6 +20,7 @@
     <InstructionOder>IncPosThenNewPos</InstructionOder>
     <InceasePositionInstructionSortMode>NoSorting</InceasePositionInstructionSortMode>
     <NewPositionInstructionSortMode>NoSorting</NewPositionInstructionSortMode>
+    <IncreaseStoplossPriceEvenIfTransactionFailed>false</IncreaseStoplossPriceEvenIfTransactionFailed>
   </GlobalSettings>
   <ComponentSettings>
     <TradingStrategyComponentSettings Enabled="true" Name="板块价格指数入市过滤器">

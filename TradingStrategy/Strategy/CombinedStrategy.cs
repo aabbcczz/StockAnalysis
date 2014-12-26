@@ -443,60 +443,89 @@ namespace TradingStrategy.Strategy
                     string.Format("can't find instruction {0} associated with the transaction.", transaction.InstructionId));
             }
 
-            if (transaction.Succeeded && transaction.Action == TradingAction.OpenLong)
+            if (transaction.Action == TradingAction.OpenLong)
             {
-                // update the stop loss and risk for new positions
-                var code = transaction.Code;
-                if (!_context.ExistsPosition(code))
+                if (transaction.Succeeded)
                 {
-                    throw new InvalidOperationException(
-                        string.Format("There is no position for {0} when calling this function", code));
-                }
-
-                var positions = _context.GetPositionDetails(code);
-
-                if (!positions.Any())
-                {
-                    throw new InvalidProgramException("Logic error");
-                }
-
-                // set stop loss and initial risk for all new positions
-                if (positions.Count() == 1)
-                {
-                    var position = positions.First();
-                    if (!position.IsStopLossPriceInitialized())
+                    // update the stop loss and risk for new positions
+                    var code = transaction.Code;
+                    if (!_context.ExistsPosition(code))
                     {
-                        string comments;
+                        throw new InvalidOperationException(
+                            string.Format("There is no position for {0} when calling this function", code));
+                    }
 
-                        var stopLossGap = _stopLoss.EstimateStopLossGap(instruction.TradingObject, position.BuyPrice, out comments);
+                    var positions = _context.GetPositionDetails(code);
 
-                        var stopLossPrice = Math.Max(0.0, position.BuyPrice + stopLossGap);
+                    if (!positions.Any())
+                    {
+                        throw new InvalidProgramException("Logic error");
+                    }
 
-                        position.SetStopLossPrice(stopLossPrice);
+                    // set stop loss and initial risk for all new positions
+                    if (positions.Count() == 1)
+                    {
+                        var position = positions.First();
+                        if (!position.IsStopLossPriceInitialized())
+                        {
+                            string comments;
 
-                        _context.Log(
-                            string.Format(
-                                "Set stop loss for position {0}/{1} as {2:0.000}",
-                                position.Id,
-                                position.Code,
-                                stopLossPrice));
+                            var stopLossGap = _stopLoss.EstimateStopLossGap(instruction.TradingObject, position.BuyPrice, out comments);
+
+                            var stopLossPrice = Math.Max(0.0, position.BuyPrice + stopLossGap);
+
+                            position.SetStopLossPrice(stopLossPrice);
+
+                            _context.Log(
+                                string.Format(
+                                    "Set stop loss for position {0}/{1} as {2:0.000}",
+                                    position.Id,
+                                    position.Code,
+                                    stopLossPrice));
+                        }
                     }
                 }
-                // set stop loss for positions created by PositionAdjusting component
-                else
+                
+                // set stop loss for positions created by PositionAdjusting component even if transaction is failed
+                if (transaction.Succeeded || _globalSettings.IncreaseStoplossPriceEvenIfTransactionFailed)
                 {
-                    if (Math.Abs(instruction.StopLossGapForBuying) > 1e-16)
+                    var code = transaction.Code;
+                    if (_context.ExistsPosition(code))
                     {
-                        var lastPosition = positions.Last();
-                        var newStopLossPrice = lastPosition.BuyPrice + instruction.StopLossGapForBuying;
+                        var positions = _context.GetPositionDetails(code);
 
-                        // now set the new stop loss price for all positions
-                        foreach (var position in positions)
+                        // it is impossible that transaction succeeded and there is no position.
+                        if (!positions.Any() && transaction.Succeeded)
                         {
-                            if (!position.IsStopLossPriceInitialized()
-                                || position.StopLossPrice < newStopLossPrice)
+                            throw new InvalidProgramException("Logic error");
+                        }
+
+                        // if there is only one position and transaction succeeded, it means the instruction
+                        // is for creating new position, otherwise the instruction is for position adjusting
+                        if (positions.Count() > 1 || !transaction.Succeeded)
+                        {
+                            if (Math.Abs(instruction.StopLossGapForBuying) > 1e-16)
                             {
-                                position.SetStopLossPrice(newStopLossPrice);
+                                var lastPosition = positions.Last();
+                                var newStopLossPrice = instruction.StopLossGapForBuying +
+                                    (transaction.Succeeded ? lastPosition.BuyPrice : transaction.Price);
+
+                                // now set the new stop loss price for all positions
+                                foreach (var position in positions)
+                                {
+                                    if (!position.IsStopLossPriceInitialized()
+                                        || position.StopLossPrice < newStopLossPrice)
+                                    {
+                                        position.SetStopLossPrice(newStopLossPrice);
+
+                                        _context.Log(
+                                            string.Format(
+                                                "PositionAdjusting:IncreaseStopLoss: Set stop loss for position {0}/{1} as {2:0.000}",
+                                                position.Id,
+                                                position.Code,
+                                                newStopLossPrice));
+                                    }
+                                }
                             }
                         }
                     }
