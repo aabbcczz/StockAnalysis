@@ -8,7 +8,6 @@ namespace TradingStrategy.Strategy
     public sealed class CombinedStrategy : ITradingStrategy
     {
         private static bool _forceLoaded;
-        private readonly CombinedStrategyGlobalSettings _globalSettings;
 
         private readonly ITradingStrategyComponent[] _components;
         private readonly IPositionSizingComponent _positionSizing;
@@ -16,6 +15,7 @@ namespace TradingStrategy.Strategy
         private readonly List<IMarketExitingComponent> _marketExiting = new List<IMarketExitingComponent>();
         private readonly IStopLossComponent _stopLoss;
         private readonly IPositionAdjustingComponent _positionAdjusting;
+        private readonly GlobalSettingsComponent _globalSettings;
 
         private readonly string _name;
         private readonly string _description;
@@ -244,7 +244,7 @@ namespace TradingStrategy.Strategy
             }
         }
 
-        private IEnumerable<Instruction> SortInstructions(IEnumerable<Instruction> instructions, InstructionSortMode mode)
+        private IEnumerable<Instruction> SortInstructions(IEnumerable<Instruction> instructions, InstructionSortMode mode, int metricIndex)
         {
             switch (mode)
             {
@@ -272,6 +272,14 @@ namespace TradingStrategy.Strategy
                 case InstructionSortMode.SortByVolumeDescending:
                     return instructions.OrderBy(instruction => -instruction.Volume);
 
+                case InstructionSortMode.SortByMetricAscending:
+                    return instructions.OrderBy(
+                        instruction => _context.MetricManager.GetMetricValues(instruction.TradingObject, metricIndex)[0]);
+                    
+                case InstructionSortMode.SortByMetricDescending:
+                    return instructions.OrderBy(
+                        instruction => -_context.MetricManager.GetMetricValues(instruction.TradingObject, metricIndex)[0]);
+
                 default:
                     throw new NotSupportedException(string.Format("unsupported instruction sort mode {0}", mode));
             }
@@ -295,18 +303,24 @@ namespace TradingStrategy.Strategy
 
             // sort instructions
             IncreasePositionInstructions = 
-                SortInstructions(IncreasePositionInstructions, _globalSettings.InceasePositionInstructionSortMode)
+                SortInstructions(
+                    IncreasePositionInstructions, 
+                    _globalSettings.InceasePositionInstructionSortMode,
+                    _globalSettings.IncreasePositionSortMetricIndex)
                 .ToList();
 
             NewPositionInstructions =
-                SortInstructions(NewPositionInstructions, _globalSettings.NewPositionInstructionSortMode)
+                SortInstructions(
+                    NewPositionInstructions, 
+                    _globalSettings.NewPositionInstructionSortMode,
+                    _globalSettings.NewPositionSortMetricIndex)
                 .ToList(); 
 
             // reconstruct instructions in current period
             _instructionsInCurrentPeriod = new List<Instruction>();
             _instructionsInCurrentPeriod.AddRange(closeLongInstructions);
 
-            switch(_globalSettings.InstructionOder)
+            switch(_globalSettings.InstructionOrder)
             { 
                 case OpenPositionInstructionOrder.IncPosThenNewPos:
                     _instructionsInCurrentPeriod.AddRange(IncreasePositionInstructions);
@@ -317,7 +331,7 @@ namespace TradingStrategy.Strategy
                     _instructionsInCurrentPeriod.AddRange(IncreasePositionInstructions);
                     break;
                 default:
-                    throw new NotImplementedException(string.Format("unsupported instruction order {0}", _globalSettings.InstructionOder));
+                    throw new NotImplementedException(string.Format("unsupported instruction order {0}", _globalSettings.InstructionOrder));
             }
         }
 
@@ -341,11 +355,16 @@ namespace TradingStrategy.Strategy
             //var codesToBeRemoved = _instructionsInCurrentPeriod
             //    .Where(instruction => instruction.Action == TradingAction.CloseLong)
             //    .Select(instruction => instruction.TradingObject.Code)
+            //    .GroupBy(code => code)
+            //    .Select(group => group.Key)
             //    .ToList();
 
             //var codesToBeAdded = _instructionsInCurrentPeriod
             //    .Where(instruction => instruction.Action == TradingAction.OpenLong)
             //    .Select(instruction => instruction.TradingObject.Code)
+            //    .GroupBy(code => code)
+            //    .Select(group => group.Key)
+            //    .Except(existingCodes)
             //    .ToList();
 
             //var codesCannotBeAdded = new List<string>();
@@ -353,41 +372,41 @@ namespace TradingStrategy.Strategy
             //var codesAfterRemoved = existingCodes.Except(codesToBeRemoved).ToList();
 
             //// ensure each block has no too much positions
-            //if (_context.RelationshipManager != null)
-            //{
-            //    var blockSizes = codesAfterRemoved
-            //        .SelectMany(code => _context.RelationshipManager.GetBlocksForStock(code))
-            //        .GroupBy(code => code)
-            //        .ToDictionary(g => g.Key, g => g.Count());
+            ////if (_context.RelationshipManager != null)
+            ////{
+            ////    var blockSizes = codesAfterRemoved
+            ////        .SelectMany(code => _context.RelationshipManager.GetBlocksForStock(code))
+            ////        .GroupBy(code => code)
+            ////        .ToDictionary(g => g.Key, g => g.Count());
 
-            //    foreach (var code in codesToBeAdded)
-            //    {
-            //        foreach (var block in _context.RelationshipManager.GetBlocksForStock(code))
-            //        {
-            //            if (blockSizes.ContainsKey(block))
-            //            {
-            //                if (blockSizes[block] >= _maxNumberOfActiveStocksPerBlock)
-            //                {
-            //                    // can't add
-            //                    codesCannotBeAdded.Add(code);
-            //                    continue;
-            //                }
-            //                blockSizes[block] = blockSizes[block] + 1;
-            //            }
-            //            else            //            {
-            //                blockSizes[block] = 1;
-            //            }
-            //        }
-            //    }
-            //}
+            ////    foreach (var code in codesToBeAdded)
+            ////    {
+            ////        foreach (var block in _context.RelationshipManager.GetBlocksForStock(code))
+            ////        {
+            ////            if (blockSizes.ContainsKey(block))
+            ////            {
+            ////                if (blockSizes[block] >= _globalSettings.MaxNumberOfActiveStocksPerBlock)
+            ////                {
+            ////                    // can't add
+            ////                    codesCannotBeAdded.Add(code);
+            ////                    continue;
+            ////                }
+            ////                blockSizes[block] = blockSizes[block] + 1;
+            ////            }
+            ////            else            //            {
+            ////                blockSizes[block] = 1;
+            ////            }
+            ////        }
+            ////    }
+            ////}
 
             //// now check the overall number of stocks in active position
             //codesToBeAdded = codesToBeAdded.Except(codesCannotBeAdded).ToList();
 
-            //if (codesAfterRemoved.Count + codesToBeAdded.Count > _maxNumberOfActiveStocks)
+            //if (codesAfterRemoved.Count + codesToBeAdded.Count > _globalSettings.MaxNumberOfActiveStocks)
             //{
             //    // need to remove some. 
-            //    int keptCount = Math.Max(0, _maxNumberOfActiveStocks - codesAfterRemoved.Count);
+            //    int keptCount = Math.Max(0, _globalSettings.MaxNumberOfActiveStocks - codesAfterRemoved.Count);
 
             //    codesCannotBeAdded.AddRange(codesToBeAdded.Skip(keptCount));
             //}
@@ -397,10 +416,7 @@ namespace TradingStrategy.Strategy
             //    .Where(instruction => codesCannotBeAdded.Contains(instruction.TradingObject.Code))
             //    .ToList();
 
-            //foreach (var instruction in instructionsToBeRemoved)
-            //{
-            //    _instructionsInCurrentPeriod.Remove(instruction);
-            //}
+            //_instructionsInCurrentPeriod = _instructionsInCurrentPeriod.Except(instructionsToBeRemoved).ToList(); 
         }
 
         private void CreateIntructionForBuying(ITradingObject tradingObject, double price, string comments, object[] relatedObjects)
@@ -581,20 +597,22 @@ namespace TradingStrategy.Strategy
         }
 
         public CombinedStrategy(
-            CombinedStrategyGlobalSettings globalSettings,
             ITradingStrategyComponent[] components)
         {
-            if (components == null || !components.Any() || globalSettings == null)
+            if (components == null || !components.Any())
             {
                 throw new ArgumentNullException();
             }
-
-            _globalSettings = globalSettings;
 
             _components = components;
 
             foreach (var component in components)
             {
+                if (component is GlobalSettingsComponent)
+                {
+                    SetComponent(component, ref _globalSettings);
+                }
+
                 if (component is IPositionSizingComponent)
                 {
                     SetComponent(component, ref _positionSizing);
@@ -625,7 +643,8 @@ namespace TradingStrategy.Strategy
             if (_positionSizing == null
                 || _marketExiting.Count == 0
                 || _marketEntering.Count == 0
-                || _stopLoss == null)
+                || _stopLoss == null
+                || _globalSettings == null)
             {
                 throw new ArgumentException("Missing at least one type of component");
             }

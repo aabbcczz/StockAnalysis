@@ -1,28 +1,89 @@
 <?xml version="1.0" encoding="utf-8"?>
 <CombinedStrategySettings xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-	<!-- InstructionOrder element values:
-        IncPosThenNewPos = 0,
-		NewPosThenIncPos
-	-->
-	<!-- InceasePositionInstructionSortMode and NewPositionInstructionSortMode element values:
-        NoSorting = 0,
-        Randomize,
-        SortByInstructionIdAscending,
-        SortByInstructionIdDescending,
-        SortByCodeAscending,
-        SortByCodeDescending,
-        SortByVolumeAscending,
-        SortByVolumeDescending,	
-	-->
-  <GlobalSettings>
-    <MaxNumberOfActiveStocks>1000</MaxNumberOfActiveStocks>
-    <MaxNumberOfActiveStocksPerBlock>1000</MaxNumberOfActiveStocksPerBlock>
-    <InstructionOder>IncPosThenNewPos</InstructionOder>
-    <InceasePositionInstructionSortMode>NoSorting</InceasePositionInstructionSortMode>
-    <NewPositionInstructionSortMode>NoSorting</NewPositionInstructionSortMode>
-    <IncreaseStoplossPriceEvenIfTransactionFailed>false</IncreaseStoplossPriceEvenIfTransactionFailed>
-  </GlobalSettings>
   <ComponentSettings>
+    <TradingStrategyComponentSettings Enabled="true" Name="全局设定模块">
+      <ClassType>TradingStrategy.Strategy.GlobalSettingsComponent, TradingStrategy, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</ClassType>
+      <Description>虚拟模块，用于设定全局参数</Description>
+      <ImplementedInterfaces>ITradingStrategyComponent</ImplementedInterfaces>
+      <ComponentParameterSettings>
+        <ParameterSettings>
+          <Name>MaxNumberOfActiveStocks</Name>
+          <Description>最大允许持仓股票个数</Description>
+          <ValueType>System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
+          <DefaultValue xsi:type="xsd:int">1000</DefaultValue>
+          <Values>1000</Values>
+        </ParameterSettings>
+        <ParameterSettings>
+          <Name>MaxNumberOfActiveStocksPerBlock</Name>
+          <Description>最大允许每个板块持仓股票个数</Description>
+          <ValueType>System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
+          <DefaultValue xsi:type="xsd:int">1000</DefaultValue>
+          <Values>1000</Values>
+        </ParameterSettings>
+        <ParameterSettings>
+          <Name>InstructionOrderValue</Name>
+          <Description>指令排序值，为0时表示加仓指令排在新建仓指令之前，为1时表示新建仓指令拍在加仓指令之前</Description>
+          <ValueType>System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
+          <DefaultValue xsi:type="xsd:int">0</DefaultValue>
+          <Values>0</Values>
+        </ParameterSettings>
+        <ParameterSettings>
+          <Name>IncreasePositionInstructionSortModeValue</Name>
+          <Description>加仓指令排序模式，取值为：
+NoSorting = 0,
+Randomize = 1,
+SortByInstructionIdAscending = 2,
+SortByInstructionIdDescending = 3,
+SortByCodeAscending = 4,
+SortByCodeDescending = 5,
+SortByVolumeAscending = 6,
+SortByVolumeDescending = 7,
+SortByMetricAscending = 8,
+SortByMetricDescending = 9</Description>
+          <ValueType>System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
+          <DefaultValue xsi:type="xsd:int">0</DefaultValue>
+          <Values>4</Values>
+        </ParameterSettings>
+        <ParameterSettings>
+          <Name>IncreasePositionSortMetric</Name>
+          <Description>加仓指令排序指标，当且仅当加仓指令排序模式为8/9时有效</Description>
+          <ValueType>System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
+          <DefaultValue xsi:type="xsd:string">ATR[20]</DefaultValue>
+          <Values>ER[18]</Values>
+        </ParameterSettings>
+        <ParameterSettings>
+          <Name>NewPositionInstructionSortModeValue</Name>
+          <Description>新建仓指令排序模式，取值为：
+NoSorting = 0,
+Randomize = 1,
+SortByInstructionIdAscending = 2,
+SortByInstructionIdDescending = 3,
+SortByCodeAscending = 4,
+SortByCodeDescending = 5,
+SortByVolumeAscending = 6,
+SortByVolumeDescending = 7,
+SortByMetricAscending = 8,
+SortByMetricDescending = 9</Description>
+          <ValueType>System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
+          <DefaultValue xsi:type="xsd:int">0</DefaultValue>
+          <Values>4</Values>
+        </ParameterSettings>
+        <ParameterSettings>
+          <Name>NewPositionSortMetric</Name>
+          <Description>新建仓指令排序指标，当且仅当新建仓指令排序模式为8/9时有效</Description>
+          <ValueType>System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
+          <DefaultValue xsi:type="xsd:string">ATR[20]</DefaultValue>
+          <Values>ER[14]</Values>
+        </ParameterSettings>
+        <ParameterSettings>
+          <Name>IncreaseStoplossPriceEvenIfTransactionFailedValue</Name>
+          <Description>是否当加仓指令无法执行时依旧按照加仓成功来提高止损位. 0 表示 false, 1 表示 true</Description>
+          <ValueType>System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
+          <DefaultValue xsi:type="xsd:int">0</DefaultValue>
+          <Values>0</Values>
+        </ParameterSettings>
+      </ComponentParameterSettings>
+    </TradingStrategyComponentSettings>  
     <TradingStrategyComponentSettings Enabled="true" Name="板块价格指数入市过滤器">
       <ClassType>TradingStrategy.Strategy.BlockPriceIndexFilterMarketEntering, TradingStrategy, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</ClassType>
       <Description>当股票所在板块中至少有一个板块的价格指数在给定周期（WindowSize）内变化率超过MininumRateOfChange, 

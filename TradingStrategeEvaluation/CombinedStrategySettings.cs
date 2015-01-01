@@ -10,8 +10,6 @@ namespace TradingStrategyEvaluation
     [Serializable]
     public sealed class CombinedStrategySettings
     {
-        public CombinedStrategyGlobalSettings GlobalSettings { get; set; }
-
         public TradingStrategyComponentSettings[] ComponentSettings { get; set; }
 
         public static CombinedStrategySettings LoadFromFile(string file)
@@ -59,7 +57,6 @@ namespace TradingStrategyEvaluation
         {
             var settings = new CombinedStrategySettings
             {
-                GlobalSettings = this.GlobalSettings,
                 ComponentSettings = ComponentSettings.Where(s => s.Enabled).ToArray()
             };
 
@@ -86,8 +83,6 @@ namespace TradingStrategyEvaluation
                     (ITradingStrategyComponent)Activator.CreateInstance(c)))
                 .ToArray();
 
-            settings.GlobalSettings = CombinedStrategyGlobalSettings.GenerateExsampleSettings();
-
             return settings;
         }
 
@@ -111,29 +106,34 @@ namespace TradingStrategyEvaluation
 
             private int GetOrderNumber(Type x)
             {
-                if (typeof(IMarketEnteringComponent).IsAssignableFrom(x))
+                if (typeof(GlobalSettingsComponent).IsAssignableFrom(x))
                 {
                     return 0;
                 }
 
+                if (typeof(IMarketEnteringComponent).IsAssignableFrom(x))
+                {
+                    return 10;
+                }
+
                 if (typeof(IMarketExitingComponent).IsAssignableFrom(x))
                 {
-                    return 1;
+                    return 20;
                 }
 
                 if (typeof(IStopLossComponent).IsAssignableFrom(x))
                 {
-                    return 2;
+                    return 30;
                 }
 
                 if (typeof(IPositionSizingComponent).IsAssignableFrom(x))
                 {
-                    return 3;
+                    return 40;
                 }
 
                 if (typeof(IPositionAdjustingComponent).IsAssignableFrom(x))
                 {
-                    return 4;
+                    return 50;
                 }
 
                 return 100;
