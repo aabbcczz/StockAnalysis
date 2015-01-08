@@ -9,7 +9,7 @@ namespace TradingStrategy.Strategy
     {
         private double[] _maxPercentageOfProfitDrawdown;
 
-        [Parameter("50:25", "利润折回参数串。参数由冒号（:）分割的浮点数构成。按照顺序这些数代表利润为1到N个R（初始风险）时允许利润折回的最大百分比。连续的冒号表示值与前一个相同。")]
+        [Parameter("50:25", "利润折回参数串。参数由冒号（:）分割的浮点数构成。按照顺序这些数代表利润为0到N个R（初始风险）时允许利润折回的最大百分比。连续的冒号表示值与前一个相同。")]
         public string MaxPercentageOfProfitDrawdownString { get; set; }
 
         public override string Name
@@ -61,7 +61,7 @@ namespace TradingStrategy.Strategy
             var index = (int)Math.Floor(totalProfit / totalRisk) - 1;
             if (index < 0)
             {
-                return 0.0;
+                index = 0;
             }
             if (index >= _maxPercentageOfProfitDrawdown.Length)
             {
@@ -75,7 +75,7 @@ namespace TradingStrategy.Strategy
             //    new price = m * current price + (1 - m) * totalCost / totalVolume
             var stoploss = m * currentPrice + (1.0 - m) * totalCost / totalVolume;
             comments = string.Format(
-                "stoploss({0:0.000}) = m({1:0.000}) * Price({2:0.000)) + (1 - m) * totalCost({3:0.000}) / totalVolume({4:0.000})",
+                "stoploss({0:0.000}) = m({1:0.000}) * Price({2:0.000}) + (1 - m) * totalCost({3:0.000}) / totalVolume({4:0.000})",
                 stoploss,
                 m,
                 currentPrice,
