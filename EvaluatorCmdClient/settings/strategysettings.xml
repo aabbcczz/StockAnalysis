@@ -456,7 +456,7 @@ SortByMetricDescending = 9</Description>
         </ParameterSettings>
       </ComponentParameterSettings>
     </TradingStrategyComponentSettings>
-    <TradingStrategyComponentSettings Enabled="false" Name="ATR跟踪停价退市">
+    <TradingStrategyComponentSettings Enabled="true" Name="ATR跟踪停价退市">
       <ClassType>TradingStrategy.Strategy.AtrTraceStopLossMarketExiting, TradingStrategy, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</ClassType>
       <Description>当价格向有利方向变动时，持续跟踪设置止损价为当前价格减去ATR乘以Atr停价倍数</Description>
       <ImplementedInterfaces>ITradingStrategyComponent;IMarketExitingComponent</ImplementedInterfaces>
