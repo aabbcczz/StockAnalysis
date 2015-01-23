@@ -136,7 +136,7 @@ namespace EvaluatorCmdClient
 
                 yield return Tuple.Create(startDate, actualEndDate);
 
-                startDate = startDate.AddYears(1);
+                startDate = startDate.AddMonths(3);
                 if (startDate >= endDate)
                 {
                     yield break;
@@ -304,7 +304,7 @@ namespace EvaluatorCmdClient
                         if (strategyInstances.Any())
                         {
                             // initialize ResultSummary
-                            ResultSummary.Initialize(strategyInstances.First().Item2);
+                            ResultSummary.Initialize(strategyInstances.First().Item2, options.EnableERatioOutput);
                         }
 
                         SetTotalStrategyNumber(intervals.Count() * strategyInstances.Count());

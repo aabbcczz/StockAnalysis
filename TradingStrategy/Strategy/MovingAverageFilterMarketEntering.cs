@@ -1,33 +1,77 @@
 ﻿using System;
+using System.Linq;
 
 namespace TradingStrategy.Strategy
 {
     public sealed class MovingAverageFilterMarketEntering
         : GeneralMarketEnteringBase
     {
-        private int _shortMetricIndex;
-        private int _longMetricIndex;
+        private int[] _periodMetricIndices = new int[4];
+        private int[] _periods = new int[4];
+        private int _effectivePeriodsCount = 0;
+        private double[] _movingAverages = new double[4];
 
-        [Parameter(55, "短期移动平均周期")]
-        public int Short { get; set; }
+        [Parameter(10, "移动平均周期1, 0 表示忽略")]
+        public int Period1 { get; set; }
 
-        [Parameter(300, "长期移动平均周期")]
-        public int Long { get; set; }
+        [Parameter(30, "移动平均周期2, 0 表示忽略")]
+        public int Period2 { get; set; }
+
+        [Parameter(55, "移动平均周期3, 0 表示忽略")]
+        public int Period3 { get; set; }
+
+        [Parameter(300, "移动平均周期4, 0 表示忽略")]
+        public int Period4 { get; set; }
 
         protected override void RegisterMetric()
         {
             base.RegisterMetric();
-            _shortMetricIndex = Context.MetricManager.RegisterMetric(string.Format("MA[{0}]", Short));
-            _longMetricIndex = Context.MetricManager.RegisterMetric(string.Format("MA[{0}]", Long));
+
+            for (int i = 0; i < _effectivePeriodsCount; ++i)
+            {
+                _periodMetricIndices[i] = Context.MetricManager.RegisterMetric(string.Format("MA[{0}]", _periods[i]));
+            }
         }
 
         protected override void ValidateParameterValues()
         {
             base.ValidateParameterValues();
 
-            if (Short >= Long)
+            if (Period1 < 0 || Period2 < 0 || Period3 < 0 || Period4 < 0)
             {
-                throw new ArgumentException("Short parameter value must be smaller than Long parameter value");
+                throw new ArgumentException("Period value can't be smaller than 0");
+            }
+
+            if (Period1 != 0)
+            {
+                _periods[_effectivePeriodsCount++] = Period1;
+            }
+
+            if (Period2 != 0)
+            {
+                _periods[_effectivePeriodsCount++] = Period2;
+            }
+
+            if (Period3 != 0)
+            {
+                _periods[_effectivePeriodsCount++] = Period3;
+            }
+            if (Period4 != 0)
+            {
+                _periods[_effectivePeriodsCount++] = Period4;
+            }
+
+            if (_effectivePeriodsCount < 2)
+            {
+                throw new ArgumentException("Need at least 2 effective periods");
+            }
+
+            for (int i = 0; i < _effectivePeriodsCount - 1; ++i)
+            {
+                if (_periods[i] >= _periods[i + 1])
+                {
+                    throw new ArgumentException("effective periods should be ordered ascending");
+                }
             }
         }
 
@@ -38,7 +82,7 @@ namespace TradingStrategy.Strategy
 
         public override string Description
         {
-            get { return "当短期平均在长期平均上方时允许入市"; }
+            get { return "当各个周期的移动平均值按照周期大小逆序排列时（即图形上小周期的均值在上，大周期均值在下）允许入市"; }
         }
 
         public override bool CanEnter(ITradingObject tradingObject, out string comments, out object obj)
@@ -46,20 +90,25 @@ namespace TradingStrategy.Strategy
             comments = string.Empty;
             obj = null;
 
-            var shortMa = Context.MetricManager.GetMetricValues(tradingObject, _shortMetricIndex)[0];
-            var longMa = Context.MetricManager.GetMetricValues(tradingObject, _longMetricIndex)[0];
-
-            if (shortMa > longMa)
+            for (int i = 0; i < _effectivePeriodsCount; ++i)
             {
-                comments = string.Format(
-                    "Short:{0:0.000}; Long:{1:0.000}",
-                    shortMa,
-                    longMa);
-
-                return true;
+                _movingAverages[i] = Context.MetricManager.GetMetricValues(tradingObject, _periodMetricIndices[i])[0];
             }
 
-            return false;
+            for (int i = 0; i < _effectivePeriodsCount - 1; ++i)
+            {
+                if (_movingAverages[i] <= _movingAverages[i + 1])
+                {
+                    return false;
+                }
+            }
+
+            for (int i = 0; i < _effectivePeriodsCount; ++i)
+            {
+                comments += string.Format("MA[{0}]:{1:0.000} ", _periods[i], _movingAverages[i]);
+            }
+
+            return true;
         }
     }
 }

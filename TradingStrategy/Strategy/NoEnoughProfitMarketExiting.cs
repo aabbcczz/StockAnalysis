@@ -74,9 +74,10 @@ namespace TradingStrategy.Strategy
                         _activePositionHoldingPeriods[code] = _activePositionHoldingPeriods[code] + 1;
                     }
 
+                    var holdingPeriod = _activePositionHoldingPeriods[code];
                     foreach (var period in _holdingPeriods)
                     {
-                        if (_activePositionHoldingPeriods[code] == period)
+                        if (holdingPeriod == period)
                         {
                             if (positions.First().BuyPrice * (1.0 + ExpectedProfitPercentage / 100.0) >= bar.ClosePrice)
                             {
@@ -128,6 +129,8 @@ namespace TradingStrategy.Strategy
             int period;
             if (_codesShouldExit.TryGetValue(tradingObject.Code, out period))
             {
+                _codesShouldExit.Remove(tradingObject.Code);
+
                 comments = string.Format("hold for {0} periods, but no profit", period);
                 return true;
             }

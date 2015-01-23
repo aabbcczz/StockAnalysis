@@ -41,7 +41,7 @@ namespace EvaluatorCmdClient
                     var exp = string.Format("m => m.ERatio{0}", i + 1);
                     var e = DynamicExpression.ParseLambda<ResultSummary, object>(exp);
 
-                    if (i >= TradeMetricsCalculator.ERatioWindowSizes.Length)
+                    if (i >= TradeMetricsCalculator.ERatioWindowSizes.Length || !ResultSummary.ShouldOutputERatio)
                     {
                         Map(e).Ignore();
                     }
@@ -56,6 +56,8 @@ namespace EvaluatorCmdClient
         public static string[] ParameterNames;
         private static PropertyInfo[] _parameterValueProperties;
         private static PropertyInfo[] _eRatioProperties;
+
+        public static bool ShouldOutputERatio;
 
         public string ParameterValue1 { get; set; }
         public string ParameterValue2 { get; set; }
@@ -156,7 +158,7 @@ namespace EvaluatorCmdClient
         public int ContextId { get; set; }
         public string ContextDirectory { get; set; }
 
-        public static void Initialize(IDictionary<ParameterAttribute, object> parameterValues)
+        public static void Initialize(IDictionary<ParameterAttribute, object> parameterValues, bool shouldOutputERatio)
         {
             if (parameterValues == null)
             {
@@ -181,6 +183,8 @@ namespace EvaluatorCmdClient
 
                 _parameterValueProperties[i] = typeof(ResultSummary).GetProperty(name);
             }
+
+            ResultSummary.ShouldOutputERatio = shouldOutputERatio;
 
             _eRatioProperties = new PropertyInfo[MaxERatioCount];
 

@@ -84,6 +84,10 @@ SortByMetricDescending = 9")]
             get { return IncreaseStoplossPriceEvenIfTransactionFailedValue != 0; }
         }
 
+        // value used to control the random seeds when the sort mode is Randomize. 
+        [Parameter(0, "Random seeds")]
+        public int RandomSeeds { get; set; }
+
         [Parameter(0, "是否当加仓指令无法执行时依旧按照加仓成功来提高止损位. 0 表示 false, 1 表示 true")]
         public int IncreaseStoplossPriceEvenIfTransactionFailedValue { get; set; }
 

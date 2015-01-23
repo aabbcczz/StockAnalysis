@@ -24,6 +24,7 @@ namespace TradingStrategy.Strategy
         private List<Instruction> _instructionsInCurrentPeriod;
         private readonly Dictionary<long, Instruction> _activeInstructions = new Dictionary<long, Instruction>();
         private DateTime _period;
+        private Random _random;
 
         public string Name
         {
@@ -54,6 +55,8 @@ namespace TradingStrategy.Strategy
             {
                 component.Initialize(context, parameterValues);
             }
+
+            _random = new Random(_globalSettings.RandomSeeds);
 
             _context = context;
         }
@@ -252,7 +255,7 @@ namespace TradingStrategy.Strategy
                     return instructions;
 
                 case InstructionSortMode.Randomize:
-                    return instructions.OrderBy(instruction => Guid.NewGuid());
+                    return instructions.OrderBy(instruction => _random.Next());
 
                 case InstructionSortMode.SortByCodeAscending:
                     return instructions.OrderBy(instruction => instruction.TradingObject.Code);
