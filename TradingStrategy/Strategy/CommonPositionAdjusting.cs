@@ -29,13 +29,8 @@ namespace TradingStrategy.Strategy
 @"加仓规则，由浮点数表示. 每当一个交易对象的最后一个头寸获利超过此头寸的初始风险*RiskPercentageTrigger/100, 则添加一个新头寸")]
         public double RiskPercentageTrigger { get; set; }
 
-        [Parameter(0, "加仓标志。0表示可在任意趋势加仓，1表示只在上升趋势加仓")]
-        public int AddPositionOption { get; set; }
-
-        private bool CanAddPositionInAnyTrend()
-        {
-            return AddPositionOption == 0;
-        }
+        [Parameter(false, "只在上升趋势加仓标志")]
+        public bool AddPositionInUpTrendOnly { get; set; }
 
         protected override void ValidateParameterValues()
         {
@@ -49,11 +44,6 @@ namespace TradingStrategy.Strategy
             if (RiskPercentageTrigger <= 0.0)
             {
                 throw new ArgumentOutOfRangeException("RiskPercentageTrigger must be greater than 0.0");
-            }
-
-            if (AddPositionOption != 0 && AddPositionOption != 1)
-            {
-                throw new ArgumentOutOfRangeException("AddPositionOption must be 0 or 1");
             }
         }
 
@@ -132,8 +122,8 @@ namespace TradingStrategy.Strategy
                     continue;
                 }
 
-                // ensure we increase position only in incremental trends
-                if (!CanAddPositionInAnyTrend() && bar.ClosePrice < _highestPrices[code])
+                // ensure we increase position only in up trends
+                if (AddPositionInUpTrendOnly && bar.ClosePrice < _highestPrices[code])
                 {
                     continue;
                 }

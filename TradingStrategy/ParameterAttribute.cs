@@ -74,7 +74,9 @@ namespace TradingStrategy
         {
             return (type == typeof(int)
                 || type == typeof(double)
-                || type == typeof(string));
+                || type == typeof(string)
+                || type == typeof(bool)
+                || type.IsEnum);
         }
     }
 }

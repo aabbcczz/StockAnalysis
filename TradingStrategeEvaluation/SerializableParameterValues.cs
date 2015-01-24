@@ -42,24 +42,12 @@ namespace TradingStrategyEvaluation
                 return "(null)";
             }
 
-            var s = value as string;
-            if (s != null)
-            {
-                return s;
-            }
-
-            if (value is int)
-            {
-                return value.ToString();
-            }
-
             if (value is double)
             {
                 return ((double)value).ToString("0.000");
             }
 
-            throw new InvalidOperationException(
-                string.Format("unsupported type {0}", value.GetType().FullName));
+            return value.ToString();
         }
     }
 }

@@ -212,36 +212,39 @@ namespace TradingStrategy.Strategy
                 // decide if we should enter market
                 if (!positions.Any())
                 {
-                    var allComments = new List<string>(_marketEntering.Count + 1);
-                    List<object> objectsForEntering = new List<object>();
-
-                    var canEnter = true;
-                    foreach (var component in _marketEntering)
+                    if (!_globalSettings.AllowEnteringMarketOnlyWhenPriceIncreasing || bar.ClosePrice > bar.OpenPrice)
                     {
-                        string subComments;
-                        object obj;
+                        var allComments = new List<string>(_marketEntering.Count + 1);
+                        List<object> objectsForEntering = new List<object>();
 
-                        if (!component.CanEnter(tradingObject, out subComments, out obj))
+                        var canEnter = true;
+                        foreach (var component in _marketEntering)
                         {
-                            canEnter = false;
-                            break;
+                            string subComments;
+                            object obj;
+
+                            if (!component.CanEnter(tradingObject, out subComments, out obj))
+                            {
+                                canEnter = false;
+                                break;
+                            }
+
+                            allComments.Add(subComments);
+
+                            if (obj != null)
+                            {
+                                objectsForEntering.Add(obj);
+                            }
                         }
 
-                        allComments.Add(subComments);
-
-                        if (obj != null)
+                        if (canEnter)
                         {
-                            objectsForEntering.Add(obj);
+                            CreateIntructionForBuying(
+                                tradingObject,
+                                bar.ClosePrice,
+                                "Entering market: " + string.Join(";", allComments),
+                                objectsForEntering.Count > 0 ? objectsForEntering.ToArray() : null);
                         }
-                    }
-
-                    if (canEnter)
-                    {
-                        CreateIntructionForBuying(
-                            tradingObject,
-                            bar.ClosePrice,
-                            "Entering market: " + string.Join(";", allComments),
-                            objectsForEntering.Count > 0 ? objectsForEntering.ToArray() : null);
                     }
                 }
             }
@@ -308,7 +311,7 @@ namespace TradingStrategy.Strategy
             IncreasePositionInstructions = 
                 SortInstructions(
                     IncreasePositionInstructions, 
-                    _globalSettings.InceasePositionInstructionSortMode,
+                    _globalSettings.IncreasePositionInstructionSortMode,
                     _globalSettings.IncreasePositionSortMetricIndex)
                 .ToList();
 
@@ -351,75 +354,6 @@ namespace TradingStrategy.Strategy
                     || (instruction.Action == TradingAction.OpenLong 
                         && !closeLongCodes.ContainsKey(instruction.TradingObject.Code)))
                 .ToList();
-
-            // for diversifying, limit total stocks and the number of stocks in the same stock
-            //var existingCodes = _context.GetAllPositionCodes().ToList();
-
-            //var codesToBeRemoved = _instructionsInCurrentPeriod
-            //    .Where(instruction => instruction.Action == TradingAction.CloseLong)
-            //    .Select(instruction => instruction.TradingObject.Code)
-            //    .GroupBy(code => code)
-            //    .Select(group => group.Key)
-            //    .ToList();
-
-            //var codesToBeAdded = _instructionsInCurrentPeriod
-            //    .Where(instruction => instruction.Action == TradingAction.OpenLong)
-            //    .Select(instruction => instruction.TradingObject.Code)
-            //    .GroupBy(code => code)
-            //    .Select(group => group.Key)
-            //    .Except(existingCodes)
-            //    .ToList();
-
-            //var codesCannotBeAdded = new List<string>();
-
-            //var codesAfterRemoved = existingCodes.Except(codesToBeRemoved).ToList();
-
-            //// ensure each block has no too much positions
-            ////if (_context.RelationshipManager != null)
-            ////{
-            ////    var blockSizes = codesAfterRemoved
-            ////        .SelectMany(code => _context.RelationshipManager.GetBlocksForStock(code))
-            ////        .GroupBy(code => code)
-            ////        .ToDictionary(g => g.Key, g => g.Count());
-
-            ////    foreach (var code in codesToBeAdded)
-            ////    {
-            ////        foreach (var block in _context.RelationshipManager.GetBlocksForStock(code))
-            ////        {
-            ////            if (blockSizes.ContainsKey(block))
-            ////            {
-            ////                if (blockSizes[block] >= _globalSettings.MaxNumberOfActiveStocksPerBlock)
-            ////                {
-            ////                    // can't add
-            ////                    codesCannotBeAdded.Add(code);
-            ////                    continue;
-            ////                }
-            ////                blockSizes[block] = blockSizes[block] + 1;
-            ////            }
-            ////            else            //            {
-            ////                blockSizes[block] = 1;
-            ////            }
-            ////        }
-            ////    }
-            ////}
-
-            //// now check the overall number of stocks in active position
-            //codesToBeAdded = codesToBeAdded.Except(codesCannotBeAdded).ToList();
-
-            //if (codesAfterRemoved.Count + codesToBeAdded.Count > _globalSettings.MaxNumberOfActiveStocks)
-            //{
-            //    // need to remove some. 
-            //    int keptCount = Math.Max(0, _globalSettings.MaxNumberOfActiveStocks - codesAfterRemoved.Count);
-
-            //    codesCannotBeAdded.AddRange(codesToBeAdded.Skip(keptCount));
-            //}
-
-            //// now remove all instructions about stock code in codesCannotBeAdded.
-            //var instructionsToBeRemoved = _instructionsInCurrentPeriod
-            //    .Where(instruction => codesCannotBeAdded.Contains(instruction.TradingObject.Code))
-            //    .ToList();
-
-            //_instructionsInCurrentPeriod = _instructionsInCurrentPeriod.Except(instructionsToBeRemoved).ToList(); 
         }
 
         private void CreateIntructionForBuying(ITradingObject tradingObject, double price, string comments, object[] relatedObjects)
@@ -503,47 +437,29 @@ namespace TradingStrategy.Strategy
                                     stopLossPrice));
                         }
                     }
-                }
-                
-                // set stop loss for positions created by PositionAdjusting component even if transaction is failed
-                if (transaction.Succeeded || _globalSettings.IncreaseStoplossPriceEvenIfTransactionFailed)
-                {
-                    var code = transaction.Code;
-                    if (_context.ExistsPosition(code))
+                    else
                     {
-                        var positions = _context.GetPositionDetails(code);
-
-                        // it is impossible that transaction succeeded and there is no position.
-                        if (!positions.Any() && transaction.Succeeded)
+                        // set stop loss for positions created by PositionAdjusting component
+                        if (Math.Abs(instruction.StopLossGapForBuying) > 1e-16)
                         {
-                            throw new InvalidProgramException("Logic error");
-                        }
+                            var lastPosition = positions.Last();
+                            var newStopLossPrice = instruction.StopLossGapForBuying +
+                                (transaction.Succeeded ? lastPosition.BuyPrice : transaction.Price);
 
-                        // if there is only one position and transaction succeeded, it means the instruction
-                        // is for creating new position, otherwise the instruction is for position adjusting
-                        if (positions.Count() > 1 || !transaction.Succeeded)
-                        {
-                            if (Math.Abs(instruction.StopLossGapForBuying) > 1e-16)
+                            // now set the new stop loss price for all positions
+                            foreach (var position in positions)
                             {
-                                var lastPosition = positions.Last();
-                                var newStopLossPrice = instruction.StopLossGapForBuying +
-                                    (transaction.Succeeded ? lastPosition.BuyPrice : transaction.Price);
-
-                                // now set the new stop loss price for all positions
-                                foreach (var position in positions)
+                                if (!position.IsStopLossPriceInitialized()
+                                    || position.StopLossPrice < newStopLossPrice)
                                 {
-                                    if (!position.IsStopLossPriceInitialized()
-                                        || position.StopLossPrice < newStopLossPrice)
-                                    {
-                                        position.SetStopLossPrice(newStopLossPrice);
+                                    position.SetStopLossPrice(newStopLossPrice);
 
-                                        _context.Log(
-                                            string.Format(
-                                                "PositionAdjusting:IncreaseStopLoss: Set stop loss for position {0}/{1} as {2:0.000}",
-                                                position.Id,
-                                                position.Code,
-                                                newStopLossPrice));
-                                    }
+                                    _context.Log(
+                                        string.Format(
+                                            "PositionAdjusting:IncreaseStopLoss: Set stop loss for position {0}/{1} as {2:0.000}",
+                                            position.Id,
+                                            position.Code,
+                                            newStopLossPrice));
                                 }
                             }
                         }

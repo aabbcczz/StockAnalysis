@@ -301,8 +301,11 @@ namespace TradingStrategyEvaluation
                             string.Format("the data for trading object {0} is invalid", instruction.TradingObject.Code));
                     }
 
-                    // remove the instruction and continue;
-                    _pendingInstructions[i] = null;
+                    if (instruction.Action == TradingAction.OpenLong)
+                    {
+                        // remove the instruction and continue;
+                        _pendingInstructions[i] = null;
+                    }
                     continue;
                 }
 

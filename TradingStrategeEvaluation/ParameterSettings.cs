@@ -74,8 +74,22 @@ namespace TradingStrategyEvaluation
             {
                 var valueType = Type.GetType(ValueType);
 
-                if (valueType == typeof(int)
-                    || valueType == typeof(double))
+                if (!ParameterAttribute.IsSupportedType(valueType))
+                {
+                    throw new InvalidOperationException("unsupported value type");
+                }
+
+                if (valueType == typeof(string))
+                {
+                    var substrings = Values.Split(
+                        new[] { MultipleStringValueSeparator },
+                        StringSplitOptions.None);
+
+                    _parsedValues = substrings
+                        .Select(s => ParameterHelper.Parse(valueType, s))
+                        .ToList();
+                }
+                else
                 {
                     var substrings = Values.Split(
                         new[] { MultipleValueSeparator }, 
@@ -85,7 +99,7 @@ namespace TradingStrategyEvaluation
                         || Values.IndexOf(LoopSeparator, StringComparison.Ordinal) < 0) // not loop
                     {
                         _parsedValues = substrings
-                            .Select(s => ParameterHelper.ConvertStringToValue(valueType, s))
+                            .Select(s => ParameterHelper.Parse(valueType, s))
                             .ToList();
                     }
                     else
@@ -104,20 +118,6 @@ namespace TradingStrategyEvaluation
                         _parsedValues = GenerateValuesForLoop(valueType, fields[0], fields[1], fields[2]).ToList();
                     }
                 }
-                else if (valueType == typeof(string))
-                {
-                    var substrings = Values.Split(
-                        new[] { MultipleStringValueSeparator }, 
-                        StringSplitOptions.None);
-
-                    _parsedValues = substrings
-                        .Select(s => ParameterHelper.ConvertStringToValue(valueType, s))
-                        .ToList();
-                }
-                else
-                {
-                    throw new InvalidOperationException("unsupported value type");
-                }
             }
             catch (Exception ex)
             {
@@ -132,9 +132,9 @@ namespace TradingStrategyEvaluation
 
         private IEnumerable<object> GenerateValuesForLoop(Type type, string start, string end, string step)
         {
-            var startObj = ParameterHelper.ConvertStringToValue(type, start);
-            var endObj = ParameterHelper.ConvertStringToValue(type, end);
-            var stepObj = ParameterHelper.ConvertStringToValue(type, step);
+            var startObj = ParameterHelper.Parse(type, start);
+            var endObj = ParameterHelper.Parse(type, end);
+            var stepObj = ParameterHelper.Parse(type, step);
 
             if (type == typeof(int))
             {
@@ -144,7 +144,10 @@ namespace TradingStrategyEvaluation
             {
                 return GenerateValuesForDoubleLoop((double)startObj, (double)endObj, (double)stepObj);
             }
-            throw new ArgumentException();
+            else
+            {
+                throw new InvalidOperationException("unsupported loop type");
+            }
         }
 
         private IEnumerable<object> GenerateValuesForIntLoop(int start, int end, int step)

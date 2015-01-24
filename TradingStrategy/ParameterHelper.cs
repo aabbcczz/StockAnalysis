@@ -71,30 +71,36 @@ namespace TradingStrategy
             }
         }
 
-        public static bool IsValidValue(ParameterAttribute attribute, string value)
+        public static bool TryParse(ParameterAttribute attribute, string value, out object obj)
         {
             if (attribute == null)
             {
                 throw new ArgumentNullException();
             }
 
-            return IsValidValue(attribute.ParameterType, value);
+            return TryParse(attribute.ParameterType, value, out obj);
         }
 
-        public static bool IsValidValue(Type type, string value)
+        public static bool TryParse(Type type, string value, out object obj)
         {
+            obj = null;
+
             if (type == null)
             {
                 throw new ArgumentNullException();
             }
 
-            var valid = true;
+            var isValid = true;
             if (type == typeof(int))
             {
                 int result;
                 if (!int.TryParse(value, out result))
                 {
-                    valid = false;
+                    isValid = false;
+                }
+                else
+                {
+                    obj = result;
                 }
             }
             else if (type == typeof(double))
@@ -102,57 +108,75 @@ namespace TradingStrategy
                 double result;
                 if (!double.TryParse(value, out result))
                 {
-                    valid = false;
+                    isValid = false;
+                }
+                else
+                {
+                    obj = result;
                 }
             }
             else if (type == typeof(string))
             {
                 // nothing to do
+                obj = value;
+            }
+            else if (type == typeof(bool))
+            {
+                bool result;
+                if (!bool.TryParse(value, out result))
+                {
+                    isValid = false;
+                }
+                else
+                {
+                    obj = result;
+                }
+            }
+            else if (type.IsEnum)
+            {
+                if (!Enum.IsDefined(type, value))
+                {
+                    isValid = false;
+                }
+                else
+                {
+                    obj = Enum.Parse(type, value, true);
+                }
             }
             else
             {
                 throw new InvalidOperationException();
             }
 
-            return valid;
+            return isValid;
         }
 
-        public static object ConvertStringToValue(ParameterAttribute attribute, string value)
+        public static object Parse(ParameterAttribute attribute, string value)
         {
             if (attribute == null)
             {
                 throw new ArgumentNullException();
             }
 
-            return ConvertStringToValue(attribute.ParameterType, value);
+            return Parse(attribute.ParameterType, value);
         }
 
-        public static object ConvertStringToValue(Type type, string value)
+        public static object Parse(Type type, string value)
         {
             if (type == null)
             {
                 throw new ArgumentNullException();
             }
 
-            object objValue;
-            if (type == typeof(int))
+            object obj;
+
+            if (!TryParse(type, value, out obj))
             {
-                objValue = int.Parse(value);
-            }
-            else if (type == typeof(double))
-            {
-                objValue = double.Parse(value);
-            }
-            else if (type == typeof(string))
-            {
-                objValue = value;
-            }
-            else
-            {
-                throw new InvalidOperationException();
+                throw new InvalidOperationException(
+                    string.Format(@"failed to convert ""{0}"" to type ""{1}""", value, type.FullName));
             }
 
-            return objValue;
+            return obj;
         }
     }
 }
