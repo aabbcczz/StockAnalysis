@@ -6,7 +6,7 @@ namespace MetricsDefinition.Metrics
     /// <summary>
     /// The linear regression metric
     /// </summary>
-    [Metric("LR", "SLOPE,INTERCEPT,SR,SSE")]
+    [Metric("LR", "SLOPE,INTERCEPT,CC,SSE")]
     public sealed class LinearRegressionMetric : MultipleOutputBarInputSerialMetric
     {
         // we always assume every day 10% of change equals to slope 1.0 (45 degree), so all data will be scaled by 10.0.
@@ -69,7 +69,7 @@ namespace MetricsDefinition.Metrics
             {
                 var result = _intermediateResult.Compute();
 
-                SetValue(result.Slope, result.Intercept, result.SquareResidual, result.SquareStandardError);
+                SetValue(result.Slope, result.Intercept, result.CorrelationCoefficient, result.SquareStandardError);
             }
         }
     }

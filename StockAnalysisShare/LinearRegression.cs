@@ -12,7 +12,7 @@ namespace StockAnalysis.Share
         {
             public double Slope { get; set; }
             public double Intercept { get; set; }
-            public double SquareResidual { get; set; }
+            public double CorrelationCoefficient { get; set; }
             public double SquareStandardError { get; set; }
         }
 
@@ -24,10 +24,6 @@ namespace StockAnalysis.Share
             public double SumXSquare {get; private set; }
             public double SumYSquare {get; private set; }
             public double SumXY { get; private set; }
-
-            public IntermediateResult()
-            {
-            }
 
             // add a point
             public void Add(double x, double y)
@@ -130,14 +126,14 @@ namespace StockAnalysis.Share
 #endif
             double slope = SSxy / SSxx;
             double intercept = avgY - slope * avgX;
-            double squareResidual = SSxy * SSxy / SSxx / SSyy;
+            double correlationCoefficient = SSxy * SSxy / SSxx / SSyy;
             double squareStandardError = Math.Abs(n - 2.0) < 1e-6 ? 0.0 : (SSyy - slope * SSxy) / (n - 2.0);
 
             return new FinalResult
             {
                 Slope = slope,
                 Intercept = intercept,
-                SquareResidual = squareResidual,
+                CorrelationCoefficient = correlationCoefficient,
                 SquareStandardError = squareStandardError
             };
         }
@@ -234,9 +230,10 @@ namespace StockAnalysis.Share
                 throw new ArgumentException("Length of y1 and y2 are different");
             }
 
-            double n = (double)y1.Length * 2.0;
-            double sumX = n * (n - 1.0);
-            double sumXSquare = n * (n - 1.0) * (2 * n - 1.0) / 3.0;
+            double m = (double)y1.Length;
+            double n = m * 2.0;
+            double sumX = m * (m - 1.0);
+            double sumXSquare = m * (m - 1.0) * (2 * m - 1.0) / 3.0;
             double sumY = 0.0;
             double sumYSquare = 0.0;
             double sumXY = 0.0;
