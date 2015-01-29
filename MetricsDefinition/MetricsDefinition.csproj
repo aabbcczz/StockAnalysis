@@ -60,7 +60,10 @@
     <Compile Include="BarInputSerialMetric.cs" />
     <Compile Include="CirculatedArray.cs" />
     <Compile Include="Metrics\AdaptiveMovingAverage.cs" />
-    <Compile Include="Metrics\Volatility.cs" />
+    <Compile Include="Metrics\CoefficientOfVariance.cs" />
+    <Compile Include="Metrics\CoefficientOfVarianceTrueRange.cs" />
+    <Compile Include="Metrics\VolatileEnergy.cs" />
+    <Compile Include="Metrics\ExpectedRisk.cs" />
     <Compile Include="Metrics\LinearRegressionMetric.cs" />
     <Compile Include="Metrics\StdDevTrueRange.cs" />
     <Compile Include="Metrics\StopAndReverse.cs" />

@@ -65,8 +65,13 @@ SortByMetricDescending = 9")]
         [Parameter(false, "只允许在价格上涨时出发入市信号")]
         public bool AllowEnteringMarketOnlyWhenPriceIncreasing { get; set; }
 
+        [Parameter("", "观察用指标, 每个指标用，分隔")]
+        public string ObservableMetrics { get; set; }
+
         public int IncreasePositionSortMetricIndex { get; private set; }
         public int NewPositionSortMetricIndex { get; private set; }
+
+        public int[] ObservableMetricIndices { get; private set; }
 
         protected override void RegisterMetric()
         {
@@ -84,6 +89,14 @@ SortByMetricDescending = 9")]
             if (!string.IsNullOrWhiteSpace(NewPositionSortMetric))
             {
                 NewPositionSortMetricIndex = Context.MetricManager.RegisterMetric(NewPositionSortMetric);
+            }
+
+            if (!string.IsNullOrWhiteSpace(ObservableMetrics))
+            {
+                ObservableMetricIndices = ObservableMetrics.Split(',')
+                    .Where(s => !string.IsNullOrWhiteSpace(s))
+                    .Select(s => Context.MetricManager.RegisterMetric(s))
+                    .ToArray();
             }
         }
     }

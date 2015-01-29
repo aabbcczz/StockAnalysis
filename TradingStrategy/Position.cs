@@ -38,7 +38,14 @@ namespace TradingStrategy
         // 止损价格
         public double StopLossPrice { get; set; }
 
+        public double GainInR { get; set; }
+
         public string Comments { get; set; }
+
+        public double MetricValue1 { get; set; }
+        public double MetricValue2 { get; set; }
+        public double MetricValue3 { get; set; }
+        public double MetricValue4 { get; set; }
 
         public Position()
         {
@@ -69,6 +76,27 @@ namespace TradingStrategy
                     BuyCommission = transaction.Commission;
                     IsInitialized = true;
                     Comments = transaction.Comments;
+
+                    if (transaction.ObservedMetricValues != null && transaction.ObservedMetricValues.Length > 0)
+                    {
+                        MetricValue1 = transaction.ObservedMetricValues[0];
+
+                        int length = transaction.ObservedMetricValues.Length;
+                        if (length > 1)
+                        {
+                            MetricValue2 = transaction.ObservedMetricValues[1];
+                        }
+
+                        if (length > 2)
+                        {
+                            MetricValue3 = transaction.ObservedMetricValues[2];
+                        }
+
+                        if (length > 3)
+                        {
+                            MetricValue4 = transaction.ObservedMetricValues[3];
+                        }
+                    }
                     break;
                 default:
                     throw new ArgumentException(string.Format("unsupported action {0}", transaction.Action));
@@ -103,21 +131,25 @@ namespace TradingStrategy
             // create new position
             var newPosition = new Position
             {
-                IsInitialized = IsInitialized,
-                Code = Code,
-                Name = Name,
-                BuyTime = BuyTime,
-                SellTime = SellTime,
-                BuyAction = BuyAction,
-                SellAction = SellAction,
-                Volume = Volume - volume,
-                BuyPrice = BuyPrice,
-                SellPrice = SellPrice,
-                BuyCommission = BuyCommission * newPositionPercentage,
-                SellCommission = SellCommission * newPositionPercentage,
-                InitialRisk = IsStopLossPriceInitialized() ? InitialRisk * newPositionPercentage : 0.0,
-                StopLossPrice = StopLossPrice,
-                Comments = Comments,
+                IsInitialized = this.IsInitialized,
+                Code = this.Code,
+                Name = this.Name,
+                BuyTime = this.BuyTime,
+                SellTime = this.SellTime,
+                BuyAction = this.BuyAction,
+                SellAction = this.SellAction,
+                Volume = this.Volume - volume,
+                BuyPrice = this.BuyPrice,
+                SellPrice = this.SellPrice,
+                BuyCommission = this.BuyCommission * newPositionPercentage,
+                SellCommission = this.SellCommission * newPositionPercentage,
+                InitialRisk = IsStopLossPriceInitialized() ? this.InitialRisk * newPositionPercentage : 0.0,
+                StopLossPrice = this.StopLossPrice,
+                Comments = this.Comments,
+                MetricValue1 = this.MetricValue1,
+                MetricValue2 = this.MetricValue2,
+                MetricValue3 = this.MetricValue3,
+                MetricValue4 = this.MetricValue4,
             };
 
             // update this position
@@ -169,6 +201,7 @@ namespace TradingStrategy
                         Comments += ";" + transaction.Comments;
                     }
 
+                    GainInR = (SellPrice - BuyPrice) * Volume / InitialRisk;
                     break;
 
                 default:

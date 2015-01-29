@@ -40,6 +40,8 @@ namespace TradingStrategy
         /// </summary>
         public double StopLossGapForBuying { get; set; }
 
+        public double[] ObservedMetricValues { get; set; }
+
         public Instruction()
         {
             Id = IdGenerator.Next;

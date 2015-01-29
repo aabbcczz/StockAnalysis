@@ -56,6 +56,15 @@ namespace DTViewer
             builder.AppendLine();
             builder.AppendFormat("Stoploss Price: {0:0.000}", position.StopLossPrice);
             builder.AppendLine();
+
+            builder.AppendFormat(
+                "MetricValues: {0:0.0000}, {1:0.0000}, {2:0.0000}, {3:0.0000}", 
+                position.MetricValue1,
+                position.MetricValue2,
+                position.MetricValue3,
+                position.MetricValue4);
+            builder.AppendLine();
+
             builder.AppendLine(position.Comments);
             
             Annotation = builder.ToString();

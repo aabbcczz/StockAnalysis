@@ -52,6 +52,8 @@ namespace TradingStrategy
 
         public object[] RelatedObjects { get; set; }
 
+        public double[] ObservedMetricValues { get; set; }
+
         public string Print()
         {
             return string.Format(

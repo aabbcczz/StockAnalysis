@@ -130,7 +130,24 @@ namespace TradingStrategy.Strategy
 
                 if (instructions != null)
                 {
-                    _instructionsInCurrentPeriod.AddRange(instructions);
+                    foreach (var instruction in instructions)
+                    {
+                        if (instruction.Action == TradingAction.OpenLong)
+                        {
+                            // comment out below code because evaluation result shows it will degrade performance.
+
+                            //if (_globalSettings.AllowEnteringMarketOnlyWhenPriceIncreasing)
+                            //{
+                            //    var bar = bars[instruction.TradingObject.Index];
+                            //    if (bar.ClosePrice <= bar.OpenPrice)
+                            //    {
+                            //        continue;
+                            //    }
+                            //}
+                        }
+
+                        _instructionsInCurrentPeriod.Add(instruction);
+                    }
                 }
             }
 
@@ -284,7 +301,7 @@ namespace TradingStrategy.Strategy
                     
                 case InstructionSortMode.SortByMetricDescending:
                     return instructions.OrderBy(
-                        instruction => -_context.MetricManager.GetMetricValues(instruction.TradingObject, metricIndex)[0]);
+                        instruction => - _context.MetricManager.GetMetricValues(instruction.TradingObject, metricIndex)[0]);
 
                 default:
                     throw new NotSupportedException(string.Format("unsupported instruction sort mode {0}", mode));
@@ -354,6 +371,19 @@ namespace TradingStrategy.Strategy
                     || (instruction.Action == TradingAction.OpenLong 
                         && !closeLongCodes.ContainsKey(instruction.TradingObject.Code)))
                 .ToList();
+
+            if (_globalSettings.ObservableMetricIndices != null && _globalSettings.ObservableMetricIndices.Length > 0)
+            {
+                foreach (var instruction in _instructionsInCurrentPeriod)
+                {
+                    if (instruction.Action == TradingAction.OpenLong)
+                    {
+                        instruction.ObservedMetricValues = _globalSettings.ObservableMetricIndices
+                            .Select(i => _context.MetricManager.GetMetricValues(instruction.TradingObject, i)[0])
+                            .ToArray();
+                    }
+                }
+            }
         }
 
         private void CreateIntructionForBuying(ITradingObject tradingObject, double price, string comments, object[] relatedObjects)
