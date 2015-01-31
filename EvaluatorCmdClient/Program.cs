@@ -20,6 +20,7 @@ namespace EvaluatorCmdClient
         private static EvaluationResultContextManager _contextManager;
         private static long _totalNumberOfStrategies = 0;
         private static long _numberOfEvaluatedStrategies = 0;
+        private static bool _toBeStopped = false;
 
         static void Main(string[] args)
         {
@@ -273,6 +274,11 @@ namespace EvaluatorCmdClient
                 Action<Tuple<DateTime, DateTime>> evaluatingAction = 
                     (Tuple<DateTime, DateTime> interval) =>
                     {
+                        if (_toBeStopped)
+                        {
+                            return;
+                        }
+
                         // initialize data provider
                         var dataProvider
                             = new ChinaStockDataProvider(
@@ -311,12 +317,18 @@ namespace EvaluatorCmdClient
 
                         try
                         {
-                            Parallel.ForEach(
-                                strategyInstances,
+                            Parallel.For(
+                                0, 
+                                strategyInstances.Count,
                                 // below line is for performance profiling only.
-                                // new ParallelOptions() { MaxDegreeOfParallelism = 1 }, 
+                                new ParallelOptions() { MaxDegreeOfParallelism = Environment.ProcessorCount }, 
                                 t =>
                                 {
+                                    if (_toBeStopped)
+                                    {
+                                        return;
+                                    }
+
                                     ICapitalManager capitalManager = options.ProportionOfCapitalForIncrementalPosition > 0.0
                                         ? (ICapitalManager)new AdvancedCapitalManager(options.InitialCapital, options.ProportionOfCapitalForIncrementalPosition)
                                         : (ICapitalManager)new SimpleCapitalManager(options.InitialCapital)
@@ -324,8 +336,8 @@ namespace EvaluatorCmdClient
 
                                     EvaluateStrategy(
                                          _contextManager,
-                                         t.Item1,
-                                         t.Item2,
+                                         strategyInstances[t].Item1,
+                                         strategyInstances[t].Item2,
                                          interval.Item1,
                                          interval.Item2,
                                          capitalManager,
@@ -334,10 +346,17 @@ namespace EvaluatorCmdClient
                                          tradingSettings);
 
                                     IncreaseProgress();
+
+                                    // reset the strategy object to ensure the referred IEvaluationContext object being
+                                    // released, otherwise it will never be released until all strategies are evaluated.
+                                    // This is a bug hid for long time.
+                                    strategyInstances[t] = null;
                                 });
                         }
                         finally
                         {
+                            _toBeStopped = true;
+
                             lock (_contextManager)
                             {
                                 // save result summary
@@ -357,7 +376,6 @@ namespace EvaluatorCmdClient
                         evaluatingAction(interval);
                     }
                 }
-
             }
 
             _contextManager = null;
@@ -368,13 +386,17 @@ namespace EvaluatorCmdClient
 
         private static void ConsoleCancelKeyPress(object sender, ConsoleCancelEventArgs e)
         {
-            if (_contextManager != null)
-            {
-                lock (_contextManager)
-                {
-                    _contextManager.SaveResultSummaries();
-                }
-            }
+            //if (_contextManager != null)
+            //{
+            //    lock (_contextManager)
+            //    {
+            //        _contextManager.SaveResultSummaries();
+            //    }
+            //}
+
+            _toBeStopped = true;
+
+            e.Cancel = false;
         }
 
         private static void EvaluateStrategy(
@@ -467,7 +489,7 @@ namespace EvaluatorCmdClient
                 {
                     contextManager.AddResultSummary(resultSummary);
                 }
-            }
+             }
         }
     }
 }
