@@ -321,7 +321,7 @@ namespace EvaluatorCmdClient
                                 0, 
                                 strategyInstances.Count,
                                 // below line is for performance profiling only.
-                                new ParallelOptions() { MaxDegreeOfParallelism = Environment.ProcessorCount }, 
+                                new ParallelOptions() { MaxDegreeOfParallelism = Environment.ProcessorCount * 2 }, 
                                 t =>
                                 {
                                     if (_toBeStopped)
