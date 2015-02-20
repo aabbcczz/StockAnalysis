@@ -5,7 +5,7 @@ namespace TradingStrategy.Strategy
     public sealed class AtrDevStopLoss
         : GeneralStopLossBase
     {
-        private int _sdtrMetricIndex;
+        private RuntimeMetricProxy _sdtrMetricProxy;
 
         [Parameter(10, "ATR计算窗口大小")]
         public int AtrWindowSize { get; set; }
@@ -26,7 +26,9 @@ namespace TradingStrategy.Strategy
         protected override void RegisterMetric()
         {
             base.RegisterMetric();
-            _sdtrMetricIndex = Context.MetricManager.RegisterMetric(string.Format("SDTR[{0}]", AtrWindowSize));
+            _sdtrMetricProxy = new RuntimeMetricProxy(
+                Context.MetricManager,
+                string.Format("SDTR[{0}]", AtrWindowSize));
         }
 
         protected override void ValidateParameterValues()
@@ -41,7 +43,7 @@ namespace TradingStrategy.Strategy
 
         public override double EstimateStopLossGap(ITradingObject tradingObject, double assumedPrice, out string comments)
         {
-            var values = Context.MetricManager.GetMetricValues(tradingObject, _sdtrMetricIndex);
+            var values = _sdtrMetricProxy.GetMetricValues(tradingObject);
 
             var sdtr = values[0];
 

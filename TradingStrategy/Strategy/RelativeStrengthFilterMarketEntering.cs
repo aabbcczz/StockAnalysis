@@ -7,7 +7,7 @@ namespace TradingStrategy.Strategy
         : GeneralMarketEnteringBase
         , IRuntimeMetricManagerObserver
     {
-        private int _rocMetricIndex;
+        private RuntimeMetricProxy _rocMetricProxy;
         private int _numberOfValidTradingObjectsInThisPeriod;
         private MetricGroupSorter _sorter;
 
@@ -21,7 +21,7 @@ namespace TradingStrategy.Strategy
         {
  	        base.RegisterMetric();
 
-            _rocMetricIndex = Context.MetricManager.RegisterMetric(
+            _rocMetricProxy = new RuntimeMetricProxy(Context.MetricManager, 
                 string.Format("ROC[{0}]", RocWindowSize));
 
             Context.MetricManager.RegisterAfterUpdatedMetricsObserver(this);
@@ -104,7 +104,7 @@ namespace TradingStrategy.Strategy
                 throw new ArgumentNullException();
             }
 
-            var metrics = manager.GetMetrics(_rocMetricIndex);
+            var metrics = _rocMetricProxy.GetMetrics();
 
             _sorter.OrderByDescending(metrics);
         }

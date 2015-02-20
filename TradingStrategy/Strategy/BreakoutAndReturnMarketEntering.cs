@@ -5,7 +5,7 @@ namespace TradingStrategy.Strategy
     public sealed class BreakoutAndReturnMarketEntering 
         : GeneralMarketEnteringBase
     {
-        private int _metricIndex;
+        private RuntimeMetricProxy _metricProxy;
 
         public override string Name
         {
@@ -59,7 +59,7 @@ namespace TradingStrategy.Strategy
             comments = string.Empty;
             obj = null;
 
-            var metric = (BreakoutAndReturnRuntimeMetric)Context.MetricManager.GetMetric(tradingObject, _metricIndex);
+            var metric = (BreakoutAndReturnRuntimeMetric)_metricProxy.GetMetric(tradingObject);
             if (metric.Triggered)
             {
                 comments = string.Format(
@@ -77,7 +77,8 @@ namespace TradingStrategy.Strategy
         {
             base.RegisterMetric();
 
-            _metricIndex = Context.MetricManager.RegisterMetric(
+            _metricProxy = new RuntimeMetricProxy(
+                Context.MetricManager,
                 string.Format("BreakoutAndReturn[{0},{1},{2},{3}]", BreakoutWindow, PriceSelector, RerisingMaxInterval, RerisingMinInterval),
                 (string s) => new BreakoutAndReturnRuntimeMetric(BreakoutWindow, PriceSelector, RerisingMaxInterval, RerisingMinInterval)); 
         }

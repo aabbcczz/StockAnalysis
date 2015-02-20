@@ -5,7 +5,7 @@ namespace TradingStrategy.Strategy
     public sealed class BounceMarketEntering
         : GeneralMarketEnteringBase
     {
-        private int _bounceMetricIndex;
+        private RuntimeMetricProxy _bounceMetricProxy;
 
         [Parameter(30, "回看周期")]
         public int WindowSize { get; set; }
@@ -17,7 +17,8 @@ namespace TradingStrategy.Strategy
         {
             base.RegisterMetric();
 
-            _bounceMetricIndex = Context.MetricManager.RegisterMetric(
+            _bounceMetricProxy = new RuntimeMetricProxy(
+                Context.MetricManager,
                 string.Format("BounceRuntimeMetric[{0},{1}]", WindowSize, MinBouncePercentage),
                 (string s) => new BounceRuntimeMetric(WindowSize, MinBouncePercentage));
         }
@@ -47,7 +48,7 @@ namespace TradingStrategy.Strategy
             comments = string.Empty;
             obj = null;
 
-            var metric = (BounceRuntimeMetric)Context.MetricManager.GetMetric(tradingObject, _bounceMetricIndex);
+            var metric = (BounceRuntimeMetric)_bounceMetricProxy.GetMetric(tradingObject);
             if (metric.Triggered)
             {
                 comments = string.Format(

@@ -6,7 +6,7 @@ namespace TradingStrategy.Strategy
     public sealed class MovingAverageFilterMarketEntering
         : GeneralMarketEnteringBase
     {
-        private int[] _periodMetricIndices = new int[4];
+        private RuntimeMetricProxy[] _periodMetricProxies = new RuntimeMetricProxy[4];
         private int[] _periods = new int[4];
         private int _effectivePeriodsCount = 0;
         private double[] _movingAverages = new double[4];
@@ -29,7 +29,7 @@ namespace TradingStrategy.Strategy
 
             for (int i = 0; i < _effectivePeriodsCount; ++i)
             {
-                _periodMetricIndices[i] = Context.MetricManager.RegisterMetric(string.Format("MA[{0}]", _periods[i]));
+                _periodMetricProxies[i] = new RuntimeMetricProxy(Context.MetricManager, string.Format("MA[{0}]", _periods[i]));
             }
         }
 
@@ -92,7 +92,7 @@ namespace TradingStrategy.Strategy
 
             for (int i = 0; i < _effectivePeriodsCount; ++i)
             {
-                _movingAverages[i] = Context.MetricManager.GetMetricValues(tradingObject, _periodMetricIndices[i])[0];
+                _movingAverages[i] = _periodMetricProxies[i].GetMetricValues(tradingObject)[0];
             }
 
             for (int i = 0; i < _effectivePeriodsCount - 1; ++i)

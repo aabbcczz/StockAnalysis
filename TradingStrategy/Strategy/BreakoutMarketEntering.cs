@@ -5,7 +5,7 @@ namespace TradingStrategy.Strategy
     public sealed class BreakoutMarketEntering
         : GeneralMarketEnteringBase
     {
-        private int _metricIndex;
+        private RuntimeMetricProxy _metricProxy;
 
         public override string Name
         {
@@ -27,7 +27,7 @@ namespace TradingStrategy.Strategy
         {
             base.RegisterMetric();
 
-            _metricIndex = Context.MetricManager.RegisterMetric(
+            _metricProxy = new RuntimeMetricProxy(Context.MetricManager, 
                 string.Format(
                         "HI[{0}](BAR.{1})",
                         BreakoutWindow,
@@ -39,7 +39,7 @@ namespace TradingStrategy.Strategy
             comments = string.Empty;
             obj = null;
 
-            var values = Context.MetricManager.GetMetricValues(tradingObject, _metricIndex);
+            var values = _metricProxy.GetMetricValues(tradingObject);
 
             var bar = Context.GetBarOfTradingObjectForCurrentPeriod(tradingObject);
 

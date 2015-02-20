@@ -5,7 +5,7 @@ namespace TradingStrategy.Strategy
     public sealed class RebreakoutMarketEntering 
         : GeneralMarketEnteringBase
     {
-        private int _metricIndex;
+        private RuntimeMetricProxy _metricProxy;
 
         public override string Name
         {
@@ -59,7 +59,7 @@ namespace TradingStrategy.Strategy
             comments = string.Empty;
             obj = null;
 
-            var metric = (RebreakoutRuntimeMetric)Context.MetricManager.GetMetric(tradingObject, _metricIndex);
+            var metric = (RebreakoutRuntimeMetric)_metricProxy.GetMetric(tradingObject);
             if (metric.Rebreakout)
             {
                 comments = string.Format("Rebreakout: {0:0.0000}, Interval: {1}", metric.CurrentHighest, metric.IntervalSinceLastBreakout);
@@ -72,7 +72,7 @@ namespace TradingStrategy.Strategy
         {
             base.RegisterMetric();
 
-            _metricIndex = Context.MetricManager.RegisterMetric(
+            _metricProxy = new RuntimeMetricProxy(Context.MetricManager, 
                 string.Format("Rebreakout[{0},{1},{2},{3}]",
                     BreakoutWindow,
                     PriceSelector,

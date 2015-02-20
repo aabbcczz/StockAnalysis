@@ -6,7 +6,7 @@ namespace TradingStrategy.Strategy
     public sealed class DmiFilterMarketEntering 
         : GeneralMarketEnteringBase
     {
-        private int _metricIndex;
+        private RuntimeMetricProxy _metricProxy;
 
         [Parameter(10, "DMI周期")]
         public int DmiWindowSize { get; set; }
@@ -18,7 +18,7 @@ namespace TradingStrategy.Strategy
         {
             base.RegisterMetric();
 
-            _metricIndex = Context.MetricManager.RegisterMetric(
+            _metricProxy = new RuntimeMetricProxy(Context.MetricManager, 
                 string.Format("DmiRuntimeMetric[{0}]", DmiWindowSize),
                 (string s) => new DmiRuntimeMetric(DmiWindowSize));
         }
@@ -53,7 +53,7 @@ namespace TradingStrategy.Strategy
             comments = string.Empty;
             obj = null;
 
-            var metric = (DmiRuntimeMetric)Context.MetricManager.GetMetric(tradingObject, _metricIndex);
+            var metric = (DmiRuntimeMetric)_metricProxy.GetMetric(tradingObject);
 
             if (metric.Adx > AdxThreshold && metric.IsAdxIncreasing())
             {

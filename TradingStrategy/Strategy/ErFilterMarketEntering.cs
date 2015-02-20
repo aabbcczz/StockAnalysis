@@ -6,7 +6,7 @@ namespace TradingStrategy.Strategy
     public sealed class ErFilterMarketEntering 
         : GeneralMarketEnteringBase
     {
-        private int _metricIndex;
+        private RuntimeMetricProxy _metricProxy;
 
         [Parameter(10, "EfficiencyRatio周期")]
         public int ErWindowSize { get; set; }
@@ -17,7 +17,7 @@ namespace TradingStrategy.Strategy
         protected override void RegisterMetric()
         {
             base.RegisterMetric();
-            _metricIndex = Context.MetricManager.RegisterMetric(string.Format("ER[{0}]", ErWindowSize));
+            _metricProxy = new RuntimeMetricProxy(Context.MetricManager, string.Format("ER[{0}]", ErWindowSize));
         }
 
         protected override void ValidateParameterValues()
@@ -50,7 +50,7 @@ namespace TradingStrategy.Strategy
             comments = string.Empty;
             obj = null;
 
-            var values = Context.MetricManager.GetMetricValues(tradingObject, _metricIndex);
+            var values = _metricProxy.GetMetricValues(tradingObject);
 
             var efficiencyRatio = values[0];
 

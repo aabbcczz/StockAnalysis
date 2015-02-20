@@ -5,7 +5,7 @@ namespace TradingStrategy.Strategy
     public sealed class SarTraceStopLossMarketExiting
         : GeneralTraceStopLossMarketExitingBase
     {
-        private int _metricIndex;
+        private RuntimeMetricProxy _metricProxy;
 
         [Parameter(95.0, "SAR占价格的最大百分比")]
         public double MaxPercentageOfPrice { get; set; }
@@ -24,7 +24,7 @@ namespace TradingStrategy.Strategy
         {
             base.RegisterMetric();
 
-            _metricIndex = Context.MetricManager.RegisterMetric("SAR[4,0.02,0.02,0.2]");
+            _metricProxy = new RuntimeMetricProxy(Context.MetricManager, "SAR[4,0.02,0.02,0.2]");
         }
 
         protected override void ValidateParameterValues()
@@ -39,7 +39,7 @@ namespace TradingStrategy.Strategy
 
         protected override double CalculateStopLossPrice(ITradingObject tradingObject, double currentPrice, out string comments)
         {
-            var values = Context.MetricManager.GetMetricValues(tradingObject, _metricIndex);
+            var values = _metricProxy.GetMetricValues(tradingObject);
 
             var sar = values[0];
 

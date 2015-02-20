@@ -68,34 +68,34 @@ SortByMetricDescending = 9")]
         [Parameter("", "观察用指标, 每个指标用，分隔")]
         public string ObservableMetrics { get; set; }
 
-        public int IncreasePositionSortMetricIndex { get; private set; }
-        public int NewPositionSortMetricIndex { get; private set; }
+        public RuntimeMetricProxy IncreasePositionSortMetricProxy { get; private set; }
+        public RuntimeMetricProxy NewPositionSortMetricProxy { get; private set; }
 
-        public int[] ObservableMetricIndices { get; private set; }
+        public RuntimeMetricProxy[] ObservableMetricProxies { get; private set; }
 
         protected override void RegisterMetric()
         {
             base.RegisterMetric();
 
-            IncreasePositionSortMetricIndex = -1;
-            NewPositionSortMetricIndex = -1;
+            IncreasePositionSortMetricProxy = null;
+            NewPositionSortMetricProxy = null;
 
             // register metric for sorting instruction
             if (!string.IsNullOrWhiteSpace(IncreasePositionSortMetric))
             {
-                IncreasePositionSortMetricIndex = Context.MetricManager.RegisterMetric(IncreasePositionSortMetric);
+                IncreasePositionSortMetricProxy = new RuntimeMetricProxy(Context.MetricManager, IncreasePositionSortMetric);
             }
 
             if (!string.IsNullOrWhiteSpace(NewPositionSortMetric))
             {
-                NewPositionSortMetricIndex = Context.MetricManager.RegisterMetric(NewPositionSortMetric);
+                NewPositionSortMetricProxy = new RuntimeMetricProxy(Context.MetricManager, NewPositionSortMetric);
             }
 
             if (!string.IsNullOrWhiteSpace(ObservableMetrics))
             {
-                ObservableMetricIndices = ObservableMetrics.Split(',')
+                ObservableMetricProxies = ObservableMetrics.Split(',')
                     .Where(s => !string.IsNullOrWhiteSpace(s))
-                    .Select(s => Context.MetricManager.RegisterMetric(s))
+                    .Select(s => new RuntimeMetricProxy(Context.MetricManager, s))
                     .ToArray();
             }
         }

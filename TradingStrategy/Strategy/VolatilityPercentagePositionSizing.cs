@@ -5,7 +5,7 @@ namespace TradingStrategy.Strategy
     public sealed class VolatilityPercentagePositionSizing
         : GeneralPositionSizingBase
     {
-        private int _atrMetricIndex;
+        private RuntimeMetricProxy _atrMetricProxy;
 
         [Parameter(10, "波动率计算时间窗口大小")]
         public int VolatilityWindowSize { get; set; }
@@ -44,12 +44,12 @@ namespace TradingStrategy.Strategy
         protected override void RegisterMetric()
         {
             base.RegisterMetric();
-            _atrMetricIndex = Context.MetricManager.RegisterMetric(string.Format("ATR[{0}]", VolatilityWindowSize));
+            _atrMetricProxy = new RuntimeMetricProxy(Context.MetricManager, string.Format("ATR[{0}]", VolatilityWindowSize));
         }
 
         public override int EstimatePositionSize(ITradingObject tradingObject, double price, double stopLossGap, out string comments)
         {
-            var values = Context.MetricManager.GetMetricValues(tradingObject, _atrMetricIndex);
+            var values = _atrMetricProxy.GetMetricValues(tradingObject);
 
             var volatility = values[0];
 

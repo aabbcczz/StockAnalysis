@@ -5,7 +5,7 @@ namespace TradingStrategy.Strategy
     public sealed class AtrTraceStopLossMarketExiting
         : GeneralTraceStopLossMarketExitingBase
     {
-        private int _atrMetricIndex;
+        private RuntimeMetricProxy _atrMetricProxy;
 
         [Parameter(10, "ATR计算窗口大小")]
         public int AtrWindowSize { get; set; }
@@ -28,7 +28,9 @@ namespace TradingStrategy.Strategy
         {
             base.RegisterMetric();
 
-            _atrMetricIndex = Context.MetricManager.RegisterMetric(string.Format("ATR[{0}]", AtrWindowSize));
+            _atrMetricProxy = new RuntimeMetricProxy(
+                Context.MetricManager,
+                string.Format("ATR[{0}]", AtrWindowSize));
         }
 
         protected override void ValidateParameterValues()
@@ -43,7 +45,7 @@ namespace TradingStrategy.Strategy
 
         protected override double CalculateStopLossPrice(ITradingObject tradingObject, double currentPrice, out string comments)
         {
-            var values = Context.MetricManager.GetMetricValues(tradingObject, _atrMetricIndex);
+            var values = _atrMetricProxy.GetMetricValues(tradingObject);
 
             var atr = values[0];
 

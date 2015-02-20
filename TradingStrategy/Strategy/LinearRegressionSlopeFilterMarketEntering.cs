@@ -6,9 +6,9 @@ namespace TradingStrategy.Strategy
     public sealed class LinearRegressionSlopeFilterMarketEntering 
         : GeneralMarketEnteringBase
     {
-        private int _longMetricIndex;
-        private int _middleMetricIndex;
-        private int _shortMetricIndex;
+        private RuntimeMetricProxy _longMetricProxy;
+        private RuntimeMetricProxy _middleMetricProxy;
+        private RuntimeMetricProxy _shortMetricProxy;
 
         [Parameter(70, "长期回看周期")]
         public int LongWindowSize { get; set; }
@@ -32,9 +32,9 @@ namespace TradingStrategy.Strategy
         {
             base.RegisterMetric();
 
-            _shortMetricIndex = Context.MetricManager.RegisterMetric(string.Format("LR[{0}]", ShortWindowSize));
-            _middleMetricIndex = Context.MetricManager.RegisterMetric(string.Format("LR[{0}]", MiddleWindowSize));
-            _longMetricIndex = Context.MetricManager.RegisterMetric(string.Format("LR[{0}]", LongWindowSize));
+            _shortMetricProxy = new RuntimeMetricProxy(Context.MetricManager, string.Format("LR[{0}]", ShortWindowSize));
+            _middleMetricProxy = new RuntimeMetricProxy(Context.MetricManager, string.Format("LR[{0}]", MiddleWindowSize));
+            _longMetricProxy = new RuntimeMetricProxy(Context.MetricManager, string.Format("LR[{0}]", LongWindowSize));
 
         }
 
@@ -63,11 +63,11 @@ namespace TradingStrategy.Strategy
             comments = string.Empty;
             obj = null;
 
-            var longSlope = Context.MetricManager.GetMetricValues(tradingObject, _longMetricIndex)[0];
+            var longSlope = _longMetricProxy.GetMetricValues(tradingObject)[0];
             var longDegree = Math.Atan(longSlope) * 180.0 / Math.PI;
-            var middleSlope = Context.MetricManager.GetMetricValues(tradingObject, _middleMetricIndex)[0];
+            var middleSlope = _middleMetricProxy.GetMetricValues(tradingObject)[0];
             var middleDegree = Math.Atan(middleSlope) * 180.0 / Math.PI;
-            var shortSlope = Context.MetricManager.GetMetricValues(tradingObject, _shortMetricIndex)[0];
+            var shortSlope = _shortMetricProxy.GetMetricValues(tradingObject)[0];
             var shortDegree = Math.Atan(shortSlope) * 180.0 / Math.PI;
 
             if (longDegree > LongDegreeThreshold 

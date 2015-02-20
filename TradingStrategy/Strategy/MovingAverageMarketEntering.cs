@@ -5,8 +5,8 @@ namespace TradingStrategy.Strategy
     public sealed class MovingAverageMarketEntering
         : GeneralMarketEnteringBase
     {
-        private int _shortMetricIndex;
-        private int _longMetricIndex;
+        private RuntimeMetricProxy _shortMetricProxy;
+        private RuntimeMetricProxy _longMetricProxy;
 
         private double[] _prevShortMa;
         private double[] _prevLongMa;
@@ -20,8 +20,8 @@ namespace TradingStrategy.Strategy
         protected override void RegisterMetric()
         {
             base.RegisterMetric();
-            _shortMetricIndex = Context.MetricManager.RegisterMetric(string.Format("MA[{0}]", Short));
-            _longMetricIndex = Context.MetricManager.RegisterMetric(string.Format("MA[{0}]", Long));
+            _shortMetricProxy = new RuntimeMetricProxy(Context.MetricManager, string.Format("MA[{0}]", Short));
+            _longMetricProxy = new RuntimeMetricProxy(Context.MetricManager, string.Format("MA[{0}]", Long));
         }
 
         public override void Initialize(IEvaluationContext context, System.Collections.Generic.IDictionary<ParameterAttribute, object> parameterValues)
@@ -56,13 +56,13 @@ namespace TradingStrategy.Strategy
         {
             base.EndPeriod();
 
-            IRuntimeMetric[] _shortMaMetrics = Context.MetricManager.GetMetrics(_shortMetricIndex);
+            IRuntimeMetric[] _shortMaMetrics = _shortMetricProxy.GetMetrics();
             for (int i = 0; i < _prevShortMa.Length; ++i)
             {
                 _prevShortMa[i] = _shortMaMetrics[i] == null ? 0.0 : _shortMaMetrics[i].Values[0];
             }
 
-            IRuntimeMetric[] _longMaMetrics = Context.MetricManager.GetMetrics(_longMetricIndex);
+            IRuntimeMetric[] _longMaMetrics = _longMetricProxy.GetMetrics();
             for (int i = 0; i < _prevShortMa.Length; ++i)
             {
                 _prevLongMa[i] = _longMaMetrics[i] == null ? 0.0 : _longMaMetrics[i].Values[0];
@@ -74,8 +74,8 @@ namespace TradingStrategy.Strategy
             comments = string.Empty;
             obj = null;
 
-            var shortMa = Context.MetricManager.GetMetricValues(tradingObject, _shortMetricIndex)[0];
-            var longMa = Context.MetricManager.GetMetricValues(tradingObject, _longMetricIndex)[0];
+            var shortMa = _shortMetricProxy.GetMetricValues(tradingObject)[0];
+            var longMa = _longMetricProxy.GetMetricValues(tradingObject)[0];
             var prevShortMa = _prevShortMa[tradingObject.Index];
             var prevLongMa = _prevLongMa[tradingObject.Index];
 

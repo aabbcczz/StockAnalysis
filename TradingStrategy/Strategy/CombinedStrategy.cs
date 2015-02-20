@@ -267,7 +267,7 @@ namespace TradingStrategy.Strategy
             }
         }
 
-        private IEnumerable<Instruction> SortInstructions(IEnumerable<Instruction> instructions, InstructionSortMode mode, int metricIndex)
+        private IEnumerable<Instruction> SortInstructions(IEnumerable<Instruction> instructions, InstructionSortMode mode, RuntimeMetricProxy metricProxy)
         {
             switch (mode)
             {
@@ -297,11 +297,11 @@ namespace TradingStrategy.Strategy
 
                 case InstructionSortMode.SortByMetricAscending:
                     return instructions.OrderBy(
-                        instruction => _context.MetricManager.GetMetricValues(instruction.TradingObject, metricIndex)[0]);
+                        instruction => metricProxy.GetMetricValues(instruction.TradingObject)[0]);
                     
                 case InstructionSortMode.SortByMetricDescending:
                     return instructions.OrderBy(
-                        instruction => - _context.MetricManager.GetMetricValues(instruction.TradingObject, metricIndex)[0]);
+                        instruction => -metricProxy.GetMetricValues(instruction.TradingObject)[0]);
 
                 default:
                     throw new NotSupportedException(string.Format("unsupported instruction sort mode {0}", mode));
@@ -329,14 +329,14 @@ namespace TradingStrategy.Strategy
                 SortInstructions(
                     IncreasePositionInstructions, 
                     _globalSettings.IncreasePositionInstructionSortMode,
-                    _globalSettings.IncreasePositionSortMetricIndex)
+                    _globalSettings.IncreasePositionSortMetricProxy)
                 .ToList();
 
             NewPositionInstructions =
                 SortInstructions(
                     NewPositionInstructions, 
                     _globalSettings.NewPositionInstructionSortMode,
-                    _globalSettings.NewPositionSortMetricIndex)
+                    _globalSettings.NewPositionSortMetricProxy)
                 .ToList(); 
 
             // reconstruct instructions in current period
@@ -372,14 +372,14 @@ namespace TradingStrategy.Strategy
                         && !closeLongCodes.ContainsKey(instruction.TradingObject.Code)))
                 .ToList();
 
-            if (_globalSettings.ObservableMetricIndices != null && _globalSettings.ObservableMetricIndices.Length > 0)
+            if (_globalSettings.ObservableMetricProxies != null && _globalSettings.ObservableMetricProxies.Length > 0)
             {
                 foreach (var instruction in _instructionsInCurrentPeriod)
                 {
                     if (instruction.Action == TradingAction.OpenLong)
                     {
-                        instruction.ObservedMetricValues = _globalSettings.ObservableMetricIndices
-                            .Select(i => _context.MetricManager.GetMetricValues(instruction.TradingObject, i)[0])
+                        instruction.ObservedMetricValues = _globalSettings.ObservableMetricProxies
+                            .Select(p => p.GetMetricValues(instruction.TradingObject)[0])
                             .ToArray();
                     }
                 }
