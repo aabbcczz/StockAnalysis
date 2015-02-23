@@ -21,8 +21,14 @@ namespace TradingStrategy.Strategy
         [Parameter(7.0, "当日价格相对上日收盘价变化的最小幅度百分比")]
         public double MinPriceChangePercentage { get; set; }
 
+        [Parameter(10.0, "当日价格相对上日收盘价变化的最大幅度百分比")]
+        public double MaxPriceChangePercentage { get; set; }
+
         [Parameter(50.0, "当日成交量超过之前一段时间平均成交量的最小幅度百分比")]
         public double MinVolumeChangePercentage { get; set; }
+
+        [Parameter(1000.0, "当日成交量超过之前一段时间平均成交量的最大幅度百分比")]
+        public double MaxVolumeChangePercentage { get; set; }
 
         [Parameter(10, "平均成交量回看窗口")]
         public int VolumeLookbackWindow { get; set; }
@@ -68,7 +74,9 @@ namespace TradingStrategy.Strategy
             var volumeChangePercentage = _volumeChangeMetricProxy.GetMetricValues(tradingObject)[0];
 
             if (priceChangePercentage >= MinPriceChangePercentage 
+                && priceChangePercentage <= MaxPriceChangePercentage
                 && volumeChangePercentage >= MinVolumeChangePercentage
+                && volumeChangePercentage <= MaxVolumeChangePercentage
                 && upShadowPercentage <= MaxPercentageOfUpShadow)
             {
                 comments = string.Format(

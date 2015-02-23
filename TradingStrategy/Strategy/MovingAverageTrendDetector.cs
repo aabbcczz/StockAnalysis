@@ -12,6 +12,7 @@ namespace TradingStrategy.Strategy
     {
         private int[] _periods;
         private RuntimeMetricProxy[] _movingAverages;
+        private RuntimeMetricProxy[] _trendDetectors;
 
         public int PeriodsCount 
         {
@@ -47,30 +48,39 @@ namespace TradingStrategy.Strategy
                 throw new ArgumentException("Duplicated periods are found");
             }
 
-            if (periods.Count() == 1 && periods.First() != 1)
+            if (periods.Count() == 1)
             {
                 throw new ArgumentException("Need at least 2 different MA periods for trend detection");
             }
 
-
-            // ensure period value 1 is in the final list
-            var tempPeriods = periods.ToList();
-
-            if (periods.All(i => i != 1))
-            {
-                tempPeriods.Add(1);
-            }
-
-            _periods = tempPeriods.OrderBy(i => i).ToArray();
+            _periods = periods.OrderBy(i => i).ToArray();
 
             _movingAverages = _periods
                 .Select(i => new RuntimeMetricProxy(manager, string.Format("MA[{0}]", i)))
+                .ToArray();
+
+            _trendDetectors = _periods
+                .Select(i => new RuntimeMetricProxy(manager, string.Format("TD[5](MA[{0}])", i)))
                 .ToArray();
         }
 
         public bool HasTrend(ITradingObject tradingObject)
         {
             bool hasTrend = true;
+
+            foreach (var td in _trendDetectors)
+            {
+                if (td.GetMetricValues(tradingObject)[0] <= 0.0)
+                {
+                    hasTrend = false;
+                    break;
+                }
+            }
+
+            if (!hasTrend)
+            {
+                return false;
+            }
 
             double lastValue = GetMovingAverage(tradingObject, 0);
             for (int i = 1; i < _movingAverages.Length; ++i)

@@ -408,14 +408,18 @@ namespace TradingStrategyEvaluation
                 if (transaction.Action == TradingAction.OpenLong)
                 {
                     // HACK: try to adjust volume to reduce money used and make transaction succeeded.
-                    transaction.Volume = (int)((double)transaction.Volume / 1.1);
-                    transaction.Volume -= transaction.Volume % 100;
+                    var volume = (int)((double)transaction.Volume / 1.1);
+                    volume -= volume % 100;
 
-                    succeeded = _equityManager.ExecuteTransaction(
-                                    transaction,
-                                    _settings.AllowNegativeCapital,
-                                    out completedTransaction,
-                                    out error);
+                    if (volume > 0)
+                    {
+                        transaction.Volume = volume;
+                        succeeded = _equityManager.ExecuteTransaction(
+                                        transaction,
+                                        _settings.AllowNegativeCapital,
+                                        out completedTransaction,
+                                        out error);
+                    }
                 }
             }
 

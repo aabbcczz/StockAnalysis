@@ -63,7 +63,7 @@
     <Compile Include="Metrics\CoefficientOfVariance.cs" />
     <Compile Include="Metrics\CoefficientOfVarianceTrueRange.cs" />
     <Compile Include="Metrics\VolumeChange.cs" />
-    <Compile Include="Metrics\PriceChange.cs" />
+    <Compile Include="Metrics\CombinedPriceAndVolumeChange.cs" />
     <Compile Include="Metrics\VolatileEnergy.cs" />
     <Compile Include="Metrics\ExpectedRisk.cs" />
     <Compile Include="Metrics\LinearRegressionMetric.cs" />
@@ -73,7 +73,7 @@
     <Compile Include="Metrics\EfficiencyRatio.cs" />
     <Compile Include="Metrics\Lowest.cs" />
     <Compile Include="Metrics\Highest.cs" />
-    <Compile Include="Metrics\TrendPivot.cs" />
+    <Compile Include="Metrics\TrendDetector.cs" />
     <Compile Include="Metrics\UltimateOscillator.cs" />
     <Compile Include="Metrics\Oscillator.cs" />
     <Compile Include="Metrics\Chaikin.cs" />

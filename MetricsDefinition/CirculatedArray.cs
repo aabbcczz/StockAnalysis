@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace MetricsDefinition
 {
@@ -12,6 +14,11 @@ namespace MetricsDefinition
         private int _length;
 
         public int Length { get { return _length; } }
+
+        public IEnumerable<T> InternalData
+        {
+            get { return _storage; }
+        }
 
         public T this[int index]
         {
