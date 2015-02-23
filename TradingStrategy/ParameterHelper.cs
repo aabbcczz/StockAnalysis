@@ -134,13 +134,15 @@ namespace TradingStrategy
             }
             else if (type.IsEnum)
             {
-                if (!Enum.IsDefined(type, value))
-                {
-                    isValid = false;
-                }
-                else
+                try
                 {
                     obj = Enum.Parse(type, value, true);
+                    isValid = true;
+                }
+                catch
+                {
+                    obj = null;
+                    isValid = false;
                 }
             }
             else

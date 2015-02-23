@@ -60,7 +60,7 @@ namespace TradingStrategy
         /// </summary>
         /// <param name="tradingObject">trading object whose metric values should be fetched</param>
         /// <param name="metrciIndex">index of metric returned by RegisterMetric()</param>
-        /// <returns>array of double which contains current values of specific values</returns>
+        /// <returns>array of double which contains current values of specific metric</returns>
         double[] GetMetricValues(ITradingObject tradingObject, int metricIndex);
 
         /// <summary>

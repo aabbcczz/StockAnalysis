@@ -28,7 +28,7 @@ namespace TradingStrategy.Strategy
         {
  	        base.ValidateParameterValues();
 
-            if (HoldingPeriods <= 0)
+            if (HoldingPeriods < 0)
             {
                 throw new ArgumentOutOfRangeException("HoldingPeriods must be great than 0");
             }
@@ -50,7 +50,7 @@ namespace TradingStrategy.Strategy
                     if (latestBuyTime > _activePostionLatestBuyTime[code])
                     {
                         // new postion has been created, we need to reset record
-                        var periodCount = latestBuyTime < Period ? 1 : 0;
+                        var periodCount = latestBuyTime < CurrentPeriod ? 1 : 0;
 
                         _activePositionHoldingPeriods[code] = periodCount;
                     }
@@ -75,7 +75,7 @@ namespace TradingStrategy.Strategy
         {
             // create new record
             _activePostionLatestBuyTime.Add(code, latestBuyTime);
-            var periodCount = latestBuyTime < Period ? 1 : 0;
+            var periodCount = latestBuyTime < CurrentPeriod ? 1 : 0;
 
             _activePositionHoldingPeriods.Add(code, periodCount);
         }

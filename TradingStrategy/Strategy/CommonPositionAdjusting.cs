@@ -32,6 +32,9 @@ namespace TradingStrategy.Strategy
         [Parameter(false, "只在上升趋势加仓标志")]
         public bool AddPositionInUpTrendOnly { get; set; }
 
+        [Parameter(10, "两个头寸所允许的最大间隔（按日计）， 0表示没有限制")]
+        public int MaxIntervalInDaysBetweenTwoPositions { get; set; }
+
         protected override void ValidateParameterValues()
         {
             base.ValidateParameterValues();
@@ -44,6 +47,11 @@ namespace TradingStrategy.Strategy
             if (RiskPercentageTrigger <= 0.0)
             {
                 throw new ArgumentOutOfRangeException("RiskPercentageTrigger must be greater than 0.0");
+            }
+
+            if(MaxIntervalInDaysBetweenTwoPositions < 0)
+            {
+                throw new ArgumentOutOfRangeException("MaxPeriodIntervalBetweenTwoPositions must be equal or greater than 0");
             }
         }
 
@@ -113,6 +121,16 @@ namespace TradingStrategy.Strategy
                 }
 
                 var lastPosition = positions.Last();
+                // ensure max period interval between two positions
+                if (MaxIntervalInDaysBetweenTwoPositions > 0)
+                {
+                    var span = CurrentPeriod - lastPosition.BuyTime;
+                    if (span.Days > MaxIntervalInDaysBetweenTwoPositions)
+                    {
+                        continue;
+                    }
+                }
+
                 var tradingObject = _allTradingObjects[code];
 
                 var bar = Context.GetBarOfTradingObjectForCurrentPeriod(tradingObject);

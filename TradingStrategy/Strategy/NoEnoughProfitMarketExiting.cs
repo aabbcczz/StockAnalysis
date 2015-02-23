@@ -101,7 +101,7 @@ namespace TradingStrategy.Strategy
             // create new record
 
             // if lastestBuyTime == Period, it means the position is created at the morning, so periodCount should be 1.
-            var periodCount = latestBuyTime <= Period ? 1 : 0;
+            var periodCount = latestBuyTime <= CurrentPeriod ? 1 : 0;
 
             _activePositionHoldingPeriods.Add(code, periodCount);
         }

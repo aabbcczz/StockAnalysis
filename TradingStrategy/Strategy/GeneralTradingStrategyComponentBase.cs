@@ -8,7 +8,7 @@ namespace TradingStrategy.Strategy
     {
         protected IEvaluationContext Context { get; private set; }
 
-        protected DateTime Period { get; private set; }
+        protected DateTime CurrentPeriod { get; private set; }
 
         public abstract string Name { get; }
 
@@ -56,7 +56,7 @@ namespace TradingStrategy.Strategy
 
         public virtual void StartPeriod(DateTime time)
         {
-            Period = time;
+            CurrentPeriod = time;
         }
 
         public virtual void EvaluateSingleObject(ITradingObject tradingObject, Bar bar)
@@ -65,7 +65,7 @@ namespace TradingStrategy.Strategy
 
         public virtual void EndPeriod()
         {
-            Period = DateTime.MinValue;
+            CurrentPeriod = DateTime.MinValue;
         }
 
         public virtual void Finish()

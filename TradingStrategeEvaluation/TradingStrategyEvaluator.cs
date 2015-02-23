@@ -398,10 +398,26 @@ namespace TradingStrategyEvaluation
 
             CompletedTransaction completedTransaction;
             var succeeded = _equityManager.ExecuteTransaction(
-                transaction,
-                _settings.AllowNegativeCapital,
-                out completedTransaction,
-                out error);
+                            transaction,
+                            _settings.AllowNegativeCapital,
+                            out completedTransaction,
+                            out error);
+
+            if (!succeeded)
+            {
+                if (transaction.Action == TradingAction.OpenLong)
+                {
+                    // HACK: try to adjust volume to reduce money used and make transaction succeeded.
+                    transaction.Volume = (int)((double)transaction.Volume / 1.1);
+                    transaction.Volume -= transaction.Volume % 100;
+
+                    succeeded = _equityManager.ExecuteTransaction(
+                                    transaction,
+                                    _settings.AllowNegativeCapital,
+                                    out completedTransaction,
+                                    out error);
+                }
+            }
 
             transaction.Succeeded = succeeded;
             transaction.Error = error;

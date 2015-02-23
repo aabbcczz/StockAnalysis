@@ -33,7 +33,7 @@ namespace TradingStrategy.Strategy
 
         public override int EstimatePositionSize(ITradingObject tradingObject, double price, double stopLossGap, out string comments)
         {
-            var currentEquity = Context.GetCurrentEquity(Period, EquityEvaluationMethod);
+            var currentEquity = Context.GetCurrentEquity(CurrentPeriod, EquityEvaluationMethod);
 
             var size = (int)(currentEquity * PercentageOfEquityForEachRisk / 100.0 / Math.Abs(stopLossGap));
 

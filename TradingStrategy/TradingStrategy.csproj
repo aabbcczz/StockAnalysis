@@ -100,9 +100,11 @@
     <Compile Include="Strategy\ErFilterMarketEntering.cs" />
     <Compile Include="Strategy\GeneralPositionAdjustingBase.cs" />
     <Compile Include="Strategy\BounceMarketEntering.cs" />
+    <Compile Include="Strategy\MovingAverageFilterMarketExiting.cs" />
+    <Compile Include="Strategy\MovingAverageTrendDetector.cs" />
     <Compile Include="Strategy\OpenPositionInstructionOrder.cs" />
     <Compile Include="Strategy\RandomMarketEntering.cs" />
-    <Compile Include="Strategy\PriceChangeFilterMarketEntering.cs" />
+    <Compile Include="Strategy\PriceAndVolumeChangeFilterMarketEntering.cs" />
     <Compile Include="Strategy\RebreakoutRuntimeMetric.cs" />
     <Compile Include="Strategy\RebreakoutMarketEntering.cs" />
     <Compile Include="Strategy\BreakoutMarketExiting.cs" />

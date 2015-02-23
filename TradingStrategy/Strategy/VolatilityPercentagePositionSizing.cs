@@ -53,7 +53,7 @@ namespace TradingStrategy.Strategy
 
             var volatility = values[0];
 
-            var currentEquity = Context.GetCurrentEquity(Period, EquityEvaluationMethod);
+            var currentEquity = Context.GetCurrentEquity(CurrentPeriod, EquityEvaluationMethod);
 
             var size = (int)(currentEquity * PercentageOfEquityForEachPositionVolatility / 100.0 / volatility);
             comments = string.Format(
