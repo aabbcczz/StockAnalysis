@@ -1,7 +1,7 @@
 ﻿namespace MetricsDefinition.Metrics
 {
-    [Metric("LO")]
-    public sealed class Lowest : SingleOutputRawInputSerialMetric
+    [Metric("LO", "VALUE,INDEX")]
+    public sealed class Lowest : MultipleOutputRawInputSerialMetric
     {
         private double _lowestPrice = double.MaxValue;
         private int _lowestPriceIndex = -1;
@@ -9,6 +9,7 @@
         public Lowest(int windowSize)
             : base(windowSize)
         {
+            Values = new double[2];
         }
 
         public override void Update(double dataPoint)
@@ -40,7 +41,7 @@
                 }
             }
 
-            SetValue(_lowestPrice);
+            SetValue(_lowestPrice, _lowestPriceIndex);
         }
     }
 }

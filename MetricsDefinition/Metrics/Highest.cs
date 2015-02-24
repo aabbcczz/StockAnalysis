@@ -1,7 +1,7 @@
 ﻿namespace MetricsDefinition.Metrics
 {
-    [Metric("HI")]
-    public sealed class Highest : SingleOutputRawInputSerialMetric
+    [Metric("HI", "VALUE,INDEX")]
+    public sealed class Highest : MultipleOutputRawInputSerialMetric
     {
         private double _highestPrice = double.MinValue;
         private int _highestPriceIndex = -1;
@@ -9,6 +9,7 @@
         public Highest(int windowSize)
             : base(windowSize)
         {
+            Values = new double[2];
         }
 
         public override void Update(double dataPoint)
@@ -40,7 +41,7 @@
                 }
             }
 
-            SetValue(_highestPrice);
+            SetValue(_highestPrice, _highestPriceIndex);
         }
      }
 }

@@ -52,9 +52,9 @@ namespace TradingStrategy.Strategy
                 _effectivePeriods.Add(Period4);
             }
 
-            if (_effectivePeriods.Count() < 2)
+            if (_effectivePeriods.Count() < 1)
             {
-                throw new ArgumentException("Need at least 2 effective periods");
+                throw new ArgumentException("Need at least 1 effective periods");
             }
         }
 
