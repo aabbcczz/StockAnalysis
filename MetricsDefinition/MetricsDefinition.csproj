@@ -60,6 +60,7 @@
     <Compile Include="BarInputSerialMetric.cs" />
     <Compile Include="CirculatedArray.cs" />
     <Compile Include="Metrics\AdaptiveMovingAverage.cs" />
+    <Compile Include="Metrics\ReferenceBar.cs" />
     <Compile Include="Metrics\CoefficientOfVariance.cs" />
     <Compile Include="Metrics\CoefficientOfVarianceTrueRange.cs" />
     <Compile Include="Metrics\VolumeChange.cs" />

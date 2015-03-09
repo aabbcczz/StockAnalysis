@@ -210,6 +210,21 @@ namespace TradingStrategyEvaluation
                             Array.Copy(data.DataOrderedByTime, startIndex, tradingData, 0, tradingData.Length);
                         }
 
+                        // check if data is ok
+                        Bar lastBar = tradingData[0];
+                        for (int i = 1; i < tradingData.Length; ++i)
+                        {
+                            Bar bar = tradingData[i];
+                            if (bar.HighestPrice > lastBar.ClosePrice * 1.12
+                                || bar.LowestPrice < lastBar.ClosePrice * 0.88)
+                            {
+                                // invalid data
+                                return;
+                            }
+
+                            lastBar = bar;
+                        }
+
                         lock (allFirstNonWarmupDataPeriods)
                         {
                             allFirstNonWarmupDataPeriods.Add(data.Name.Code, firstNonWarmupDataPeriod);
