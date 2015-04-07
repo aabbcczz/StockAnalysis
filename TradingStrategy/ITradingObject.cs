@@ -14,6 +14,11 @@
         // name, like '中国平安'
         string Name { get; }
 
+        // specific object associated with this trading object. the value depends on the type of
+        // trading object. for example, for china stock trading object, this field will be associated
+        // which a StockName object.
+        object Object { get; }
+
         int VolumePerHand { get; }
 
         // volume per unit for buying

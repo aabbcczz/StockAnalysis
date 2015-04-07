@@ -47,7 +47,7 @@ namespace TradingStrategy.Strategy
             _atrMetricProxy = new RuntimeMetricProxy(Context.MetricManager, string.Format("ATR[{0}]", VolatilityWindowSize));
         }
 
-        public override int EstimatePositionSize(ITradingObject tradingObject, double price, double stopLossGap, out string comments)
+        public override int EstimatePositionSize(ITradingObject tradingObject, double price, double stopLossGap, out string comments, int totalNumberOfObjectsToBeEstimated)
         {
             var values = _atrMetricProxy.GetMetricValues(tradingObject);
 

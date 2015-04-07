@@ -1,4 +1,6 @@
 ﻿using TradingStrategy;
+using StockAnalysis.Share;
+using System.Linq;
 
 namespace TradingStrategyEvaluation
 {
@@ -9,6 +11,8 @@ namespace TradingStrategyEvaluation
         public string Code { get; private set; }
 
         public string Name { get; private set; }
+
+        public object Object { get; private set; }
 
         public int VolumePerHand { get; private set; }
 
@@ -24,8 +28,7 @@ namespace TradingStrategyEvaluation
 
         public ChinaStock(
             int index,
-            string code, 
-            string name, 
+            StockName stockName,
             int volumePerHand = 100,
             int volumePerBuyingUnit = 100,
             int volumePerSellingUnit = 1, 
@@ -34,8 +37,9 @@ namespace TradingStrategyEvaluation
             double limitDownRatio = 0.1)
         {
             Index = index;
-            Code = code;
-            Name = name;
+            Code = stockName.Code;
+            Name = stockName.Names.Last();
+            Object = stockName;
             VolumePerHand = volumePerHand;
             VolumePerBuyingUnit = volumePerBuyingUnit;
             VolumePerSellingUnit = volumePerSellingUnit;

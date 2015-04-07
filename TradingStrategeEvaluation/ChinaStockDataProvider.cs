@@ -259,7 +259,7 @@ namespace TradingStrategyEvaluation
             var tempTradingData = allTradingData.OrderBy(t => t.Name.Code).ToArray();
 
             _stocks = Enumerable.Range(0, tempTradingData.Length)
-                .Select(i => (ITradingObject)new ChinaStock(i, tempTradingData[i].Name.Code, tempTradingData[i].Name.Names.Last()))
+                .Select(i => (ITradingObject)new ChinaStock(i, tempTradingData[i].Name))
                 .ToArray();
 
             for (var i = 0; i < _stocks.Length; ++i) 

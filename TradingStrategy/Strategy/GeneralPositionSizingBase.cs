@@ -4,6 +4,6 @@
         : GeneralTradingStrategyComponentBase
         , IPositionSizingComponent
     {
-        public abstract int EstimatePositionSize(ITradingObject tradingObject, double price, double stopLossGap, out string comments);
+        public abstract int EstimatePositionSize(ITradingObject tradingObject, double price, double stopLossGap, out string comments, int totalNumberOfObjectsToBeEstimated);
     }
 }

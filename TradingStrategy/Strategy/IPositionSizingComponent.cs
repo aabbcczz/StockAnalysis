@@ -12,6 +12,6 @@
         /// price + stopLossGap = the price that the loss of position should be stopped</param>
         /// <param name="comments">comments on how the size is estimated</param>
         /// <returns>size of position</returns>
-        int EstimatePositionSize(ITradingObject tradingObject, double price, double stopLossGap, out string comments);
+        int EstimatePositionSize(ITradingObject tradingObject, double price, double stopLossGap, out string comments, int totalNumberOfObjectsToBeEstimated);
     }
 }

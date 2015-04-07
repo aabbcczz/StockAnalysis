@@ -78,6 +78,7 @@
     <Compile Include="StockBlockManager.cs" />
     <Compile Include="StockBlockRelationship.cs" />
     <Compile Include="StockBlockRelationshipManager.cs" />
+    <Compile Include="StockBoard.cs" />
     <Compile Include="StockHistoryData.cs" />
     <Compile Include="Bar.cs" />
     <Compile Include="StockMarket.cs" />

@@ -353,10 +353,12 @@ namespace EvaluatorCmdClient
                                     strategyInstances[t] = null;
                                 });
                         }
-                        finally
+                        catch
                         {
                             _toBeStopped = true;
-
+                        }
+                        finally
+                        {
                             lock (_contextManager)
                             {
                                 // save result summary

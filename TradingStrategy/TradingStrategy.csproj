@@ -63,6 +63,9 @@
   <ItemGroup>
     <Compile Include="CompletedTransaction.cs" />
     <Compile Include="EquityEvaluationMethod.cs" />
+    <Compile Include="GroupMetrics\ShortTermTradeIndex.cs" />
+    <Compile Include="GroupMetrics\AdvanceDeclineVolumeLineAndRatio.cs" />
+    <Compile Include="GroupMetrics\StockBoardMetricsManager.cs" />
     <Compile Include="GroupMetrics\BlockMetricsManager.cs" />
     <Compile Include="GroupMetrics\BlockMetricSorterManager.cs" />
     <Compile Include="GroupMetrics\GroupAverage.cs" />
@@ -101,6 +104,7 @@
     <Compile Include="Strategy\GeneralPositionAdjustingBase.cs" />
     <Compile Include="Strategy\BounceMarketEntering.cs" />
     <Compile Include="Strategy\GapDownBounceMarketEntering.cs" />
+    <Compile Include="Strategy\FirstBailoutMarketExiting.cs" />
     <Compile Include="Strategy\UpFromLowestFilterMarketEntering.cs" />
     <Compile Include="Strategy\MovingAverageFilterMarketExiting.cs" />
     <Compile Include="Strategy\MovingAverageTrendDetector.cs" />

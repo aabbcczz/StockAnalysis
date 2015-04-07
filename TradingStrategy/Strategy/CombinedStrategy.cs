@@ -151,6 +151,8 @@ namespace TradingStrategy.Strategy
                 }
             }
 
+            List<Tuple<ITradingObject, double, string, object[]>> newPositionsToBeCreated = new List<Tuple<ITradingObject, double, string, object[]>>();
+
             for (var i = 0; i < tradingObjects.Length; ++i)
             {
                 var tradingObject = tradingObjects[i];
@@ -256,13 +258,27 @@ namespace TradingStrategy.Strategy
 
                         if (canEnter)
                         {
-                            CreateIntructionForBuying(
-                                tradingObject,
-                                bar.ClosePrice,
-                                "Entering market: " + string.Join(";", allComments),
-                                objectsForEntering.Count > 0 ? objectsForEntering.ToArray() : null);
+                            newPositionsToBeCreated.Add(
+                                Tuple.Create(
+                                    tradingObject,
+                                    bar.ClosePrice,
+                                    "Entering market: " + string.Join(";", allComments),
+                                    objectsForEntering.Count > 0 ? objectsForEntering.ToArray() : null));
                         }
                     }
+                }
+            }
+
+            if (newPositionsToBeCreated.Count > 0)
+            {
+                foreach (var tuple in newPositionsToBeCreated)
+                {
+                    CreateIntructionForBuying(
+                        tuple.Item1,
+                        tuple.Item2,
+                        tuple.Item3,
+                        tuple.Item4,
+                        newPositionsToBeCreated.Count);
                 }
             }
         }
@@ -386,7 +402,7 @@ namespace TradingStrategy.Strategy
             }
         }
 
-        private void CreateIntructionForBuying(ITradingObject tradingObject, double price, string comments, object[] relatedObjects)
+        private void CreateIntructionForBuying(ITradingObject tradingObject, double price, string comments, object[] relatedObjects, int totalNumberOfObjectsToBeEstimated)
         {
             string stopLossComments;
             var stopLossGap = _stopLoss.EstimateStopLossGap(tradingObject, price, out stopLossComments);
@@ -396,7 +412,7 @@ namespace TradingStrategy.Strategy
             }
 
             string positionSizeComments;
-            var volume = _positionSizing.EstimatePositionSize(tradingObject, price, stopLossGap, out positionSizeComments);
+            var volume = _positionSizing.EstimatePositionSize(tradingObject, price, stopLossGap, out positionSizeComments, totalNumberOfObjectsToBeEstimated);
 
             // adjust volume to ensure it fit the trading object's constraint
             volume -= volume % tradingObject.VolumePerBuyingUnit;

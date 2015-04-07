@@ -15,10 +15,13 @@ namespace StockAnalysis.Share
             {
                 _code = NormalizeCode(value);
                 Market = GetMarket(value);
+                Board = GetBoard(value);
             }
         }
 
         public StockExchangeMarket Market { get; private set; }
+
+        public StockBoard Board { get; private set; }
 
         public string[] Names { get; private set; }
 
@@ -59,6 +62,28 @@ namespace StockAnalysis.Share
             }
             return StockExchangeMarket.Unknown;
         }
+
+        private static StockBoard GetBoard(string code)
+        {
+            code = UnnormalizeCode(code);
+            if (code.StartsWith("3"))
+            {
+                return StockBoard.GrowingBoard;
+            }
+            
+            if (code.StartsWith("6"))
+            {
+                return StockBoard.MainBoard;
+            }
+            
+            if (code.StartsWith("002"))
+            {
+                return StockBoard.SmallMiddleBoard;
+            }
+
+            return StockBoard.Unknown;
+        }
+
 
         private StockName()
         {
