@@ -1,13 +1,12 @@
 ﻿using System;
 using TradingStrategy.Base;
+using TradingStrategy.MetricBooleanExpression;
 
 namespace TradingStrategy.Strategy
 {
     public sealed class BreakoutMarketExiting
-        : GeneralMarketExitingBase
+        : MetricBasedMarketExiting
     {
-        private RuntimeMetricProxy _metricProxy;
-
         public override string Name
         {
             get { return "通道突破退市"; }
@@ -24,35 +23,14 @@ namespace TradingStrategy.Strategy
         [Parameter(1, "价格选择选项。0为最高价，1为最低价，2为收盘价，3为开盘价")]
         public int PriceSelector { get; set; }
 
-        protected override void RegisterMetric()
+        protected override IMetricBooleanExpression BuildExpression()
         {
-            base.RegisterMetric();
-
-            _metricProxy = new RuntimeMetricProxy(Context.MetricManager, 
+            return new Comparison(
                 string.Format(
-                    "LO[{0}](BAR.{1})",
+                    "LO[{0}](BAR.{1}) == BAR.{1}",
                     BreakoutWindow,
                     BarPriceSelector.GetSelectorString(PriceSelector)));
-        }
 
-        public override bool ShouldExit(ITradingObject tradingObject, out string comments)
-        {
-            comments = string.Empty;
-
-            var values = _metricProxy.GetMetricValues(tradingObject);
-
-            var bar = Context.GetBarOfTradingObjectForCurrentPeriod(tradingObject);
-
-            var price = BarPriceSelector.Select(bar, PriceSelector);
-
-            bool breakthough = Math.Abs(price - values[0]) < 1e-6;
-
-            if (breakthough)
-            {
-                comments = string.Format("Breakout: {0:0.0000}", price);
-            }
-
-            return breakthough;
         }
     }
 }

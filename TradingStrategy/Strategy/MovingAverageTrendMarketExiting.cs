@@ -5,8 +5,8 @@ using TradingStrategy.Base;
 
 namespace TradingStrategy.Strategy
 {
-    public sealed class MovingAverageFilterMarketEntering
-        : GeneralMarketEnteringBase
+    public sealed class MovingAverageTrendMarketExiting
+        : GeneralMarketExitingBase
     {
         private MovingAverageTrendDetector _trendDetector;
 
@@ -68,20 +68,19 @@ namespace TradingStrategy.Strategy
 
         public override string Name
         {
-            get { return "移动平均入市过滤器"; }
+            get { return "移动平均趋势退市"; }
         }
 
         public override string Description
         {
-            get { return "当各个周期的移动平均值按照周期大小逆序排列时（即图形上小周期的均值在上，大周期均值在下）允许入市"; }
+            get { return "当各个周期的移动平均值不按照周期大小逆序排列时（即图形上小周期的均值在上，大周期均值在下）退市"; }
         }
 
-        public override bool CanEnter(ITradingObject tradingObject, out string comments, out object obj)
+        public override bool ShouldExit(ITradingObject tradingObject, out string comments)
         {
             comments = string.Empty;
-            obj = null;
 
-            if (_trendDetector.HasTrend(tradingObject))
+            if (!_trendDetector.HasTrend(tradingObject))
             {
                 for (int i = 0; i < _trendDetector.PeriodsCount; ++i)
                 {

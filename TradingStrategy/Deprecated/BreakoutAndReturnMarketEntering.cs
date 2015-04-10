@@ -3,6 +3,7 @@ using TradingStrategy.Base;
 
 namespace TradingStrategy.Strategy
 {
+    [DeprecatedStrategy]
     public sealed class BreakoutAndReturnMarketEntering 
         : GeneralMarketEnteringBase
     {

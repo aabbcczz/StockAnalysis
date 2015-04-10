@@ -61,7 +61,7 @@ namespace TradingStrategy.MetricBooleanExpression
                 _rightValueExtractor.ExtractValue(tradingObject));
         }
 
-        public string GetExpression(ITradingObject tradingObject)
+        public string GetInstantializedExpression(ITradingObject tradingObject)
         {
             StringBuilder builder = new StringBuilder();
 

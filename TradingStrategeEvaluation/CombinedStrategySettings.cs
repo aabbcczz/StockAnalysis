@@ -76,7 +76,9 @@ namespace TradingStrategyEvaluation
                         && !type.IsAbstract 
                         && typeof(ITradingStrategyComponent).IsAssignableFrom(type)
                         && !typeof(ITradingStrategy).IsAssignableFrom(type)
-                        && !type.IsInterface));
+                        && !type.IsInterface
+                        && !Attribute.IsDefined(type, typeof(DeprecatedStrategyAttribute))));
+
 
             settings.ComponentSettings = allComponents
                 .OrderBy(t => t, new TradingStrategyComponentComparer())

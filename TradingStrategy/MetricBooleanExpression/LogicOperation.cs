@@ -60,12 +60,12 @@ namespace TradingStrategy.MetricBooleanExpression
             }
         }
 
-        public string GetExpression(ITradingObject tradingObject)
+        public string GetInstantializedExpression(ITradingObject tradingObject)
         {
             return string.Format("({0}) {1} ({2})", 
-                _expression1.GetExpression(tradingObject), 
+                _expression1.GetInstantializedExpression(tradingObject), 
                 GetOperationString(),
-                _expression2.GetExpression(tradingObject));
+                _expression2.GetInstantializedExpression(tradingObject));
         }
 
         public abstract bool Operate(bool v1, bool v2);

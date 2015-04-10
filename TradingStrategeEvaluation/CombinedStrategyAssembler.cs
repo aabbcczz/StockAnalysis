@@ -162,10 +162,17 @@ namespace TradingStrategyEvaluation
         {
             foreach (var settings in _componentSettings)
             {
-                if (Type.GetType(settings.ClassType, false) == null)
+                var classType = Type.GetType(settings.ClassType, false);
+                if (classType == null)
                 {
                     throw new InvalidOperationException(
                         string.Format("{0} is not valid type", settings.ClassType));
+                }
+
+                if (Attribute.IsDefined(classType, typeof(DeprecatedStrategyAttribute)))
+                {
+                    throw new InvalidOperationException(
+                        string.Format("{0} is deprecated", settings.ClassType));
                 }
             }
 

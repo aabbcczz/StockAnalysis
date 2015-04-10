@@ -1,13 +1,12 @@
 ﻿using System;
 using TradingStrategy.Base;
+using TradingStrategy.MetricBooleanExpression;
 
 namespace TradingStrategy.Strategy
 {
     public sealed class BreakoutMarketEntering
-        : GeneralMarketEnteringBase
+        : MetricBasedMarketEntering
     {
-        private RuntimeMetricProxy _metricProxy;
-
         public override string Name
         {
             get { return "通道突破入市"; }
@@ -24,36 +23,14 @@ namespace TradingStrategy.Strategy
         [Parameter(0, "价格选择选项。0为最高价，1为最低价，2为收盘价，3为开盘价")]
         public int PriceSelector { get; set; }
 
-        protected override void RegisterMetric()
+        protected override IMetricBooleanExpression BuildExpression()
         {
-            base.RegisterMetric();
-
-            _metricProxy = new RuntimeMetricProxy(Context.MetricManager, 
+            return new Comparison(
                 string.Format(
-                        "HI[{0}](BAR.{1})",
-                        BreakoutWindow,
-                        BarPriceSelector.GetSelectorString(PriceSelector)));
-        }
+                    "HI[{0}](BAR.{1}) == BAR.{1}",
+                    BreakoutWindow,
+                    BarPriceSelector.GetSelectorString(PriceSelector)));
 
-        public override bool CanEnter(ITradingObject tradingObject, out string comments, out object obj)
-        {
-            comments = string.Empty;
-            obj = null;
-
-            var values = _metricProxy.GetMetricValues(tradingObject);
-
-            var bar = Context.GetBarOfTradingObjectForCurrentPeriod(tradingObject);
-
-            var price = BarPriceSelector.Select(bar, PriceSelector);
-
-            var breakout = Math.Abs(values[0] - price) < 1e-6;
-
-            if (breakout)
-            {
-                comments = string.Format("Breakout: {0:0.0000}", price);
-            }
-
-            return breakout;
         }
     }
 }

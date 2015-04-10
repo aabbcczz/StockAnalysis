@@ -1,24 +1,23 @@
 ﻿using System;
 using MetricsDefinition;
 using TradingStrategy.Base;
+using TradingStrategy.MetricBooleanExpression;
 
 namespace TradingStrategy.Strategy
 {
     public sealed class ErFilterMarketEntering 
-        : GeneralMarketEnteringBase
+        : MetricBasedMarketEntering
     {
-        private RuntimeMetricProxy _metricProxy;
-
         [Parameter(10, "EfficiencyRatio周期")]
         public int ErWindowSize { get; set; }
 
         [Parameter(0.8, "EfficiencyRatio阈值")]
         public double ErThreshold { get; set; }
 
-        protected override void RegisterMetric()
+        protected override IMetricBooleanExpression BuildExpression()
         {
-            base.RegisterMetric();
-            _metricProxy = new RuntimeMetricProxy(Context.MetricManager, string.Format("ER[{0}]", ErWindowSize));
+            return new Comparison(
+                string.Format("ER[{0}] > {1:0.000}", ErWindowSize, ErThreshold));
         }
 
         protected override void ValidateParameterValues()
@@ -44,27 +43,6 @@ namespace TradingStrategy.Strategy
         public override string Description
         {
             get { return "当EfficiencyRatio超过ErThreshold时允许入市"; }
-        }
-
-        public override bool CanEnter(ITradingObject tradingObject, out string comments, out object obj)
-        {
-            comments = string.Empty;
-            obj = null;
-
-            var values = _metricProxy.GetMetricValues(tradingObject);
-
-            var efficiencyRatio = values[0];
-
-            if (efficiencyRatio > ErThreshold)
-            {
-                comments = string.Format(
-                    "ER:{0:0.000}",
-                    efficiencyRatio);
-
-                return true;
-            }
-
-            return false;
         }
     }
 }

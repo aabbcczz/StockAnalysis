@@ -2,14 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using TradingStrategy.Base;
+using TradingStrategy.MetricBooleanExpression;
 
 namespace TradingStrategy.Strategy
 {
+    [DeprecatedStrategy]
     public sealed class UpFromLowestFilterMarketEntering
-        : GeneralMarketEnteringBase
+        : MetricBasedMarketEntering
     {
-        private RuntimeMetricProxy _lowestMetricProxy;
-
         [Parameter(10, "局部最低点计算周期")]
         public int LowestCalculationPeriod { get; set; }
 
@@ -29,13 +29,19 @@ namespace TradingStrategy.Strategy
             }
         }
 
-        protected override void RegisterMetric()
+        protected override MetricBooleanExpression.IMetricBooleanExpression BuildExpression()
         {
-            base.RegisterMetric();
-
-            _lowestMetricProxy = new RuntimeMetricProxy(
-                Context.MetricManager,
-                string.Format("LO[{0}]", LowestCalculationPeriod));
+            return new LogicAnd(
+                new Comparison(
+                    string.Format(
+                        "LO[{0}].INDEX >= {1:0.000}", 
+                        LowestCalculationPeriod, 
+                        LowestCalculationPeriod - MaxPeriodAwayFromLowest - 1)),
+                new Comparison(
+                    string.Format(
+                        "LO[{0}].INDEX <= {1:0.000}", 
+                        LowestCalculationPeriod, 
+                        LowestCalculationPeriod - MinPeriodAwayFromLowest - 1)));
         }
 
         public override string Name
@@ -46,29 +52,6 @@ namespace TradingStrategy.Strategy
         public override string Description
         {
             get { return "当价格从局部最低点上升并且距离局部最低点的距离在范围内允许入市"; }
-        }
-
-        public override bool CanEnter(ITradingObject tradingObject, out string comments, out object obj)
-        {
-            comments = string.Empty;
-            obj = null;
-
-            var lowestMetric = _lowestMetricProxy.GetMetric(tradingObject);
-
-            int lowestIndex = (int)lowestMetric.Values[1] + 1;
-
-            if (lowestIndex >= LowestCalculationPeriod - MaxPeriodAwayFromLowest
-                && lowestIndex <= LowestCalculationPeriod - MinPeriodAwayFromLowest)
-            {
-                comments += string.Format(
-                    "LowestIndex: {0}/{1}",
-                    lowestIndex,
-                    LowestCalculationPeriod);
-
-                return true;
-            }
-
-            return false;
         }
     }
 }

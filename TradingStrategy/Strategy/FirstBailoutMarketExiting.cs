@@ -59,6 +59,13 @@ namespace TradingStrategy.Strategy
 
             if(!Context.ExistsPosition(tradingObject.Code))
             {
+                // remove obseleted data
+                if (_activeKeptPeriods.ContainsKey(tradingObject.Index))
+                {
+                    _activeKeptPeriods.Remove(tradingObject.Index);
+                    _comments.Remove(tradingObject.Index);
+                }
+
                 return false;
             }
 

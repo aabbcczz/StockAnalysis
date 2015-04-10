@@ -12,6 +12,6 @@ namespace TradingStrategy.MetricBooleanExpression
 
         bool IsTrue(ITradingObject tradingObject);
 
-        string GetExpression(ITradingObject tradingObject);
+        string GetInstantializedExpression(ITradingObject tradingObject);
     }
 }

@@ -12,6 +12,7 @@ using CsvHelper;
 
 namespace TradingStrategy.Strategy
 {
+    [DeprecatedStrategy]
     public sealed class BlockPriceIndexFilterMarketEntering : GeneralMarketEnteringBase
     {
         public sealed class BlockUpRatesFromLowestForCode

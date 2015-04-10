@@ -5,8 +5,8 @@ using TradingStrategy.Base;
 
 namespace TradingStrategy.Strategy
 {
-    public sealed class MovingAverageFilterMarketExiting
-        : GeneralMarketExitingBase
+    public sealed class MovingAverageTrendMarketEntering
+        : GeneralMarketEnteringBase
     {
         private MovingAverageTrendDetector _trendDetector;
 
@@ -55,7 +55,7 @@ namespace TradingStrategy.Strategy
 
             if (_effectivePeriods.Count() < 1)
             {
-                throw new ArgumentException("Need at least 2 effective periods");
+                throw new ArgumentException("Need at least 1 effective periods");
             }
         }
 
@@ -68,19 +68,20 @@ namespace TradingStrategy.Strategy
 
         public override string Name
         {
-            get { return "移动平均退市过滤器"; }
+            get { return "移动平均趋势入市"; }
         }
 
         public override string Description
         {
-            get { return "当各个周期的移动平均值不按照周期大小逆序排列时（即图形上小周期的均值在上，大周期均值在下）退市"; }
+            get { return "当各个周期的移动平均值按照周期大小逆序排列时（即图形上小周期的均值在上，大周期均值在下）允许入市"; }
         }
 
-        public override bool ShouldExit(ITradingObject tradingObject, out string comments)
+        public override bool CanEnter(ITradingObject tradingObject, out string comments, out object obj)
         {
             comments = string.Empty;
+            obj = null;
 
-            if (!_trendDetector.HasTrend(tradingObject))
+            if (_trendDetector.HasTrend(tradingObject))
             {
                 for (int i = 0; i < _trendDetector.PeriodsCount; ++i)
                 {
