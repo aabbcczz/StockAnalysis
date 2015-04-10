@@ -10,6 +10,8 @@ using StockAnalysis.Share;
 using TradingStrategy;
 using TradingStrategy.Strategy;
 using TradingStrategyEvaluation;
+using TradingStrategy.Base;
+
 using System.Threading;
 using CsvHelper;
 

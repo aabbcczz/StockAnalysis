@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using TradingStrategy.Base;
 
 namespace TradingStrategy.Strategy
 {
@@ -28,9 +29,9 @@ namespace TradingStrategy.Strategy
             }
         }
 
-        public override void Initialize(IEvaluationContext context, IDictionary<ParameterAttribute, object> parameterValues)
+        protected override void RegisterMetric()
         {
-            base.Initialize(context, parameterValues);
+            base.RegisterMetric();
 
             _lowestMetricProxy = new RuntimeMetricProxy(
                 Context.MetricManager,

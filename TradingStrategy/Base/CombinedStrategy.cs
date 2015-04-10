@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using StockAnalysis.Share;
 
-namespace TradingStrategy.Strategy
+namespace TradingStrategy.Base
 {
     public sealed class CombinedStrategy : ITradingStrategy
     {

@@ -1,4 +1,5 @@
 ﻿using System;
+using TradingStrategy.Base;
 
 namespace TradingStrategy.Strategy
 {

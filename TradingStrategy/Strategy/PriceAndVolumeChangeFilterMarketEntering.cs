@@ -1,4 +1,5 @@
 ﻿using System;
+using TradingStrategy.Base;
 
 namespace TradingStrategy.Strategy
 {
@@ -51,9 +52,9 @@ namespace TradingStrategy.Strategy
             }
         }
 
-        public override void Initialize(IEvaluationContext context, System.Collections.Generic.IDictionary<ParameterAttribute, object> parameterValues)
+        protected override void RegisterMetric()
         {
-            base.Initialize(context, parameterValues);
+            base.RegisterMetric();
 
             _priceChangeMetricProxy = new RuntimeMetricProxy(Context.MetricManager, "ROC[1]");
             _volumeChangeMetricProxy = new RuntimeMetricProxy(Context.MetricManager, string.Format("VC[{0}]", VolumeLookbackWindow));

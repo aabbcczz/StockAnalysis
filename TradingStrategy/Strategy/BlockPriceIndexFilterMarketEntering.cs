@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 using TradingStrategy.GroupMetrics;
 using MetricsDefinition.Metrics;
+using TradingStrategy.Base;
 using CsvHelper;
 
 namespace TradingStrategy.Strategy

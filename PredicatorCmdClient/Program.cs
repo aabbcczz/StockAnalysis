@@ -9,6 +9,7 @@ using CommandLine;
 using StockAnalysis.Share;
 using TradingStrategy;
 using TradingStrategy.Strategy;
+using TradingStrategy.Base;
 using TradingStrategyEvaluation;
 using System.Threading;
 using CsvHelper;

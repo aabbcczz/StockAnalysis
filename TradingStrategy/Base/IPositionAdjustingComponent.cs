@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace TradingStrategy.Strategy
+namespace TradingStrategy.Base
 {
     public interface IPositionAdjustingComponent : ITradingStrategyComponent
     {

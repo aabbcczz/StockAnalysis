@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using StockAnalysis.Share;
+using TradingStrategy.Base;
 
 namespace TradingStrategy.Strategy
 {

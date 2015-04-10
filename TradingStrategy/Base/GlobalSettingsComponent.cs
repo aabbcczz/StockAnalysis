@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Reflection;
 
-namespace TradingStrategy.Strategy
+namespace TradingStrategy.Base
 {
     public sealed class GlobalSettingsComponent : GeneralTradingStrategyComponentBase
     {
@@ -23,16 +23,16 @@ namespace TradingStrategy.Strategy
         public OpenPositionInstructionOrder InstructionOrder { get; set; }
 
         [Parameter(InstructionSortMode.NoSorting, @"加仓指令排序模式，取值为：
-NoSorting = 0,
-Randomize = 1,
-SortByInstructionIdAscending = 2,
-SortByInstructionIdDescending = 3,
-SortByCodeAscending = 4,
-SortByCodeDescending = 5,
-SortByVolumeAscending = 6,
-SortByVolumeDescending = 7,
-SortByMetricAscending = 8,
-SortByMetricDescending = 9")]
+            NoSorting = 0,
+            Randomize = 1,
+            SortByInstructionIdAscending = 2,
+            SortByInstructionIdDescending = 3,
+            SortByCodeAscending = 4,
+            SortByCodeDescending = 5,
+            SortByVolumeAscending = 6,
+            SortByVolumeDescending = 7,
+            SortByMetricAscending = 8,
+            SortByMetricDescending = 9")]
         public InstructionSortMode IncreasePositionInstructionSortMode { get; set; }
 
         // metric used for sort instruction for increasing position. it is used only when 
@@ -41,16 +41,16 @@ SortByMetricDescending = 9")]
         public string IncreasePositionSortMetric { get; set; }
 
         [Parameter(InstructionSortMode.NoSorting, @"新建仓指令排序模式，取值为：
-NoSorting = 0,
-Randomize = 1,
-SortByInstructionIdAscending = 2,
-SortByInstructionIdDescending = 3,
-SortByCodeAscending = 4,
-SortByCodeDescending = 5,
-SortByVolumeAscending = 6,
-SortByVolumeDescending = 7,
-SortByMetricAscending = 8,
-SortByMetricDescending = 9")]
+            NoSorting = 0,
+            Randomize = 1,
+            SortByInstructionIdAscending = 2,
+            SortByInstructionIdDescending = 3,
+            SortByCodeAscending = 4,
+            SortByCodeDescending = 5,
+            SortByVolumeAscending = 6,
+            SortByVolumeDescending = 7,
+            SortByMetricAscending = 8,
+            SortByMetricDescending = 9")]
         public InstructionSortMode NewPositionInstructionSortMode { get; set; }
 
         // metric used for sorting instruction for creating new position. it is used only when 

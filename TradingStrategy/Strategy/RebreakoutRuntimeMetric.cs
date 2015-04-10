@@ -1,5 +1,6 @@
 ﻿using System;
 using MetricsDefinition.Metrics;
+using TradingStrategy.Base;
 
 namespace TradingStrategy.Strategy
 {

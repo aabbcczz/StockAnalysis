@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using TradingStrategy.Base;
 
 namespace TradingStrategy.Strategy
 {
@@ -22,9 +23,9 @@ namespace TradingStrategy.Strategy
         [Parameter(0.0, "反弹超过昨日最低价的最小百分比")]
         public double MinBouncePercentageOverLastLowestPrice { get; set; }
 
-        public override void Initialize(IEvaluationContext context, IDictionary<ParameterAttribute, object> parameterValues)
+        protected override void RegisterMetric()
         {
-            base.Initialize(context, parameterValues);
+            base.RegisterMetric();
 
             _movingAverage = new RuntimeMetricProxy(
                 Context.MetricManager,

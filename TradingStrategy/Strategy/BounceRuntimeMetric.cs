@@ -1,6 +1,7 @@
 ﻿using System;
 using MetricsDefinition.Metrics;
 using StockAnalysis.Share;
+using TradingStrategy.Base;
 
 namespace TradingStrategy.Strategy
 {
@@ -11,6 +12,8 @@ namespace TradingStrategy.Strategy
         private readonly double _minBouncePercentage;
 
         private double _minBouncePrice;
+
+        private double[] _values = new double[1];
 
         private enum PriceState
         {
@@ -23,7 +26,7 @@ namespace TradingStrategy.Strategy
 
         public double[] Values
         {
-            get { return null; }
+            get { return _values; }
         }
 
         public double LowestPrice { get; private set; }
@@ -31,11 +34,6 @@ namespace TradingStrategy.Strategy
         public double BouncePrice { get; private set; }
 
         public double BouncePercentage { get; private set; }
-
-        public bool Triggered
-        {
-            get { return _state == PriceState.Bounce; }
-        }
 
         public BounceRuntimeMetric(int windowSize, double minBouncePercentage)
         {
@@ -107,6 +105,8 @@ namespace TradingStrategy.Strategy
 
                     break;
             }
+
+            _values[0] = _state == PriceState.Bounce ? 1.0 : 0.0;
         }
 
         public void Update(StockAnalysis.Share.Bar bar)

@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using TradingStrategy;
 using TradingStrategy.Strategy;
+using TradingStrategy.Base;
 
 namespace TradingStrategyEvaluation
 {

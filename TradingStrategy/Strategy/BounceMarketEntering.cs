@@ -1,4 +1,5 @@
 ﻿using System;
+using TradingStrategy.Base;
 
 namespace TradingStrategy.Strategy
 {
@@ -49,7 +50,7 @@ namespace TradingStrategy.Strategy
             obj = null;
 
             var metric = (BounceRuntimeMetric)_bounceMetricProxy.GetMetric(tradingObject);
-            if (metric.Triggered)
+            if (metric.Values[0] > 0.0)
             {
                 comments = string.Format(
                     "Lowest:{0:0.000}; Current:{1:0.000}; BouncePercentage:{2:0.000}%",

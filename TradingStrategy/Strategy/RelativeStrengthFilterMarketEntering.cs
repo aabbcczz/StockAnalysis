@@ -1,5 +1,6 @@
 ﻿using System;
 using StockAnalysis.Share;
+using TradingStrategy.Base;
 
 namespace TradingStrategy.Strategy
 {

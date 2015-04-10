@@ -4,6 +4,7 @@ using System.IO;
 using System.Xml.Serialization;
 using TradingStrategy;
 using TradingStrategy.Strategy;
+using TradingStrategy.Base;
 
 namespace TradingStrategyEvaluation
 {

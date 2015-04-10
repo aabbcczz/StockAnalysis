@@ -1,4 +1,6 @@
-﻿namespace TradingStrategy.Strategy
+﻿using TradingStrategy.Base;
+
+namespace TradingStrategy.Strategy
 {
     public sealed class NeverMarketExiting 
         : GeneralMarketExitingBase

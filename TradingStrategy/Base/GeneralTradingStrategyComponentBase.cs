@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using StockAnalysis.Share;
 
-namespace TradingStrategy.Strategy
+namespace TradingStrategy.Base
 {
     public abstract class GeneralTradingStrategyComponentBase : ITradingStrategyComponent
     {
