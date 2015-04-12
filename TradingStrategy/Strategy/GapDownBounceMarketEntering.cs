@@ -10,6 +10,7 @@ namespace TradingStrategy.Strategy
     {
         private RuntimeMetricProxy _movingAverage;
         private RuntimeMetricProxy _referenceBar;
+//        private RuntimeMetricProxy _trendDetector;
 
         [Parameter(5, "移动平均趋势线周期")]
         public int MovingAveragePeriod { get; set; }
@@ -33,7 +34,11 @@ namespace TradingStrategy.Strategy
 
             _referenceBar = new RuntimeMetricProxy(
                 Context.MetricManager,
-                string.Format("REFBAR[1]"));
+                "REFBAR[1]");
+
+            //_trendDetector = new RuntimeMetricProxy(
+            //    Context.MetricManager,
+            //    "REF[1](TD[3])");
         }
 
         public override string Name
@@ -55,6 +60,20 @@ namespace TradingStrategy.Strategy
             var lastBarValues = _referenceBar.GetMetricValues(tradingObject);
             var movingAverage = _movingAverage.GetMetricValues(tradingObject)[0];
             var lastBarLowest = lastBarValues[3];
+
+            // filter the case that last day is up: close > open
+            // experiement shows it is unnecessary
+            //if (lastBarValues[0] > lastBarValues[1])
+            //{
+            //    return false;
+            //}
+
+            // require at least 3 decreasing close price before today
+            // experiment shows it is unnecessary
+            //if (_trendDetector.GetMetricValues(tradingObject)[0] >= 0.0)
+            //{
+            //    return false;
+            //}
 
             if (todayBar.ClosePrice < movingAverage * (100.0 - MinPercentageBelowMovingAverage) / 100.0 // below average
                 && todayBar.OpenPrice < lastBarLowest * (100.0 - MinPercentageOfGapDown) / 100.0 // gap down
