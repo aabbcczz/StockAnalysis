@@ -64,6 +64,7 @@
     <Compile Include="Metrics\ReferenceBar.cs" />
     <Compile Include="Metrics\CoefficientOfVariance.cs" />
     <Compile Include="Metrics\CoefficientOfVarianceTrueRange.cs" />
+    <Compile Include="Metrics\CumulativeRelativeStrengthIndex.cs" />
     <Compile Include="Metrics\VolumeChange.cs" />
     <Compile Include="Metrics\CombinedPriceAndVolumeChange.cs" />
     <Compile Include="Metrics\VolatileEnergy.cs" />

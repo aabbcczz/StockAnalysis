@@ -11,5 +11,5 @@
   </SellingCommission>
   <Spread>0</Spread>
   <OpenLongPriceOption>NextOpenPrice</OpenLongPriceOption>
-  <CloseLongPriceOption>NextOpenPrice</CloseLongPriceOption>
+  <CloseLongPriceOption>NextClosePrice</CloseLongPriceOption>
 </TradingSettings>

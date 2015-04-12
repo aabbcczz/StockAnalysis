@@ -85,6 +85,25 @@ namespace TradingStrategy.GroupMetrics
             }
         }
 
+        public IGroupRuntimeMetric GetMetricForTradingObject(ITradingObject tradingObject)
+        {
+            if (tradingObject == null)
+            {
+                throw new ArgumentNullException();
+            }
+
+            if (tradingObject.Object != null && tradingObject.Object is StockName)
+            {
+                StockName stockName = (StockName)tradingObject.Object;
+
+                return GetMetricForBoard(stockName.Board);
+            }
+            else
+            {
+                return GetMetricForBoard(StockBoard.All);
+            }
+        }
+
         public void Observe(IGroupRuntimeMetricManager manager)
         {
             if (AfterUpdatedMetrics != null)
