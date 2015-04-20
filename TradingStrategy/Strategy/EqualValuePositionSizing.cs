@@ -12,6 +12,9 @@ namespace TradingStrategy.Strategy
         [Parameter(100, "自适应划分中所允许的最大划分数目")]
         public int MaxPartsOfAdpativeAllocation { get; set; }
 
+        [Parameter(1000, "最大待处理头寸数目，当待处理头寸数目超过此数时不买入任何头寸")]
+        public int MaxObjectNumberToBeEstimated { get; set; }
+
         [Parameter(EquityEvaluationMethod.InitialEquity, "权益计算方法。0：核心权益法，1：总权益法，2：抵减总权益法，3：初始权益法，4：控制损失初始权益法，5：控制损失总权益法，6：控制损失抵减总权益法")]
         public EquityEvaluationMethod EquityEvaluationMethod { get; set; }
 
@@ -52,6 +55,12 @@ namespace TradingStrategy.Strategy
 
         public override int EstimatePositionSize(ITradingObject tradingObject, double price, double stopLossGap, out string comments, int totalNumberOfObjectsToBeEstimated)
         {
+            if (totalNumberOfObjectsToBeEstimated > MaxObjectNumberToBeEstimated)
+            {
+                comments = string.Empty;
+                return 0;
+            }
+
             var currentEquity = Context.GetCurrentEquity(CurrentPeriod, EquityEvaluationMethod);
 
             int parts = PartsOfEquity == 0

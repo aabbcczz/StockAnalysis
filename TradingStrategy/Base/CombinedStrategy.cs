@@ -293,7 +293,8 @@ namespace TradingStrategy.Base
                     return instructions;
 
                 case InstructionSortMode.Randomize:
-                    return instructions.OrderBy(instruction => _random.Next());
+                    var randomizedInstructions = instructions.OrderBy(instruction => _random.Next());
+                    return randomizedInstructions;
 
                 case InstructionSortMode.SortByCodeAscending:
                     return instructions.OrderBy(instruction => instruction.TradingObject.Code);
@@ -389,6 +390,28 @@ namespace TradingStrategy.Base
                     || (instruction.Action == TradingAction.OpenLong 
                         && !closeLongCodes.ContainsKey(instruction.TradingObject.Code)))
                 .ToList();
+
+            // randomly remove instruction
+            if (_globalSettings.RandomlyRemoveInstruction)
+            {
+                if (_random.Next(100) < _globalSettings.RandomlyRemoveInstructionThreshold)
+                {
+                    var openLongInstructions = _instructionsInCurrentPeriod
+                        .Where(instruction => instruction.Action == TradingAction.OpenLong)
+                        .ToList();
+
+                    if (openLongInstructions.Count() > 0)
+                    {
+                        var index = _random.Next(openLongInstructions.Count());
+                        openLongInstructions.RemoveAt(index);
+
+                        _instructionsInCurrentPeriod = _instructionsInCurrentPeriod
+                            .Where(instruction => instruction.Action == TradingAction.CloseLong)
+                            .Union(openLongInstructions)
+                            .ToList();
+                    }
+                }
+            }
 
             if (_globalSettings.ObservableMetricProxies != null && _globalSettings.ObservableMetricProxies.Length > 0)
             {

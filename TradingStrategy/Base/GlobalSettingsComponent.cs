@@ -62,6 +62,12 @@ namespace TradingStrategy.Base
         [Parameter(0, "Random seeds")]
         public int RandomSeeds { get; set; }
 
+        [Parameter(false, "Randomly remove instruction")]
+        public bool RandomlyRemoveInstruction { get; set; }
+
+        [Parameter(50, "Randomly remove instruction threshold. [0..99]")]
+        public int RandomlyRemoveInstructionThreshold { get; set; }
+
         [Parameter(false, "只允许在价格上涨时出发入市信号")]
         public bool AllowEnteringMarketOnlyWhenPriceIncreasing { get; set; }
 

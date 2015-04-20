@@ -36,6 +36,7 @@ namespace TradingStrategy.MetricBooleanExpression
             else
             {
                 _proxy = null;
+                _constant = constantValue;
                 _isConstant = true;
             }
         }
