@@ -199,6 +199,7 @@ namespace TradingStrategyEvaluation
                             {
                                 // all data are for warming up and there is no official data for evaluation or other
                                 // usage, so we just skip the data.
+
                                 return;
                             }
                         }
@@ -211,19 +212,27 @@ namespace TradingStrategyEvaluation
                         }
 
                         // check if data is ok
-                        Bar lastBar = tradingData[0];
-                        for (int i = 1; i < tradingData.Length; ++i)
-                        {
-                            Bar bar = tradingData[i];
-                            if (bar.HighestPrice > lastBar.ClosePrice * 1.12
-                                || bar.LowestPrice < lastBar.ClosePrice * 0.88)
-                            {
-                                // invalid data
-                                return;
-                            }
+                        //Bar lastBar = tradingData[0];
+                        //for (int i = 1; i < tradingData.Length; ++i)
+                        //{
+                        //    Bar bar = tradingData[i];
+                        //    if (bar.HighestPrice > lastBar.ClosePrice * 3
+                        //        || bar.LowestPrice < lastBar.ClosePrice * 0.5)
+                        //    {
+                        //        // invalid data
+                        //        //Console.WriteLine(
+                        //        //    "Invalid data file {3}/{4}, High:{0:0.000} Low:{1:0.000} Prev.Close: {2:0.000}",
+                        //        //    bar.HighestPrice,
+                        //        //    bar.LowestPrice,
+                        //        //    lastBar.ClosePrice,
+                        //        //    data.Name.Code,
+                        //        //    data.Name.Names.Last());
 
-                            lastBar = bar;
-                        }
+                        //        return;
+                        //    }
+
+                        //    lastBar = bar;
+                        //}
 
                         lock (allFirstNonWarmupDataPeriods)
                         {
@@ -236,6 +245,8 @@ namespace TradingStrategyEvaluation
                         }
                     }
                 });
+
+            Console.WriteLine("{0}/{1} data files are loaded", allTradingData.Count(), dataFiles.Count());
 
             // get all periods.
             _allPeriodsOrdered = allTradingData

@@ -238,11 +238,13 @@ namespace TradingStrategyEvaluation
                 case SellingType.ByStopLossPrice:
                     for (var i = 0; i < positions.Length; ++i)
                     {
-                        if (positions[i].StopLossPrice > transaction.StopLossPriceForSelling)
+                        if (positions[i].StopLossPrice >= transaction.StopLossPriceForSelling
+                            && positions[i].Id == transaction.PositionIdForSell)
                         {
                             remainingVolume -= positions[i].Volume;
 
                             yield return new PositionToBeSold(i, positions[i].Volume);
+                            yield break;
                         }
                     }
                     break;

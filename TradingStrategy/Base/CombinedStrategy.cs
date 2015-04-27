@@ -209,24 +209,53 @@ namespace TradingStrategy.Base
                 }
 
                 // decide if we need to stop loss for some positions
-                var totalVolume = positions
-                    .Where(position => position.StopLossPrice > bar.ClosePrice)
-                    .Sum(position => position.Volume);
-
-                if (totalVolume > 0)
+                bool isStopLost = false;
+                foreach (var position in positions)
                 {
-                    _instructionsInCurrentPeriod.Add(
-                        new Instruction
-                        {
-                            Action = TradingAction.CloseLong,
-                            Comments = string.Format("stop loss @{0:0.000}", bar.ClosePrice),
-                            SubmissionTime = _period,
-                            TradingObject = tradingObject,
-                            SellingType = SellingType.ByStopLossPrice,
-                            StopLossPriceForSelling = bar.ClosePrice,
-                            Volume = totalVolume
-                        });
+                    var stopLossPrice = double.MaxValue;
 
+                    if (_globalSettings.StopLossByClosePrice)
+                    {
+                        if (position.StopLossPrice > bar.ClosePrice)
+                        {
+                            stopLossPrice = Math.Min(bar.ClosePrice, stopLossPrice);
+                        }
+                    }
+                    else
+                    {
+                        if (position.StopLossPrice > bar.OpenPrice)
+                        {
+                            stopLossPrice = Math.Min(bar.OpenPrice, stopLossPrice);
+                        }
+                        else if (position.StopLossPrice > bar.LowestPrice)
+                        {
+                            stopLossPrice = Math.Min(position.StopLossPrice, stopLossPrice);
+                        }
+                    }
+
+                    if (stopLossPrice < double.MaxValue)
+                    {
+                        _instructionsInCurrentPeriod.Add(
+                            new Instruction
+                            {
+                                Action = TradingAction.CloseLong,
+                                Comments = string.Format("stop loss @{0:0.000}", stopLossPrice),
+                                SubmissionTime = _period,
+                                TradingObject = tradingObject,
+                                SellingType = SellingType.ByStopLossPrice,
+                                StopLossPriceForSelling = stopLossPrice,
+                                PositionIdForSell = position.Id,
+                                Volume = position.Volume,
+                            });
+
+                        isStopLost = true;
+                    }
+                }
+
+                if (isStopLost)
+                {
+                    // if there is position to stop loss for given trading object, 
+                    // we will never consider entering market for the object.
                     continue;
                 }
 
@@ -275,7 +304,7 @@ namespace TradingStrategy.Base
             {
                 foreach (var tuple in newPositionsToBeCreated)
                 {
-                    CreateIntructionForBuying(
+                    CreateInstructionForBuying(
                         tuple.Item1,
                         tuple.Item2,
                         tuple.Item3,
@@ -427,11 +456,11 @@ namespace TradingStrategy.Base
             }
         }
 
-        private void CreateIntructionForBuying(ITradingObject tradingObject, double price, string comments, object[] relatedObjects, int totalNumberOfObjectsToBeEstimated)
+        private void CreateInstructionForBuying(ITradingObject tradingObject, double price, string comments, object[] relatedObjects, int totalNumberOfObjectsToBeEstimated)
         {
             string stopLossComments;
             var stopLossGap = _stopLoss.EstimateStopLossGap(tradingObject, price, out stopLossComments);
-            if (stopLossGap >= 0.0)
+            if (stopLossGap > 0.0)
             {
                 throw new InvalidProgramException("the stop loss gap returned by the stop loss component is greater than zero");
             }
@@ -453,6 +482,7 @@ namespace TradingStrategy.Base
                         TradingObject = tradingObject,
                         Volume = volume,
                         StopLossGapForBuying = stopLossGap,
+                        StopLossPriceForBuying = price + stopLossGap,
                         RelatedObjects = relatedObjects
                     });
             }
@@ -492,11 +522,26 @@ namespace TradingStrategy.Base
                         var position = positions.First();
                         if (!position.IsStopLossPriceInitialized())
                         {
-                            string comments;
+                            double stopLossPrice = Math.Max(0.0, instruction.StopLossPriceForBuying);
+                            double stopLossGap = instruction.StopLossGapForBuying;
 
-                            var stopLossGap = _stopLoss.EstimateStopLossGap(instruction.TradingObject, position.BuyPrice, out comments);
+                            if (_stopLoss.DoesStopLossDependsOnPrice)
+                            {
+                                // recalculate stop loss price that depends on price
+                                if (_stopLoss.DoesStopLossGapDependsOnPrice)
+                                {
+                                    // recalculate stoploss gap that depends on buying price
+                                    string comments;
 
-                            var stopLossPrice = Math.Max(0.0, position.BuyPrice + stopLossGap);
+                                    stopLossGap = _stopLoss.EstimateStopLossGap(instruction.TradingObject, position.BuyPrice, out comments);
+                                }
+
+                                stopLossPrice = Math.Max(0.0, position.BuyPrice + stopLossGap);
+                            }
+                            else
+                            {
+                                stopLossPrice = Math.Min(stopLossPrice, position.BuyPrice);
+                            }
 
                             position.SetStopLossPrice(stopLossPrice);
 

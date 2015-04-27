@@ -12,6 +12,9 @@ namespace TradingStrategy.Strategy
         [Parameter(100, "自适应划分中所允许的最大划分数目")]
         public int MaxPartsOfAdpativeAllocation { get; set; }
 
+        [Parameter(1, "自适应划分中所允许的最小划分数目")]
+        public int MinPartsOfAdpativeAllocation { get; set; }
+
         [Parameter(1000, "最大待处理头寸数目，当待处理头寸数目超过此数时不买入任何头寸")]
         public int MaxObjectNumberToBeEstimated { get; set; }
 
@@ -64,7 +67,7 @@ namespace TradingStrategy.Strategy
             var currentEquity = Context.GetCurrentEquity(CurrentPeriod, EquityEvaluationMethod);
 
             int parts = PartsOfEquity == 0
-                ? Math.Min(totalNumberOfObjectsToBeEstimated, MaxPartsOfAdpativeAllocation)
+                ? Math.Max(Math.Min(totalNumberOfObjectsToBeEstimated, MaxPartsOfAdpativeAllocation), MinPartsOfAdpativeAllocation)
                 : PartsOfEquity;
 
             double equityUtilization = Math.Abs(EquityUtilization) < 1e-6

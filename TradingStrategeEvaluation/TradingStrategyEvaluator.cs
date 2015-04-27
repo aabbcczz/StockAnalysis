@@ -531,6 +531,11 @@ namespace TradingStrategyEvaluation
                 throw new InvalidProgramException("Logic error");
             }
 
+            if (instruction.Action == TradingAction.CloseLong && instruction.SellingType == SellingType.ByStopLossPrice)
+            {
+                price = instruction.StopLossPriceForSelling;
+            }
+
             // count the spread now
             if (instruction.Action == TradingAction.OpenLong)
             {

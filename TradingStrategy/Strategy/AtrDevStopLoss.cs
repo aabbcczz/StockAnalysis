@@ -24,6 +24,14 @@ namespace TradingStrategy.Strategy
             get { return "当价格低于买入价，并且差值>ATR的标准差*ATR标准差停价倍数时停价"; }
         }
 
+        public override bool DoesStopLossGapDependsOnPrice
+        {
+            get
+            {
+                return true;
+            }
+        }
+
         protected override void RegisterMetric()
         {
             base.RegisterMetric();

@@ -44,10 +44,7 @@ namespace TradingStrategy.Strategy
 
             var dedupPeriods = periods.GroupBy(i => i);
 
-            if (dedupPeriods.Count() != periods.Count())
-            {
-                throw new ArgumentException("Duplicated periods are found");
-            }
+            periods = dedupPeriods.Select(g => g.Key).ToList();
 
             if (periods.Count() < 1)
             {

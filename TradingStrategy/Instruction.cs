@@ -25,7 +25,7 @@ namespace TradingStrategy
 
         /// <summary>
         /// the id of position for sell. 
-        /// this field is used only one Action is CloseLong and SellingType is ByPositionId
+        /// this field is used only one Action is CloseLong and SellingType is ByPositionId or ByStopLoss
         /// </summary>
         public long PositionIdForSell { get; set; }
 
@@ -39,6 +39,11 @@ namespace TradingStrategy
         /// The stop loss gap (always smaller than or equal to 0) for new positions
         /// </summary>
         public double StopLossGapForBuying { get; set; }
+
+        /// <summary>
+        /// The stop loss price (not the gap) for new position
+        /// </summary>
+        public double StopLossPriceForBuying { get; set; }
 
         public double[] ObservedMetricValues { get; set; }
 

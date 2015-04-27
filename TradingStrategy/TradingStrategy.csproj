@@ -61,6 +61,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Base\MetricBasedTraceStopLossMarketExiting.cs" />
+    <Compile Include="Base\MetricBasedStoploss.cs" />
     <Compile Include="Base\MetricBasedMarketExiting.cs" />
     <Compile Include="Base\MetricBasedMarketEntering.cs" />
     <Compile Include="CompletedTransaction.cs" />
@@ -102,6 +104,8 @@
     <Compile Include="SellingType.cs" />
     <Compile Include="Strategy\AtrDevTraceStopLossMarketExiting.cs" />
     <Compile Include="Strategy\AtrDevStopLoss.cs" />
+    <Compile Include="Strategy\RawMetricTraceStopLossMarketExiting.cs" />
+    <Compile Include="Strategy\RawMetricStopLoss.cs" />
     <Compile Include="Strategy\BarPriceSelector.cs" />
     <Compile Include="Deprecated\BlockPriceIndexFilterMarketEntering.cs" />
     <Compile Include="Deprecated\BreakoutAndReturnMarketEntering.cs" />

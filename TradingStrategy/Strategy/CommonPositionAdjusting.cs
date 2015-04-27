@@ -161,7 +161,8 @@ namespace TradingStrategy.Strategy
                             SubmissionTime = bar.Time,
                             TradingObject = tradingObject,
                             Volume = lastPosition.Volume,
-                            StopLossGapForBuying = -initialRisk / lastPosition.Volume
+                            StopLossGapForBuying = -initialRisk / lastPosition.Volume,
+                            StopLossPriceForBuying = 0.0
                         });
                 }
             }

@@ -71,6 +71,9 @@ namespace TradingStrategy.Base
         [Parameter(false, "只允许在价格上涨时出发入市信号")]
         public bool AllowEnteringMarketOnlyWhenPriceIncreasing { get; set; }
 
+        [Parameter(false, "用收盘价判断止损")]
+        public bool StopLossByClosePrice { get; set; }
+
         [Parameter("", "观察用指标, 每个指标用，分隔")]
         public string ObservableMetrics { get; set; }
 
