@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.31101.0
+VisualStudioVersion = 12.0.21005.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GetFinanceReports", "GetFinanceReports\GetFinanceReports.csproj", "{696164B2-F36C-4132-A5E3-0A7A9AEA9295}"
 EndProject
@@ -38,6 +38,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PredicatorCmdClient", "PredicatorCmdClient\PredicatorCmdClient.csproj", "{7CA0D275-9D64-4A6B-B410-5719499DC91D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StockAnalysisShareTests", "StockAnalysisShareTests\StockAnalysisShareTests.csproj", "{D765F1D4-9E90-49D5-8263-A26FFD1B48C2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataStatistic", "DataStatistic\DataStatistic.csproj", "{EE25B2EC-3CEA-425B-9A05-EEA2205E1748}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -117,6 +119,10 @@ Global
 		{D765F1D4-9E90-49D5-8263-A26FFD1B48C2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D765F1D4-9E90-49D5-8263-A26FFD1B48C2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D765F1D4-9E90-49D5-8263-A26FFD1B48C2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EE25B2EC-3CEA-425B-9A05-EEA2205E1748}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EE25B2EC-3CEA-425B-9A05-EEA2205E1748}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EE25B2EC-3CEA-425B-9A05-EEA2205E1748}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EE25B2EC-3CEA-425B-9A05-EEA2205E1748}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
