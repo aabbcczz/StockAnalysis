@@ -345,16 +345,26 @@ namespace DTViewer
             var endAnnotation = chartData.Annotations[EndAnnotationIndex];
             if (addAnnotation)
             {
+                //startAnnotation.AnchorDataPoint = stockSeries.Points[startIndex];
+                //endAnnotation.AnchorDataPoint = stockSeries.Points[endIndex];
+
                 startAnnotation.AnchorX = startIndex + 1;
+                startAnnotation.AnchorY = bars[startIndex].LowestPrice;
                 endAnnotation.AnchorX = endIndex + 1;
+                endAnnotation.AnchorY = bars[endIndex].HighestPrice;
 
                 startAnnotation.Visible = true;
                 endAnnotation.Visible = true;
             }
             else
             {
+                //startAnnotation.AnchorDataPoint = null;
+                //endAnnotation.AnchorDataPoint = null;
+
                 startAnnotation.AnchorX = 0;
+                startAnnotation.AnchorY = 0;
                 endAnnotation.AnchorX = 0;
+                endAnnotation.AnchorY = 0;
 
                 startAnnotation.Visible = false;
                 endAnnotation.Visible = false;

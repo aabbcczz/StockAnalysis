@@ -28,8 +28,8 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.Windows.Forms.DataVisualization.Charting.VerticalLineAnnotation verticalLineAnnotation1 = new System.Windows.Forms.DataVisualization.Charting.VerticalLineAnnotation();
-            System.Windows.Forms.DataVisualization.Charting.VerticalLineAnnotation verticalLineAnnotation2 = new System.Windows.Forms.DataVisualization.Charting.VerticalLineAnnotation();
+            System.Windows.Forms.DataVisualization.Charting.CalloutAnnotation calloutAnnotation1 = new System.Windows.Forms.DataVisualization.Charting.CalloutAnnotation();
+            System.Windows.Forms.DataVisualization.Charting.CalloutAnnotation calloutAnnotation2 = new System.Windows.Forms.DataVisualization.Charting.CalloutAnnotation();
             System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
             System.Windows.Forms.DataVisualization.Charting.Series series1 = new System.Windows.Forms.DataVisualization.Charting.Series();
             System.Windows.Forms.DataVisualization.Charting.Series series2 = new System.Windows.Forms.DataVisualization.Charting.Series();
@@ -56,8 +56,6 @@
             this.ColumnCodesCode = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.ColumnCodesName = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dataGridViewClosedPosition = new System.Windows.Forms.DataGridView();
-            this.textBoxDetails = new System.Windows.Forms.TextBox();
-            this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
             this.ColumnPositionCode = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.ColumnPositionName = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.ColumnPositionBuyTime = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -67,6 +65,8 @@
             this.ColumnPositionVolume = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.ColumnPositionGain = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.ColumnPositionR = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.textBoxDetails = new System.Windows.Forms.TextBox();
+            this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -137,20 +137,30 @@
             // 
             // chartData
             // 
-            verticalLineAnnotation1.AxisXName = "ChartArea1\\rX";
-            verticalLineAnnotation1.ClipToChartArea = "ChartArea1";
-            verticalLineAnnotation1.IsInfinitive = true;
-            verticalLineAnnotation1.IsSizeAlwaysRelative = false;
-            verticalLineAnnotation1.LineColor = System.Drawing.Color.White;
-            verticalLineAnnotation1.Name = "VerticalLineAnnotationStart";
-            verticalLineAnnotation1.YAxisName = "ChartArea1\\rY";
-            verticalLineAnnotation2.AxisXName = "ChartArea1\\rX";
-            verticalLineAnnotation2.ClipToChartArea = "ChartArea1";
-            verticalLineAnnotation2.IsInfinitive = true;
-            verticalLineAnnotation2.LineColor = System.Drawing.Color.Cyan;
-            verticalLineAnnotation2.Name = "VerticalLineAnnotationEnd";
-            this.chartData.Annotations.Add(verticalLineAnnotation1);
-            this.chartData.Annotations.Add(verticalLineAnnotation2);
+            calloutAnnotation1.AnchorAlignment = System.Drawing.ContentAlignment.TopCenter;
+            calloutAnnotation1.AnchorOffsetX = 0D;
+            calloutAnnotation1.AnchorOffsetY = 5D;
+            calloutAnnotation1.AxisXName = "ChartArea1\\rX";
+            calloutAnnotation1.ClipToChartArea = "ChartArea1";
+            calloutAnnotation1.ForeColor = System.Drawing.Color.DarkRed;
+            calloutAnnotation1.IsSizeAlwaysRelative = false;
+            calloutAnnotation1.LineColor = System.Drawing.Color.Maroon;
+            calloutAnnotation1.Name = "CalloutAnnotation1";
+            calloutAnnotation1.Text = "Buy";
+            calloutAnnotation1.YAxisName = "ChartArea1\\rY";
+            calloutAnnotation2.AnchorAlignment = System.Drawing.ContentAlignment.BottomCenter;
+            calloutAnnotation2.AnchorOffsetX = 0D;
+            calloutAnnotation2.AnchorOffsetY = 5D;
+            calloutAnnotation2.AxisXName = "ChartArea1\\rX";
+            calloutAnnotation2.ClipToChartArea = "ChartArea1";
+            calloutAnnotation2.ForeColor = System.Drawing.Color.Maroon;
+            calloutAnnotation2.IsSizeAlwaysRelative = false;
+            calloutAnnotation2.LineColor = System.Drawing.Color.DarkRed;
+            calloutAnnotation2.Name = "CalloutAnnotation2";
+            calloutAnnotation2.Text = "Sell";
+            calloutAnnotation2.YAxisName = "ChartArea1\\rY";
+            this.chartData.Annotations.Add(calloutAnnotation1);
+            this.chartData.Annotations.Add(calloutAnnotation2);
             chartArea1.AxisX.MinorGrid.Enabled = true;
             chartArea1.AxisX.MinorTickMark.Enabled = true;
             chartArea1.AxisX.ScrollBar.BackColor = System.Drawing.Color.White;
@@ -310,23 +320,6 @@
             this.dataGridViewClosedPosition.TabIndex = 1;
             this.dataGridViewClosedPosition.SelectionChanged += new System.EventHandler(this.dataGridViewClosedPosition_SelectionChanged);
             // 
-            // textBoxDetails
-            // 
-            this.textBoxDetails.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.textBoxDetails.Font = new System.Drawing.Font("Calibri", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.textBoxDetails.Location = new System.Drawing.Point(0, 0);
-            this.textBoxDetails.Multiline = true;
-            this.textBoxDetails.Name = "textBoxDetails";
-            this.textBoxDetails.ReadOnly = true;
-            this.textBoxDetails.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.textBoxDetails.Size = new System.Drawing.Size(321, 196);
-            this.textBoxDetails.TabIndex = 0;
-            // 
-            // openFileDialog1
-            // 
-            this.openFileDialog1.Filter = "Data settings file|*.xml|Closed position file|*.csv|All files|*.*";
-            this.openFileDialog1.RestoreDirectory = true;
-            // 
             // ColumnPositionCode
             // 
             this.ColumnPositionCode.HeaderText = "Code";
@@ -402,6 +395,23 @@
             this.ColumnPositionR.HeaderText = "R";
             this.ColumnPositionR.Name = "ColumnPositionR";
             this.ColumnPositionR.ReadOnly = true;
+            // 
+            // textBoxDetails
+            // 
+            this.textBoxDetails.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.textBoxDetails.Font = new System.Drawing.Font("Calibri", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.textBoxDetails.Location = new System.Drawing.Point(0, 0);
+            this.textBoxDetails.Multiline = true;
+            this.textBoxDetails.Name = "textBoxDetails";
+            this.textBoxDetails.ReadOnly = true;
+            this.textBoxDetails.ScrollBars = System.Windows.Forms.ScrollBars.Both;
+            this.textBoxDetails.Size = new System.Drawing.Size(321, 196);
+            this.textBoxDetails.TabIndex = 0;
+            // 
+            // openFileDialog1
+            // 
+            this.openFileDialog1.Filter = "Data settings file|*.xml|Closed position file|*.csv|All files|*.*";
+            this.openFileDialog1.RestoreDirectory = true;
             // 
             // MainForm
             // 
