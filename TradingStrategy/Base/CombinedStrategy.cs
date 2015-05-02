@@ -295,6 +295,8 @@ namespace TradingStrategy.Base
                                     bar.ClosePrice,
                                     "Entering market: " + string.Join(";", allComments),
                                     objectsForEntering.Count > 0 ? objectsForEntering.ToArray() : null));
+
+                            _context.DumpBarsFromCurrentPeriod(tradingObject);
                         }
                     }
                 }

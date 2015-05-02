@@ -47,6 +47,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="GapDownBounceCounter.cs" />
     <Compile Include="IBarCounter.cs" />
     <Compile Include="Options.cs" />
     <Compile Include="PossibilityOfRaisingHighCounter.cs" />
@@ -60,6 +61,10 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\MetricsDefinition\MetricsDefinition.csproj">
+      <Project>{f91a0391-93c9-4542-bafc-dbc694ca5fb5}</Project>
+      <Name>MetricsDefinition</Name>
+    </ProjectReference>
     <ProjectReference Include="..\StockAnalysisShare\StockAnalysisShare.csproj">
       <Project>{46eebd03-e7d2-4958-a782-d22435cbc2bb}</Project>
       <Name>StockAnalysisShare</Name>

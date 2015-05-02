@@ -77,6 +77,7 @@
     <Compile Include="GroupMetrics\GroupSum.cs" />
     <Compile Include="GroupMetrics\AdvanceDeclineLineAndRatio.cs" />
     <Compile Include="GroupMetrics\GeneralGroupRuntimeMetricBase.cs" />
+    <Compile Include="IDataDumper.cs" />
     <Compile Include="IGroupRuntimeMetricManagerObserver.cs" />
     <Compile Include="IRuntimeMetricManagerObserver.cs" />
     <Compile Include="MetricBooleanExpression\LogicOperation.cs" />

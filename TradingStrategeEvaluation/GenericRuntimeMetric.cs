@@ -9,7 +9,7 @@ using TradingStrategy;
 
 namespace TradingStrategyEvaluation
 {
-    internal sealed class GenericRuntimeMetric : IRuntimeMetric
+    public sealed class GenericRuntimeMetric : IRuntimeMetric
     {
         private readonly MetricExpression _expression;
 

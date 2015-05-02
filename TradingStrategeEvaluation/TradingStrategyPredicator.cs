@@ -60,7 +60,7 @@ namespace TradingStrategyEvaluation
             _equityManager = new EquityManager(new SimpleCapitalManager(initialCapital, currentCapital));
             _unprocessedActivePositions = activePositions.ToList();
 
-            _context = new StandardEvaluationContext(_provider, _equityManager, logger, relationshipManager);
+            _context = new StandardEvaluationContext(_provider, _equityManager, logger, null, relationshipManager);
         }
 
         public void Predicate()

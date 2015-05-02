@@ -156,7 +156,8 @@ namespace DataStatistic
 
         private static IEnumerable<IBarCounter> CreateBarCounters()
         {
-            yield return new PossibilityOfRaisingHighCounter();
+            //yield return new PossibilityOfRaisingHighCounter();
+            yield return new GapDownBounceCounter(10, 0.0, 0.0, 0.0);
         }
     }
 }

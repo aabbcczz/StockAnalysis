@@ -13,6 +13,7 @@ namespace EvaluatorCmdClient
 {
     public sealed class EvaluationResultContext : IDisposable
     {
+        private const string DumpedDataFileName = "Dumpdata.csv";
         private const string LogFileName = "Log.txt";
         private const string ParameterValuesFileName = "ParameterValues.xml";
         private const string MetricsFileName = "Metrics.csv";
@@ -21,13 +22,28 @@ namespace EvaluatorCmdClient
         private const string TransactionsFileName = "Transactions.csv";
         private const string CompletedTransactionsFileName = "CompletedTransactions.csv";
         private const string BlockTradingDetailsFileName = "BlockTradingDetails.csv";
-
+        
+        private FileDataDumper _dataDumper = null;
         public string RootDirectory { get; private set; }
         public int ContextId { get; private set; }
 
         private bool _disposed;
 
         public ILogger Logger { get; private set; }
+
+        public IDataDumper DataDumper 
+        {
+            get
+            {
+                if (_dataDumper == null)
+                {
+                    var dataFile = Path.Combine(RootDirectory, DumpedDataFileName);
+                    _dataDumper = new FileDataDumper(dataFile, 8);
+                }
+
+                return _dataDumper;
+            }
+        }
 
         public EvaluationResultContext(int contextId, string rootDirectory)
         {
@@ -168,6 +184,12 @@ namespace EvaluatorCmdClient
             {
                 ((FileLogger)Logger).Dispose();
                 Logger = null;
+            }
+
+            if (_dataDumper != null)
+            {
+                _dataDumper.Dispose();
+                _dataDumper = null;
             }
 
             _disposed = true;

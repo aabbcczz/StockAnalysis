@@ -345,6 +345,7 @@ namespace EvaluatorCmdClient
                                          capitalManager,
                                          dataProvider,
                                          filteredStockBlockRelationshipManager,
+                                         options.ShouldDumpData,
                                          tradingSettings);
 
                                     IncreaseProgress();
@@ -412,6 +413,7 @@ namespace EvaluatorCmdClient
             ICapitalManager capitalManager,
             ITradingDataProvider dataProvider,
             StockBlockRelationshipManager relationshipManager,
+            bool shouldDumpData,
             TradingSettings tradingSettings)
             //StockNameTable stockNameTable)
         {
@@ -426,6 +428,8 @@ namespace EvaluatorCmdClient
 
             using (context)
             {
+                IDataDumper dataDumper = shouldDumpData ? context.DataDumper : null;
+
                 var evaluator
                     = new TradingStrategyEvaluator(
                         capitalManager,
@@ -434,7 +438,8 @@ namespace EvaluatorCmdClient
                         dataProvider,
                         relationshipManager,
                         tradingSettings,
-                        context.Logger);
+                        context.Logger,
+                        dataDumper);
 
                 //EventHandler<EvaluationProgressEventArgs> evaluationProgressHandler =
                 //    (object obj, EvaluationProgressEventArgs e) =>

@@ -41,7 +41,8 @@ namespace TradingStrategyEvaluation
             ITradingDataProvider provider, 
             StockBlockRelationshipManager relationshipManager,
             TradingSettings settings,
-            ILogger logger)
+            ILogger logger,
+            IDataDumper dumper)
         {
             if (strategy == null || provider == null || settings == null)
             {
@@ -56,7 +57,7 @@ namespace TradingStrategyEvaluation
             _settings = settings;
 
             _equityManager = new EquityManager(capitalManager);
-            _context = new StandardEvaluationContext(_provider, _equityManager, logger, relationshipManager);
+            _context = new StandardEvaluationContext(_provider, _equityManager, logger, dumper, relationshipManager);
             _tradingTracker = new TradingTracker(capitalManager.InitialCapital);
         }
 

@@ -33,5 +33,7 @@ namespace TradingStrategy
         Bar GetBarOfTradingObjectForCurrentPeriod(ITradingObject tradingObject);
 
         void Log(string log);
+
+        void DumpBarsFromCurrentPeriod(ITradingObject tradingObject);
     }
 }

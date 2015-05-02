@@ -55,6 +55,9 @@ namespace EvaluatorCmdClient
         [Option('e', "ERatio", HelpText = "Enable outputting eRatio")]
         public bool EnableERatioOutput { get; set; }
 
+        [Option('d', "Dump", HelpText = "Dump data for debugging")]
+        public bool ShouldDumpData { get; set; }
+
         [HelpOption]
         public string GetUsage()
         {
@@ -78,6 +81,7 @@ namespace EvaluatorCmdClient
                 writer.WriteLine("Warmup periods: {0}", WarmupPeriods);
                 writer.WriteLine("Parallel execution: {0}", ParallelExecution);
                 writer.WriteLine("Enable outputting eRatio: {0}", EnableERatioOutput);
+                writer.WriteLine("Should dump data: {0}", ShouldDumpData);
             }
         }
 
