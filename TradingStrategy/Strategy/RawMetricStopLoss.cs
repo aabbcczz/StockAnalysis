@@ -9,6 +9,9 @@ namespace TradingStrategy.Strategy
         [Parameter("ATR[10]", "原始指标")]
         public string RawMetric { get; set; }
 
+        [Parameter(1.0, "原始指标比例尺")]
+        public double RawMetricScale { get; set; }
+
         public override string Name
         {
             get { return "原始指标停价"; }
@@ -22,6 +25,11 @@ namespace TradingStrategy.Strategy
         protected override string Metric
         {
             get { return RawMetric; }
+        }
+
+        protected override double Scale
+        {
+            get { return RawMetricScale; }
         }
     }
 }

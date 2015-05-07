@@ -23,6 +23,11 @@ namespace TradingStrategy.Base
             get;
         }
 
+        protected virtual double Scale
+        {
+            get { return 1.00; }
+        }
+
         public override bool DoesStopLossDependsOnPrice
         {
             get
@@ -33,7 +38,7 @@ namespace TradingStrategy.Base
 
         public override double EstimateStopLossGap(ITradingObject tradingObject, double assumedPrice, out string comments)
         {
-            var value = _proxy.GetMetricValues(tradingObject)[0];
+            var value = _proxy.GetMetricValues(tradingObject)[0] * Scale;
             var stopLossGap = Math.Min(0.0, value - assumedPrice);
 
             comments = string.Format(
