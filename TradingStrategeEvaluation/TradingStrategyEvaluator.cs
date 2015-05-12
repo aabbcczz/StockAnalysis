@@ -307,6 +307,7 @@ namespace TradingStrategyEvaluation
                         // remove the instruction and continue;
                         _pendingInstructions[i] = null;
                     }
+
                     continue;
                 }
 

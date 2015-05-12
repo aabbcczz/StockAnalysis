@@ -9,8 +9,7 @@ namespace TradingStrategy.Strategy
     public sealed class FirstBailoutMarketExiting 
         : GeneralMarketExitingBase
     {
-        private readonly Dictionary<int, int> _activeKeptPeriods = new Dictionary<int, int>();
-        private readonly Dictionary<int, string> _comments = new Dictionary<int, string>();
+        private readonly PeriodCounter<string> _periodCounter = new PeriodCounter<string>();
 
         public override string Name
         {
@@ -47,9 +46,9 @@ namespace TradingStrategy.Strategy
         {
             base.EvaluateSingleObject(tradingObject, bar);
 
-            if (_activeKeptPeriods.ContainsKey(tradingObject.Index))
+            if (_periodCounter.Exists(tradingObject))
             {
-                _activeKeptPeriods[tradingObject.Index] += 1;
+                _periodCounter.InitializeOrUpdate(tradingObject, 0);
             }
         }
 
@@ -60,24 +59,16 @@ namespace TradingStrategy.Strategy
             if(!Context.ExistsPosition(tradingObject.Code))
             {
                 // remove obseleted data
-                if (_activeKeptPeriods.ContainsKey(tradingObject.Index))
-                {
-                    _activeKeptPeriods.Remove(tradingObject.Index);
-                    _comments.Remove(tradingObject.Index);
-                }
+                _periodCounter.Remove(tradingObject);
 
                 return false;
             }
 
-            if (_activeKeptPeriods.ContainsKey(tradingObject.Index))
+            if (_periodCounter.Exists(tradingObject))
             {
-                if (_activeKeptPeriods[tradingObject.Index] >= KeepPeriods)
+                if (_periodCounter.GetPeriod(tradingObject, out comments) >= KeepPeriods)
                 {
-                    comments = _comments[tradingObject.Index];
-
-                    _activeKeptPeriods.Remove(tradingObject.Index);
-                    _comments.Remove(tradingObject.Index);
-
+                    _periodCounter.Remove(tradingObject);
                     return true;
                 }
             }
@@ -98,8 +89,7 @@ namespace TradingStrategy.Strategy
 
                     if (KeepPeriods > 0)
                     {
-                        _comments.Add(tradingObject.Index, tempComments);
-                        _activeKeptPeriods.Add(tradingObject.Index, 0);
+                        _periodCounter.InitializeOrUpdate(tradingObject, 0, tempComments);
 
                         return false;
                     }

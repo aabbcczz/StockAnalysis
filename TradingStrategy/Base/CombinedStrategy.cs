@@ -177,38 +177,7 @@ namespace TradingStrategy.Base
                     positions = new Position[0];
                 }
 
-                // decide if we need to exit market for this trading object. This is the first priorty work
-                if (positions.Any())
-                {
-                    bool exited = false;
-                    foreach (var component in _marketExiting)
-                    {
-                        string comments;
-                        if (component.ShouldExit(tradingObject, out comments))
-                        {
-                            _instructionsInCurrentPeriod.Add(
-                                new Instruction
-                                {
-                                    Action = TradingAction.CloseLong,
-                                    Comments = "Exiting market: " + comments,
-                                    SubmissionTime = _period,
-                                    TradingObject = tradingObject,
-                                    SellingType = SellingType.ByVolume,
-                                    Volume = positions.Sum(p => p.Volume),
-                                });
-
-                            exited = true;
-                            break;
-                        }
-                    }
-
-                    if (exited)
-                    {
-                        continue;
-                    }
-                }
-
-                // decide if we need to stop loss for some positions
+                // decide if we need to stop loss for some positions. priority of stoploss is higher than exiting market.
                 bool isStopLost = false;
                 foreach (var position in positions)
                 {
@@ -255,8 +224,39 @@ namespace TradingStrategy.Base
                 if (isStopLost)
                 {
                     // if there is position to stop loss for given trading object, 
-                    // we will never consider entering market for the object.
+                    // we will never consider exiting/entering market for the object.
                     continue;
+                }
+
+                // decide if we need to exit market for this trading object. This is the first priorty work
+                if (positions.Any())
+                {
+                    bool exited = false;
+                    foreach (var component in _marketExiting)
+                    {
+                        string comments;
+                        if (component.ShouldExit(tradingObject, out comments))
+                        {
+                            _instructionsInCurrentPeriod.Add(
+                                new Instruction
+                                {
+                                    Action = TradingAction.CloseLong,
+                                    Comments = "Exiting market: " + comments,
+                                    SubmissionTime = _period,
+                                    TradingObject = tradingObject,
+                                    SellingType = SellingType.ByVolume,
+                                    Volume = positions.Sum(p => p.Volume),
+                                });
+
+                            exited = true;
+                            break;
+                        }
+                    }
+
+                    if (exited)
+                    {
+                        continue;
+                    }
                 }
 
                 // decide if we should enter market

@@ -9,8 +9,9 @@ namespace TradingStrategy.Strategy
     public sealed class NoEnoughProfitMarketExiting 
         : GeneralMarketExitingBase
     {
-        private readonly Dictionary<string, int> _activePositionHoldingPeriods = new Dictionary<string, int>();
-        private readonly Dictionary<string, int> _codesShouldExit = new Dictionary<string, int>();
+
+        private readonly PeriodCounter<object> _periodCounter = new PeriodCounter<object>();
+        private readonly Dictionary<int, int> _codesShouldExit = new Dictionary<int, int>();
 
         private int[] _holdingPeriods;
 
@@ -57,7 +58,7 @@ namespace TradingStrategy.Strategy
             // remove all codes for non-existing positions
             if (!Context.ExistsPosition(code))
             {
-                RemoveRecord(code);
+                RemoveRecord(tradingObject);
             }
             else
             {
@@ -66,23 +67,20 @@ namespace TradingStrategy.Strategy
 
                 if (positions.Count() == 1) // possible newly created position
                 {
-                    if (!_activePositionHoldingPeriods.ContainsKey(code))
-                    {
-                        CreateNewRecord(code, positions.First().BuyTime);
-                    }
-                    else
-                    {
-                        _activePositionHoldingPeriods[code] = _activePositionHoldingPeriods[code] + 1;
-                    }
+                    // if lastestBuyTime == Period, it means the position is created at the morning, 
+                    // so periodCount should be 0.
+                    var periodCount = positions.First().BuyTime < CurrentPeriod ? 1 : 0;
 
-                    var holdingPeriod = _activePositionHoldingPeriods[code];
+                    _periodCounter.InitializeOrUpdate(tradingObject, periodCount);
+
+                    var holdingPeriod = _periodCounter.GetPeriod(tradingObject);
                     foreach (var period in _holdingPeriods)
                     {
                         if (holdingPeriod == period)
                         {
                             if (positions.First().BuyPrice * (1.0 + ExpectedProfitPercentage / 100.0) >= bar.ClosePrice)
                             {
-                                _codesShouldExit.Add(code, period);
+                                _codesShouldExit.Add(tradingObject.Index, period);
                                 break;
                             }
                         }
@@ -92,31 +90,15 @@ namespace TradingStrategy.Strategy
                 {
                     // for those code that has more than one position, this market exiting strategy 
                     // will not be used anyway
-                    RemoveRecord(code);
+                    RemoveRecord(tradingObject);
                 }
             }
         }
 
-        private void CreateNewRecord(string code, DateTime latestBuyTime)
+        private void RemoveRecord(ITradingObject tradingObject)
         {
-            // create new record
-
-            // if lastestBuyTime == Period, it means the position is created at the morning, 
-            // so periodCount should be 0.
-            var periodCount = latestBuyTime < CurrentPeriod ? 1 : 0;
-
-            _activePositionHoldingPeriods.Add(code, periodCount);
-        }
-
-        private void RemoveRecord(string code)
-        {
-            _activePositionHoldingPeriods.Remove(code);
-            _codesShouldExit.Remove(code);
-        }
-
-        public override void Finish()
-        {
-            _activePositionHoldingPeriods.Clear();
+            _periodCounter.Remove(tradingObject);
+            _codesShouldExit.Remove(tradingObject.Index);
         }
 
         public override bool ShouldExit(ITradingObject tradingObject, out string comments)
@@ -129,9 +111,9 @@ namespace TradingStrategy.Strategy
             }
 
             int period;
-            if (_codesShouldExit.TryGetValue(tradingObject.Code, out period))
+            if (_codesShouldExit.TryGetValue(tradingObject.Index, out period))
             {
-                _codesShouldExit.Remove(tradingObject.Code);
+                _codesShouldExit.Remove(tradingObject.Index);
 
                 comments = string.Format("hold for {0} periods, but no profit", period);
                 return true;

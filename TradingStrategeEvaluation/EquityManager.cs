@@ -27,6 +27,8 @@ namespace TradingStrategyEvaluation
 
         private readonly ICapitalManager _capitalManager;
 
+        private readonly int _positionFrozenDays;
+
         public double InitialCapital 
         {
             get { return _capitalManager.InitialCapital; }
@@ -39,7 +41,7 @@ namespace TradingStrategyEvaluation
 
         public IEnumerable<Position> ClosedPositions { get { return _closedPositions; } }
 
-        public EquityManager(ICapitalManager capitalManager)
+        public EquityManager(ICapitalManager capitalManager, int positionFrozenDays = 1)
         {
             if (capitalManager == null)
             {
@@ -47,6 +49,8 @@ namespace TradingStrategyEvaluation
             }
 
             _capitalManager = capitalManager;
+
+            _positionFrozenDays = positionFrozenDays;
         }
 
         private void AddPosition(Position position)
@@ -98,7 +102,7 @@ namespace TradingStrategyEvaluation
 
                 if (!ExistsPosition(code))
                 {
-                    error = string.Format("Transaction object {0} does not exists", code);
+                    error = string.Format("There is no position for trading object {0}", code);
                     return false;
                 }
 
@@ -109,6 +113,17 @@ namespace TradingStrategyEvaluation
                 if (positionsToBeSold.Count() == 0)
                 {
                     return true;
+                }
+
+                // check if position is still frozen
+                foreach (var ptbs in positionsToBeSold)
+                {
+                    var span = transaction.ExecutionTime.Date - positions[ptbs.Index].BuyTime.Date;
+                    if (span.Days < _positionFrozenDays)
+                    {
+                        error = string.Format("position is still frozen");
+                        return false;
+                    }
                 }
 
                 // note: the position could be sold partially and we need to consider the situation

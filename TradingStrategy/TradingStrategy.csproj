@@ -105,6 +105,7 @@
     <Compile Include="SellingType.cs" />
     <Compile Include="Strategy\AtrDevTraceStopLossMarketExiting.cs" />
     <Compile Include="Strategy\AtrDevStopLoss.cs" />
+    <Compile Include="Strategy\PeriodCounter.cs" />
     <Compile Include="Strategy\RawMetricTraceStopLossMarketExiting.cs" />
     <Compile Include="Strategy\RawMetricStopLoss.cs" />
     <Compile Include="Strategy\BarPriceSelector.cs" />
@@ -112,6 +113,7 @@
     <Compile Include="Deprecated\BreakoutAndReturnMarketEntering.cs" />
     <Compile Include="Deprecated\BounceRuntimeMetric.cs" />
     <Compile Include="Deprecated\BreakoutAndReturnRuntimeMetric.cs" />
+    <Compile Include="Strategy\TimeoutAndFirstDropMarketExiting.cs" />
     <Compile Include="Strategy\WeekdayMarketEntering.cs" />
     <Compile Include="Strategy\TrinMarketEntering.cs" />
     <Compile Include="Strategy\CommonPositionAdjusting.cs" />
