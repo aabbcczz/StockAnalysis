@@ -852,7 +852,7 @@
         </ParameterSettings>		
       </ComponentParameterSettings>
     </TradingStrategyComponentSettings>	
-    <TradingStrategyComponentSettings Enabled="true" Name="价格等值模型">
+    <TradingStrategyComponentSettings Enabled="false" Name="价格等值模型">
       <ClassType>TradingStrategy.Strategy.EqualValuePositionSizing, TradingStrategy, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</ClassType>
       <Description>每份头寸占有的价值是总权益的固定比例(1/PartsOfEquity)</Description>
       <ImplementedInterfaces>ITradingStrategyComponent;IPositionSizingComponent</ImplementedInterfaces>
@@ -901,7 +901,7 @@
         </ParameterSettings>
       </ComponentParameterSettings>
     </TradingStrategyComponentSettings>
-    <TradingStrategyComponentSettings Enabled="false" Name="风险百分比模型">
+    <TradingStrategyComponentSettings Enabled="true" Name="风险百分比模型">
       <ClassType>TradingStrategy.Strategy.RiskPercentagePositionSizing, TradingStrategy, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</ClassType>
       <Description>每份头寸的风险是总权益的固定比例(PecentageOfEquityForEachRisk / 100.0)</Description>
       <ImplementedInterfaces>ITradingStrategyComponent;IPositionSizingComponent</ImplementedInterfaces>
@@ -911,7 +911,7 @@
           <Description>每份头寸的风险占权益的百分比</Description>
           <ValueType>System.Double, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
           <DefaultValue xsi:type="xsd:double">1</DefaultValue>
-          <Values>1/20/1</Values>
+          <Values>0.1/1.0/0.1</Values>
         </ParameterSettings>
         <ParameterSettings>
           <Name>EquityEvaluationMethod</Name>

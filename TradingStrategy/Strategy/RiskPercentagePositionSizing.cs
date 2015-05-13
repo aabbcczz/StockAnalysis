@@ -36,6 +36,11 @@ namespace TradingStrategy.Strategy
         {
             var currentEquity = Context.GetCurrentEquity(CurrentPeriod, EquityEvaluationMethod);
 
+            if (Math.Abs(stopLossGap) < 1e-6)
+            {
+                comments = "positionsize = 0 because stopLossGap is too small";
+                return 0;
+            }
             var size = (int)(currentEquity * PercentageOfEquityForEachRisk / 100.0 / Math.Abs(stopLossGap));
 
             comments = string.Format(

@@ -256,7 +256,7 @@ namespace TradingStrategyEvaluation
             DateTime time, 
             bool forCurrentPeriod)
         {
-            var pendingTransactions = new Transaction[_pendingInstructions.Count];
+            var readyInstructions = new Tuple<Instruction, double>[_pendingInstructions.Count];
 
             for (var i = 0; i < _pendingInstructions.Count; ++i)
             {
@@ -374,12 +374,44 @@ namespace TradingStrategyEvaluation
                     continue;
                 }
 
-                var transaction = BuildTransactionFromInstruction(
-                    instruction,
-                    time,
-                    currentTradingDataOfObject);
+                double price = CalculateTransactionPrice(currentTradingDataOfObject, instruction);
 
-                pendingTransactions[i] = transaction;
+                readyInstructions[i] = Tuple.Create(instruction, price);
+            }
+
+            int totalNumberOfObjectsToBeEstimated = readyInstructions.Count(t => t != null && t.Item1.Action == TradingAction.OpenLong);
+
+            var pendingTransactions = new Transaction[_pendingInstructions.Count];
+            for (int i = 0; i < readyInstructions.Length; ++i)
+            {
+                if (readyInstructions[i] != null)
+                {
+                    var instruction = readyInstructions[i].Item1;
+                    double price = readyInstructions[i].Item2;
+
+                    if (readyInstructions[i].Item1.Action == TradingAction.OpenLong)
+                    {
+                        _strategy.EstimateStoplossAndSizeForNewPosition(instruction, price, totalNumberOfObjectsToBeEstimated);
+                        if (readyInstructions[i].Item1.Volume == 0)
+                        {
+                            _context.Log(string.Format("The volume of instruction for {0}/{1} is 0", instruction.TradingObject.Code, instruction.TradingObject.Name));
+
+                            readyInstructions[i] = null;
+
+                            // remove pending instruction because no transcation could be created for this, and we also won't keep this instruction.
+                            _pendingInstructions[i] = null;
+
+                            continue;
+                        }
+                    }
+
+                    var transaction = BuildTransactionFromInstruction(
+                        instruction,
+                        time,
+                        price);
+
+                    pendingTransactions[i] = transaction;
+                }
             }
 
             // always execute transaction according to the original order, so the strategy itself
@@ -452,13 +484,8 @@ namespace TradingStrategyEvaluation
             return succeeded;
         }
 
-        private Transaction BuildTransactionFromInstruction(Instruction instruction, DateTime time, Bar bar)
+        private Transaction BuildTransactionFromInstruction(Instruction instruction, DateTime time, double price)
         {
-            if (time != bar.Time)
-            {
-                throw new ArgumentException("Inconsistent time in bar and time parameters");
-            }
-
             if ((instruction.Action == TradingAction.OpenLong 
                     && instruction.Volume % instruction.TradingObject.VolumePerBuyingUnit != 0)
                 || (instruction.Action == TradingAction.CloseLong
@@ -475,7 +502,7 @@ namespace TradingStrategyEvaluation
                 InstructionId = instruction.Id,
                 Code = instruction.TradingObject.Code,
                 Name = instruction.TradingObject.Name,
-                Price = CalculateTransactionPrice(bar, instruction),
+                Price = price,
                 Succeeded = false,
                 SubmissionTime = instruction.SubmissionTime,
                 Volume = instruction.Volume,
