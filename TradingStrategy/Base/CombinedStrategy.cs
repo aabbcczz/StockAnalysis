@@ -15,6 +15,7 @@ namespace TradingStrategy.Base
         private readonly IPositionSizingComponent _positionSizing;
         private readonly List<IMarketEnteringComponent> _marketEntering = new List<IMarketEnteringComponent>();
         private readonly List<IMarketExitingComponent> _marketExiting = new List<IMarketExitingComponent>();
+        private readonly List<IBuyPriceFilteringComponent> _buyPriceFilters = new List<IBuyPriceFilteringComponent>();
         private readonly IStopLossComponent _stopLoss;
         private readonly IPositionAdjustingComponent _positionAdjusting;
         private readonly GlobalSettingsComponent _globalSettings;
@@ -130,6 +131,19 @@ namespace TradingStrategy.Base
                 return;
             }
 
+            foreach (var filter in _buyPriceFilters)
+            {
+                string comments;
+                if (!filter.IsPriceAcceptable(instruction.TradingObject, price, out comments))
+                {
+                    instruction.Comments = string.Join(" ", instruction.Comments, comments);
+                    instruction.Volume = 0;
+                    instruction.StopLossGapForBuying = 0.0;
+                    instruction.StopLossPriceForBuying = price;
+
+                    return;
+                }
+            }
             string stopLossComments;
             var stopLossGap = _stopLoss.EstimateStopLossGap(instruction.TradingObject, price, out stopLossComments);
             if (stopLossGap > 0.0)
@@ -636,6 +650,11 @@ namespace TradingStrategy.Base
                     _marketExiting.Add((IMarketExitingComponent)component);
                 }
                 
+                if (component is IBuyPriceFilteringComponent)
+                {
+                    _buyPriceFilters.Add((IBuyPriceFilteringComponent)component);
+                }
+
                 if (component is IStopLossComponent)
                 {
                     SetComponent(component, ref _stopLoss);
@@ -647,7 +666,7 @@ namespace TradingStrategy.Base
                 }
             }
 
-            // PositionAdjusting component could be null
+            // PositionAdjusting and BuyPriceFiltering component could be null
             if (_positionSizing == null
                 || _marketExiting.Count == 0
                 || _marketEntering.Count == 0

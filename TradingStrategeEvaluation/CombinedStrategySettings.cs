@@ -139,6 +139,11 @@ namespace TradingStrategyEvaluation
                     return 50;
                 }
 
+                if (typeof(IBuyPriceFilteringComponent).IsAssignableFrom(x))
+                {
+                    return 60;
+                }
+
                 return 100;
             }
         }

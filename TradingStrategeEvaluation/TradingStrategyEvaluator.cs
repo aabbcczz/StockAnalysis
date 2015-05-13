@@ -394,7 +394,11 @@ namespace TradingStrategyEvaluation
                         _strategy.EstimateStoplossAndSizeForNewPosition(instruction, price, totalNumberOfObjectsToBeEstimated);
                         if (readyInstructions[i].Item1.Volume == 0)
                         {
-                            _context.Log(string.Format("The volume of instruction for {0}/{1} is 0", instruction.TradingObject.Code, instruction.TradingObject.Name));
+                            _context.Log(string.Format(
+                                "The volume of instruction for {0}/{1} is 0. //{2}", 
+                                instruction.TradingObject.Code, 
+                                instruction.TradingObject.Name,
+                                instruction.Comments));
 
                             readyInstructions[i] = null;
 

@@ -553,7 +553,7 @@
         </ParameterSettings>
       </ComponentParameterSettings>
     </TradingStrategyComponentSettings>
-    <TradingStrategyComponentSettings Enabled="true" Name="首次获利退出">
+    <TradingStrategyComponentSettings Enabled="false" Name="首次获利退出">
       <ClassType>TradingStrategy.Strategy.FirstBailoutMarketExiting, TradingStrategy, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</ClassType>
       <Description>当头寸持有首次获利后退出市场</Description>
       <ImplementedInterfaces>ITradingStrategyComponent;IMarketExitingComponent</ImplementedInterfaces>
@@ -761,7 +761,8 @@
           <Values>2/10/1</Values>
         </ParameterSettings>
       </ComponentParameterSettings>
-    </TradingStrategyComponentSettings>    <TradingStrategyComponentSettings Enabled="false" Name="定时退出">
+    </TradingStrategyComponentSettings>
+    <TradingStrategyComponentSettings Enabled="true" Name="定时退出">
       <ClassType>TradingStrategy.Strategy.TimeoutMarketExiting, TradingStrategy, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</ClassType>
       <Description>当头寸持有超过一段时间后立即退出市场</Description>
       <ImplementedInterfaces>ITradingStrategyComponent;IMarketExitingComponent</ImplementedInterfaces>
@@ -852,7 +853,7 @@
         </ParameterSettings>		
       </ComponentParameterSettings>
     </TradingStrategyComponentSettings>	
-    <TradingStrategyComponentSettings Enabled="false" Name="价格等值模型">
+    <TradingStrategyComponentSettings Enabled="true" Name="价格等值模型">
       <ClassType>TradingStrategy.Strategy.EqualValuePositionSizing, TradingStrategy, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</ClassType>
       <Description>每份头寸占有的价值是总权益的固定比例(1/PartsOfEquity)</Description>
       <ImplementedInterfaces>ITradingStrategyComponent;IPositionSizingComponent</ImplementedInterfaces>
@@ -890,7 +891,7 @@
           <Description>权益计算方法。0：核心权益法，1：总权益法，2：抵减总权益法，3：初始权益法，4：控制损失初始权益法，5：控制损失总权益法，6：控制损失抵减总权益法</Description>
           <ValueType>TradingStrategy.EquityEvaluationMethod, TradingStrategy, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</ValueType>
           <DefaultValue xsi:type="xsd:int">3</DefaultValue>
-          <Values>1</Values>
+          <Values>0</Values>
         </ParameterSettings>
         <ParameterSettings>
           <Name>EquityUtilization</Name>
@@ -901,7 +902,7 @@
         </ParameterSettings>
       </ComponentParameterSettings>
     </TradingStrategyComponentSettings>
-    <TradingStrategyComponentSettings Enabled="true" Name="风险百分比模型">
+    <TradingStrategyComponentSettings Enabled="false" Name="风险百分比模型">
       <ClassType>TradingStrategy.Strategy.RiskPercentagePositionSizing, TradingStrategy, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</ClassType>
       <Description>每份头寸的风险是总权益的固定比例(PecentageOfEquityForEachRisk / 100.0)</Description>
       <ImplementedInterfaces>ITradingStrategyComponent;IPositionSizingComponent</ImplementedInterfaces>
@@ -985,5 +986,33 @@
         </ParameterSettings>		
 	  </ComponentParameterSettings>
     </TradingStrategyComponentSettings>
+    <TradingStrategyComponentSettings Enabled="true" Name="通用买入价过滤器">
+      <ClassType>TradingStrategy.Strategy.CommonBuyPriceFiltering, TradingStrategy, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</ClassType>
+      <Description>通用买入价过滤，只接受价格在给定指标值的一定上下范围内活动</Description>
+      <ImplementedInterfaces>ITradingStrategyComponent;IBuyPriceFilteringComponent</ImplementedInterfaces>
+      <ComponentParameterSettings>
+        <ParameterSettings>
+          <Name>RawMetric</Name>
+          <Description>参考指标</Description>
+          <ValueType>System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
+          <DefaultValue xsi:type="xsd:string">BAR.CP</DefaultValue>
+          <Values>BAR.CP</Values>
+        </ParameterSettings>
+        <ParameterSettings>
+          <Name>PriceUpLimitPercentage</Name>
+          <Description>价格上限百分比</Description>
+          <ValueType>System.Double, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
+          <DefaultValue xsi:type="xsd:double">110</DefaultValue>
+          <Values>105</Values>
+        </ParameterSettings>
+        <ParameterSettings>
+          <Name>PriceDownLimitPercentage</Name>
+          <Description>价格下限百分比</Description>
+          <ValueType>System.Double, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
+          <DefaultValue xsi:type="xsd:double">90</DefaultValue>
+          <Values>98</Values>
+        </ParameterSettings>
+      </ComponentParameterSettings>
+    </TradingStrategyComponentSettings>	
   </ComponentSettings>
 </CombinedStrategySettings>
