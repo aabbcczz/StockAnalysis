@@ -72,7 +72,8 @@ namespace TradingStrategyEvaluation
             Transaction transaction, 
             bool allowNegativeCapital,
             out CompletedTransaction completedTransaction, 
-            out string error)
+            out string error,
+            bool forcibly = false)
         {
             error = string.Empty;
             completedTransaction = null;
@@ -115,14 +116,17 @@ namespace TradingStrategyEvaluation
                     return true;
                 }
 
-                // check if position is still frozen
-                foreach (var ptbs in positionsToBeSold)
+                // check if position is still frozen if transaction is not executed forcibly
+                if (!forcibly)
                 {
-                    var span = transaction.ExecutionTime.Date - positions[ptbs.Index].BuyTime.Date;
-                    if (span.Days < _positionFrozenDays)
+                    foreach (var ptbs in positionsToBeSold)
                     {
-                        error = string.Format("position is still frozen");
-                        return false;
+                        var span = transaction.ExecutionTime.Date - positions[ptbs.Index].BuyTime.Date;
+                        if (span.Days < _positionFrozenDays)
+                        {
+                            error = string.Format("position is still frozen");
+                            return false;
+                        }
                     }
                 }
 

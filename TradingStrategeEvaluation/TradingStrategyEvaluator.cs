@@ -242,7 +242,7 @@ namespace TradingStrategyEvaluation
 
                 UpdateTransactionCommission(transaction, _allTradingObjects[index]);
 
-                if (!ExecuteTransaction(transaction, false))
+                if (!ExecuteTransaction(transaction, false, true))
                 {
                     throw new InvalidOperationException(
                         string.Format("failed to execute transaction, logic error", code));
@@ -277,18 +277,22 @@ namespace TradingStrategyEvaluation
                         string.Format("unsupported action {0}", instruction.Action));
                 }
 
-                if (forCurrentPeriod)
+                // special processing for stop loss.
+                if (!IsInstructionForStopLossing(instruction))
                 {
-                    if (!option.HasFlag(TradingPriceOption.CurrentPeriod))
+                    if (forCurrentPeriod)
                     {
-                        continue;
+                        if (!option.HasFlag(TradingPriceOption.CurrentPeriod))
+                        {
+                            continue;
+                        }
                     }
-                }
-                else
-                {
-                    if (option.HasFlag(TradingPriceOption.CurrentPeriod))
+                    else
                     {
-                        throw new InvalidProgramException("Logic error, all transaction expect to be executed in today should have been fully executed");
+                        if (option.HasFlag(TradingPriceOption.CurrentPeriod))
+                        {
+                            throw new InvalidProgramException("Logic error, all transaction expect to be executed in today should have been fully executed");
+                        }
                     }
                 }
 
@@ -394,7 +398,7 @@ namespace TradingStrategyEvaluation
             _pendingInstructions = _pendingInstructions.Where(instruction => instruction != null).ToList();
         }
 
-        private bool ExecuteTransaction(Transaction transaction, bool notifyTransactionStatus)
+        private bool ExecuteTransaction(Transaction transaction, bool notifyTransactionStatus, bool forcibly = false)
         {
             string error;
 
@@ -403,7 +407,8 @@ namespace TradingStrategyEvaluation
                             transaction,
                             _settings.AllowNegativeCapital,
                             out completedTransaction,
-                            out error);
+                            out error,
+                            forcibly);
 
             if (!succeeded)
             {
@@ -489,6 +494,11 @@ namespace TradingStrategyEvaluation
             return transaction;
         }
 
+        private bool IsInstructionForStopLossing(Instruction instruction)
+        {
+            return instruction.Action == TradingAction.CloseLong && instruction.SellingType == SellingType.ByStopLossPrice;
+        }
+
         private double CalculateTransactionPrice(Bar bar, Instruction instruction)
         {
             double price;
@@ -533,7 +543,7 @@ namespace TradingStrategyEvaluation
                 throw new InvalidProgramException("Logic error");
             }
 
-            if (instruction.Action == TradingAction.CloseLong && instruction.SellingType == SellingType.ByStopLossPrice)
+            if (IsInstructionForStopLossing(instruction))
             {
                 price = instruction.StopLossPriceForSelling;
             }

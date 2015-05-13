@@ -349,10 +349,11 @@ namespace TradingStrategyEvaluation
                             CompletedTransaction completedTransaction;
                             string error;
                             if (!manager.ExecuteTransaction(
-                                transaction,
-                                true,
-                                out completedTransaction,
-                                out error))
+                                    transaction,
+                                    true,
+                                    out completedTransaction,
+                                    out error,
+                                    true))
                             {
                                 throw new InvalidOperationException("Replay transaction failed: " + error);
                             }
