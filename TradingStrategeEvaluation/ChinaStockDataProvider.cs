@@ -158,7 +158,7 @@ namespace TradingStrategyEvaluation
                     {
                         var data = ChinaStockDataAccessor.Load(file, nameTable);
 
-                        if (data == null)
+                        if (data == null || data.DataOrderedByTime.Length == 0)
                         {
                             return;
                         }

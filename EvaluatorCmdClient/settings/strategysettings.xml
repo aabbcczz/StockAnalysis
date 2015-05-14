@@ -73,14 +73,14 @@
           <Description>Randomly remove instruction</Description>
           <ValueType>System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
           <DefaultValue xsi:type="xsd:boolean">false</DefaultValue>
-          <Values>false</Values>
+          <Values>true</Values>
         </ParameterSettings>
         <ParameterSettings>
           <Name>RandomlyRemoveInstructionThreshold</Name>
           <Description>Randomly remove instruction threshold. [0..99]</Description>
           <ValueType>System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
           <DefaultValue xsi:type="xsd:int">50</DefaultValue>
-          <Values>10</Values>
+          <Values>50</Values>
         </ParameterSettings>		
         <ParameterSettings>
           <Name>AllowEnteringMarketOnlyWhenPriceIncreasing</Name>
@@ -444,7 +444,7 @@
           <Description>允许交易日期的掩码，最低7位分别代表星期日到星期六是否允许入市。当掩码位为1时可入市</Description>
           <ValueType>System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
           <DefaultValue xsi:type="xsd:int">127</DefaultValue>
-          <Values>36</Values>
+          <Values>52</Values>
         </ParameterSettings>
       </ComponentParameterSettings>
     </TradingStrategyComponentSettings>
@@ -870,7 +870,7 @@
           <Description>自适应划分中所允许的最大划分数目</Description>
           <ValueType>System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
           <DefaultValue xsi:type="xsd:int">100</DefaultValue>
-          <Values>7</Values>
+          <Values>14</Values>
         </ParameterSettings>
         <ParameterSettings>
           <Name>MinPartsOfAdpativeAllocation</Name>
@@ -891,7 +891,7 @@
           <Description>权益计算方法。0：核心权益法，1：总权益法，2：抵减总权益法，3：初始权益法，4：控制损失初始权益法，5：控制损失总权益法，6：控制损失抵减总权益法</Description>
           <ValueType>TradingStrategy.EquityEvaluationMethod, TradingStrategy, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</ValueType>
           <DefaultValue xsi:type="xsd:int">3</DefaultValue>
-          <Values>0</Values>
+          <Values>1</Values>
         </ParameterSettings>
         <ParameterSettings>
           <Name>EquityUtilization</Name>
