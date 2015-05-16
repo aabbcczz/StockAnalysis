@@ -42,16 +42,6 @@ namespace TradingStrategy.Strategy
             }
         }
 
-        public override void EvaluateSingleObject(ITradingObject tradingObject, Bar bar)
-        {
-            base.EvaluateSingleObject(tradingObject, bar);
-
-            if (_periodCounter.Exists(tradingObject))
-            {
-                _periodCounter.InitializeOrUpdate(tradingObject, 0);
-            }
-        }
-
         public override bool ShouldExit(ITradingObject tradingObject, out string comments)
         {
             comments = string.Empty;

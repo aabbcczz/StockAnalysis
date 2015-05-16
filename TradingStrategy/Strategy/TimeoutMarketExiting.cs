@@ -9,8 +9,6 @@ namespace TradingStrategy.Strategy
     public sealed class TimeoutMarketExiting 
         : GeneralMarketExitingBase
     {
-        private readonly PeriodCounter<DateTime> _periodCounter = new PeriodCounter<DateTime>();
-
         public override string Name
         {
             get { return "定时退出"; }
@@ -34,51 +32,17 @@ namespace TradingStrategy.Strategy
             }
         }
 
-        public override void EvaluateSingleObject(ITradingObject tradingObject, Bar bar)
-        {
-            var code = tradingObject.Code;
-            if (Context.ExistsPosition(code))
-            {
-                var latestBuyTime = Context.GetPositionDetails(code).Max(p => p.BuyTime);
-
-                if (!_periodCounter.Exists(tradingObject))
-                {
-                    var periodCount = latestBuyTime < CurrentPeriod ? 1 : 0;
-
-                    _periodCounter.InitializeOrUpdate(tradingObject, periodCount, latestBuyTime);
-                }
-                else
-                {
-                    DateTime prevPositionLatestBuyTime;
-                    _periodCounter.GetPeriod(tradingObject, out prevPositionLatestBuyTime);
-
-                    if (latestBuyTime > prevPositionLatestBuyTime)
-                    {
-                        // new postion has been created, we need to reset record
-                        var periodCount = latestBuyTime < CurrentPeriod ? 1 : 0;
-
-                        _periodCounter.Remove(tradingObject);
-                        _periodCounter.InitializeOrUpdate(tradingObject, periodCount, latestBuyTime);
-
-                    }
-                    else
-                    {
-                        // just update period
-                        _periodCounter.InitializeOrUpdate(tradingObject, 0);
-                    }
-                }
-            }
-            else
-            {
-                _periodCounter.Remove(tradingObject);
-            }
-        }
-
         public override bool ShouldExit(ITradingObject tradingObject, out string comments)
         {
             comments = string.Empty;
 
-            int periodCount = _periodCounter.GetPeriod(tradingObject);
+            var code = tradingObject.Code;
+            if (!Context.ExistsPosition(code))
+            {
+                return false;
+            }
+
+            int periodCount = Context.GetPositionDetails(code).Last().LastedPeriodCount;
 
             if (periodCount >= HoldingPeriods)
             {

@@ -10,7 +10,6 @@ namespace TradingStrategy.Strategy
         : GeneralMarketExitingBase
     {
 
-        private readonly PeriodCounter<object> _periodCounter = new PeriodCounter<object>();
         private readonly Dictionary<int, int> _codesShouldExit = new Dictionary<int, int>();
 
         private int[] _holdingPeriods;
@@ -56,11 +55,7 @@ namespace TradingStrategy.Strategy
             var code = tradingObject.Code;
 
             // remove all codes for non-existing positions
-            if (!Context.ExistsPosition(code))
-            {
-                RemoveRecord(tradingObject);
-            }
-            else
+            if (Context.ExistsPosition(code))
             {
                 var temp = Context.GetPositionDetails(code);
                 var positions = temp as Position[] ?? temp.ToArray();
@@ -69,11 +64,8 @@ namespace TradingStrategy.Strategy
                 {
                     // if lastestBuyTime == Period, it means the position is created at the morning, 
                     // so periodCount should be 0.
-                    var periodCount = positions.First().BuyTime < CurrentPeriod ? 1 : 0;
+                    var holdingPeriod = positions.First().LastedPeriodCount;
 
-                    _periodCounter.InitializeOrUpdate(tradingObject, periodCount);
-
-                    var holdingPeriod = _periodCounter.GetPeriod(tradingObject);
                     foreach (var period in _holdingPeriods)
                     {
                         if (holdingPeriod == period)
@@ -90,15 +82,13 @@ namespace TradingStrategy.Strategy
                 {
                     // for those code that has more than one position, this market exiting strategy 
                     // will not be used anyway
-                    RemoveRecord(tradingObject);
+                    _codesShouldExit.Remove(tradingObject.Index);
                 }
             }
-        }
-
-        private void RemoveRecord(ITradingObject tradingObject)
-        {
-            _periodCounter.Remove(tradingObject);
-            _codesShouldExit.Remove(tradingObject.Index);
+            else
+            {
+                _codesShouldExit.Remove(tradingObject.Index);
+            }
         }
 
         public override bool ShouldExit(ITradingObject tradingObject, out string comments)
