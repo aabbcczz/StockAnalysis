@@ -47,12 +47,15 @@ namespace TradingStrategy
         public double MetricValue3 { get; set; }
         public double MetricValue4 { get; set; }
 
+        public int LastedPeriodCount { get; private set; }
+
         public Position()
         {
             Id = IdGenerator.Next;
 
             InitialRisk = 0.0;
             StopLossPrice = UninitializedStopLossPrice;
+            LastedPeriodCount = 0;
         }
 
         public Position(Transaction transaction)
@@ -150,6 +153,7 @@ namespace TradingStrategy
                 MetricValue2 = this.MetricValue2,
                 MetricValue3 = this.MetricValue3,
                 MetricValue4 = this.MetricValue4,
+                LastedPeriodCount = this.LastedPeriodCount,
             };
 
             // update this position
@@ -241,6 +245,11 @@ namespace TradingStrategy
 
                 StopLossPrice = stopLossPrice;
             }
+        }
+
+        public void IncreaseLastedPeriodCount()
+        {
+            ++LastedPeriodCount;
         }
     }
 }

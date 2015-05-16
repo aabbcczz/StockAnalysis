@@ -12,7 +12,6 @@ namespace TradingStrategy.Strategy
 
         private RuntimeMetricProxy _movingAverage;
         private RuntimeMetricProxy _referenceBar;
-        private RuntimeMetricProxy _lowestIndex;
 
         [Parameter(5, "移动平均趋势线周期")]
         public int MovingAveragePeriod { get; set; }
@@ -26,6 +25,12 @@ namespace TradingStrategy.Strategy
         [Parameter(0.0, "反弹超过昨日最低价的最小百分比")]
         public double MinBouncePercentageOverLastLowestPrice { get; set; }
 
+        [Parameter(50.0, "上影线所允许的最大比例")]
+        public double MaxUpShadowPercentage { get; set; }
+
+        [Parameter(50.0, "下影线所允许的最大比例")]
+        public double MaxDownShadowPercentage { get; set; }
+
         protected override void RegisterMetric()
         {
             base.RegisterMetric();
@@ -37,10 +42,6 @@ namespace TradingStrategy.Strategy
             _referenceBar = new RuntimeMetricProxy(
                 Context.MetricManager,
                 "REFBAR[1]");
-
-            _lowestIndex = new RuntimeMetricProxy(
-                Context.MetricManager,
-                string.Format("REF[1](LO[{0}](BAR.LP).INDEX)", LowestPeriod));
         }
 
         public override string Name
@@ -62,23 +63,30 @@ namespace TradingStrategy.Strategy
             var lastBarValues = _referenceBar.GetMetricValues(tradingObject);
             var movingAverage = _movingAverage.GetMetricValues(tradingObject)[0];
             var lastBarLowest = lastBarValues[3];
-            var lowestIndex = (int)(_lowestIndex.GetMetricValues(tradingObject)[0]);
 
+            var upShadowPercentage = Math.Abs(todayBar.HighestPrice - todayBar.LowestPrice) < 1e-6
+                ? 100.0
+                : (todayBar.HighestPrice - todayBar.ClosePrice) / (todayBar.HighestPrice - todayBar.LowestPrice) * 100.0;
+
+            var downShadowPercentage = Math.Abs(todayBar.HighestPrice - todayBar.LowestPrice) < 1e-6
+                ? 0.0
+                : (todayBar.OpenPrice - todayBar.LowestPrice) / (todayBar.HighestPrice - todayBar.LowestPrice) * 100.0;
 
             if (todayBar.ClosePrice < movingAverage * (100.0 - MinPercentageBelowMovingAverage) / 100.0 // below average
                 && todayBar.OpenPrice < lastBarLowest * (100.0 - MinPercentageOfGapDown) / 100.0 // gap down
                 && todayBar.ClosePrice > lastBarLowest * (100.0 + MinBouncePercentageOverLastLowestPrice) / 100.0 // bounce over last day
-                // && lowestIndex == LowestPeriod - 1
+                && upShadowPercentage <= MaxUpShadowPercentage
+                && downShadowPercentage <= MaxDownShadowPercentage
                 )
             { 
                 comments += string.Format(
-                    "MA[{0}]={1:0.000} Close:{2:0.000} Open:{3:0.000} LastLowest:{4:0.000} LowestIndex:{5}", 
+                    "MA[{0}]={1:0.000} Close:{2:0.000} Open:{3:0.000} LastLowest:{4:0.000} UpShadow%:{5:0.000}%", 
                     MovingAveragePeriod,
                     movingAverage,
                     todayBar.ClosePrice,
                     todayBar.OpenPrice,
                     lastBarLowest,
-                    lowestIndex);
+                    upShadowPercentage);
 
                 return true;
             }

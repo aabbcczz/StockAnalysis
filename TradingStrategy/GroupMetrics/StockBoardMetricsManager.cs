@@ -26,7 +26,7 @@ namespace TradingStrategy.GroupMetrics
             IEvaluationContext context, 
             Func<IEnumerable<ITradingObject>, IGroupRuntimeMetric> groupMetricCreator)
         {
-            if (context == null || context.RelationshipManager == null || groupMetricCreator == null)
+            if (context == null || context.GroupMetricManager == null || groupMetricCreator == null)
             {
                 throw new ArgumentNullException();
             }

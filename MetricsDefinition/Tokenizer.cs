@@ -6,7 +6,7 @@ namespace MetricsDefinition
     sealed class Tokenizer
     {
         static readonly Regex RegexIdentifier = new Regex(@"[_a-zA-Z\%][_a-zA-Z\%0-9]*", RegexOptions.Compiled);
-        static readonly Regex RegexNumber = new Regex(@"\d+(\.\d+)?", RegexOptions.Compiled);
+        static readonly Regex RegexNumber = new Regex(@"-?\d+(\.\d+)?", RegexOptions.Compiled);
 
         private readonly string _expression;
         private int _position;
@@ -77,7 +77,7 @@ namespace MetricsDefinition
                         {
                             token = ParseIdentifier();
                         }
-                        else if (char.IsDigit(ch))
+                        else if (char.IsDigit(ch) || ch == '-')
                         {
                             token = ParseNumber();
                         }

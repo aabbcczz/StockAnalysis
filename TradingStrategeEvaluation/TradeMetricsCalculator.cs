@@ -27,11 +27,13 @@ namespace TradingStrategyEvaluation
         //private readonly StockNameTable _nameTable;
         private readonly ITradingDataProvider _dataProvider;
         private readonly DateTime[] _periods;
+        private readonly TradingSettings _settings;
 
         public TradeMetricsCalculator(
             //StockNameTable nameTable,
             TradingTracker tracker, 
-            ITradingDataProvider provider)
+            ITradingDataProvider provider,
+            TradingSettings settings)
         {
             if (tracker == null)
             {
@@ -41,6 +43,11 @@ namespace TradingStrategyEvaluation
             if (provider == null)
             {
                 throw new ArgumentNullException("provider");
+            }
+
+            if (settings == null)
+            {
+                throw new ArgumentNullException("settings");
             }
 
             var startDate = provider.GetFirstNonWarmupDataPeriods().Min();
@@ -65,6 +72,7 @@ namespace TradingStrategyEvaluation
 
             //_nameTable = nameTable;
             _dataProvider = provider;
+            _settings = settings;
 
             _startDate = startDate;
             _endDate = endDate;
@@ -320,7 +328,7 @@ namespace TradingStrategyEvaluation
             var usedCapital = EstimateUsedCapital(transactions);
             var initialCapital = Math.Max(_initialCapital, usedCapital);
 
-            var manager = new EquityManager(new SimpleCapitalManager(initialCapital));
+            var manager = new EquityManager(new SimpleCapitalManager(initialCapital), _settings.PositionFrozenDays);
 
             var transactionIndex = 0;
             var currentEquity = initialCapital; 

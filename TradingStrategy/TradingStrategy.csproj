@@ -107,6 +107,7 @@
     <Compile Include="SellingType.cs" />
     <Compile Include="Strategy\AtrDevTraceStopLossMarketExiting.cs" />
     <Compile Include="Strategy\AtrDevStopLoss.cs" />
+    <Compile Include="Strategy\GapDownBounceBuyPriceFiltering.cs" />
     <Compile Include="Strategy\CommonBuyPriceFiltering.cs" />
     <Compile Include="Strategy\PeriodCounter.cs" />
     <Compile Include="Strategy\RawMetricTraceStopLossMarketExiting.cs" />

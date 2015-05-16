@@ -41,7 +41,7 @@ namespace TradingStrategyEvaluation
 
         public IEnumerable<Position> ClosedPositions { get { return _closedPositions; } }
 
-        public EquityManager(ICapitalManager capitalManager, int positionFrozenDays = 1)
+        public EquityManager(ICapitalManager capitalManager, int positionFrozenDays)
         {
             if (capitalManager == null)
             {

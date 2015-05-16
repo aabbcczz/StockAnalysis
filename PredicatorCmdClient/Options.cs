@@ -43,6 +43,9 @@ namespace PredicatorCmdClient
         [Option('k', "StockBlock", HelpText = "The stock block relationship file name")]
         public string StockBlockRelationshipFile { get; set; }
 
+        [Option('f', "PositionFrozenDays", DefaultValue = 1, HelpText = "The frozen days of new positions")]
+        public int PositionFrozenDays { get; set; }
+
         [HelpOption]
         public string GetUsage()
         {
@@ -61,6 +64,7 @@ namespace PredicatorCmdClient
                 writer.WriteLine("Start date: {0}", StartDate);
                 writer.WriteLine("Initial capital: {0:0.0000}", InitialCapital);
                 writer.WriteLine("Warmup periods: {0}", WarmupPeriods);
+                writer.WriteLine("Position frozen days: {0}", PositionFrozenDays);
             }
         }
 

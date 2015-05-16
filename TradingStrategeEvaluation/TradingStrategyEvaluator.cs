@@ -56,7 +56,7 @@ namespace TradingStrategyEvaluation
            
             _settings = settings;
 
-            _equityManager = new EquityManager(capitalManager);
+            _equityManager = new EquityManager(capitalManager, _settings.PositionFrozenDays);
             _context = new StandardEvaluationContext(_provider, _equityManager, logger, dumper, relationshipManager);
             _tradingTracker = new TradingTracker(capitalManager.InitialCapital);
         }
@@ -153,6 +153,23 @@ namespace TradingStrategyEvaluation
                 _context.MetricManager.BeginUpdateMetrics();
                 _context.MetricManager.UpdateMetrics(_allTradingObjects, originalThisPeriodData);
                 _context.MetricManager.EndUpdateMetrics();
+
+                // update position lasted period count
+                foreach (var code in _context.GetAllPositionCodes())
+                {
+                    int tradingObjectIndex = _provider.GetIndexOfTradingObject(code);
+
+                    if (thisPeriodData[tradingObjectIndex].Time != Bar.InvalidTime)
+                    {
+                        foreach (var position in _context.GetPositionDetails(code))
+                        {
+                            if (position.BuyTime < thisPeriodTime)
+                            {
+                                position.IncreaseLastedPeriodCount();
+                            }
+                        }
+                    }
+                }
 
                 // evaluate bar data
                 _strategy.Evaluate(_allTradingObjects, thisPeriodData);

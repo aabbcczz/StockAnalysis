@@ -222,7 +222,8 @@ namespace PredicatorCmdClient
                     options.CurrentCapital,
                     positions,
                     dataProvider,
-                    filteredStockBlockRelationshipManager);
+                    filteredStockBlockRelationshipManager,
+                    options.PositionFrozenDays);
             }
 
             Console.WriteLine();
@@ -238,7 +239,8 @@ namespace PredicatorCmdClient
             double currentCapital,
             IEnumerable<Position> activePositions,
             ITradingDataProvider dataProvider,
-            StockBlockRelationshipManager relationshipManager)
+            StockBlockRelationshipManager relationshipManager,
+            int positionFrozenDays)
         {
             var predicator = new TradingStrategyPredicator(
                         initialCapital,
@@ -247,6 +249,7 @@ namespace PredicatorCmdClient
                         parameterValues,
                         dataProvider,
                         relationshipManager,
+                        positionFrozenDays,
                         activePositions,
                         context.Logger);
 

@@ -30,7 +30,7 @@ namespace TradingStrategy.GroupMetrics
 
             MetricNames = new string[] { "TRIN" };
             MetricValues = new double[] { 0.0 };
-            DependedRawMetrics = new string[] { rawMetric };
+            DependedRawMetrics = new string[] { rawMetric , "BAR.VOL" };
 
             _adr = new AdvanceDeclineLineAndRatio(tradingObjects, windowSize, rawMetric);
             _advr = new AdvanceDeclineVolumeLineAndRatio(tradingObjects, windowSize, rawMetric);
@@ -38,7 +38,10 @@ namespace TradingStrategy.GroupMetrics
 
         public override void Update(IRuntimeMetric[][] metrics)
         {
-            _adr.Update(metrics);
+            IRuntimeMetric[][] extractedMetrics = new IRuntimeMetric[1][];
+            extractedMetrics[0] = metrics[0];
+
+            _adr.Update(extractedMetrics);
             _advr.Update(metrics);
 
             MetricValues[0] = _adr.MetricValues[1] / _advr.MetricValues[1];

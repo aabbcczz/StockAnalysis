@@ -44,6 +44,7 @@ namespace TradingStrategyEvaluation
             IDictionary<ParameterAttribute, object> strategyParameters, 
             ITradingDataProvider provider, 
             StockBlockRelationshipManager relationshipManager,
+            int positionFrozenDays,
             IEnumerable<Position> activePositions,
             ILogger logger)
         {
@@ -56,8 +57,8 @@ namespace TradingStrategyEvaluation
             _strategyParameterValues = strategyParameters;
 
             _provider = provider;
-           
-            _equityManager = new EquityManager(new SimpleCapitalManager(initialCapital, currentCapital));
+
+            _equityManager = new EquityManager(new SimpleCapitalManager(initialCapital, currentCapital), positionFrozenDays);
             _unprocessedActivePositions = activePositions.ToList();
 
             _context = new StandardEvaluationContext(_provider, _equityManager, logger, null, relationshipManager);

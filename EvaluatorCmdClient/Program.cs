@@ -470,7 +470,8 @@ namespace EvaluatorCmdClient
                     = new TradeMetricsCalculator(
                         //stockNameTable,
                         evaluator.Tracker,
-                        dataProvider);
+                        dataProvider,
+                        tradingSettings);
 
                 var metrics = calculator.Calculate();
 

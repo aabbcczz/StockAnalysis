@@ -100,7 +100,9 @@ namespace TradingStrategy.Base
                 throw new ArgumentException("#trading object != #bars");
             }
 
-            // evaluate all components
+            // evaluate all components. 
+            // To improve cache hit rate, the outer loop is for component iteration
+            // and the inner loop is for bars.
             foreach (var component in _components)
             {
                 for (var i = 0; i < bars.Length; ++i)
