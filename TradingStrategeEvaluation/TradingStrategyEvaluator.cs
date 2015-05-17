@@ -314,8 +314,9 @@ namespace TradingStrategyEvaluation
                 }
 
                 var tradingObjectIndex = instruction.TradingObject.Index;
-                var currentTradingDataOfObject = currentTradingData[tradingObjectIndex];
-                if (currentTradingDataOfObject.Time == Bar.InvalidTime)
+                var currentBarOfObject = currentTradingData[tradingObjectIndex];
+
+                if (currentBarOfObject.Time == Bar.InvalidTime)
                 {
                     if (forCurrentPeriod)
                     {
@@ -332,17 +333,18 @@ namespace TradingStrategyEvaluation
                     continue;
                 }
 
+                var lastBarOfObject = lastTradingData[tradingObjectIndex];
+
                 // exclude 涨停/跌停
                 if (!forCurrentPeriod)
                 {
                     const double MaxChangesCoefficient = 0.95;
 
-                    var lastTradingDataOfObject = lastTradingData[tradingObjectIndex];
-                    if (lastTradingDataOfObject.Time != Bar.InvalidTime)
+                    if (lastBarOfObject.Time != Bar.InvalidTime)
                     {
                         if (option.HasFlag(TradingPriceOption.OpenPrice))
                         {
-                            double priceChangeRatio = Math.Abs(currentTradingDataOfObject.OpenPrice - lastTradingDataOfObject.ClosePrice) / lastTradingDataOfObject.ClosePrice;
+                            double priceChangeRatio = Math.Abs(currentBarOfObject.OpenPrice - lastBarOfObject.ClosePrice) / lastBarOfObject.ClosePrice;
                             
                             if (instruction.Action == TradingAction.OpenLong
                                 && priceChangeRatio >= instruction.TradingObject.LimitUpRatio * MaxChangesCoefficient)
@@ -351,7 +353,7 @@ namespace TradingStrategyEvaluation
                                     string.Format(
                                         "{0} price {1:0.0000} hit limit up in {2:yyyy-MM-dd}, failed to execute transaction",
                                         instruction.TradingObject.Code,
-                                        currentTradingDataOfObject.OpenPrice,
+                                        currentBarOfObject.OpenPrice,
                                         time));
 
                                 // remove the instruction and continue;
@@ -366,7 +368,7 @@ namespace TradingStrategyEvaluation
                                     string.Format(
                                         "{0} price {1:0.0000} hit limit down in {2:yyyy-MM-dd}, failed to execute transaction",
                                         instruction.TradingObject.Code,
-                                        currentTradingDataOfObject.OpenPrice,
+                                        currentBarOfObject.OpenPrice,
                                         time));
 
                                 // remove the instruction and continue;
@@ -378,7 +380,7 @@ namespace TradingStrategyEvaluation
                 }
 
                 // exclude 一字板
-                if (currentTradingDataOfObject.HighestPrice == currentTradingDataOfObject.LowestPrice)
+                if (currentBarOfObject.HighestPrice == currentBarOfObject.LowestPrice)
                 {
                     _context.Log(
                         string.Format(
@@ -391,7 +393,25 @@ namespace TradingStrategyEvaluation
                     continue;
                 }
 
-                double price = CalculateTransactionPrice(currentTradingDataOfObject, instruction);
+                double price = CalculateTransactionPrice(
+                    currentBarOfObject, 
+                    lastBarOfObject,
+                    instruction);
+
+                // Exclude unrealistic price
+                if (price < currentBarOfObject.LowestPrice || price > currentBarOfObject.HighestPrice)
+                {
+                    _context.Log(
+                        string.Format(
+                            "{0} price {1:0.000} in {2:yyyy-MM-dd} is not achievable",
+                            instruction.TradingObject.Code,
+                            price,
+                            time));
+
+                    // remove the instruction and continue;
+                    _pendingInstructions[i] = null;
+                    continue;
+                }
 
                 readyInstructions[i] = Tuple.Create(instruction, price);
             }
@@ -547,7 +567,10 @@ namespace TradingStrategyEvaluation
             return instruction.Action == TradingAction.CloseLong && instruction.SellingType == SellingType.ByStopLossPrice;
         }
 
-        private double CalculateTransactionPrice(Bar bar, Instruction instruction)
+        private double CalculateTransactionPrice(
+            Bar currentPeriodBar, 
+            Bar previousPeriodBar,
+            Instruction instruction)
         {
             double price;
 
@@ -568,23 +591,27 @@ namespace TradingStrategyEvaluation
 
             if (option.HasFlag(TradingPriceOption.OpenPrice))
             {
-                price = bar.OpenPrice;
+                price = currentPeriodBar.OpenPrice;
             }
             else if (option.HasFlag(TradingPriceOption.ClosePrice))
             {
-                price = bar.ClosePrice;
+                price = currentPeriodBar.ClosePrice;
             }
             else if (option.HasFlag(TradingPriceOption.MiddlePrice))
             {
-                price = (bar.OpenPrice + bar.ClosePrice + bar.HighestPrice + bar.LowestPrice ) / 4;
+                price = (currentPeriodBar.OpenPrice + currentPeriodBar.ClosePrice + currentPeriodBar.HighestPrice + currentPeriodBar.LowestPrice ) / 4;
             }
             else if (option.HasFlag(TradingPriceOption.HighestPrice))
             {
-                price = bar.HighestPrice;
+                price = currentPeriodBar.HighestPrice;
             }
             else if (option.HasFlag(TradingPriceOption.LowestPrice))
             {
-                price = bar.LowestPrice;
+                price = currentPeriodBar.LowestPrice;
+            }
+            else if (option.HasFlag(TradingPriceOption.MinOpenPrevClosePrice))
+            {
+                price = Math.Min(currentPeriodBar.OpenPrice, previousPeriodBar.ClosePrice);
             }
             else
             {

@@ -14,17 +14,19 @@ namespace TradingStrategyEvaluation
         ClosePrice = 0x10,
         HighestPrice = 0x20,
         LowestPrice = 0x40,
-        
+        MinOpenPrevClosePrice = 0x80,
+
         CurrentMiddlePrice = CurrentPeriod | MiddlePrice,
         CurrentHighestPrice = CurrentPeriod | HighestPrice,
         CurrentOpenPrice = CurrentPeriod | OpenPrice,
         CurrentClosePrice = CurrentPeriod | ClosePrice,
         CurrentLowestPrice = CurrentPeriod | LowestPrice,
-
+        
         NextMiddlePrice = NextPeriod | MiddlePrice,
         NextHighestPrice = NextPeriod | HighestPrice,
         NextOpenPrice = NextPeriod | OpenPrice,
         NextClosePrice = NextPeriod | ClosePrice,
         NextLowestPrice = NextPeriod | LowestPrice,
+        NextMinOpenPrevClosePrice = NextPeriod | MinOpenPrevClosePrice,
     }
 }

@@ -54,7 +54,6 @@ namespace TradingStrategy.Strategy
 
             var code = tradingObject.Code;
 
-            // remove all codes for non-existing positions
             if (Context.ExistsPosition(code))
             {
                 var temp = Context.GetPositionDetails(code);
@@ -87,6 +86,7 @@ namespace TradingStrategy.Strategy
             }
             else
             {
+                // remove all codes for non-existing positions
                 _codesShouldExit.Remove(tradingObject.Index);
             }
         }
