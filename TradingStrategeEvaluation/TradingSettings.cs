@@ -11,6 +11,7 @@ namespace TradingStrategyEvaluation
 
         public int PositionFrozenDays { get; set; }
 
+        public bool IsLowestPriceAchievable { get; set; }
         public CommissionSettings BuyingCommission { get; set; }
 
         public CommissionSettings SellingCommission { get; set; }
@@ -68,6 +69,7 @@ namespace TradingStrategyEvaluation
             {
                 AllowNegativeCapital = false,
                 PositionFrozenDays = 1,
+                IsLowestPriceAchievable = false,
                 BuyingCommission = new CommissionSettings 
                 {
                     Type = CommissionSettings.CommissionType.ByAmount, 

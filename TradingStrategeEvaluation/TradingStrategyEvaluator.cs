@@ -398,8 +398,10 @@ namespace TradingStrategyEvaluation
                     lastBarOfObject,
                     instruction);
 
-                // Exclude unrealistic price
-                if (price < currentBarOfObject.LowestPrice || price > currentBarOfObject.HighestPrice)
+                // Exclude unrealistic price.
+                if ((_settings.IsLowestPriceAchievable && price < currentBarOfObject.LowestPrice)
+                    || (!_settings.IsLowestPriceAchievable && price <= currentBarOfObject.LowestPrice)
+                    || price > currentBarOfObject.HighestPrice)
                 {
                     _context.Log(
                         string.Format(

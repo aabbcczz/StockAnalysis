@@ -73,7 +73,7 @@
           <Description>Randomly remove instruction</Description>
           <ValueType>System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
           <DefaultValue xsi:type="xsd:boolean">false</DefaultValue>
-          <Values>true</Values>
+          <Values>false</Values>
         </ParameterSettings>
         <ParameterSettings>
           <Name>RandomlyRemoveInstructionThreshold</Name>
@@ -875,7 +875,7 @@
           <Description>原始指标比例尺</Description>
           <ValueType>System.Double, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
           <DefaultValue xsi:type="xsd:double">1</DefaultValue>
-          <Values>1.0</Values>
+          <Values>1</Values>
         </ParameterSettings>		
       </ComponentParameterSettings>
     </TradingStrategyComponentSettings>	
