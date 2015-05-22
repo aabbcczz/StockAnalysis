@@ -85,7 +85,6 @@
     <Compile Include="TradeMetric.cs" />
     <Compile Include="TradingStrategyPredicator.cs" />
     <Compile Include="TradingTracker.cs" />
-    <Compile Include="TradingPriceOption.cs" />
     <Compile Include="TradingSettings.cs" />
     <Compile Include="TradingStrategyComponentSettings.cs" />
     <Compile Include="TradingStrategyEvaluator.cs" />

@@ -22,7 +22,7 @@ namespace TradingStrategy
 
         public TradingAction SellAction { get; set; }
 
-        public int Volume { get; set; }
+        public long Volume { get; set; }
 
         public double BuyPrice { get; set; }
 
@@ -116,7 +116,7 @@ namespace TradingStrategy
         /// </summary>
         /// <param name="volume">expected volume kept in old position</param>
         /// <returns>new position that include remaining volumes</returns>
-        public Position Split(int volume)
+        public Position Split(long volume)
         {
             if (volume <= 0 || volume >= Volume)
             {

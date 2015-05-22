@@ -22,7 +22,7 @@ namespace TradingStrategy
 
         public SellingType SellingType { get; set; }
 
-        public int Volume { get; set; }
+        public long Volume { get; set; }
 
         public double Price { get; set; }
 
@@ -71,6 +71,41 @@ namespace TradingStrategy
                 Succeeded,
                 Error.Escape(),
                 Comments.Escape());
+        }
+
+        public Transaction()
+        {
+        }
+
+        public Transaction(Instruction instruction, double price)
+        {
+            Action = instruction.Action;
+            Commission = 0.0;
+            ExecutionTime = default(DateTime);
+            InstructionId = instruction.Id;
+            Code = instruction.TradingObject.Code;
+            Name = instruction.TradingObject.Name;
+            Succeeded = false;
+            Price = price;
+            SubmissionTime = instruction.SubmissionTime;
+            Volume = instruction.Volume;
+            Comments = instruction.Comments;
+            RelatedObjects = instruction.RelatedObjects;
+            ObservedMetricValues = instruction.ObservedMetricValues;
+
+            CloseInstruction closeInstruction = instruction as CloseInstruction;
+            if (closeInstruction != null)
+            {
+                SellingType = closeInstruction.SellingType;
+                StopLossPriceForSelling = closeInstruction.StopLossPriceForSelling;
+                PositionIdForSell = closeInstruction.PositionIdForSell;
+            }
+
+            OpenInstruction openInstruction = instruction as OpenInstruction;
+            if (openInstruction != null)
+            {
+                StopLossGapForBuying = openInstruction.StopLossGapForBuying;
+            }
         }
     }
 }

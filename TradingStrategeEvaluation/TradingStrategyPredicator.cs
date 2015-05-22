@@ -20,7 +20,8 @@ namespace TradingStrategyEvaluation
         private DateTime[] _firstNonWarmupDataPeriods;
         private List<Position> _unprocessedActivePositions;
 
-        private List<Instruction> _pendingInstructions = new List<Instruction>();
+        private List<Instruction> _currentPeriodInstructions = new List<Instruction>();
+        private List<Instruction> _nextPeriodInstructions = new List<Instruction>();
 
         private bool _predicatable = true;
 
@@ -140,6 +141,14 @@ namespace TradingStrategyEvaluation
                 // start a new period
                 _strategy.StartPeriod(thisPeriodTime);
 
+                // assign all instructions in next period to current period because new period starts
+                _currentPeriodInstructions.Clear();
+                _currentPeriodInstructions.AddRange(_nextPeriodInstructions);
+                _nextPeriodInstructions.Clear();
+
+                // run instructions left over from previous period
+                RunCurrentPeriodInstructions(lastPeriodData, thisPeriodData, thisPeriodTime);
+
 #if DEBUG
                 // check data
                 if (thisPeriodData.Any(bar => bar.Time != Bar.InvalidTime && bar.Time != thisPeriodTime))
@@ -185,10 +194,26 @@ namespace TradingStrategyEvaluation
                     }
                     else
                     {
-                        _pendingInstructions.AddRange(instructions);
+                        foreach (var instruction in instructions)
+                        {
+                            UpdateInstructionWithDefaultPriceWhenNecessary(instruction);
+
+                            if (instruction.Price.Period == TradingPricePeriod.CurrentPeriod)
+                            {
+                                _currentPeriodInstructions.Add(instruction);
+                            }
+                            else if (instruction.Price.Period == TradingPricePeriod.NextPeriod)
+                            {
+                                _nextPeriodInstructions.Add(instruction);
+                            }
+                            else
+                            {
+                                throw new InvalidProgramException("unsupported price period");
+                            }
+                        }
 
                         // run instructions for current period
-                        RunPendingInstructions(lastPeriodData, thisPeriodData, thisPeriodTime);
+                        RunCurrentPeriodInstructions(lastPeriodData, thisPeriodData, thisPeriodTime);
                     }
                 }
 
@@ -207,30 +232,34 @@ namespace TradingStrategyEvaluation
             _strategy.Finish();
 
             // clear all pending instructions.
-            _pendingInstructions.Clear();
+            _currentPeriodInstructions.Clear();
+            _nextPeriodInstructions.Clear();
 
             // update flag to avoid this function be called twice
             _predicatable = false;
         }
 
+        private void UpdateInstructionWithDefaultPriceWhenNecessary(Instruction instruction)
+        {
+            if (instruction.Price == null)
+            {
+                instruction.Price = new TradingPrice(TradingPricePeriod.CurrentPeriod, TradingPriceOption.ClosePrice, 0.0);
+            }
+        }
 
-        private void RunPendingInstructions(
+        private void RunCurrentPeriodInstructions(
             Bar[] lastTradingData,
             Bar[] currentTradingData, 
             DateTime time)
         {
-            var pendingTransactions = new Transaction[_pendingInstructions.Count];
+            var pendingTransactions = new List<Transaction>(_currentPeriodInstructions.Count);
 
-            for (var i = 0; i < _pendingInstructions.Count; ++i)
+            foreach (var instruction in _currentPeriodInstructions)
             {
-                var instruction = _pendingInstructions[i];
-
                 var tradingObjectIndex = instruction.TradingObject.Index;
                 var currentTradingDataOfObject = currentTradingData[tradingObjectIndex];
                 if (currentTradingDataOfObject.Time == Bar.InvalidTime)
                 {
-                    // remove the instruction and continue;
-                    _pendingInstructions[i] = null;
                     continue;
                 }
 
@@ -239,24 +268,19 @@ namespace TradingStrategyEvaluation
                     time,
                     currentTradingDataOfObject);
 
-                pendingTransactions[i] =transaction;
+                pendingTransactions.Add(transaction);
             }
 
 
             // always execute transaction according to the original order, so the strategy itself
             // can decide the order.
-            for (int i = 0; i < pendingTransactions.Length; ++i)
+            foreach (var transaction in pendingTransactions)
             {
-                if (pendingTransactions[i] != null)
-                {
-                    ExecuteTransaction(pendingTransactions[i]);
-
-                    _pendingInstructions[i] = null;
-                }
+                ExecuteTransaction(transaction);
             }
 
             // compact pending instruction list
-            _pendingInstructions = _pendingInstructions.Where(i => i != null).ToList();
+            _currentPeriodInstructions.Clear();
         }
 
         private void ExecuteTransaction(Transaction transaction)
@@ -283,25 +307,11 @@ namespace TradingStrategyEvaluation
                 throw new InvalidOperationException("The volume of transaction does not meet trading object's requirement");
             }
 
-            var transaction = new Transaction
+            var transaction = new Transaction(instruction, bar.ClosePrice)
             {
-                Action = instruction.Action,
                 Commission = 0.0,
                 ExecutionTime = time,
-                InstructionId = instruction.Id,
-                Code = instruction.TradingObject.Code,
-                Name = instruction.TradingObject.Name,
-                Price = bar.ClosePrice,
                 Succeeded = false,
-                SubmissionTime = instruction.SubmissionTime,
-                Volume = instruction.Volume,
-                SellingType = instruction.SellingType,
-                StopLossGapForBuying = instruction.StopLossGapForBuying,
-                StopLossPriceForSelling = instruction.StopLossPriceForSelling,
-                PositionIdForSell = instruction.PositionIdForSell,
-                Comments = instruction.Comments,
-                RelatedObjects = instruction.RelatedObjects,
-                ObservedMetricValues = instruction.ObservedMetricValues,
             };
 
             return transaction;

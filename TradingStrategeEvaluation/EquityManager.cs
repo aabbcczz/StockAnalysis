@@ -12,9 +12,9 @@ namespace TradingStrategyEvaluation
         private struct PositionToBeSold
         {
             public int Index;
-            public int Volume;
+            public long Volume;
 
-            public PositionToBeSold(int index, int volume)
+            public PositionToBeSold(int index, long volume)
             {
                 Index = index;
                 Volume = volume;

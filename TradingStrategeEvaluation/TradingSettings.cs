@@ -2,6 +2,8 @@
 using System.Xml.Serialization;
 using System.IO;
 
+using TradingStrategy;
+
 namespace TradingStrategyEvaluation
 {
     [Serializable]
@@ -18,10 +20,10 @@ namespace TradingStrategyEvaluation
 
         public int Spread { get; set; }
 
-//        public TradingPriceOption BuyShortPriceOption { get; set; }
-//        public TradingPriceOption CloseShortPriceOption { get; set; }
-
+        public TradingPricePeriod OpenLongPricePeriod { get; set; }
         public TradingPriceOption OpenLongPriceOption { get; set; }
+
+        public TradingPricePeriod CloseLongPricePeriod { get; set; }
         public TradingPriceOption CloseLongPriceOption { get; set; }
 
         public static TradingSettings LoadFromFile(string file)
@@ -82,8 +84,12 @@ namespace TradingStrategyEvaluation
                     Tariff = 0.0005
                 },
                 Spread = 0,
-                OpenLongPriceOption = TradingPriceOption.NextOpenPrice,
-                CloseLongPriceOption = TradingPriceOption.NextOpenPrice
+
+                OpenLongPricePeriod = TradingPricePeriod.NextPeriod,
+                OpenLongPriceOption = TradingPriceOption.OpenPrice,
+
+                CloseLongPricePeriod = TradingPricePeriod.NextPeriod,
+                CloseLongPriceOption = TradingPriceOption.ClosePrice
             };
 
             return settings;

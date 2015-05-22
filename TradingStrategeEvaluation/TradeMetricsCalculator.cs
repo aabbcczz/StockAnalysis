@@ -253,7 +253,7 @@ namespace TradingStrategyEvaluation
 
                 var subsetTransactions = orderedTransactions.Where(t => t.Code == code);
 
-                int volume = 0;
+                long volume = 0;
                 int barIndex = 0;
                 foreach (var transaction in subsetTransactions)
                 {

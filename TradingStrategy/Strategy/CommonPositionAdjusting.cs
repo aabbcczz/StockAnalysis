@@ -150,16 +150,14 @@ namespace TradingStrategy.Strategy
                 var gain = (bar.ClosePrice - lastPosition.BuyPrice) * lastPosition.Volume;
                 if (gain > initialRisk * RiskPercentageTrigger / 100.0)
                 {
-                    instructions.Add(new Instruction()
+                    instructions.Add(
+                        new OpenInstruction(bar.Time, tradingObject)
                         {
-                            Action = TradingAction.OpenLong,
                             Comments = string.Format(
                                 "increase position. The gain of last position ({0:0.000}) exceeds initial risk ({1:0.000}) * {2:0.000}%",
                                 gain,
                                 initialRisk,
                                 RiskPercentageTrigger),
-                            SubmissionTime = bar.Time,
-                            TradingObject = tradingObject,
                             Volume = lastPosition.Volume,
                             StopLossGapForBuying = -initialRisk / lastPosition.Volume,
                             StopLossPriceForBuying = 0.0

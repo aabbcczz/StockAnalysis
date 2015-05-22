@@ -128,7 +128,9 @@ namespace TradingStrategy.Base
 
         public void EstimateStoplossAndSizeForNewPosition(Instruction instruction, double price, int totalNumberOfObjectsToBeEstimated)
         {
-            if (instruction.Action != TradingAction.OpenLong)
+            OpenInstruction openInstruction = instruction as OpenInstruction;
+
+            if (openInstruction == null)
             {
                 return;
             }
@@ -138,14 +140,15 @@ namespace TradingStrategy.Base
                 string comments;
                 if (!filter.IsPriceAcceptable(instruction.TradingObject, price, out comments))
                 {
-                    instruction.Comments = string.Join(" ", instruction.Comments, comments);
-                    instruction.Volume = 0;
-                    instruction.StopLossGapForBuying = 0.0;
-                    instruction.StopLossPriceForBuying = price;
+                    openInstruction.Comments = string.Join(" ", instruction.Comments, comments);
+                    openInstruction.Volume = 0;
+                    openInstruction.StopLossGapForBuying = 0.0;
+                    openInstruction.StopLossPriceForBuying = price;
 
                     return;
                 }
             }
+
             string stopLossComments;
             var stopLossGap = _stopLoss.EstimateStopLossGap(instruction.TradingObject, price, out stopLossComments);
             if (stopLossGap > 0.0)
@@ -159,10 +162,10 @@ namespace TradingStrategy.Base
             // adjust volume to ensure it fit the trading object's constraint
             volume -= volume % instruction.TradingObject.VolumePerBuyingUnit;
 
-            instruction.Comments = string.Join(" ", instruction.Comments, stopLossComments, positionSizeComments);
-            instruction.Volume = volume;
-            instruction.StopLossGapForBuying = stopLossGap;
-            instruction.StopLossPriceForBuying = price + stopLossGap;
+            openInstruction.Comments = string.Join(" ", instruction.Comments, stopLossComments, positionSizeComments);
+            openInstruction.Volume = volume;
+            openInstruction.StopLossGapForBuying = stopLossGap;
+            openInstruction.StopLossPriceForBuying = price + stopLossGap;
         }
 
         private void GenerateInstructions(ITradingObject[] tradingObjects, Bar[] bars)
@@ -245,12 +248,9 @@ namespace TradingStrategy.Base
                     if (stopLossPrice < double.MaxValue)
                     {
                         _instructionsInCurrentPeriod.Add(
-                            new Instruction
+                            new CloseInstruction(_period, tradingObject)
                             {
-                                Action = TradingAction.CloseLong,
                                 Comments = string.Format("stop loss @{0:0.000}", stopLossPrice),
-                                SubmissionTime = _period,
-                                TradingObject = tradingObject,
                                 SellingType = SellingType.ByStopLossPrice,
                                 StopLossPriceForSelling = stopLossPrice,
                                 PositionIdForSell = position.Id,
@@ -278,12 +278,9 @@ namespace TradingStrategy.Base
                         if (component.ShouldExit(tradingObject, out comments))
                         {
                             _instructionsInCurrentPeriod.Add(
-                                new Instruction
+                                new CloseInstruction(_period, tradingObject)
                                 {
-                                    Action = TradingAction.CloseLong,
                                     Comments = "Exiting market: " + comments,
-                                    SubmissionTime = _period,
-                                    TradingObject = tradingObject,
                                     SellingType = SellingType.ByVolume,
                                     Volume = positions.Sum(p => p.Volume),
                                 });
@@ -486,12 +483,9 @@ namespace TradingStrategy.Base
         private void CreateInstructionForBuying(ITradingObject tradingObject, string comments, object[] relatedObjects)
         {
                 _instructionsInCurrentPeriod.Add(
-                    new Instruction
+                    new OpenInstruction(_period, tradingObject)
                     {
-                        Action = TradingAction.OpenLong,
                         Comments = comments,
-                        SubmissionTime = _period,
-                        TradingObject = tradingObject,
                         Volume = 0, // will be filled in EstimateStoplossAndSizeOfNewPosition()
                         StopLossGapForBuying = 0.0, // will be filled in EstimateStoplossAndSizeOfNewPosition()
                         StopLossPriceForBuying = 0.0, // will be filled in EstimateStoplossAndSizeOfNewPosition()
@@ -527,29 +521,31 @@ namespace TradingStrategy.Base
                         throw new InvalidProgramException("Logic error");
                     }
 
+                    OpenInstruction openInstruction = instruction as OpenInstruction;
+
                     // set stop loss and initial risk for all new positions
                     if (positions.Count() == 1)
                     {
                         var position = positions.Last();
                         if (!position.IsStopLossPriceInitialized())
                         {
-                            position.SetStopLossPrice(instruction.StopLossPriceForBuying);
+                            position.SetStopLossPrice(openInstruction.StopLossPriceForBuying);
 
                             _context.Log(
                                 string.Format(
                                     "Set stop loss for position {0}/{1} as {2:0.000}",
                                     position.Id,
                                     position.Code,
-                                    instruction.StopLossPriceForBuying));
+                                    openInstruction.StopLossPriceForBuying));
                         }
                     }
                     else
                     {
                         // set stop loss for positions created by PositionAdjusting component
-                        if (Math.Abs(instruction.StopLossGapForBuying) > 1e-16)
+                        if (Math.Abs(openInstruction.StopLossGapForBuying) > 1e-16)
                         {
                             var lastPosition = positions.Last();
-                            var newStopLossPrice = instruction.StopLossPriceForBuying;
+                            var newStopLossPrice = openInstruction.StopLossPriceForBuying;
                                 
                             // now set the new stop loss price for all positions
                             foreach (var position in positions)

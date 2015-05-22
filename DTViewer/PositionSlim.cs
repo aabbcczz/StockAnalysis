@@ -18,7 +18,7 @@ namespace DTViewer
 
         public DateTime SellTime { get; private set; }
 
-        public int Volume { get; private set; }
+        public long Volume { get; private set; }
 
         public double BuyPrice { get; private set; }
 
