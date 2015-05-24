@@ -1,5 +1,18 @@
 ﻿namespace TradingStrategy.Base
 {
+    public sealed class StopLossComponentResult : TradingStrategyComponentResult
+    {
+        /// estimated stop loss gap, must be smaller than zero. 
+        /// actual price + stop loss gap = stop loss price
+        public double StopLossGap { get; set; }
+
+        public StopLossComponentResult()
+            : base()
+        {
+            StopLossGap = double.NegativeInfinity;
+        }
+    }
+
     public interface IStopLossComponent : ITradingStrategyComponent
     {
         /// <summary>
@@ -22,6 +35,6 @@
         /// <param name="comments">comments on how the gap is estimated</param>
         /// <returns>estimated stop loss gap, must be smaller than zero. 
         /// actual price + stop loss gap = stop loss price</returns>
-        double EstimateStopLossGap(ITradingObject tradingObject, double assumedPrice, out string comments);
+        StopLossComponentResult EstimateStopLossGap(ITradingObject tradingObject, double assumedPrice);
     }
 }

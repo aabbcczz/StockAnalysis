@@ -70,33 +70,30 @@ namespace TradingStrategy.Strategy
             _numberOfValidTradingObjectsInThisPeriod++;
         }
 
-        public override bool CanEnter(ITradingObject tradingObject, out string comments, out object obj)
+        public override MarketEnteringComponentResult CanEnter(ITradingObject tradingObject)
         {
-            comments = string.Empty;
-            obj = null;
+            var result = new MarketEnteringComponentResult();
 
-            if (_numberOfValidTradingObjectsInThisPeriod == 0)
+            if (_numberOfValidTradingObjectsInThisPeriod != 0)
             {
-                return false;
+                var order = _sorter.LatestOrders[tradingObject.Index];
+
+                var relativeStrength =
+                    (double)(_numberOfValidTradingObjectsInThisPeriod - order)
+                    / _numberOfValidTradingObjectsInThisPeriod
+                    * 100.0;
+
+                if (relativeStrength > RelativeStrengthThreshold)
+                {
+                    result.Comments = string.Format(
+                        "RelativeStrength: {0:0.000}%",
+                        relativeStrength);
+
+                    result.CanEnter = true;
+                }
             }
 
-            var order = _sorter.LatestOrders[tradingObject.Index];
-
-            var relativeStrength = 
-                (double)(_numberOfValidTradingObjectsInThisPeriod - order) 
-                / _numberOfValidTradingObjectsInThisPeriod 
-                * 100.0;
-
-            if (relativeStrength > RelativeStrengthThreshold)
-            {
-                comments = string.Format(
-                    "RelativeStrength: {0:0.000}%",
-                    relativeStrength);
-
-                return true;
-            }
-
-            return false;
+            return result;
         }
 
         public void Observe(IRuntimeMetricManager manager)

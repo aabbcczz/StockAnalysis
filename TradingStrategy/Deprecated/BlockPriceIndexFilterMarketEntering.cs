@@ -127,14 +127,15 @@ namespace TradingStrategy.Strategy
             return upRateFromLowest;
         }
 
-        public override bool CanEnter(ITradingObject tradingObject, out string comments, out object obj)
+        public override MarketEnteringComponentResult CanEnter(ITradingObject tradingObject)
         {
-            comments = string.Empty;
-            obj = null;
+            var result = new MarketEnteringComponentResult();
 
             if (Context.RelationshipManager == null)
             {
-                return true;
+                result.CanEnter = true;
+                     
+                return result;
             }
 
             var blocks = Context.RelationshipManager.GetBlocksForStock(tradingObject.Code);
@@ -143,7 +144,7 @@ namespace TradingStrategy.Strategy
             var intersectedBlocks = _blockConfigMap.Keys.Intersect(blocks);
             if (!intersectedBlocks.Any())
             {
-                return false;
+                return result;
             }
 
             foreach (var block in intersectedBlocks)
@@ -155,7 +156,7 @@ namespace TradingStrategy.Strategy
                 if (upRateFromLowest < blockConfig.MinimumUpRate
                     || upRateFromLowest > blockConfig.MaximumUpRate)
                 {
-                    return false;
+                    return result;
                 }
             }
 
@@ -165,22 +166,22 @@ namespace TradingStrategy.Strategy
 
                 if (indexRateOfChange > MininumRateOfChange)
                 {
-                    comments = string.Format(
+                    result.Comments = string.Format(
                         "Block {0} price index change rate {1:0.000}", 
                         block, 
                         indexRateOfChange);
 
-                    obj = new BlockUpRatesFromLowestForCode()
+                    result.RelatedObject = new BlockUpRatesFromLowestForCode()
                     {
                         Code = tradingObject.Code,
                         BlockUpRatesFromLowest = blocks.ToDictionary(b => b, b => GetBlockUpRateFromLowest(b))
                     };
 
-                    return true;
+                    result.CanEnter = true;
                 }
             }
 
-            return false;
+            return result;
         }
 
         private void UpdatePriceIndex()

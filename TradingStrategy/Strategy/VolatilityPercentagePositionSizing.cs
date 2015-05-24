@@ -48,7 +48,7 @@ namespace TradingStrategy.Strategy
             _atrMetricProxy = new RuntimeMetricProxy(Context.MetricManager, string.Format("ATR[{0}]", VolatilityWindowSize));
         }
 
-        public override int EstimatePositionSize(ITradingObject tradingObject, double price, double stopLossGap, out string comments, int totalNumberOfObjectsToBeEstimated)
+        public override PositionSizingComponentResult EstimatePositionSize(ITradingObject tradingObject, double price, double stopLossGap, int totalNumberOfObjectsToBeEstimated)
         {
             var values = _atrMetricProxy.GetMetricValues(tradingObject);
 
@@ -57,14 +57,18 @@ namespace TradingStrategy.Strategy
             var currentEquity = Context.GetCurrentEquity(CurrentPeriod, EquityEvaluationMethod);
 
             var size = (int)(currentEquity * PercentageOfEquityForEachPositionVolatility / 100.0 / volatility);
-            comments = string.Format(
+            var comments = string.Format(
                 "positionsize({3}) = CurrentEquity({0:0.000}) * PercentageOfEquityForEachPositionVolatility({1:0.000}) / 100.0 / Volatility({2:0.000})",
                 currentEquity,
                 PercentageOfEquityForEachPositionVolatility,
                 volatility,
                 size);
 
-            return size;
+            return new PositionSizingComponentResult()
+                {
+                    Comments = comments,
+                    PositionSize = size
+                };
         }
     }
 }

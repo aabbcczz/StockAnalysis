@@ -10,6 +10,6 @@ namespace TradingStrategy.Base
         GeneralTradingStrategyComponentBase, 
         IBuyPriceFilteringComponent
     {
-        public abstract bool IsPriceAcceptable(ITradingObject tradingObject, double price, out string comments);
+        public abstract BuyPriceFilteringComponentResult IsPriceAcceptable(ITradingObject tradingObject, double price);
     }
 }

@@ -31,19 +31,16 @@ namespace TradingStrategy.Strategy
         [Parameter(90.0, "价格下限百分比")]
         public double PriceDownLimitPercentage { get; set; }
 
-        public override bool IsPriceAcceptable(ITradingObject tradingObject, double price, out string comments)
+        public override BuyPriceFilteringComponentResult IsPriceAcceptable(ITradingObject tradingObject, double price)
         {
-            comments = string.Empty;
+            var result = new BuyPriceFilteringComponentResult();
+
             var baseValue = _metricProxy.GetMetricValues(tradingObject)[0];
 
-            if (price >= baseValue * PriceDownLimitPercentage / 100.0
-                && price <= baseValue * PriceUpLimitPercentage / 100.0)
+            if (price < baseValue * PriceDownLimitPercentage / 100.0
+                || price >= baseValue * PriceUpLimitPercentage / 100.0)
             {
-                return true;
-            }
-            else
-            {
-                comments = string.Format(
+                result.Comments = string.Format(
                     "Price {0:0.000} out of [{1:0.000}%..{2:0.000}%] of metric[{3}]:{4:0.000}",
                     price,
                     PriceDownLimitPercentage,
@@ -51,8 +48,10 @@ namespace TradingStrategy.Strategy
                     RawMetric,
                     baseValue);
 
-                return false;
+                result.IsPriceAcceptable = false;
             }
+
+            return result;
         }
 
         protected override void RegisterMetric()

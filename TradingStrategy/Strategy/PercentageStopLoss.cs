@@ -19,16 +19,20 @@ namespace TradingStrategy.Strategy
             get { return "如果当前价格低于买入价的一定百分比则触发停价"; }
         }
 
-        public override double EstimateStopLossGap(ITradingObject tradingObject, double assumedPrice, out string comments)
+        public override StopLossComponentResult EstimateStopLossGap(ITradingObject tradingObject, double assumedPrice)
         {
             var stoplossGap = -(assumedPrice * MaxPercentageOfLoss / 100.0);
-            comments = string.Format(
+            var comments = string.Format(
                 "stoplossgap({2:0.000}) = price({0:0.000}) * MaxPercentageOfLoss({1:0.000}) / 100.0",
                 assumedPrice,
                 MaxPercentageOfLoss,
                 stoplossGap);
 
-            return stoplossGap;
+            return new StopLossComponentResult()
+                {
+                    Comments = comments,
+                    StopLossGap = stoplossGap
+                };
         }
 
         protected override void ValidateParameterValues()

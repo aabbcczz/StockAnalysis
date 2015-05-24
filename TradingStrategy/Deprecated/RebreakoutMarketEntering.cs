@@ -56,18 +56,18 @@ namespace TradingStrategy.Strategy
             }
         }
 
-        public override bool CanEnter(ITradingObject tradingObject, out string comments, out object obj)
+        public override MarketEnteringComponentResult CanEnter(ITradingObject tradingObject)
         {
-            comments = string.Empty;
-            obj = null;
+            var result = new MarketEnteringComponentResult();
 
             var metric = (RebreakoutRuntimeMetric)_metricProxy.GetMetric(tradingObject);
             if (metric.Rebreakout)
             {
-                comments = string.Format("Rebreakout: {0:0.0000}, Interval: {1}", metric.CurrentHighest, metric.IntervalSinceLastBreakout);
+                result.Comments = string.Format("Rebreakout: {0:0.0000}, Interval: {1}", metric.CurrentHighest, metric.IntervalSinceLastBreakout);
             }
 
-            return metric.Rebreakout;
+            result.CanEnter = metric.Rebreakout;
+            return result;
         }
 
         protected override void RegisterMetric()

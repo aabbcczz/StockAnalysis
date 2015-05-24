@@ -25,17 +25,17 @@ namespace TradingStrategy.Base
 
         protected abstract IMetricBooleanExpression BuildExpression();
 
-        public override bool ShouldExit(ITradingObject tradingObject, out string comments)
+        public override MarketExitingComponentResult ShouldExit(ITradingObject tradingObject)
         {
-            comments = string.Empty;
+            var result = new MarketExitingComponentResult();
 
             if (MetricBooleanExpression.IsTrue(tradingObject))
             {
-                comments = MetricBooleanExpression.GetInstantializedExpression(tradingObject);
-                return true;
+                result.Comments = MetricBooleanExpression.GetInstantializedExpression(tradingObject);
+                result.ShouldExit = true;
             }
 
-            return false;
+            return result;
         }
     }
 }

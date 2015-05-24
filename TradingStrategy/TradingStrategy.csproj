@@ -67,6 +67,7 @@
     <Compile Include="Base\MetricBasedStoploss.cs" />
     <Compile Include="Base\MetricBasedMarketExiting.cs" />
     <Compile Include="Base\MetricBasedMarketEntering.cs" />
+    <Compile Include="Base\TradingStrategyComponentResult.cs" />
     <Compile Include="CloseInstruction.cs" />
     <Compile Include="CompletedTransaction.cs" />
     <Compile Include="DeprecatedStrategyAttribute.cs" />

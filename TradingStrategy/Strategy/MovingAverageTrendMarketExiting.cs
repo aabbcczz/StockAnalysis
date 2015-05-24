@@ -76,24 +76,24 @@ namespace TradingStrategy.Strategy
             get { return "当各个周期的移动平均值不按照周期大小逆序排列时（即图形上小周期的均值在上，大周期均值在下）退市"; }
         }
 
-        public override bool ShouldExit(ITradingObject tradingObject, out string comments)
+        public override MarketExitingComponentResult ShouldExit(ITradingObject tradingObject)
         {
-            comments = string.Empty;
+            var result = new MarketExitingComponentResult();
 
             if (!_trendDetector.HasTrend(tradingObject))
             {
                 for (int i = 0; i < _trendDetector.PeriodsCount; ++i)
                 {
-                    comments += string.Format(
+                    result.Comments += string.Format(
                         "MA[{0}]:{1:0.000} ", 
                         _trendDetector.GetPeriod(i), 
                         _trendDetector.GetMovingAverage(tradingObject, i));
                 }
 
-                return true;
+                result.ShouldExit = true;
             }
 
-            return false;
+            return result;
         }
     }
 }

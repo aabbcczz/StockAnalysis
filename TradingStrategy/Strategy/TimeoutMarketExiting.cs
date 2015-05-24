@@ -32,25 +32,23 @@ namespace TradingStrategy.Strategy
             }
         }
 
-        public override bool ShouldExit(ITradingObject tradingObject, out string comments)
+        public override MarketExitingComponentResult ShouldExit(ITradingObject tradingObject)
         {
-            comments = string.Empty;
+            var result = new MarketExitingComponentResult();
 
             var code = tradingObject.Code;
-            if (!Context.ExistsPosition(code))
+            if (Context.ExistsPosition(code))
             {
-                return false;
+                int periodCount = Context.GetPositionDetails(code).Last().LastedPeriodCount;
+
+                if (periodCount >= HoldingPeriods)
+                {
+                    result.Comments = string.Format("hold for {0} periods", HoldingPeriods);
+                    result.ShouldExit = true;
+                }
             }
 
-            int periodCount = Context.GetPositionDetails(code).Last().LastedPeriodCount;
-
-            if (periodCount >= HoldingPeriods)
-            {
-                comments = string.Format("hold for {0} periods", HoldingPeriods);
-                return true;
-            }
-
-            return false;
+            return result;
         }
     }
 }

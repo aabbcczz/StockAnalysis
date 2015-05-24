@@ -40,9 +40,9 @@ namespace TradingStrategy.Strategy
             }
         }
 
-        public override bool ShouldExit(ITradingObject tradingObject, out string comments)
+        public override MarketExitingComponentResult ShouldExit(ITradingObject tradingObject)
         {
-            comments = string.Empty;
+            var result = new MarketExitingComponentResult();
 
             if (Context.ExistsPosition(tradingObject.Code))
             {
@@ -55,14 +55,14 @@ namespace TradingStrategy.Strategy
 
                     if (position.BuyPrice < price)
                     {
-                        comments = string.Format("Bailout: buy price {0:0.000}, current price {1:0.000}", position.BuyPrice, price);
+                        result.Comments = string.Format("Bailout: buy price {0:0.000}, current price {1:0.000}", position.BuyPrice, price);
 
-                        return true;
+                        result.ShouldExit = true;
                     }
                 }
             }
 
-            return false;
+            return result;
         }
     }
 }

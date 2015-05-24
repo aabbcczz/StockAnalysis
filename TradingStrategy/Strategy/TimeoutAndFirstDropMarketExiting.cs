@@ -43,41 +43,39 @@ namespace TradingStrategy.Strategy
             }
         }
 
-        public override bool ShouldExit(ITradingObject tradingObject, out string comments)
+        public override MarketExitingComponentResult ShouldExit(ITradingObject tradingObject)
         {
-            comments = string.Empty;
+            var result = new MarketExitingComponentResult();
 
             var code = tradingObject.Code;
-            if (!Context.ExistsPosition(code))
+            if (Context.ExistsPosition(code))
             {
-                return false;
-            }
+                int periodCount = Context.GetPositionDetails(code).Last().LastedPeriodCount;
 
-            int periodCount = Context.GetPositionDetails(code).Last().LastedPeriodCount;
-
-            if (periodCount >= HoldingPeriods)
-            {
-                var todayBar = Context.GetBarOfTradingObjectForCurrentPeriod(tradingObject);
-                var previousBar = _referenceBar.GetMetricValues(tradingObject);
-                var previousOpen = previousBar[1];
-                var previousClose = previousBar[0];
-
-                if (todayBar.OpenPrice  < previousClose
-                    || todayBar.ClosePrice < previousClose
-                    || todayBar.ClosePrice < todayBar.OpenPrice)
+                if (periodCount >= HoldingPeriods)
                 {
-                    comments = string.Format(
-                        "hold for {0} periods and no jump up and rise. today open {1:0.000}, today close {2:0.000} previous close {3:0.000}", 
-                        HoldingPeriods,
-                        todayBar.OpenPrice,
-                        todayBar.ClosePrice,
-                        previousClose);
+                    var todayBar = Context.GetBarOfTradingObjectForCurrentPeriod(tradingObject);
+                    var previousBar = _referenceBar.GetMetricValues(tradingObject);
+                    var previousOpen = previousBar[1];
+                    var previousClose = previousBar[0];
 
-                    return true;
+                    if (todayBar.OpenPrice < previousClose
+                        || todayBar.ClosePrice < previousClose
+                        || todayBar.ClosePrice < todayBar.OpenPrice)
+                    {
+                        result.Comments = string.Format(
+                            "hold for {0} periods and no jump up and rise. today open {1:0.000}, today close {2:0.000} previous close {3:0.000}",
+                            HoldingPeriods,
+                            todayBar.OpenPrice,
+                            todayBar.ClosePrice,
+                            previousClose);
+
+                        result.ShouldExit = true;
+                    }
                 }
             }
 
-            return false;
+            return result;
         }
     }
 }

@@ -32,25 +32,31 @@ namespace TradingStrategy.Strategy
             }
         }
 
-        public override int EstimatePositionSize(ITradingObject tradingObject, double price, double stopLossGap, out string comments, int totalNumberOfObjectsToBeEstimated)
+        public override PositionSizingComponentResult EstimatePositionSize(ITradingObject tradingObject, double price, double stopLossGap, int totalNumberOfObjectsToBeEstimated)
         {
             var currentEquity = Context.GetCurrentEquity(CurrentPeriod, EquityEvaluationMethod);
 
+            var result = new PositionSizingComponentResult();
+
             if (Math.Abs(stopLossGap) < 1e-6)
             {
-                comments = "positionsize = 0 because stopLossGap is too small";
-                return 0;
+                result.Comments = "positionsize = 0 because stopLossGap is too small";
+                result.PositionSize = 0;
             }
-            var size = (int)(currentEquity * PercentageOfEquityForEachRisk / 100.0 / Math.Abs(stopLossGap));
+            else
+            {
+                var size = (int)(currentEquity * PercentageOfEquityForEachRisk / 100.0 / Math.Abs(stopLossGap));
 
-            comments = string.Format(
-                "positionsize({3}) = CurrentEquity({0:0.000}) * PercentageOfEquityForEachRisk({1:0.000}) / 100.0 / Risk({2:0.000})",
-                currentEquity,
-                PercentageOfEquityForEachRisk,
-                Math.Abs(stopLossGap),
-                size);
+                result.Comments = string.Format(
+                    "positionsize({3}) = CurrentEquity({0:0.000}) * PercentageOfEquityForEachRisk({1:0.000}) / 100.0 / Risk({2:0.000})",
+                    currentEquity,
+                    PercentageOfEquityForEachRisk,
+                    Math.Abs(stopLossGap),
+                    size);
+                result.PositionSize = size;
+            }
 
-            return size;
+            return result;
         }
     }
 }

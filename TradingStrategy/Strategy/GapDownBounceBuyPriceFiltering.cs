@@ -31,24 +31,23 @@ namespace TradingStrategy.Strategy
             return _metricProxy.GetMetricValues(tradingObject)[0];
         }
 
-        public override bool IsPriceAcceptable(ITradingObject tradingObject, double price, out string comments)
+        public override BuyPriceFilteringComponentResult IsPriceAcceptable(ITradingObject tradingObject, double price)
         {
-            comments = string.Empty;
+            var result = new BuyPriceFilteringComponentResult();
+
             double buyPriceDownLimit = GetBuyPriceLimit(tradingObject);
 
-            if (price >= buyPriceDownLimit)
+            if (price < buyPriceDownLimit)
             {
-                return true;
-            }
-            else
-            {
-                comments = string.Format(
+                result.Comments = string.Format(
                     "Price {0:0.000} lower than buy price limit {1:0.000}",
                     price,
                     buyPriceDownLimit);
 
-                return false;
+                result.IsPriceAcceptable = false;
             }
+
+            return result;
         }
 
         protected override void RegisterMetric()

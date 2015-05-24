@@ -76,25 +76,24 @@ namespace TradingStrategy.Strategy
             get { return "当各个周期的移动平均值按照周期大小逆序排列时（即图形上小周期的均值在上，大周期均值在下）允许入市"; }
         }
 
-        public override bool CanEnter(ITradingObject tradingObject, out string comments, out object obj)
+        public override MarketEnteringComponentResult CanEnter(ITradingObject tradingObject)
         {
-            comments = string.Empty;
-            obj = null;
+            var result = new MarketEnteringComponentResult();
 
             if (_trendDetector.HasTrend(tradingObject))
             {
                 for (int i = 0; i < _trendDetector.PeriodsCount; ++i)
                 {
-                    comments += string.Format(
+                    result.Comments += string.Format(
                         "MA[{0}]:{1:0.000} ", 
                         _trendDetector.GetPeriod(i), 
                         _trendDetector.GetMovingAverage(tradingObject, i));
                 }
 
-                return true;
+                result.CanEnter = true;
             }
 
-            return false;
+            return result;
         }
     }
 }

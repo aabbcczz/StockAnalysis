@@ -4,6 +4,6 @@
         : GeneralTradingStrategyComponentBase
         , IMarketExitingComponent
     {
-        public abstract bool ShouldExit(ITradingObject tradingObject, out string comments);
+        public abstract MarketExitingComponentResult ShouldExit(ITradingObject tradingObject);
     }
 }

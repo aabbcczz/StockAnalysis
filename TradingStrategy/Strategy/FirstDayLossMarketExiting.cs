@@ -30,9 +30,9 @@ namespace TradingStrategy.Strategy
                 "REFBAR[1]");
         }
 
-        public override bool ShouldExit(ITradingObject tradingObject, out string comments)
+        public override MarketExitingComponentResult ShouldExit(ITradingObject tradingObject)
         {
-            comments = string.Empty;
+            var result = new MarketExitingComponentResult();
 
             if(Context.ExistsPosition(tradingObject.Code))
             {
@@ -44,14 +44,14 @@ namespace TradingStrategy.Strategy
 
                     if (position.BuyPrice > closePrice)
                     {
-                        comments = string.Format("Loss: buy price {0:0.000}, prev close price {1:0.000}", position.BuyPrice, closePrice);
+                        result.Comments = string.Format("Loss: buy price {0:0.000}, prev close price {1:0.000}", position.BuyPrice, closePrice);
 
-                        return true;
+                        result.ShouldExit = true;
                     }
                 }
             }
 
-            return false;
+            return result;
         }
     }
 }

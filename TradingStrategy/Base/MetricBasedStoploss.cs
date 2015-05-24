@@ -36,19 +36,23 @@ namespace TradingStrategy.Base
             }
         }
 
-        public override double EstimateStopLossGap(ITradingObject tradingObject, double assumedPrice, out string comments)
+        public override StopLossComponentResult EstimateStopLossGap(ITradingObject tradingObject, double assumedPrice)
         {
             var value = _proxy.GetMetricValues(tradingObject)[0] * Scale;
             var stopLossGap = Math.Min(0.0, value - assumedPrice);
 
-            comments = string.Format(
+            var comments = string.Format(
                 "StoplossGap({3:0.000}) ~= {0}:{1:0.000} - {2:0.000}",
                 Metric,
                 value,
                 assumedPrice,
                 stopLossGap);
 
-            return stopLossGap;
+            return new StopLossComponentResult()
+            {
+                Comments = comments,
+                StopLossGap = stopLossGap
+            };
         }
     }
 }

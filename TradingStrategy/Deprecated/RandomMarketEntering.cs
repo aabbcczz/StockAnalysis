@@ -24,19 +24,18 @@ namespace TradingStrategy.Strategy
         [Parameter(5000, "入市阈值。当随机整数（取值0~9999）小于阈值时入市")]
         public int EnterMarketThreshold { get; set; }
 
-        public override bool CanEnter(ITradingObject tradingObject, out string comments, out object obj)
+        public override MarketEnteringComponentResult CanEnter(ITradingObject tradingObject)
         {
-            comments = string.Empty;
-            obj = null;
+            var result = new MarketEnteringComponentResult();
 
             int rand = _random.Next(RandomRange);
             if ( rand < EnterMarketThreshold)
             {
-                comments = string.Format("Random: {0}", rand);
-                return true;
+                result.Comments = string.Format("Random: {0}", rand);
+                result.CanEnter = true;
             }
 
-            return false;
+            return result;
         }
     }
 }

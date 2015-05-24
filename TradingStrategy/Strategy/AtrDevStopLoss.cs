@@ -50,7 +50,7 @@ namespace TradingStrategy.Strategy
             }
         }
 
-        public override double EstimateStopLossGap(ITradingObject tradingObject, double assumedPrice, out string comments)
+        public override StopLossComponentResult EstimateStopLossGap(ITradingObject tradingObject, double assumedPrice)
         {
             var values = _sdtrMetricProxy.GetMetricValues(tradingObject);
 
@@ -58,13 +58,17 @@ namespace TradingStrategy.Strategy
 
             var stoplossGap = -sdtr * AtrDevStopLossFactor;
 
-            comments = string.Format(
+            var comments = string.Format(
                 "stoplossgap({2:0.000}) = STDEV_ATR({0:0.000}) * AtrDevStopLossFactor({1:0.000})",
                 sdtr,
                 AtrDevStopLossFactor,
                 stoplossGap);
 
-            return stoplossGap;
+            return new StopLossComponentResult()
+                {
+                    Comments = comments,
+                    StopLossGap = stoplossGap
+                };
         }
     }
 }

@@ -85,10 +85,9 @@ namespace TradingStrategy.Strategy
             }
         }
 
-        public override bool CanEnter(ITradingObject tradingObject, out string comments, out object obj)
+        public override MarketEnteringComponentResult CanEnter(ITradingObject tradingObject)
         {
-            comments = string.Empty;
-            obj = null;
+            var result = new MarketEnteringComponentResult();
 
             var metrics = _trinMetrics[tradingObject.Index];
 
@@ -118,17 +117,17 @@ namespace TradingStrategy.Strategy
 
             if (triggered)
             {
-                comments = string.Format(
+                result.Comments = string.Format(
                     "TRIN[{0}][0..{1}] {2} {3:0.000}", 
                     TrinWindow, 
                     ConsecutivePeriods - 1, 
                     TriggeringCondition == 0 ? '<' : '>', 
                     Threshold);
 
-                return true;
+                result.CanEnter = true;
             }
 
-            return false;
+            return result;
         }
     }
 }

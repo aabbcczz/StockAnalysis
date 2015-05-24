@@ -24,18 +24,17 @@ namespace TradingStrategy.Strategy
         [Parameter(0x7F, "允许交易日期的掩码，最低7位分别代表星期日到星期六是否允许入市。当掩码位为1时可入市")]
         public int WeekdayMask { get; set; }
 
-        public override bool CanEnter(ITradingObject tradingObject, out string comments, out object obj)
+        public override MarketEnteringComponentResult CanEnter(ITradingObject tradingObject)
         {
-            comments = string.Empty;
-            obj = null;
+            var result = new MarketEnteringComponentResult();
 
             if ((WeekdayMask & (1 << (int)CurrentPeriod.DayOfWeek)) != 0)
             {
-                comments = CurrentPeriod.DayOfWeek.ToString();
-                return true;
+                result.Comments = CurrentPeriod.DayOfWeek.ToString();
+                result.CanEnter = true;
             }
 
-            return false;
+            return result;
         }
     }
 }

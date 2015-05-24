@@ -45,24 +45,23 @@ namespace TradingStrategy.Strategy
             get { return "当价格达到回看周期(WindowSize)内最低点后然后反弹超过最小反弹百分比（MinBouncePercentage）时入市"; }
         }
 
-        public override bool CanEnter(ITradingObject tradingObject, out string comments, out object obj)
+        public override MarketEnteringComponentResult CanEnter(ITradingObject tradingObject)
         {
-            comments = string.Empty;
-            obj = null;
+            var result = new MarketEnteringComponentResult();
 
             var metric = (BounceRuntimeMetric)_bounceMetricProxy.GetMetric(tradingObject);
             if (metric.Values[0] > 0.0)
             {
-                comments = string.Format(
+                result.Comments = string.Format(
                     "Lowest:{0:0.000}; Current:{1:0.000}; BouncePercentage:{2:0.000}%",
                     metric.LowestPrice,
                     metric.BouncePrice,
                     metric.BouncePercentage);
 
-                return true;
+                result.CanEnter = true;
             }
 
-            return false;
+            return result;
         }
     }
 }

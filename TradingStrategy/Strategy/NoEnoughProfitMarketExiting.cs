@@ -91,25 +91,23 @@ namespace TradingStrategy.Strategy
             }
         }
 
-        public override bool ShouldExit(ITradingObject tradingObject, out string comments)
+        public override MarketExitingComponentResult ShouldExit(ITradingObject tradingObject)
         {
-            comments = string.Empty;
+            var result = new MarketExitingComponentResult();
 
-            if (_holdingPeriods.Length == 0)
+            if (_holdingPeriods.Length != 0)
             {
-                return false;
+                int period;
+                if (_codesShouldExit.TryGetValue(tradingObject.Index, out period))
+                {
+                    _codesShouldExit.Remove(tradingObject.Index);
+
+                    result.Comments = string.Format("hold for {0} periods, but no profit", period);
+                    result.ShouldExit = true;
+                }
             }
 
-            int period;
-            if (_codesShouldExit.TryGetValue(tradingObject.Index, out period))
-            {
-                _codesShouldExit.Remove(tradingObject.Index);
-
-                comments = string.Format("hold for {0} periods, but no profit", period);
-                return true;
-            }
-
-            return false;
+            return result;
         }
     }
 }

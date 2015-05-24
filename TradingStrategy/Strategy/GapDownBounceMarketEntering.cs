@@ -90,17 +90,16 @@ namespace TradingStrategy.Strategy
             return true;
         }
 
-        public override bool CanEnter(ITradingObject tradingObject, out string comments, out object obj)
+        public override MarketEnteringComponentResult CanEnter(ITradingObject tradingObject)
         {
-            comments = string.Empty;
-            obj = null;
+            var result = new MarketEnteringComponentResult();
 
             var previousDayBarValues = _previousDayBar.GetMetricValues(tradingObject);
             var previousTwoDaysBarValues = _previousTwoDaysBar.GetMetricValues(tradingObject);
 
             if (!IsDescending(previousDayBarValues, previousTwoDaysBarValues))
             {
-                return false;
+                return result;
             }
 
             var todayBar = Context.GetBarOfTradingObjectForCurrentPeriod(tradingObject);
@@ -122,7 +121,7 @@ namespace TradingStrategy.Strategy
                 && downShadowPercentage <= MaxDownShadowPercentage
                 )
             { 
-                comments += string.Format(
+                result.Comments = string.Format(
                     "MA[{0}]={1:0.000} Close:{2:0.000} Open:{3:0.000} LastLowest:{4:0.000} UpShadow%:{5:0.000}% DownShadow%:{6:0.000}%", 
                     MovingAveragePeriod,
                     movingAverage,
@@ -132,10 +131,10 @@ namespace TradingStrategy.Strategy
                     upShadowPercentage,
                     downShadowPercentage);
 
-                return true;
+                result.CanEnter = true;
             }
 
-            return false;
+            return result;
         }
     }
 }

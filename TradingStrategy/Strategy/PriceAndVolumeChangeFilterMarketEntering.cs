@@ -60,10 +60,9 @@ namespace TradingStrategy.Strategy
             _volumeChangeMetricProxy = new RuntimeMetricProxy(Context.MetricManager, string.Format("VC[{0}]", VolumeLookbackWindow));
 
         }
-        public override bool CanEnter(ITradingObject tradingObject, out string comments, out object obj)
+        public override MarketEnteringComponentResult CanEnter(ITradingObject tradingObject)
         {
-            comments = string.Empty;
-            obj = null;
+            var result = new MarketEnteringComponentResult();
 
             var bar = Context.GetBarOfTradingObjectForCurrentPeriod(tradingObject);
 
@@ -80,17 +79,17 @@ namespace TradingStrategy.Strategy
                 && volumeChangePercentage <= MaxVolumeChangePercentage
                 && upShadowPercentage <= MaxPercentageOfUpShadow)
             {
-                comments = string.Format(
+                result.Comments = string.Format(
                     "ROC[1]={0:0.000}% VC[{1}]={2:0.000}% UpShadow={3:0.00}%",
                     priceChangePercentage,
                     VolumeLookbackWindow,
                     volumeChangePercentage,
                     upShadowPercentage);
 
-                return true;
+                result.CanEnter = true;
             }
 
-            return false;
+            return result;
         }
     }
 }

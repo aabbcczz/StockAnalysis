@@ -25,18 +25,17 @@ namespace TradingStrategy.Base
 
         protected abstract IMetricBooleanExpression BuildExpression();
 
-        public override bool CanEnter(ITradingObject tradingObject, out string comments, out object obj)
+        public override MarketEnteringComponentResult CanEnter(ITradingObject tradingObject)
         {
-            comments = string.Empty;
-            obj = null;
+            var result = new MarketEnteringComponentResult();
 
             if (MetricBooleanExpression.IsTrue(tradingObject))
             {
-                comments = MetricBooleanExpression.GetInstantializedExpression(tradingObject);
-                return true;
+                result.Comments = MetricBooleanExpression.GetInstantializedExpression(tradingObject);
+                result.CanEnter = true;
             }
 
-            return false;
+            return result;
         }
     }
 }

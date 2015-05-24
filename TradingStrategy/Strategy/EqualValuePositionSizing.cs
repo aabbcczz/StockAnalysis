@@ -56,12 +56,13 @@ namespace TradingStrategy.Strategy
             return 1.0 - Math.Pow(1.0 - _dynamicEquityUtilizationForEachObject, totalNumberOfObjectsToBeEstimated);
         }
 
-        public override int EstimatePositionSize(ITradingObject tradingObject, double price, double stopLossGap, out string comments, int totalNumberOfObjectsToBeEstimated)
+        public override PositionSizingComponentResult EstimatePositionSize(ITradingObject tradingObject, double price, double stopLossGap, int totalNumberOfObjectsToBeEstimated)
         {
+            var result = new PositionSizingComponentResult();
+
             if (totalNumberOfObjectsToBeEstimated > MaxObjectNumberToBeEstimated)
             {
-                comments = string.Empty;
-                return 0;
+                return result;
             }
 
             var currentEquity = Context.GetCurrentEquity(CurrentPeriod, EquityEvaluationMethod);
@@ -74,14 +75,16 @@ namespace TradingStrategy.Strategy
                 ? GetDynamicEquityUtilization(totalNumberOfObjectsToBeEstimated)
                 : EquityUtilization;
 
-            comments = string.Format(
+            result.Comments = string.Format(
                 "positionsize = currentEquity({0:0.000}) * equityUtilization({1:0.000}) / Parts ({2}) / price({3:0.000})",
                 currentEquity,
                 equityUtilization,
                 parts,
                 price);
 
-            return (int)(currentEquity * equityUtilization / parts / price);
+            result.PositionSize = (int)(currentEquity * equityUtilization / parts / price);
+
+            return result;
         }
     }
 }

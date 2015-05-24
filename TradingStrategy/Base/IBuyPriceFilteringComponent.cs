@@ -6,6 +6,17 @@ using System.Threading.Tasks;
 
 namespace TradingStrategy.Base
 {
+    public sealed class BuyPriceFilteringComponentResult : TradingStrategyComponentResult
+    {
+        public bool IsPriceAcceptable { get; set; }
+
+        public BuyPriceFilteringComponentResult()
+            : base()
+        {
+            IsPriceAcceptable = true;
+        }
+    }
+
     public interface IBuyPriceFilteringComponent : ITradingStrategyComponent
     {
         /// <summary>
@@ -14,6 +25,6 @@ namespace TradingStrategy.Base
         /// <param name="tradingObject">trading object</param>
         /// <param name="price">buy price</param>
         /// <returns>true if the price is acceptable, otherwise false is returned</returns>
-        bool IsPriceAcceptable(ITradingObject tradingObject, double price, out string comments);
+        BuyPriceFilteringComponentResult IsPriceAcceptable(ITradingObject tradingObject, double price);
     }
 }

@@ -137,10 +137,10 @@ namespace TradingStrategy.Base
 
             foreach (var filter in _buyPriceFilters)
             {
-                string comments;
-                if (!filter.IsPriceAcceptable(instruction.TradingObject, price, out comments))
+                var filterResult = filter.IsPriceAcceptable(instruction.TradingObject, price);
+                if (!filterResult.IsPriceAcceptable)
                 {
-                    openInstruction.Comments = string.Join(" ", instruction.Comments, comments);
+                    openInstruction.Comments = string.Join(" ", instruction.Comments, filterResult.Comments);
                     openInstruction.Volume = 0;
                     openInstruction.StopLossGapForBuying = 0.0;
                     openInstruction.StopLossPriceForBuying = price;
@@ -149,23 +149,23 @@ namespace TradingStrategy.Base
                 }
             }
 
-            string stopLossComments;
-            var stopLossGap = _stopLoss.EstimateStopLossGap(instruction.TradingObject, price, out stopLossComments);
-            if (stopLossGap > 0.0)
+            var stopLossResult = _stopLoss.EstimateStopLossGap(instruction.TradingObject, price);
+
+            if (stopLossResult.StopLossGap > 0.0)
             {
                 throw new InvalidProgramException("the stop loss gap returned by the stop loss component is greater than zero");
             }
 
-            string positionSizeComments;
-            var volume = _positionSizing.EstimatePositionSize(instruction.TradingObject, price, stopLossGap, out positionSizeComments, totalNumberOfObjectsToBeEstimated);
+            var positionSizingResult = _positionSizing.EstimatePositionSize(instruction.TradingObject, price, stopLossResult.StopLossGap, totalNumberOfObjectsToBeEstimated);
+            var volume = positionSizingResult.PositionSize;
 
             // adjust volume to ensure it fit the trading object's constraint
             volume -= volume % instruction.TradingObject.VolumePerBuyingUnit;
 
-            openInstruction.Comments = string.Join(" ", instruction.Comments, stopLossComments, positionSizeComments);
+            openInstruction.Comments = string.Join(" ", instruction.Comments, stopLossResult.Comments, positionSizingResult.Comments);
             openInstruction.Volume = volume;
-            openInstruction.StopLossGapForBuying = stopLossGap;
-            openInstruction.StopLossPriceForBuying = price + stopLossGap;
+            openInstruction.StopLossGapForBuying = stopLossResult.StopLossGap;
+            openInstruction.StopLossPriceForBuying = price + stopLossResult.StopLossGap;
         }
 
         private void GenerateInstructions(ITradingObject[] tradingObjects, Bar[] bars)
@@ -274,13 +274,13 @@ namespace TradingStrategy.Base
                     bool exited = false;
                     foreach (var component in _marketExiting)
                     {
-                        string comments;
-                        if (component.ShouldExit(tradingObject, out comments))
+                        var marketExitingResult = component.ShouldExit(tradingObject);
+                        if (marketExitingResult.ShouldExit)
                         {
                             _instructionsInCurrentPeriod.Add(
-                                new CloseInstruction(_period, tradingObject)
+                                new CloseInstruction(_period, tradingObject, marketExitingResult.Price)
                                 {
-                                    Comments = "Exiting market: " + comments,
+                                    Comments = "Exiting market: " + marketExitingResult.Comments,
                                     SellingType = SellingType.ByVolume,
                                     Volume = positions.Sum(p => p.Volume),
                                 });
@@ -301,35 +301,42 @@ namespace TradingStrategy.Base
                 {
                     if (!_globalSettings.AllowEnteringMarketOnlyWhenPriceIncreasing || bar.ClosePrice > bar.OpenPrice)
                     {
-                        var allComments = new List<string>(_marketEntering.Count + 1);
-                        List<object> relatedObjectsForEntering = new List<object>();
-
-                        var canEnter = true;
+                        var allResults = new List<MarketEnteringComponentResult>();
+                        bool canEnter = true;
                         foreach (var component in _marketEntering)
                         {
-                            string subComments;
-                            object obj;
-
-                            if (!component.CanEnter(tradingObject, out subComments, out obj))
+                            var marketEnteringResult = component.CanEnter(tradingObject);
+                            if (!marketEnteringResult.CanEnter)
                             {
                                 canEnter = false;
                                 break;
                             }
 
-                            allComments.Add(subComments);
-
-                            if (obj != null)
-                            {
-                                relatedObjectsForEntering.Add(obj);
-                            }
+                            allResults.Add(marketEnteringResult);
                         }
 
                         if (canEnter)
                         {
+                            int nonDefaultPriceCount = allResults.Count(r => r.Price != null);
+                            if (nonDefaultPriceCount > 1)
+                            {
+                                throw new InvalidOperationException("there are more than one non-default price for entering market");
+                            }
+
+                            TradingPrice price = nonDefaultPriceCount == 0 
+                                ? null
+                                : allResults.Where(r => r.Price != null).First().Price;
+
+                            var comments = "Entering market: " + 
+                                string.Join(";", allResults.Select(r => r.Comments).Where(c => c != null));
+
+                            var relatedObjects = allResults.Select(r => r.RelatedObject).Where(r => r != null);
+
                             CreateInstructionForBuying(
                                 tradingObject,
-                                "Entering market: " + string.Join(";", allComments),
-                                relatedObjectsForEntering.Count > 0 ? relatedObjectsForEntering.ToArray() : null);
+                                price,
+                                comments,
+                                relatedObjects.Count() == 0 ? null : relatedObjects.ToArray());
 
                             _context.DumpBarsFromCurrentPeriod(tradingObject);
                         }
@@ -480,10 +487,10 @@ namespace TradingStrategy.Base
             }
         }
 
-        private void CreateInstructionForBuying(ITradingObject tradingObject, string comments, object[] relatedObjects)
+        private void CreateInstructionForBuying(ITradingObject tradingObject, TradingPrice price, string comments, object[] relatedObjects)
         {
                 _instructionsInCurrentPeriod.Add(
-                    new OpenInstruction(_period, tradingObject)
+                    new OpenInstruction(_period, tradingObject, price)
                     {
                         Comments = comments,
                         Volume = 0, // will be filled in EstimateStoplossAndSizeOfNewPosition()

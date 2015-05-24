@@ -1,5 +1,16 @@
 ﻿namespace TradingStrategy.Base
 {
+    public sealed class PositionSizingComponentResult : TradingStrategyComponentResult
+    {
+        public long PositionSize { get; set; }
+
+        public PositionSizingComponentResult()
+            : base()
+        {
+            PositionSize = 0L;
+        }
+    }
+
     public interface IPositionSizingComponent : ITradingStrategyComponent
     {
         /// <summary>
@@ -12,6 +23,6 @@
         /// price + stopLossGap = the price that the loss of position should be stopped</param>
         /// <param name="comments">comments on how the size is estimated</param>
         /// <returns>size of position</returns>
-        int EstimatePositionSize(ITradingObject tradingObject, double price, double stopLossGap, out string comments, int totalNumberOfObjectsToBeEstimated);
+        PositionSizingComponentResult EstimatePositionSize(ITradingObject tradingObject, double price, double stopLossGap, int totalNumberOfObjectsToBeEstimated);
     }
 }

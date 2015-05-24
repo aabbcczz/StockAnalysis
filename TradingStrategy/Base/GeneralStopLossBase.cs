@@ -14,6 +14,6 @@
             get { return true; }
         }
 
-        public abstract double EstimateStopLossGap(ITradingObject tradingObject, double assumedPrice, out string comments);
+        public abstract StopLossComponentResult EstimateStopLossGap(ITradingObject tradingObject, double assumedPrice);
     }
 }

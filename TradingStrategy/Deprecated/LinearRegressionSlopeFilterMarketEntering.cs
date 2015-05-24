@@ -60,10 +60,9 @@ namespace TradingStrategy.Strategy
             get { return "当长期，中期和短期线性回归斜率角度均大于相应阈值时允许入市"; }
         }
 
-        public override bool CanEnter(ITradingObject tradingObject, out string comments, out object obj)
+        public override MarketEnteringComponentResult CanEnter(ITradingObject tradingObject)
         {
-            comments = string.Empty;
-            obj = null;
+            var result = new MarketEnteringComponentResult();
 
             var longSlope = _longMetricProxy.GetMetricValues(tradingObject)[0];
             var longDegree = Math.Atan(longSlope) * 180.0 / Math.PI;
@@ -76,16 +75,16 @@ namespace TradingStrategy.Strategy
                 && middleDegree > MiddleDegreeThreshold
                 && shortDegree > ShortDegreeThreshold)
             {
-                comments = string.Format(
+                result.Comments = string.Format(
                     "LR Degree: L{0:0.000}, M{1:0.000}, S{2:0.000}",
                     longDegree,
                     middleDegree,
                     shortDegree);
 
-                return true;
+                result.CanEnter = true;
             }
 
-            return false;
+            return result;
         }
     }
 }
