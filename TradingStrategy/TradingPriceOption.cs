@@ -10,8 +10,7 @@ namespace TradingStrategy
     public enum TradingPriceOption
     {
         OpenPrice = 0,
-        ClosePrice,
-        MinOpenPrevClosePrice,
-        CustomPrice,
+        ClosePrice = 1,
+        CustomPrice = 2,
     }
 }

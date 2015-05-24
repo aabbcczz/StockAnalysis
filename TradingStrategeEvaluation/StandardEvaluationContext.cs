@@ -15,6 +15,7 @@ namespace TradingStrategyEvaluation
         private readonly IGroupRuntimeMetricManager _groupMetricManager;
         private readonly StockBlockRelationshipManager _relationshipManager;
         private readonly IDataDumper _dumper;
+        private readonly TradingSettings _settings = null;
 
         public IRuntimeMetricManager MetricManager
         {
@@ -35,6 +36,7 @@ namespace TradingStrategyEvaluation
             ITradingDataProvider provider, 
             EquityManager equityManager, 
             ILogger logger,
+            TradingSettings settings = null,
             IDataDumper dumper = null,
             StockBlockRelationshipManager relationshipManager  = null)
         {
@@ -46,6 +48,7 @@ namespace TradingStrategyEvaluation
             _provider = provider;
             _equityManager = equityManager;
             _logger = logger;
+            _settings = settings;
             _dumper = dumper;
             _relationshipManager = relationshipManager;
 
@@ -148,6 +151,35 @@ namespace TradingStrategyEvaluation
         {
             int index = Array.BinarySearch(bars, bar, new Bar.TimeComparer());
             return index < 0 ? -1 : index;
+        }
+
+        public void SetDefaultPriceForInstructionWhenNecessary(Instruction instruction)
+        {
+            if (_settings == null)
+            {
+                return;
+            }
+
+            if (instruction.Price == null)
+            {
+                TradingPrice price;
+
+                if (instruction.Action == TradingAction.OpenLong)
+                {
+                    price = new TradingPrice(_settings.OpenLongPricePeriod, _settings.OpenLongPriceOption, 0.0);
+                }
+                else if (instruction.Action == TradingAction.CloseLong)
+                {
+                    price = new TradingPrice(_settings.CloseLongPricePeriod, _settings.CloseLongPriceOption, 0.0);
+                }
+                else
+                {
+                    throw new InvalidOperationException(
+                        string.Format("unsupported action {0}", instruction.Action));
+                }
+
+                instruction.Price = price;
+            }
         }
     }
 }

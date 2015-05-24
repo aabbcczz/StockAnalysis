@@ -21,6 +21,18 @@ namespace TradingStrategy.Strategy
             get { return "当头寸持有第一天就亏损则退出市场"; }
         }
 
+        [Parameter(TradingPricePeriod.NextPeriod, "退出周期。0/CurrentPeriod为本周期，1/NextPeriod为下周期")]
+        public TradingPricePeriod ExitingPeriod { get; set; }
+
+        [Parameter(TradingPriceOption.OpenPrice, @"退出价格选项。
+                    OpenPrice = 0,
+                    ClosePrice = 1,
+                    CustomPrice = 2")]
+        public TradingPriceOption ExitingPriceOption { get; set; }
+
+        [Parameter(0.0, "退出价格，当ExitingPriceOption = 2/CustomPrice时有效")]
+        public double ExitingCustomPrice { get; set; }
+
         protected override void RegisterMetric()
         {
             base.RegisterMetric();
@@ -45,6 +57,8 @@ namespace TradingStrategy.Strategy
                     if (position.BuyPrice > closePrice)
                     {
                         result.Comments = string.Format("Loss: buy price {0:0.000}, prev close price {1:0.000}", position.BuyPrice, closePrice);
+
+                        result.Price = new TradingPrice(ExitingPeriod, ExitingPriceOption, ExitingCustomPrice);
 
                         result.ShouldExit = true;
                     }

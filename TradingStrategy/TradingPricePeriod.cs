@@ -6,6 +6,6 @@ namespace TradingStrategy
     public enum TradingPricePeriod
     {
         CurrentPeriod = 0,
-        NextPeriod,
+        NextPeriod = 1,
     }
 }

@@ -35,9 +35,6 @@ namespace TradingStrategy
                 case TradingPriceOption.ClosePrice:
                     price = currentPeriodBar.ClosePrice;
                     break;
-                case TradingPriceOption.MinOpenPrevClosePrice:
-                    price = Math.Min(currentPeriodBar.OpenPrice, previousPeriodBar.ClosePrice);
-                    break;
                 case TradingPriceOption.CustomPrice:
                     price = CustomPrice;
                     break;

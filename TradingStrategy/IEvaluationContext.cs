@@ -35,5 +35,7 @@ namespace TradingStrategy
         void Log(string log);
 
         void DumpBarsFromCurrentPeriod(ITradingObject tradingObject);
+
+        void SetDefaultPriceForInstructionWhenNecessary(Instruction instruction);
     }
 }

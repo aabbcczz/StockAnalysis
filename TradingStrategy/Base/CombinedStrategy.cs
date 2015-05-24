@@ -220,8 +220,10 @@ namespace TradingStrategy.Base
                     positions = new Position[0];
                 }
 
-                // decide if we need to stop loss for some positions. priority of stoploss is higher than exiting market.
+                // decide if we need to stop loss for some positions.
                 bool isStopLost = false;
+                CloseInstruction stopLossInstruction = null;
+
                 foreach (var position in positions)
                 {
                     var stopLossPrice = double.MaxValue;
@@ -247,53 +249,97 @@ namespace TradingStrategy.Base
 
                     if (stopLossPrice < double.MaxValue)
                     {
-                        _instructionsInCurrentPeriod.Add(
-                            new CloseInstruction(_period, tradingObject)
+                        TradingPrice price = new TradingPrice(
+                            TradingPricePeriod.CurrentPeriod, 
+                            TradingPriceOption.CustomPrice, 
+                            stopLossPrice);
+
+                        stopLossInstruction = new CloseInstruction(_period, tradingObject, price)
                             {
                                 Comments = string.Format("stop loss @{0:0.000}", stopLossPrice),
                                 SellingType = SellingType.ByStopLossPrice,
                                 StopLossPriceForSelling = stopLossPrice,
                                 PositionIdForSell = position.Id,
                                 Volume = position.Volume,
-                            });
+                            };
 
                         isStopLost = true;
                     }
                 }
 
-                if (isStopLost)
-                {
-                    // if there is position to stop loss for given trading object, 
-                    // we will never consider exiting/entering market for the object.
-                    continue;
-                }
-
-                // decide if we need to exit market for this trading object. This is the first priorty work
+                // decide if we need to exit market for this trading object. 
+                bool isExited = false;
+                CloseInstruction exitInstruction = null;
                 if (positions.Any())
                 {
-                    bool exited = false;
                     foreach (var component in _marketExiting)
                     {
                         var marketExitingResult = component.ShouldExit(tradingObject);
                         if (marketExitingResult.ShouldExit)
                         {
-                            _instructionsInCurrentPeriod.Add(
-                                new CloseInstruction(_period, tradingObject, marketExitingResult.Price)
+                            exitInstruction = new CloseInstruction(_period, tradingObject, marketExitingResult.Price)
                                 {
                                     Comments = "Exiting market: " + marketExitingResult.Comments,
                                     SellingType = SellingType.ByVolume,
                                     Volume = positions.Sum(p => p.Volume),
-                                });
+                                };
 
-                            exited = true;
+                            isExited = true;
                             break;
                         }
                     }
+                }
 
-                    if (exited)
+                if (isStopLost || isExited)
+                {
+                    // for same object, if there are both stop loss and exit instruction,
+                    // we might can only keep one.
+
+                    if (stopLossInstruction != null && exitInstruction != null)
                     {
-                        continue;
+                        _context.SetDefaultPriceForInstructionWhenNecessary(exitInstruction);
+
+                        // stop loss instruction is always for current period, so we only care 
+                        // the exit instruction that is for current period
+                        if (exitInstruction.Price != null && exitInstruction.Price.Period == TradingPricePeriod.CurrentPeriod)
+                        {
+                            switch (exitInstruction.Price.Option)
+                            {
+                                case TradingPriceOption.OpenPrice:
+                                    stopLossInstruction = null;
+                                    break;
+                                case TradingPriceOption.ClosePrice:
+                                    exitInstruction = null;
+                                    break;
+                                case TradingPriceOption.CustomPrice:
+                                    if (stopLossInstruction.StopLossPriceForSelling < exitInstruction.Price.CustomPrice)
+                                    {
+                                        stopLossInstruction = null;
+                                    }
+                                    else
+                                    {
+                                        exitInstruction = null;
+                                    }
+                                    break;
+                                default:
+                                    throw new InvalidProgramException();
+                            }
+                        }
                     }
+
+                    if (stopLossInstruction != null)
+                    {
+                        _instructionsInCurrentPeriod.Add(stopLossInstruction);
+                    }
+
+                    if (exitInstruction != null)
+                    {
+                        _instructionsInCurrentPeriod.Add(exitInstruction);
+                    }
+
+                    // if there is position to stop loss or exit for given trading object, 
+                    // we will never consider entering market for the object.
+                    continue;
                 }
 
                 // decide if we should enter market
@@ -342,6 +388,12 @@ namespace TradingStrategy.Base
                         }
                     }
                 }
+            }
+
+            // update default price for instructions
+            foreach (var instruction in _instructionsInCurrentPeriod)
+            {
+                _context.SetDefaultPriceForInstructionWhenNecessary(instruction);
             }
         }
 

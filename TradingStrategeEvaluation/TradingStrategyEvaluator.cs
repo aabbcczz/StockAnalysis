@@ -58,7 +58,7 @@ namespace TradingStrategyEvaluation
             _settings = settings;
 
             _equityManager = new EquityManager(capitalManager, _settings.PositionFrozenDays);
-            _context = new StandardEvaluationContext(_provider, _equityManager, logger, dumper, relationshipManager);
+            _context = new StandardEvaluationContext(_provider, _equityManager, logger, settings, dumper, relationshipManager);
             _tradingTracker = new TradingTracker(capitalManager.InitialCapital);
         }
 
@@ -350,6 +350,10 @@ namespace TradingStrategyEvaluation
                 // exclude 一字板
                 if (currentBarOfObject.HighestPrice == currentBarOfObject.LowestPrice)
                 {
+                    if ((currentBarOfObject.LowestPrice < lastBarOfObject.ClosePrice
+                        && instruction.Action == TradingAction.CloseLong)
+                        || (currentBarOfObject.LowestPrice > lastBarOfObject.ClosePrice
+                            && instruction.Action == TradingAction.OpenLong))
                     _context.Log(
                         string.Format(
                             "{0} price is locked down in {1:yyyy-MM-dd}, failed to execute transaction",
@@ -381,39 +385,36 @@ namespace TradingStrategyEvaluation
 
                 readyInstructions.Add(Tuple.Create(instruction, price));
             }
-
-            int totalNumberOfObjectsToBeEstimated = readyInstructions.Count(t => t != null && t.Item1.Action == TradingAction.OpenLong);
+            
+            int totalNumberOfObjectsToBeEstimated = readyInstructions.Count(t => t.Item1.Action == TradingAction.OpenLong);
 
             var pendingTransactions = new List<Transaction>(readyInstructions.Count);
             foreach (var readyInstruction in readyInstructions)
             {
-                if (readyInstruction != null)
+                var instruction = readyInstruction.Item1;
+                double price = readyInstruction.Item2;
+
+                if (instruction.Action == TradingAction.OpenLong)
                 {
-                    var instruction = readyInstruction.Item1;
-                    double price = readyInstruction.Item2;
-
-                    if (instruction.Action == TradingAction.OpenLong)
+                    _strategy.EstimateStoplossAndSizeForNewPosition(instruction, price, totalNumberOfObjectsToBeEstimated);
+                    if (instruction.Volume == 0)
                     {
-                        _strategy.EstimateStoplossAndSizeForNewPosition(instruction, price, totalNumberOfObjectsToBeEstimated);
-                        if (instruction.Volume == 0)
-                        {
-                            _context.Log(string.Format(
-                                "The volume of instruction for {0}/{1} is 0. //{2}", 
-                                instruction.TradingObject.Code, 
-                                instruction.TradingObject.Name,
-                                instruction.Comments));
+                        _context.Log(string.Format(
+                            "The volume of instruction for {0}/{1} is 0. //{2}",
+                            instruction.TradingObject.Code,
+                            instruction.TradingObject.Name,
+                            instruction.Comments));
 
-                            continue;
-                        }
+                        continue;
                     }
-
-                    var transaction = BuildTransactionFromInstruction(
-                        instruction,
-                        time,
-                        price);
-
-                    pendingTransactions.Add(transaction);
                 }
+
+                var transaction = BuildTransactionFromInstruction(
+                    instruction,
+                    time,
+                    price);
+
+                pendingTransactions.Add(transaction);
             }
 
             // always execute transaction according to the original order, so the strategy itself
