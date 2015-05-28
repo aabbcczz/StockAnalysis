@@ -82,6 +82,17 @@ namespace TradingStrategyEvaluation
             return _provider.GetAllTradingObjects().Length;
         }
 
+        public ITradingObject GetTradingObject(string code)
+        {
+            int index = _provider.GetIndexOfTradingObject(code);
+            if (index < 0)
+            {
+                throw new IndexOutOfRangeException("can't find trading object for code " + code);
+            }
+
+            return _provider.GetAllTradingObjects()[index];
+        }
+
         public IEnumerable<string> GetAllPositionCodes()
         {
             return _equityManager.GetAllPositionCodes();

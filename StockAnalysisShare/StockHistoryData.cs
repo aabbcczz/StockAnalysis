@@ -64,33 +64,40 @@ namespace StockAnalysis.Share
                     continue;
                 }
 
-                var dailyData = new Bar
+                try
                 {
-                    Time = DateTime.Parse(row[1]),
-                    OpenPrice = double.Parse(row[2]),
-                    HighestPrice = double.Parse(row[3]),
-                    LowestPrice = double.Parse(row[4]),
-                    ClosePrice = double.Parse(row[5]),
-                    Volume = double.Parse(row[6]),
-                    Amount = double.Parse(row[7])
-                };
-
-                if (dailyData.OpenPrice > 0.0
-                    && dailyData.ClosePrice > 0.0
-                    && dailyData.HighestPrice > 0.0
-                    && dailyData.LowestPrice > 0.0)
-                {
-                    if (Math.Abs(dailyData.Volume) > 1e-6)
+                    var dailyData = new Bar
                     {
-                        data.Add(dailyData);
+                        Time = DateTime.Parse(row[1]),
+                        OpenPrice = double.Parse(row[2]),
+                        HighestPrice = double.Parse(row[3]),
+                        LowestPrice = double.Parse(row[4]),
+                        ClosePrice = double.Parse(row[5]),
+                        Volume = double.Parse(row[6]),
+                        Amount = double.Parse(row[7])
+                    };
+
+                    if (dailyData.OpenPrice > 0.0
+                        && dailyData.ClosePrice > 0.0
+                        && dailyData.HighestPrice > 0.0
+                        && dailyData.LowestPrice > 0.0)
+                    {
+                        if (Math.Abs(dailyData.Volume) > 1e-6)
+                        {
+                            data.Add(dailyData);
+                        }
+                    }
+                    else
+                    {
+                        if (dailyData.Time > lastInvalidBarTime)
+                        {
+                            lastInvalidBarTime = dailyData.Time;
+                        }
                     }
                 }
-                else
+                catch (FormatException)
                 {
-                    if (dailyData.Time > lastInvalidBarTime)
-                    {
-                        lastInvalidBarTime = dailyData.Time;
-                    }
+                    Console.WriteLine("Wrong format: {0} in file {1}", string.Join(",", inputData.Rows), file);
                 }
             }
 

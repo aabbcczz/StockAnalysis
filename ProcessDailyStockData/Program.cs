@@ -212,8 +212,19 @@ namespace ProcessDailyStockData
 
             var mergedData = new Csv(fullData.Header);
 
-            var orderedFullData = fullData.Rows.OrderBy(columns => DateTime.Parse(columns[1])).ToArray();
-            var orderedDeltaData = deltaData.Rows.OrderBy(columns => DateTime.Parse(columns[1])).ToArray();
+            var orderedFullData = fullData.Rows
+                .Select(columns => Tuple.Create(DateTime.Parse(columns[1]), columns))
+                .GroupBy(tuple => tuple.Item1)
+                .Select(g => g.First())
+                .OrderBy(tuple => tuple.Item1)
+                .ToArray();
+
+            var orderedDeltaData = deltaData.Rows
+                .Select(columns => Tuple.Create(DateTime.Parse(columns[1]), columns))
+                .GroupBy(tuple => tuple.Item1)
+                .Select(g => g.First())
+                .OrderBy(tuple => tuple.Item1)
+                .ToArray();
 
             var i = 0;
             var j = 0;
@@ -222,32 +233,32 @@ namespace ProcessDailyStockData
             {
                 if (j >= orderedDeltaData.Length)
                 {
-                    mergedData.AddRow(orderedFullData[i]);
+                    mergedData.AddRow(orderedFullData[i].Item2);
                     ++i;
                 }
                 else if (i >= orderedFullData.Length)
                 {
-                    mergedData.AddRow(orderedDeltaData[j]);
+                    mergedData.AddRow(orderedDeltaData[j].Item2);
                     ++j;
                 }
                 else
                 {
-                    var date1 = DateTime.Parse(orderedFullData[i][1]);
-                    var date2 = DateTime.Parse(orderedDeltaData[j][1]);
+                    var date1 = orderedFullData[i].Item1;
+                    var date2 = orderedDeltaData[j].Item1;
 
                     if (date1 < date2)
                     {
-                        mergedData.AddRow(orderedFullData[i]);
+                        mergedData.AddRow(orderedFullData[i].Item2);
                         ++i;
                     }
                     else if (date1 > date2)
                     {
-                        mergedData.AddRow(orderedDeltaData[j]);
+                        mergedData.AddRow(orderedDeltaData[j].Item2);
                         ++j;
                     }
                     else
                     {
-                        mergedData.AddRow(orderedDeltaData[j]);
+                        mergedData.AddRow(orderedDeltaData[j].Item2);
                         ++i;
                         ++j;
                     }

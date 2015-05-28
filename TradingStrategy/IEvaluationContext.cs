@@ -30,6 +30,8 @@ namespace TradingStrategy
 
         int GetCountOfTradingObjects();
 
+        ITradingObject GetTradingObject(string code);
+
         Bar GetBarOfTradingObjectForCurrentPeriod(ITradingObject tradingObject);
 
         void Log(string log);

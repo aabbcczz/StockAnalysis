@@ -135,37 +135,56 @@ namespace TradingStrategy.Base
                 return;
             }
 
-            foreach (var filter in _buyPriceFilters)
+            if (Math.Abs(openInstruction.StopLossPriceForBuying) > 1e-6)
             {
-                var filterResult = filter.IsPriceAcceptable(instruction.TradingObject, price);
-                if (!filterResult.IsPriceAcceptable)
+                return;
+            }
+            else if (Math.Abs(openInstruction.StopLossGapForBuying) > 1e-6)
+            {
+                openInstruction.StopLossPriceForBuying = price + openInstruction.StopLossGapForBuying;
+                return;
+            }
+            else
+            {
+
+                foreach (var filter in _buyPriceFilters)
                 {
-                    openInstruction.Comments = string.Join(" ", instruction.Comments, filterResult.Comments);
-                    openInstruction.Volume = 0;
-                    openInstruction.StopLossGapForBuying = 0.0;
-                    openInstruction.StopLossPriceForBuying = price;
+                    var filterResult = filter.IsPriceAcceptable(instruction.TradingObject, price);
+                    if (!filterResult.IsPriceAcceptable)
+                    {
+                        openInstruction.Comments = string.Join(" ", instruction.Comments, filterResult.Comments);
+                        openInstruction.Volume = 0;
+                        openInstruction.StopLossGapForBuying = 0.0;
+                        openInstruction.StopLossPriceForBuying = price;
 
-                    return;
+                        return;
+                    }
                 }
+
+                var stopLossResult = _stopLoss.EstimateStopLossGap(instruction.TradingObject, price);
+
+                if (stopLossResult.StopLossGap > 0.0)
+                {
+                    throw new InvalidProgramException("the stop loss gap returned by the stop loss component is greater than zero");
+                }
+
+                var stopLossGap = stopLossResult.StopLossGap;
+
+                var positionSizingResult = _positionSizing.EstimatePositionSize(instruction.TradingObject, price, stopLossGap, totalNumberOfObjectsToBeEstimated);
+                var volume = positionSizingResult.PositionSize;
+
+                // adjust volume to ensure it fit the trading object's constraint
+                volume -= volume % instruction.TradingObject.VolumePerBuyingUnit;
+
+                openInstruction.Comments = string.Join(" ", instruction.Comments, stopLossResult.Comments);
+                openInstruction.Comments = string.Join(" ", instruction.Comments, positionSizingResult.Comments);
+
+                openInstruction.Volume = volume;
+
+                openInstruction.StopLossGapForBuying = stopLossGap;
+
+                openInstruction.StopLossPriceForBuying = price + stopLossGap;
             }
-
-            var stopLossResult = _stopLoss.EstimateStopLossGap(instruction.TradingObject, price);
-
-            if (stopLossResult.StopLossGap > 0.0)
-            {
-                throw new InvalidProgramException("the stop loss gap returned by the stop loss component is greater than zero");
-            }
-
-            var positionSizingResult = _positionSizing.EstimatePositionSize(instruction.TradingObject, price, stopLossResult.StopLossGap, totalNumberOfObjectsToBeEstimated);
-            var volume = positionSizingResult.PositionSize;
-
-            // adjust volume to ensure it fit the trading object's constraint
-            volume -= volume % instruction.TradingObject.VolumePerBuyingUnit;
-
-            openInstruction.Comments = string.Join(" ", instruction.Comments, stopLossResult.Comments, positionSizingResult.Comments);
-            openInstruction.Volume = volume;
-            openInstruction.StopLossGapForBuying = stopLossResult.StopLossGap;
-            openInstruction.StopLossPriceForBuying = price + stopLossResult.StopLossGap;
         }
 
         private void GenerateInstructions(ITradingObject[] tradingObjects, Bar[] bars)
@@ -495,6 +514,8 @@ namespace TradingStrategy.Base
             var closeLongCodes = _instructionsInCurrentPeriod
                 .Where(instruction => instruction.Action == TradingAction.CloseLong)
                 .Select(instruction => instruction.TradingObject.Code)
+                .GroupBy(code => code)
+                .Select(g => g.Key)
                 .ToDictionary(code => code);
 
             _instructionsInCurrentPeriod = _instructionsInCurrentPeriod
@@ -601,7 +622,7 @@ namespace TradingStrategy.Base
                     else
                     {
                         // set stop loss for positions created by PositionAdjusting component
-                        if (Math.Abs(openInstruction.StopLossGapForBuying) > 1e-16)
+                        if (Math.Abs(openInstruction.StopLossPriceForBuying) > 1e-6)
                         {
                             var lastPosition = positions.Last();
                             var newStopLossPrice = openInstruction.StopLossPriceForBuying;
