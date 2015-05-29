@@ -9,7 +9,7 @@ namespace TradingStrategy.Strategy
     public sealed class SecondDayLossMarketExiting 
         : GeneralMarketExitingBase
     {
-        private RuntimeMetricProxy _referenceBarProxy;
+        private RuntimeMetricProxy _yesterdayBarProxy;
 
         public override string Name
         {
@@ -40,7 +40,7 @@ namespace TradingStrategy.Strategy
         {
             base.RegisterMetric();
 
-            _referenceBarProxy = new RuntimeMetricProxy(
+            _yesterdayBarProxy = new RuntimeMetricProxy(
                 Context.MetricManager,
                 "REFBAR[1]");
         }
@@ -54,12 +54,17 @@ namespace TradingStrategy.Strategy
                 var position = Context.GetPositionDetails(tradingObject.Code).First();
                 if (position.LastedPeriodCount == 1)
                 {
+                    var yesterdayBar = _yesterdayBarProxy.GetMetricValues(tradingObject);
+                    var yesterDayClosePrice = yesterdayBar[0];
+                    var yesterDayOpenPrice = yesterdayBar[1];
+
                     var todayBar = Context.GetBarOfTradingObjectForCurrentPeriod(tradingObject);
+                    //var lossPercentage = (todayBar.ClosePrice - yesterDayOpenPrice) / yesterDayOpenPrice * 100.0;
+                    //var lossPercentage = (todayBar.ClosePrice - yesterDayClosePrice) / yesterDayClosePrice * 100.0;
                     var lossPercentage = (todayBar.ClosePrice - todayBar.OpenPrice) / todayBar.OpenPrice * 100.0;
 
                     if (lossPercentage < -MinLossPercentage)
                     {
-                        result.Comments = string.Format("2nd day loss: open price {0:0.000}, close price {1:0.000}", todayBar.OpenPrice, todayBar.ClosePrice);
 
                         result.Price = new TradingPrice(ExitingPeriod, ExitingPriceOption, ExitingCustomPrice);
 

@@ -18,7 +18,7 @@ namespace TradingStrategyEvaluation
 
         public CommissionSettings SellingCommission { get; set; }
 
-        public int Spread { get; set; }
+        public double Spread { get; set; }
 
         public TradingPricePeriod OpenLongPricePeriod { get; set; }
         public TradingPriceOption OpenLongPriceOption { get; set; }
@@ -81,9 +81,10 @@ namespace TradingStrategyEvaluation
                 SellingCommission = new CommissionSettings
                 {
                     Type = CommissionSettings.CommissionType.ByAmount,
-                    Tariff = 0.0005
+                    Tariff = 0.0015
                 },
-                Spread = 0,
+
+                Spread = 0.0,
 
                 OpenLongPricePeriod = TradingPricePeriod.NextPeriod,
                 OpenLongPriceOption = TradingPriceOption.OpenPrice,

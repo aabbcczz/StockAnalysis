@@ -7,6 +7,77 @@ using StockAnalysis.Share;
 
 namespace TradingStrategy.Base
 {
+    internal sealed class CloseInstructionPriceComparer : IComparer<CloseInstruction>
+    {
+        public int Compare(CloseInstruction x, CloseInstruction y)
+        {
+            // check period firstly
+            if (x.Price.Period == TradingPricePeriod.CurrentPeriod && y.Price.Period == TradingPricePeriod.NextPeriod)
+            {
+                return -1;
+            }
+            else if (x.Price.Period == TradingPricePeriod.NextPeriod && y.Price.Period == TradingPricePeriod.CurrentPeriod)
+            {
+                return 0;
+            }
+
+            // same period now. check price option
+            if (x.Price.Option == TradingPriceOption.OpenPrice)
+            {
+                if (y.Price.Option != TradingPriceOption.OpenPrice)
+                {
+                    return -1;
+                }
+                else
+                {
+                    return x.Id.CompareTo(y.Id);
+                }
+            }
+            else if (x.Price.Option == TradingPriceOption.ClosePrice)
+            {
+                if (y.Price.Option != TradingPriceOption.ClosePrice)
+                {
+                    return 1;
+                }
+                else
+                {
+                    return x.Id.CompareTo(y.Id);
+                }
+            }
+            else if (x.Price.Option == TradingPriceOption.CustomPrice)
+            {
+                if (y.Price.Option == TradingPriceOption.OpenPrice)
+                {
+                    return 1;
+                }
+                else if (y.Price.Option == TradingPriceOption.ClosePrice)
+                {
+                    return -1;
+                }
+                else if (y.Price.Option == TradingPriceOption.CustomPrice)
+                {
+                    if (x.Price.CustomPrice == y.Price.CustomPrice)
+                    {
+                        return x.Id.CompareTo(y.Id);
+                    }
+                    else
+                    {
+                        // the higher price, the first exit.
+                        return y.Price.CustomPrice.CompareTo(x.Price.CustomPrice);
+                    }
+                }
+                else
+                {
+                    throw new InvalidProgramException();
+                }
+            }
+            else
+            {
+                throw new InvalidProgramException();
+            }
+        }
+    }
+
     public sealed class CombinedStrategy : ITradingStrategy
     {
         private static bool _forceLoaded;
@@ -241,7 +312,7 @@ namespace TradingStrategy.Base
 
                 // decide if we need to stop loss for some positions.
                 bool isStopLost = false;
-                CloseInstruction stopLossInstruction = null;
+                List<CloseInstruction> stopLossInstructions = new List<CloseInstruction>();
 
                 foreach (var position in positions)
                 {
@@ -273,14 +344,14 @@ namespace TradingStrategy.Base
                             TradingPriceOption.CustomPrice, 
                             stopLossPrice);
 
-                        stopLossInstruction = new CloseInstruction(_period, tradingObject, price)
+                        stopLossInstructions.Add(new CloseInstruction(_period, tradingObject, price)
                             {
                                 Comments = string.Format("stop loss @{0:0.000}", stopLossPrice),
                                 SellingType = SellingType.ByStopLossPrice,
                                 StopLossPriceForSelling = stopLossPrice,
                                 PositionIdForSell = position.Id,
                                 Volume = position.Volume,
-                            };
+                            });
 
                         isStopLost = true;
                     }
@@ -288,7 +359,7 @@ namespace TradingStrategy.Base
 
                 // decide if we need to exit market for this trading object. 
                 bool isExited = false;
-                CloseInstruction exitInstruction = null;
+                List<CloseInstruction> exitInstructions = new List<CloseInstruction>();
                 if (positions.Any())
                 {
                     foreach (var component in _marketExiting)
@@ -296,64 +367,27 @@ namespace TradingStrategy.Base
                         var marketExitingResult = component.ShouldExit(tradingObject);
                         if (marketExitingResult.ShouldExit)
                         {
-                            exitInstruction = new CloseInstruction(_period, tradingObject, marketExitingResult.Price)
+                            exitInstructions.Add(new CloseInstruction(_period, tradingObject, marketExitingResult.Price)
                                 {
                                     Comments = "Exiting market: " + marketExitingResult.Comments,
                                     SellingType = SellingType.ByVolume,
                                     Volume = positions.Sum(p => p.Volume),
-                                };
+                                });
 
                             isExited = true;
-                            break;
                         }
                     }
                 }
 
                 if (isStopLost || isExited)
                 {
-                    // for same object, if there are both stop loss and exit instruction,
-                    // we might can only keep one.
 
-                    if (stopLossInstruction != null && exitInstruction != null)
+                    // merge stop loss instructions and exit instructions
+                    var instructions = MergeStopLossAndExitInstructions(stopLossInstructions, exitInstructions);
+
+                    if (instructions.Any())
                     {
-                        _context.SetDefaultPriceForInstructionWhenNecessary(exitInstruction);
-
-                        // stop loss instruction is always for current period, so we only care 
-                        // the exit instruction that is for current period
-                        if (exitInstruction.Price != null && exitInstruction.Price.Period == TradingPricePeriod.CurrentPeriod)
-                        {
-                            switch (exitInstruction.Price.Option)
-                            {
-                                case TradingPriceOption.OpenPrice:
-                                    stopLossInstruction = null;
-                                    break;
-                                case TradingPriceOption.ClosePrice:
-                                    exitInstruction = null;
-                                    break;
-                                case TradingPriceOption.CustomPrice:
-                                    if (stopLossInstruction.StopLossPriceForSelling < exitInstruction.Price.CustomPrice)
-                                    {
-                                        stopLossInstruction = null;
-                                    }
-                                    else
-                                    {
-                                        exitInstruction = null;
-                                    }
-                                    break;
-                                default:
-                                    throw new InvalidProgramException();
-                            }
-                        }
-                    }
-
-                    if (stopLossInstruction != null)
-                    {
-                        _instructionsInCurrentPeriod.Add(stopLossInstruction);
-                    }
-
-                    if (exitInstruction != null)
-                    {
-                        _instructionsInCurrentPeriod.Add(exitInstruction);
+                        _instructionsInCurrentPeriod.AddRange(instructions);
                     }
 
                     // if there is position to stop loss or exit for given trading object, 
@@ -414,6 +448,90 @@ namespace TradingStrategy.Base
             {
                 _context.SetDefaultPriceForInstructionWhenNecessary(instruction);
             }
+        }
+
+        private List<CloseInstruction> MergeStopLossAndExitInstructions(
+            IEnumerable<CloseInstruction> stopLossInstructions,
+            IEnumerable<CloseInstruction> exitInstructions)
+        {
+            List<CloseInstruction> result = new List<CloseInstruction>();
+
+            if (!stopLossInstructions.Any() && !exitInstructions.Any())
+            {
+                return result;
+            }
+
+            // first of all, we can only keep one exit instruction for current period 
+            // and one exit instruction for next period.
+            CloseInstruction exitInstructionForCurrentPeriod = null;
+            CloseInstruction exitInstructionForNextPeriod = null;
+
+            if (exitInstructions.Any())
+            {
+                foreach (var instruction in exitInstructions)
+                {
+                    _context.SetDefaultPriceForInstructionWhenNecessary(instruction);
+                }
+
+                var exitInstructionsForCurrentPeriod = exitInstructions.Where(i => i.Price.Period == TradingPricePeriod.CurrentPeriod).ToList();
+                var exitInstructionsForNextPeriod = exitInstructions.Where(i => i.Price.Period == TradingPricePeriod.NextPeriod).ToList();
+
+                if (exitInstructionsForCurrentPeriod.Any())
+                {
+                    exitInstructionForCurrentPeriod = exitInstructionsForCurrentPeriod
+                        .OrderBy(i => i, new CloseInstructionPriceComparer())
+                        .First();
+                }
+
+                if (exitInstructionsForNextPeriod.Any())
+                {
+                    exitInstructionForNextPeriod = exitInstructionsForNextPeriod
+                        .OrderBy(i => i, new CloseInstructionPriceComparer())
+                        .First();
+                }
+            }
+
+            if (stopLossInstructions.Any())
+            {
+                // sort stop loss instructions
+                var orderedStopLossInstructions = stopLossInstructions.OrderBy(i => i, new CloseInstructionPriceComparer());
+
+                // stop loss instruction is always for current period, so we only care 
+                // the exit instruction that is for current period
+                if (exitInstructionForCurrentPeriod == null)
+                {
+                    result.AddRange(orderedStopLossInstructions);
+                }
+                else
+                {
+                    // for same object, if there are both stop loss and exit instruction, all stop loss instructions
+                    // that price is higher than exit instruction should be removed.
+                    CloseInstructionPriceComparer comparer = new CloseInstructionPriceComparer();
+                    foreach (var stopLossInstruction in orderedStopLossInstructions)
+                    {
+                        if (comparer.Compare(stopLossInstruction, exitInstructionForCurrentPeriod) < 0)
+                        {
+                            result.Add(stopLossInstruction);
+                        }
+                        else
+                        {
+                            break;
+                        }
+                    }
+                }
+            }
+
+            if (exitInstructionForCurrentPeriod != null)
+            {
+                result.Add(exitInstructionForCurrentPeriod);
+            }
+
+            if (exitInstructionForNextPeriod != null)
+            {
+                result.Add(exitInstructionForNextPeriod);
+            }
+
+            return result;
         }
 
         private IEnumerable<Instruction> SortInstructions(IEnumerable<Instruction> instructions, InstructionSortMode mode, RuntimeMetricProxy metricProxy)
