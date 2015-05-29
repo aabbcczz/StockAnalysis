@@ -65,6 +65,7 @@ namespace TradingStrategy.Strategy
 
                     if (lossPercentage < -MinLossPercentage)
                     {
+                        result.Comments = string.Format("2nd day loss: today open price {0:0.000}, close price {1:0.000}", todayBar.OpenPrice, todayBar.ClosePrice);
 
                         result.Price = new TradingPrice(ExitingPeriod, ExitingPriceOption, ExitingCustomPrice);
 
