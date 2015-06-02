@@ -23,10 +23,11 @@ namespace TradingStrategyEvaluation
             = new List<ParameterValueSelector>();
 
         private bool _endPermutation;
+        private readonly bool _allowRemovingInstructionRandomly;
 
         public long NumberOfParmeterValueCombinations { get; private set; }
 
-        public CombinedStrategyAssembler(CombinedStrategySettings settings)
+        public CombinedStrategyAssembler(CombinedStrategySettings settings, bool allowRemovingInstructionRandomly)
         {
             if (settings == null)
             {
@@ -39,6 +40,8 @@ namespace TradingStrategyEvaluation
             {
                 throw new ArgumentException("No trading strategy component is enabled in settings");
             }
+
+            _allowRemovingInstructionRandomly = allowRemovingInstructionRandomly;
 
             // verify if component settings can be used for creating new combined strategy
             try
@@ -186,7 +189,7 @@ namespace TradingStrategyEvaluation
 
         public CombinedStrategy NewStrategy()
         {
-            var strategy = new CombinedStrategy(CreateComponents());
+            var strategy = new CombinedStrategy(CreateComponents(), _allowRemovingInstructionRandomly);
 
             return strategy;
         }

@@ -187,7 +187,7 @@ namespace PredicatorCmdClient
             }
 
             // initialize combined strategy assembler
-            var combinedStrategyAssembler = new CombinedStrategyAssembler(combinedStrategySettings);
+            var combinedStrategyAssembler = new CombinedStrategyAssembler(combinedStrategySettings, false);
 
             var strategyInstances
                 = new List<Tuple<CombinedStrategy, IDictionary<ParameterAttribute, object>>>();

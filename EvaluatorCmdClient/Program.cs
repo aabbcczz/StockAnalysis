@@ -296,7 +296,7 @@ namespace EvaluatorCmdClient
                             : stockBlockRelationshipManager.CreateSubsetForStocks(finalCodes);
 
                         // initialize combined strategy assembler
-                        var combinedStrategyAssembler = new CombinedStrategyAssembler(combinedStrategySettings);
+                        var combinedStrategyAssembler = new CombinedStrategyAssembler(combinedStrategySettings, true);
 
                         var strategyInstances
                             = new List<Tuple<CombinedStrategy, IDictionary<ParameterAttribute, object>>>();

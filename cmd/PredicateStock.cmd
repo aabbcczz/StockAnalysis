@@ -2,4 +2,4 @@ CALL SetEnvironment.cmd
 
 @echo Please specify -i initialCapital -u CurrentCapital -b EndDate and optional -p positionFile
 
-call PredicateStockSGDBv8.cmd %*
+call PredicateStockSGDBv9.cmd %*

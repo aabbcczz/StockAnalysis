@@ -82,6 +82,7 @@ namespace TradingStrategy.Base
     {
         private static bool _forceLoaded;
 
+        private readonly bool _allowRemovingInstructionRandomly;
         private readonly ITradingStrategyComponent[] _components;
         private readonly IPositionSizingComponent _positionSizing;
         private readonly List<IMarketEnteringComponent> _marketEntering = new List<IMarketEnteringComponent>();
@@ -643,24 +644,31 @@ namespace TradingStrategy.Base
                 .ToList();
 
             // randomly remove instruction
-            if (_globalSettings.RandomlyRemoveInstruction)
+            if (_allowRemovingInstructionRandomly && _globalSettings.RandomlyRemoveInstruction)
             {
-                if (_random.Next(100) < _globalSettings.RandomlyRemoveInstructionThreshold)
+                var openLongInstructions = _instructionsInCurrentPeriod
+                    .Where(instruction => instruction.Action == TradingAction.OpenLong)
+                    .ToList();
+
+                if (openLongInstructions.Count() > 0)
                 {
-                    var openLongInstructions = _instructionsInCurrentPeriod
-                        .Where(instruction => instruction.Action == TradingAction.OpenLong)
-                        .ToList();
-
-                    if (openLongInstructions.Count() > 0)
+                    int pos = 0;
+                    for (int i = 0; i < openLongInstructions.Count(); ++i)
                     {
-                        var index = _random.Next(openLongInstructions.Count());
-                        openLongInstructions.RemoveAt(index);
-
-                        _instructionsInCurrentPeriod = _instructionsInCurrentPeriod
-                            .Where(instruction => instruction.Action == TradingAction.CloseLong)
-                            .Union(openLongInstructions)
-                            .ToList();
+                        if (_random.Next(100) < _globalSettings.RandomlyRemoveInstructionThreshold)
+                        {
+                            openLongInstructions.RemoveAt(pos);
+                        }
+                        else
+                        {
+                            ++pos;
+                        }
                     }
+
+                    _instructionsInCurrentPeriod = _instructionsInCurrentPeriod
+                        .Where(instruction => instruction.Action == TradingAction.CloseLong)
+                        .Union(openLongInstructions)
+                        .ToList();
                 }
             }
 
@@ -814,8 +822,7 @@ namespace TradingStrategy.Base
             }
         }
 
-        public CombinedStrategy(
-            ITradingStrategyComponent[] components)
+        public CombinedStrategy(ITradingStrategyComponent[] components, bool allowRemovingInstructionRandomly)
         {
             if (components == null || !components.Any())
             {
@@ -823,6 +830,7 @@ namespace TradingStrategy.Base
             }
 
             _components = components;
+            _allowRemovingInstructionRandomly = allowRemovingInstructionRandomly;
 
             foreach (var component in components)
             {
