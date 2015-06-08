@@ -11,7 +11,9 @@
     <Type>ByAmount</Type>
     <Tariff>0.0015</Tariff>
   </SellingCommission>
-  <Spread>2</Spread>
-  <OpenLongPriceOption>NextOpenPrice</OpenLongPriceOption>
-  <CloseLongPriceOption>CurrentClosePrice</CloseLongPriceOption>
+  <Spread>0</Spread>
+  <OpenLongPricePeriod>NextPeriod</OpenLongPricePeriod>
+  <OpenLongPriceOption>OpenPrice</OpenLongPriceOption>
+  <CloseLongPricePeriod>CurrentPeriod</CloseLongPricePeriod>
+  <CloseLongPriceOption>ClosePrice</CloseLongPriceOption>
 </TradingSettings>

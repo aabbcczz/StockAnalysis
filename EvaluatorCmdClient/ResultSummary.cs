@@ -12,7 +12,7 @@ namespace EvaluatorCmdClient
 {
     public sealed class ResultSummary
     {
-        private const int MaxParameterCount = 40;
+        private const int MaxParameterCount = 80;
         private const int MaxERatioCount = 40;
 
         public sealed class ResultSummaryMap : CsvClassMap<ResultSummary>
@@ -99,6 +99,46 @@ namespace EvaluatorCmdClient
         public string ParameterValue38 { get; set; }
         public string ParameterValue39 { get; set; }
         public string ParameterValue40 { get; set; }
+        public string ParameterValue41 { get; set; }
+        public string ParameterValue42 { get; set; }
+        public string ParameterValue43 { get; set; }
+        public string ParameterValue44 { get; set; }
+        public string ParameterValue45 { get; set; }
+        public string ParameterValue46 { get; set; }
+        public string ParameterValue47 { get; set; }
+        public string ParameterValue48 { get; set; }
+        public string ParameterValue49 { get; set; }
+        public string ParameterValue50 { get; set; }
+        public string ParameterValue51 { get; set; }
+        public string ParameterValue52 { get; set; }
+        public string ParameterValue53 { get; set; }
+        public string ParameterValue54 { get; set; }
+        public string ParameterValue55 { get; set; }
+        public string ParameterValue56 { get; set; }
+        public string ParameterValue57 { get; set; }
+        public string ParameterValue58 { get; set; }
+        public string ParameterValue59 { get; set; }
+        public string ParameterValue60 { get; set; }
+        public string ParameterValue61 { get; set; }
+        public string ParameterValue62 { get; set; }
+        public string ParameterValue63 { get; set; }
+        public string ParameterValue64 { get; set; }
+        public string ParameterValue65 { get; set; }
+        public string ParameterValue66 { get; set; }
+        public string ParameterValue67 { get; set; }
+        public string ParameterValue68 { get; set; }
+        public string ParameterValue69 { get; set; }
+        public string ParameterValue70 { get; set; }
+        public string ParameterValue71 { get; set; }
+        public string ParameterValue72 { get; set; }
+        public string ParameterValue73 { get; set; }
+        public string ParameterValue74 { get; set; }
+        public string ParameterValue75 { get; set; }
+        public string ParameterValue76 { get; set; }
+        public string ParameterValue77 { get; set; }
+        public string ParameterValue78 { get; set; }
+        public string ParameterValue79 { get; set; }
+        public string ParameterValue80 { get; set; }
 
         public double ERatio1 { get; set; }
         public double ERatio2 { get; set; }

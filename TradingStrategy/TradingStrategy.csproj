@@ -110,6 +110,7 @@
     <Compile Include="SellingType.cs" />
     <Compile Include="Strategy\AtrDevTraceStopLossMarketExiting.cs" />
     <Compile Include="Strategy\AtrDevStopLoss.cs" />
+    <Compile Include="Strategy\ContinueTwoDayLossMarketExiting.cs" />
     <Compile Include="Strategy\SecondDayLossMarketExiting.cs" />
     <Compile Include="Strategy\GapDownBouncePositionAdjusting.cs" />
     <Compile Include="Strategy\FirstDayLossTraceStopLossMarketExiting.cs" />
