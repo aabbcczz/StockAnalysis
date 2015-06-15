@@ -126,6 +126,7 @@
     <Compile Include="Deprecated\BounceRuntimeMetric.cs" />
     <Compile Include="Deprecated\BreakoutAndReturnRuntimeMetric.cs" />
     <Compile Include="Strategy\TimeoutAndFirstDropMarketExiting.cs" />
+    <Compile Include="Strategy\TimeoutSwitchToSingleMovingAverageMarketExiting.cs" />
     <Compile Include="Strategy\WeekdayMarketEntering.cs" />
     <Compile Include="Strategy\TrinMarketEntering.cs" />
     <Compile Include="Strategy\CommonPositionAdjusting.cs" />

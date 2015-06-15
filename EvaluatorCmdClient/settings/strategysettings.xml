@@ -910,6 +910,34 @@
         </ParameterSettings>
       </ComponentParameterSettings>
     </TradingStrategyComponentSettings>
+    <TradingStrategyComponentSettings Enabled="false" Name="定时转单移动平均退出">
+      <ClassType>TradingStrategy.Strategy.TimeoutSwitchToSingleMovingAverageMarketExiting, TradingStrategy, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</ClassType>
+      <Description>当头寸持有在一段时间内若创新高则转为按单移动平均退出，否则立即退出市场</Description>
+      <ImplementedInterfaces>ITradingStrategyComponent;IMarketExitingComponent</ImplementedInterfaces>
+      <ComponentParameterSettings>
+        <ParameterSettings>
+          <Name>HoldingPeriods</Name>
+          <Description>头寸持有周期数</Description>
+          <ValueType>System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
+          <DefaultValue xsi:type="xsd:int">2</DefaultValue>
+          <Values>2</Values>
+        </ParameterSettings>
+        <ParameterSettings>
+          <Name>MovingAveragePeriods</Name>
+          <Description>移动平均周期数</Description>
+          <ValueType>System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
+          <DefaultValue xsi:type="xsd:int">20</DefaultValue>
+          <Values>5</Values>
+        </ParameterSettings>
+        <ParameterSettings>
+          <Name>HighestLookbackPeriods</Name>
+          <Description>判定新高周期数</Description>
+          <ValueType>System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
+          <DefaultValue xsi:type="xsd:int">20</DefaultValue>
+          <Values>60</Values>
+        </ParameterSettings>
+      </ComponentParameterSettings>
+    </TradingStrategyComponentSettings>	
     <TradingStrategyComponentSettings Enabled="false" Name="ATR标准差停价">
       <ClassType>TradingStrategy.Strategy.AtrDevStopLoss, TradingStrategy, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</ClassType>
       <Description>当价格低于买入价，并且差值&gt;ATR的标准差*ATR标准差停价倍数时停价</Description>
