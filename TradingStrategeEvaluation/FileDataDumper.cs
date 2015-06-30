@@ -22,7 +22,7 @@ namespace TradingStrategyEvaluation
 
             for (int i = 0; i < _numberOfBarsToDump; ++i)
             {
-                _writer.Write("Bar{0}.Close,Bar{0}.Open,Bar{0}.Highest,Bar{0}.Lowest,", i);
+                _writer.Write("Bar{0}.Time,Bar{0}.Close,Bar{0}.Open,Bar{0}.Highest,Bar{0}.Lowest,", i);
             }
 
             _writer.WriteLine();
@@ -60,11 +60,12 @@ namespace TradingStrategyEvaluation
             {
                 // C, O, H, L
                 _writer.Write(
-                    "{0:0.000},{1:0.000},{2:0.000},{3:0.000},",
+                    "{4:yyyy-MM-dd},{0:0.000},{1:0.000},{2:0.000},{3:0.000},",
                     bar.ClosePrice,
                     bar.OpenPrice,
                     bar.HighestPrice,
-                    bar.LowestPrice);
+                    bar.LowestPrice,
+                    bar.Time);
             }
 
             if (sequence.Count < _numberOfBarsToDump)

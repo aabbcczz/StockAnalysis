@@ -53,13 +53,17 @@ namespace TradingStrategy.Strategy
         {
             if (totalNumberOfObjectsToBeEstimated >= 40)
             {
-                return 0.3;
+                return 0.5;
             }
             if (totalNumberOfObjectsToBeEstimated >= 20)
             {
-                return 0.5;
+                return 0.6;
             }
             else if (totalNumberOfObjectsToBeEstimated >= 10)
+            {
+                return 0.7;
+            }
+            else if (totalNumberOfObjectsToBeEstimated >= 5)
             {
                 return 0.8;
             }
