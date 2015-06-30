@@ -24,8 +24,6 @@ namespace TradingStrategy.Strategy
         [Parameter(1.0, "权益利用率，[0.0..1.0], 0.0代表自适应权益利用率")]
         public double EquityUtilization { get; set; }
 
-        private double _dynamicEquityUtilizationForEachObject = 0.372;
-
         public override string Name
         {
             get { return "价格等值模型"; }
@@ -53,7 +51,22 @@ namespace TradingStrategy.Strategy
 
         private double GetDynamicEquityUtilization(int totalNumberOfObjectsToBeEstimated)
         {
-            return 1.0 - Math.Pow(1.0 - _dynamicEquityUtilizationForEachObject, totalNumberOfObjectsToBeEstimated);
+            if (totalNumberOfObjectsToBeEstimated >= 40)
+            {
+                return 0.3;
+            }
+            if (totalNumberOfObjectsToBeEstimated >= 20)
+            {
+                return 0.5;
+            }
+            else if (totalNumberOfObjectsToBeEstimated >= 10)
+            {
+                return 0.8;
+            }
+            else
+            {
+                return 1.0;
+            }
         }
 
         public override PositionSizingComponentResult EstimatePositionSize(ITradingObject tradingObject, double price, double stopLossGap, int totalNumberOfObjectsToBeEstimated)
