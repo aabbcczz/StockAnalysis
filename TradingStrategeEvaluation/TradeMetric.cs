@@ -65,8 +65,8 @@ namespace TradingStrategyEvaluation
 
         public EquityPoint[] OrderedEquitySequence { get; private set; } // 所有权益按周期排序
         public CompletedTransaction[] OrderedCompletedTransactionSequence { get; private set; } // all completed transactions, ordered by execution time and code
-
         public Transaction[] OrderedTransactionSequence { get; private set; }
+        public double[] ERatios { get; private set; }
 
         public void Initialize(
             string code,
@@ -77,7 +77,8 @@ namespace TradingStrategyEvaluation
             double endPrice,
             EquityPoint[] orderedEquitySequence, 
             CompletedTransaction[] orderedCompletedTransactionSequence,
-            Transaction[] orderedTransactionSequence)
+            Transaction[] orderedTransactionSequence,
+            double[] eRatios)
         {
             if (code == null)
             {
@@ -119,6 +120,11 @@ namespace TradingStrategyEvaluation
                 throw new ArgumentNullException("orderedTransactionSequence");
             }
 
+            if (eRatios == null)
+            {
+                throw new ArgumentNullException("eRatios");
+            }
+
             if (orderedEquitySequence.Length == 0)
             {
                 throw new ArgumentException("equitySequence does not contain data");
@@ -141,6 +147,8 @@ namespace TradingStrategyEvaluation
             OrderedEquitySequence = orderedEquitySequence;
             OrderedCompletedTransactionSequence = orderedCompletedTransactionSequence;
             OrderedTransactionSequence = orderedTransactionSequence;
+            ERatios = eRatios;
+
             StartPrice = startPrice;
             EndPrice = endPrice;
             Rise = Math.Abs(startPrice) < 1e-6 ? 0.0 : (endPrice - startPrice) / startPrice;

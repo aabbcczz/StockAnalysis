@@ -12,9 +12,9 @@ namespace TradingStrategyEvaluation
         private struct PositionToBeSold
         {
             public int Index;
-            public int Volume;
+            public long Volume;
 
-            public PositionToBeSold(int index, int volume)
+            public PositionToBeSold(int index, long volume)
             {
                 Index = index;
                 Volume = volume;
@@ -25,23 +25,55 @@ namespace TradingStrategyEvaluation
 
         private readonly List<Position> _closedPositions = new List<Position>();
 
-        public double InitialCapital { get; private set; }
+        private readonly ICapitalManager _capitalManager;
 
-        public double CurrentCapital { get; private set; }
+        private readonly int _positionFrozenDays;
+
+        public double InitialCapital 
+        {
+            get { return _capitalManager.InitialCapital; }
+        }
+
+        public double CurrentCapital 
+        {
+            get { return _capitalManager.CurrentCapital; }
+        }
 
         public IEnumerable<Position> ClosedPositions { get { return _closedPositions; } }
 
-        public EquityManager(double initialCapital)
+        public EquityManager(ICapitalManager capitalManager, int positionFrozenDays)
         {
-            InitialCapital = initialCapital;
-            CurrentCapital = initialCapital;
+            if (capitalManager == null)
+            {
+                throw new ArgumentNullException();
+            }
+
+            _capitalManager = capitalManager;
+
+            _positionFrozenDays = positionFrozenDays;
+        }
+
+        private void AddPosition(Position position)
+        {
+            if (!_activePositions.ContainsKey(position.Code))
+            {
+                _activePositions.Add(position.Code, new List<Position>());
+            }
+
+            _activePositions[position.Code].Add(position);
+        }
+
+        public void ManualAddPosition(Position position)
+        {
+            AddPosition(position);
         }
 
         public bool ExecuteTransaction(
             Transaction transaction, 
             bool allowNegativeCapital,
             out CompletedTransaction completedTransaction, 
-            out string error)
+            out string error,
+            bool forcibly = false)
         {
             error = string.Empty;
             completedTransaction = null;
@@ -50,7 +82,9 @@ namespace TradingStrategyEvaluation
             {
                 var charge = transaction.Price * transaction.Volume + transaction.Commission;
 
-                if (CurrentCapital < charge && !allowNegativeCapital)
+                // try to allocate capital
+                bool isFirstPosition = !ExistsPosition(transaction.Code);
+                if (!_capitalManager.AllocateCapital(charge, isFirstPosition, allowNegativeCapital))
                 {
                     error = "No enough capital for the transaction";
                     return false;
@@ -58,15 +92,7 @@ namespace TradingStrategyEvaluation
 
                 var position = new Position(transaction);
 
-                if (!_activePositions.ContainsKey(position.Code))
-                {
-                    _activePositions.Add(position.Code, new List<Position>());
-                }
-
-                _activePositions[position.Code].Add(position);
-
-                // charge money
-                CurrentCapital -= charge;
+                AddPosition(position);
 
                 return true;
             }
@@ -75,9 +101,9 @@ namespace TradingStrategyEvaluation
             {
                 var code = transaction.Code;
 
-                if (!_activePositions.ContainsKey(code))
+                if (!ExistsPosition(code))
                 {
-                    error = string.Format("Transaction object {0} does not exists", code);
+                    error = string.Format("There is no position for trading object {0}", code);
                     return false;
                 }
 
@@ -88,6 +114,20 @@ namespace TradingStrategyEvaluation
                 if (positionsToBeSold.Count() == 0)
                 {
                     return true;
+                }
+
+                // check if position is still frozen if transaction is not executed forcibly
+                if (!forcibly)
+                {
+                    foreach (var ptbs in positionsToBeSold)
+                    {
+                        var span = transaction.ExecutionTime.Date - positions[ptbs.Index].BuyTime.Date;
+                        if (span.Days < _positionFrozenDays)
+                        {
+                            error = string.Format("position is still frozen");
+                            return false;
+                        }
+                    }
                 }
 
                 // note: the position could be sold partially and we need to consider the situation
@@ -118,27 +158,36 @@ namespace TradingStrategyEvaluation
                         newPosition = position.Split(ptbs.Volume);
                     }
 
-                    position.Close(
-                        new Transaction
+                    // close the position
+                    var newTransaction = new Transaction
                         {
                             Action = transaction.Action,
                             Code = transaction.Code,
+                            Name = transaction.Name,
                             Comments = transaction.Comments,
                             Commission = transaction.Commission / transaction.Volume * position.Volume,
                             Error = transaction.Error,
                             ExecutionTime = transaction.ExecutionTime,
                             InstructionId = transaction.InstructionId,
+                            ObservedMetricValues = transaction.ObservedMetricValues,
                             Price = transaction.Price,
+                            RelatedObjects = transaction.RelatedObjects,
                             SubmissionTime = transaction.SubmissionTime,
                             Succeeded = transaction.Succeeded,
                             Volume = position.Volume
-                        });
+                        };
+
+                    position.Close(newTransaction);
 
                     // move closed position to history
                     _closedPositions.Add(position);
 
                     // use new position to replace old position.
                     positions[ptbs.Index] = newPosition;
+
+                    // free capital
+                    var earn = newTransaction.Price * newTransaction.Volume - newTransaction.Commission;
+                    _capitalManager.FreeCapital(earn, ptbs.Index == 0);
                 }
 
                 // update positions for given code
@@ -153,14 +202,11 @@ namespace TradingStrategyEvaluation
                     _activePositions[code] = remainingPositions;
                 }
 
-                // update current capital
-                var earn = transaction.Price * transaction.Volume - transaction.Commission;
-                CurrentCapital += earn;
-
                 // create completed transaction object
                 completedTransaction = new CompletedTransaction
                 {
                     Code = code,
+                    Name = transaction.Name,
                     ExecutionTime = transaction.ExecutionTime,
                     Volume = transaction.Volume,
                     BuyCost = buyCost,
@@ -211,11 +257,13 @@ namespace TradingStrategyEvaluation
                 case SellingType.ByStopLossPrice:
                     for (var i = 0; i < positions.Length; ++i)
                     {
-                        if (positions[i].StopLossPrice > transaction.StopLossPriceForSell)
+                        if (positions[i].StopLossPrice >= transaction.StopLossPriceForSelling
+                            && positions[i].Id == transaction.PositionIdForSell)
                         {
                             remainingVolume -= positions[i].Volume;
 
                             yield return new PositionToBeSold(i, positions[i].Volume);
+                            yield break;
                         }
                     }
                     break;
@@ -283,46 +331,73 @@ namespace TradingStrategyEvaluation
                 return InitialCapital;
             }
 
-            double totalEquity = CurrentCapital;
+            double equity = CurrentCapital;
 
             // cash is the core equity
             if (method == EquityEvaluationMethod.CoreEquity)
             {
-                // do nothing
+                return equity;
             }
-            else
+
+            foreach (var kvp in _activePositions)
             {
-                foreach (var kvp in _activePositions)
+                var code = kvp.Key;
+
+                Bar bar;
+
+                var index = provider.GetIndexOfTradingObject(code);
+                if (index < 0)
                 {
-                    var code = kvp.Key;
+                    throw new InvalidOperationException(string.Format("Can't get index for code {0}", code));
+                }
 
-                    Bar bar;
+                if (!provider.GetLastEffectiveBar(index, period, out bar))
+                {
+                    throw new InvalidOperationException(
+                        string.Format("Can't get data from data provider for code {0}, time {1}", code, period));
+                }
 
-                    var index = provider.GetIndexOfTradingObject(code);
-                    if (index < 0)
-                    {
-                        throw new InvalidOperationException(string.Format("Can't get index for code {0}", code));
-                    }
-
-                    if (!provider.GetLastEffectiveBar(index, period, out bar))
-                    {
-                        throw new InvalidOperationException(
-                            string.Format("Can't get data from data provider for code {0}, time {1}", code, period));
-                    }
-
-                    if (method == EquityEvaluationMethod.TotalEquity)
-                    {
-                        var volume = kvp.Value.Sum(e => e.Volume);
-                        totalEquity += volume * bar.ClosePrice;
-                    }
-                    else if (method == EquityEvaluationMethod.ReducedTotalEquity)
-                    {
-                        totalEquity += kvp.Value.Sum(position => position.Volume*Math.Min(bar.ClosePrice, position.StopLossPrice));
-                    }
+                if (method == EquityEvaluationMethod.TotalEquity
+                    || method == EquityEvaluationMethod.LossControlTotalEquity
+                    || method == EquityEvaluationMethod.LossControlInitialEquity)
+                {
+                    var volume = kvp.Value.Sum(e => e.Volume);
+                    equity += volume * bar.ClosePrice;
+                }
+                else if (method == EquityEvaluationMethod.ReducedTotalEquity 
+                        || method == EquityEvaluationMethod.LossControlReducedTotalEquity)
+                {
+                    equity += kvp.Value.Sum(position => position.Volume * Math.Min(bar.ClosePrice, position.StopLossPrice));
                 }
             }
 
-            return totalEquity;
+            if (method == EquityEvaluationMethod.TotalEquity
+                || method == EquityEvaluationMethod.ReducedTotalEquity)
+            {
+                return equity;
+            }
+            else if (method == EquityEvaluationMethod.LossControlInitialEquity)
+            {
+                return equity > InitialCapital
+                    ? InitialCapital
+                    : 2 * equity - InitialCapital;
+            }
+            else if (method == EquityEvaluationMethod.LossControlTotalEquity)
+            {
+                return equity > InitialCapital
+                    ? equity
+                    : 2 * equity - InitialCapital;
+            }
+            else if (method == EquityEvaluationMethod.LossControlReducedTotalEquity)
+            {
+                return equity > InitialCapital
+                    ? equity
+                    : 2 * equity - InitialCapital;
+            }
+            else
+            {
+                throw new NotImplementedException();
+            }
         }
 
         public double GetPositionMarketValue(ITradingDataProvider provider, string code, DateTime time)

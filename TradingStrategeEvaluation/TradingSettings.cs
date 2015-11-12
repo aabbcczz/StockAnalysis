@@ -2,21 +2,28 @@
 using System.Xml.Serialization;
 using System.IO;
 
+using TradingStrategy;
+
 namespace TradingStrategyEvaluation
 {
     [Serializable]
     public sealed class TradingSettings
     {
+        public bool AllowNegativeCapital { get; set; }
+
+        public int PositionFrozenDays { get; set; }
+
+        public bool IsLowestPriceAchievable { get; set; }
         public CommissionSettings BuyingCommission { get; set; }
 
         public CommissionSettings SellingCommission { get; set; }
 
-        public int Spread { get; set; }
+        public double Spread { get; set; }
 
-//        public TradingPriceOption BuyShortPriceOption { get; set; }
-//        public TradingPriceOption CloseShortPriceOption { get; set; }
-
+        public TradingPricePeriod OpenLongPricePeriod { get; set; }
         public TradingPriceOption OpenLongPriceOption { get; set; }
+
+        public TradingPricePeriod CloseLongPricePeriod { get; set; }
         public TradingPriceOption CloseLongPriceOption { get; set; }
 
         public static TradingSettings LoadFromFile(string file)
@@ -62,16 +69,28 @@ namespace TradingStrategyEvaluation
         {
             var settings = new TradingSettings
             {
-                BuyingCommission =
-                    new CommissionSettings {Type = CommissionSettings.CommissionType.ByAmount, Tariff = 0.0005},
+                AllowNegativeCapital = false,
+                PositionFrozenDays = 1,
+                IsLowestPriceAchievable = false,
+                BuyingCommission = new CommissionSettings 
+                {
+                    Type = CommissionSettings.CommissionType.ByAmount, 
+                    Tariff = 0.0005
+                },
+
                 SellingCommission = new CommissionSettings
                 {
                     Type = CommissionSettings.CommissionType.ByAmount,
-                    Tariff = 0.0005
+                    Tariff = 0.0015
                 },
-                Spread = 0,
-                OpenLongPriceOption = TradingPriceOption.NextOpenPrice,
-                CloseLongPriceOption = TradingPriceOption.NextOpenPrice
+
+                Spread = 0.0,
+
+                OpenLongPricePeriod = TradingPricePeriod.NextPeriod,
+                OpenLongPriceOption = TradingPriceOption.OpenPrice,
+
+                CloseLongPricePeriod = TradingPricePeriod.NextPeriod,
+                CloseLongPriceOption = TradingPriceOption.ClosePrice
             };
 
             return settings;

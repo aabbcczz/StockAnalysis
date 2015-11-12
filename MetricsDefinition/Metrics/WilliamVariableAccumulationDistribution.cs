@@ -8,16 +8,18 @@ namespace MetricsDefinition.Metrics
         private readonly MovingSum _ms;
 
         public WilliamVariableAccumulationDistribution(int windowSize)
-            : base(1)
+            : base(0)
         {
             _ms = new MovingSum(windowSize);
         }
 
-        public override double Update(Bar bar)
+        public override void Update(Bar bar)
         {
             var index = (bar.ClosePrice - bar.OpenPrice) * bar.Volume / (bar.HighestPrice - bar.LowestPrice);
 
-            return _ms.Update(index);
+            _ms.Update(index);
+
+            SetValue(_ms.Value);
         }
     }
 }

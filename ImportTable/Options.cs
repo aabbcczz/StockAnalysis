@@ -8,6 +8,9 @@ namespace ImportTable
         [Option('c', "csv", Required = true, HelpText = "The csv file to be imported to database")]
         public string CsvFile { get; set; }
 
+        [Option('d', "drop", HelpText = "Flag indicate if table should be dropped and be recreated")]
+        public bool DropTable { get; set; }
+
         [Option('v', "Verbose", HelpText = "Verbose level, Range: from 0 to 2.", DefaultValue = 0)]
         public int VerboseLevel { get; set; }
 

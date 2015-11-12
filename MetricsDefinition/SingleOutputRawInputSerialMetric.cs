@@ -5,8 +5,9 @@
         protected SingleOutputRawInputSerialMetric(int windowSize)
             : base(windowSize)
         {
+            Values = new double[1];
         }
 
-        public abstract double Update(double dataPoint);
+        public abstract void Update(double dataPoint);
     }
 }

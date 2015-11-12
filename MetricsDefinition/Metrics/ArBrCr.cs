@@ -17,7 +17,7 @@ namespace MetricsDefinition.Metrics
         private readonly MovingSum _sumCrSs;
 
         public ArBrCr(int windowSize)
-            : base(1)
+            : base(0)
         {
             _sumUp = new MovingSum(windowSize);
             _sumDown = new MovingSum(windowSize);
@@ -25,13 +25,18 @@ namespace MetricsDefinition.Metrics
             _sumBrSs = new MovingSum(windowSize);
             _sumCrBs = new MovingSum(windowSize);
             _sumCrSs = new MovingSum(windowSize);
+
+            Values = new double[3];
         }
 
-        public override double[] Update(Bar bar)
+        public override void Update(Bar bar)
         {
             // calculate AR
-            var up = _sumUp.Update(bar.HighestPrice - bar.OpenPrice);
-            var down = _sumDown.Update(bar.OpenPrice - bar.LowestPrice);
+            _sumUp.Update(bar.HighestPrice - bar.OpenPrice);
+            var up = _sumUp.Value;
+
+            _sumDown.Update(bar.OpenPrice - bar.LowestPrice);
+            var down = _sumDown.Value;
 
             var ar = Math.Abs(down) < 1e-6 ? 0.0 : up / down * 100.0;
 
@@ -39,8 +44,11 @@ namespace MetricsDefinition.Metrics
             var tempBrBs = _firstBar ? 0.0 : Math.Max(0.0, bar.HighestPrice - _prevBar.ClosePrice);
             var tempBrSs = _firstBar ? 0.0 : Math.Max(0.0, _prevBar.ClosePrice - bar.LowestPrice);
 
-            var brbs = _sumBrBs.Update(tempBrBs);
-            var brss = _sumBrSs.Update(tempBrSs);
+            _sumBrBs.Update(tempBrBs);
+            var brbs = _sumBrBs.Value;
+
+            _sumBrSs.Update(tempBrSs);
+            var brss = _sumBrSs.Value;
 
             var br = Math.Abs(brss) < 1e-6 ? 0.0 : brbs / brss * 100.0;
 
@@ -50,8 +58,11 @@ namespace MetricsDefinition.Metrics
             var tempCrBs = _firstBar ? 0.0 : Math.Max(0.0, bar.HighestPrice - tp);
             var tempCrSs = _firstBar ? 0.0 : Math.Max(0.0, tp - bar.LowestPrice);
 
-            var crbs = _sumCrBs.Update(tempCrBs);
-            var crss = _sumCrSs.Update(tempCrSs);
+            _sumCrBs.Update(tempCrBs);
+            var crbs = _sumCrBs.Value;
+
+            _sumCrSs.Update(tempCrSs);
+            var crss = _sumCrSs.Value;
 
             var cr = Math.Abs(crss) < 1e-6 ? 0.0 : crbs / crss * 100.0;
 
@@ -60,7 +71,7 @@ namespace MetricsDefinition.Metrics
             _firstBar = false;
 
             // return results;
-            return new[] { ar, br, cr };
+           SetValue(ar, br, cr);
         }
 
         private double Tp(Bar bar)

@@ -13,6 +13,7 @@ namespace EvaluatorCmdClient
 {
     public sealed class EvaluationResultContext : IDisposable
     {
+        private const string DumpedDataFileName = "Dumpdata.csv";
         private const string LogFileName = "Log.txt";
         private const string ParameterValuesFileName = "ParameterValues.xml";
         private const string MetricsFileName = "Metrics.csv";
@@ -20,13 +21,29 @@ namespace EvaluatorCmdClient
         private const string EquitiesFileName = "Equities.csv";
         private const string TransactionsFileName = "Transactions.csv";
         private const string CompletedTransactionsFileName = "CompletedTransactions.csv";
-
+        private const string BlockTradingDetailsFileName = "BlockTradingDetails.csv";
+        
+        private FileDataDumper _dataDumper = null;
         public string RootDirectory { get; private set; }
         public int ContextId { get; private set; }
 
         private bool _disposed;
 
         public ILogger Logger { get; private set; }
+
+        public IDataDumper DataDumper 
+        {
+            get
+            {
+                if (_dataDumper == null)
+                {
+                    var dataFile = Path.Combine(RootDirectory, DumpedDataFileName);
+                    _dataDumper = new FileDataDumper(dataFile, 8);
+                }
+
+                return _dataDumper;
+            }
+        }
 
         public EvaluationResultContext(int contextId, string rootDirectory)
         {
@@ -45,7 +62,8 @@ namespace EvaluatorCmdClient
         public void SaveResults(
             IDictionary<ParameterAttribute, object> parameterValues,
             IEnumerable<TradeMetric> metrics, 
-            IEnumerable<Position> closePositions)
+            IEnumerable<Position> closePositions,
+            IEnumerable<BlockTradingDetailSummarizer.BlockTradingDetail> details)
         {
             // save parameter values
             var searializedParameterValues = new SerializableParameterValues();
@@ -123,6 +141,36 @@ namespace EvaluatorCmdClient
                     csvWriter.WriteRecords(overallMetric.OrderedCompletedTransactionSequence);
                 }
             }
+
+            // save block trading details
+            using (var writer = new StreamWriter(
+                Path.Combine(RootDirectory, BlockTradingDetailsFileName),
+                false,
+                Encoding.UTF8))
+            {
+                // write header
+                string header = string.Join(
+                    ",",
+                    "CODE,TIME,BLOCK,UPRATE", 
+                    string.Join(",", TradeMetricsCalculator.ERatioWindowSizes.Select(i => string.Format("MFE{0}", i))),
+                    string.Join(",", TradeMetricsCalculator.ERatioWindowSizes.Select(i => string.Format("MAE{0}", i))));
+
+                writer.WriteLine(header);
+
+                foreach (var detail in details)
+                {
+                    string line = string.Join(
+                        ",",
+                        detail.Code,
+                        string.Format("{0:yyy-MM-dd}", detail.Time),
+                        detail.Block,
+                        string.Format("{0:0.00000}", detail.UpRateFromLowest),
+                        string.Join(",", detail.Mfe.Select(d => string.Format("{0:0.00000}", d))),
+                        string.Join(",", detail.Mae.Select(d => string.Format("{0:0.00000}", d))));
+
+                    writer.WriteLine(line);
+                }
+            }
         }
 
         public void Dispose()
@@ -136,6 +184,12 @@ namespace EvaluatorCmdClient
             {
                 ((FileLogger)Logger).Dispose();
                 Logger = null;
+            }
+
+            if (_dataDumper != null)
+            {
+                _dataDumper.Dispose();
+                _dataDumper = null;
             }
 
             _disposed = true;

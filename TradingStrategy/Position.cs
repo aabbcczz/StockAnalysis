@@ -12,6 +12,8 @@ namespace TradingStrategy
 
         public string Code { get; set; }
 
+        public string Name { get; set; }
+
         public DateTime BuyTime { get; set; }
 
         public DateTime SellTime { get; set; }
@@ -20,7 +22,7 @@ namespace TradingStrategy
 
         public TradingAction SellAction { get; set; }
 
-        public int Volume { get; set; }
+        public long Volume { get; set; }
 
         public double BuyPrice { get; set; }
 
@@ -36,12 +38,24 @@ namespace TradingStrategy
         // 止损价格
         public double StopLossPrice { get; set; }
 
+        public double GainInR { get; set; }
+
+        public string Comments { get; set; }
+
+        public double MetricValue1 { get; set; }
+        public double MetricValue2 { get; set; }
+        public double MetricValue3 { get; set; }
+        public double MetricValue4 { get; set; }
+
+        public int LastedPeriodCount { get; private set; }
+
         public Position()
         {
             Id = IdGenerator.Next;
 
             InitialRisk = 0.0;
             StopLossPrice = UninitializedStopLossPrice;
+            LastedPeriodCount = 0;
         }
 
         public Position(Transaction transaction)
@@ -58,11 +72,34 @@ namespace TradingStrategy
                 case TradingAction.OpenLong:
                     BuyTime = transaction.ExecutionTime;
                     Code = transaction.Code;
+                    Name = transaction.Name;
                     BuyAction = transaction.Action;
                     Volume = transaction.Volume;
                     BuyPrice = transaction.Price;
                     BuyCommission = transaction.Commission;
                     IsInitialized = true;
+                    Comments = transaction.Comments;
+
+                    if (transaction.ObservedMetricValues != null && transaction.ObservedMetricValues.Length > 0)
+                    {
+                        MetricValue1 = transaction.ObservedMetricValues[0];
+
+                        int length = transaction.ObservedMetricValues.Length;
+                        if (length > 1)
+                        {
+                            MetricValue2 = transaction.ObservedMetricValues[1];
+                        }
+
+                        if (length > 2)
+                        {
+                            MetricValue3 = transaction.ObservedMetricValues[2];
+                        }
+
+                        if (length > 3)
+                        {
+                            MetricValue4 = transaction.ObservedMetricValues[3];
+                        }
+                    }
                     break;
                 default:
                     throw new ArgumentException(string.Format("unsupported action {0}", transaction.Action));
@@ -79,7 +116,7 @@ namespace TradingStrategy
         /// </summary>
         /// <param name="volume">expected volume kept in old position</param>
         /// <returns>new position that include remaining volumes</returns>
-        public Position Split(int volume)
+        public Position Split(long volume)
         {
             if (volume <= 0 || volume >= Volume)
             {
@@ -97,19 +134,26 @@ namespace TradingStrategy
             // create new position
             var newPosition = new Position
             {
-                IsInitialized = IsInitialized,
-                Code = Code,
-                BuyTime = BuyTime,
-                SellTime = SellTime,
-                BuyAction = BuyAction,
-                SellAction = SellAction,
-                Volume = Volume - volume,
-                BuyPrice = BuyPrice,
-                SellPrice = SellPrice,
-                BuyCommission = BuyCommission * newPositionPercentage,
-                SellCommission = SellCommission * newPositionPercentage,
-                InitialRisk = IsStopLossPriceInitialized() ? InitialRisk * newPositionPercentage : 0.0,
-                StopLossPrice = StopLossPrice,
+                IsInitialized = this.IsInitialized,
+                Code = this.Code,
+                Name = this.Name,
+                BuyTime = this.BuyTime,
+                SellTime = this.SellTime,
+                BuyAction = this.BuyAction,
+                SellAction = this.SellAction,
+                Volume = this.Volume - volume,
+                BuyPrice = this.BuyPrice,
+                SellPrice = this.SellPrice,
+                BuyCommission = this.BuyCommission * newPositionPercentage,
+                SellCommission = this.SellCommission * newPositionPercentage,
+                InitialRisk = IsStopLossPriceInitialized() ? this.InitialRisk * newPositionPercentage : 0.0,
+                StopLossPrice = this.StopLossPrice,
+                Comments = this.Comments,
+                MetricValue1 = this.MetricValue1,
+                MetricValue2 = this.MetricValue2,
+                MetricValue3 = this.MetricValue3,
+                MetricValue4 = this.MetricValue4,
+                LastedPeriodCount = this.LastedPeriodCount,
             };
 
             // update this position
@@ -155,7 +199,13 @@ namespace TradingStrategy
                     SellAction = transaction.Action;
                     SellPrice = transaction.Price;
                     SellCommission = transaction.Commission;
+                    
+                    if (!string.IsNullOrEmpty(transaction.Comments))
+                    {
+                        Comments += ";" + transaction.Comments;
+                    }
 
+                    GainInR = (SellPrice - BuyPrice) * Volume / InitialRisk;
                     break;
 
                 default:
@@ -195,6 +245,11 @@ namespace TradingStrategy
 
                 StopLossPrice = stopLossPrice;
             }
+        }
+
+        public void IncreaseLastedPeriodCount()
+        {
+            ++LastedPeriodCount;
         }
     }
 }

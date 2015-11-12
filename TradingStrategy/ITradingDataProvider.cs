@@ -5,7 +5,7 @@ namespace TradingStrategy
 {
     public interface ITradingDataProvider
     {
-       DateTime[] GetAllPeriodsOrdered();
+        DateTime[] GetAllPeriodsOrdered();
 
         ITradingObject[] GetAllTradingObjects();
 
@@ -16,7 +16,12 @@ namespace TradingStrategy
         /// <returns>index of trading object. if the trading object does not exist, -1 will be returned</returns>
         int GetIndexOfTradingObject(string code);
 
-        Bar[] GetWarmUpData(int index);
+        /// <summary>
+        /// Get the first non-warmup data periods for all trading objects. Data time equals or exceeds the limit should be 
+        /// treated as trading data.
+        /// </summary>
+        /// <returns></returns>
+        DateTime[] GetFirstNonWarmupDataPeriods();
 
         /// <summary>
         /// Get bars for all trading objects for given period

@@ -1,4 +1,6 @@
-﻿namespace TradingStrategy.Strategy
+﻿using TradingStrategy.Base;
+
+namespace TradingStrategy.Strategy
 {
     public sealed class NeverMarketExiting 
         : GeneralMarketExitingBase
@@ -13,10 +15,13 @@
             get { return "从不退市，依赖于初始止损或者其他模块退市"; }
         }
 
-        public override bool ShouldExit(ITradingObject tradingObject, out string comments)
+        public override MarketExitingComponentResult ShouldExit(ITradingObject tradingObject)
         {
-            comments = string.Empty;
-            return false;
+            return new MarketExitingComponentResult()
+            {
+                Comments = string.Empty,
+                ShouldExit = false
+            };
         }
     }
 }

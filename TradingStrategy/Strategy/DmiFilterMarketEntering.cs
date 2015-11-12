@@ -1,10 +1,12 @@
 ﻿using System;
 using MetricsDefinition;
+using TradingStrategy.Base;
+using TradingStrategy.MetricBooleanExpression;
 
 namespace TradingStrategy.Strategy
 {
     public sealed class DmiFilterMarketEntering 
-        : MetricBasedMarketEnteringBase<DmiRuntimeMetric>
+        : MetricBasedMarketEntering
     {
         [Parameter(10, "DMI周期")]
         public int DmiWindowSize { get; set; }
@@ -12,9 +14,13 @@ namespace TradingStrategy.Strategy
         [Parameter(20.0, "ADX阈值")]
         public double AdxThreshold { get; set; }
 
-        protected override Func<DmiRuntimeMetric> Creator
+        protected override IMetricBooleanExpression BuildExpression()
         {
-            get { return (() => new DmiRuntimeMetric(DmiWindowSize)); }
+            return new LogicAnd(
+                new Comparison(
+                    string.Format("DMI[{0}].ADX >= {1}", DmiWindowSize, AdxThreshold)),
+                new Comparison(
+                    string.Format("TD[3](DMI[{0}].ADX) > 0.0", DmiWindowSize)));
         }
 
         protected override void ValidateParameterValues()
@@ -40,39 +46,6 @@ namespace TradingStrategy.Strategy
         public override string Description
         {
             get { return "当ADX处于上升并且超过AdxThreshold时允许入市"; }
-        }
-
-        public override bool CanEnter(ITradingObject tradingObject, out string comments)
-        {
-            comments = string.Empty;
-            var runtimeMetric = MetricManager.GetOrCreateRuntimeMetric(tradingObject);
-
-            if (runtimeMetric.Adx > AdxThreshold && IsIncreasing(runtimeMetric.HistoricalAdxValues))
-            {
-                comments = string.Format(
-                    "ADX:{0:0.000}; ADX[-1]:{1:0.000}; ADX[-2]:{2:0.000}",
-                    runtimeMetric.HistoricalAdxValues[-1],
-                    runtimeMetric.HistoricalAdxValues[-2],
-                    runtimeMetric.HistoricalAdxValues[-3]);
-
-                return true;
-            }
-            return false;
-        }
-
-        private bool IsIncreasing(CirculatedArray<double> values)
-        {
-            if (values.Length < 3)
-            {
-                return false;
-            }
-
-            if (values[-1] > values[-2] && values[-2] > values[-3])
-            {
-                return true;
-            }
-
-            return false;
         }
     }
 }

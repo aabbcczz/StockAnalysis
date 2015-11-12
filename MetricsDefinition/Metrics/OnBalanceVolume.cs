@@ -11,11 +11,11 @@ namespace MetricsDefinition.Metrics
         private bool _firstBar = true;
 
         public OnBalanceVolume()
-            : base(1)
+            : base(0)
         {
         }
 
-        public override double Update(Bar bar)
+        public override void Update(Bar bar)
         {
             var obv = _firstBar
                 ? bar.Volume
@@ -27,7 +27,7 @@ namespace MetricsDefinition.Metrics
             _firstBar = false;
 
             // return result;
-            return obv;
+            SetValue(obv);
         }
     }
 }

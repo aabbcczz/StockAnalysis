@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Xml.Serialization;
 using System.IO;
+using StockAnalysis.Share;
 
 namespace TradingStrategyEvaluation
 {
@@ -65,7 +66,7 @@ namespace TradingStrategyEvaluation
         {
             return Path.Combine(
                 StockDataFileDirectory,
-                StockDataFileNamePattern.Replace(StockCodePattern, code));
+                StockDataFileNamePattern.Replace(StockCodePattern, StockName.UnnormalizeCode(code)));
         }
 
         public static ChinaStockDataSettings GenerateExampleSettings()

@@ -12,7 +12,7 @@ namespace MetricsDefinition.Metrics
         private readonly CostMovingAverage _cma4;
 
         public CostBullBearIndex(int windowSize1, int windowSize2, int windowSize3, int windowSize4)
-            : base(1)
+            : base(0)
         {
             if (windowSize1 <= 0 || windowSize2 <= 0 || windowSize3 <= 0 || windowSize4 <=0)
             {
@@ -25,12 +25,15 @@ namespace MetricsDefinition.Metrics
             _cma4 = new CostMovingAverage(windowSize4);
         }
 
-        public override double Update(Bar bar)
+        public override void Update(Bar bar)
         {
-            return (_cma1.Update(bar) +
-                _cma2.Update(bar) +
-                _cma3.Update(bar) +
-                _cma4.Update(bar)) / 4;
+            _cma1.Update(bar);
+            _cma2.Update(bar);
+            _cma3.Update(bar);
+            _cma4.Update(bar);
+
+            var cbbi = (_cma1.Value + _cma2.Value + _cma3.Value + _cma4.Value) / 4.0;
+            SetValue(cbbi);
         }
     }
 }

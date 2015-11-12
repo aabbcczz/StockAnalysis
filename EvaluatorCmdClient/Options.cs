@@ -34,12 +34,29 @@ namespace EvaluatorCmdClient
         [Option('i', "InitialCapital", Required = true, HelpText = "The amount of initial capital")]
         public double InitialCapital { get; set; }
 
+        [Option('z', "Proportion", HelpText = "The proportion of capital for incremental position")]
+        public double ProportionOfCapitalForIncrementalPosition { get; set; }
+
         [Option('w', "Warmup", Required = true, HelpText = "The warm up periods")]
         public int WarmupPeriods { get; set; }
 
         [Option('n', "Name", HelpText = "The name of evaluation")]
         public string EvaluationName { get; set; }
 
+        [Option('y', "YearInterval", HelpText = "Year interval for evaluation")]
+        public int YearInterval { get; set; }
+
+        [Option('p', "Parallel", HelpText = "Enable parallel execution on different year's interval")]
+        public bool ParallelExecution { get; set; }
+
+        [Option('k', "StockBlock", HelpText = "The stock block relationship file name")]
+        public string StockBlockRelationshipFile { get; set; }
+
+        [Option('e', "ERatio", HelpText = "Enable outputting eRatio")]
+        public bool EnableERatioOutput { get; set; }
+
+        [Option('d', "Dump", HelpText = "Dump data for debugging")]
+        public bool ShouldDumpData { get; set; }
 
         [HelpOption]
         public string GetUsage()
@@ -55,11 +72,16 @@ namespace EvaluatorCmdClient
                 writer.WriteLine("Trading settings file: {0}", TradingSettingsFile);
                 writer.WriteLine("Combined strategy settings file: {0}", CombinedStrategySettingsFile);
                 writer.WriteLine("Stock data settings file: {0}", StockDataSettingsFile);
+                writer.WriteLine("Stock block relationship file: {0}", StockBlockRelationshipFile);
                 writer.WriteLine("Code file: {0}", CodeFile);
                 writer.WriteLine("Start date: {0}", StartDate);
                 writer.WriteLine("End date: {0}", EndDate);
+                writer.WriteLine("Year interval: {0} years", YearInterval);
                 writer.WriteLine("Initial capital: {0:0.0000}", InitialCapital);
                 writer.WriteLine("Warmup periods: {0}", WarmupPeriods);
+                writer.WriteLine("Parallel execution: {0}", ParallelExecution);
+                writer.WriteLine("Enable outputting eRatio: {0}", EnableERatioOutput);
+                writer.WriteLine("Should dump data: {0}", ShouldDumpData);
             }
         }
 
@@ -78,6 +100,11 @@ namespace EvaluatorCmdClient
             if (WarmupPeriods <= 0)
             {
                 WarmupPeriods = 0;
+            }
+
+            if (YearInterval < 0)
+            {
+                YearInterval = 0;
             }
         }
     }

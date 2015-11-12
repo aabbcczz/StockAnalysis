@@ -1,10 +1,13 @@
 ﻿using System;
+using TradingStrategy.Base;
 
 namespace TradingStrategy.Strategy
 {
     public sealed class AtrStopLoss 
-        : MetricBasedStopLossBase<AtrRuntimeMetric>
+        : GeneralStopLossBase
     {
+        private RuntimeMetricProxy _atrMetricProxy;
+
         [Parameter(10, "ATR计算窗口大小")]
         public int AtrWindowSize { get; set; }
 
@@ -22,12 +25,13 @@ namespace TradingStrategy.Strategy
             get { return "当价格低于买入价，并且差值大于ATR乘以Atr停价倍数时停价"; }
         }
 
-        protected override Func<AtrRuntimeMetric> Creator
+        protected override void RegisterMetric()
         {
-            get 
-            {
-                return (() => new AtrRuntimeMetric(AtrWindowSize));
-            }
+            base.RegisterMetric();
+
+            _atrMetricProxy = new RuntimeMetricProxy(
+                Context.MetricManager,
+                string.Format("ATR[{0}]", AtrWindowSize));
         }
 
         protected override void ValidateParameterValues()
@@ -40,16 +44,23 @@ namespace TradingStrategy.Strategy
             }
         }
 
-        public override double EstimateStopLossGap(ITradingObject tradingObject, double assumedPrice, out string comments)
+        public override StopLossComponentResult EstimateStopLossGap(ITradingObject tradingObject, double assumedPrice)
         {
-            var metric = MetricManager.GetOrCreateRuntimeMetric(tradingObject);
+            var atrValues = _atrMetricProxy.GetMetricValues(tradingObject);
 
-            comments = string.Format(
-                "stoplossgap = ATR({0:0.000}) * AtrStopLossFactor({1:0.000})",
-                metric.Atr,
-                AtrStopLossFactor);
+            var atr = atrValues[0];
+            var stoplossGap = -atr * AtrStopLossFactor;
+            var comments = string.Format(
+                "stoplossgap({2:0.000}) = ATR({0:0.000}) * AtrStopLossFactor({1:0.000})",
+                atr,
+                AtrStopLossFactor,
+                stoplossGap);
 
-            return -metric.Atr * AtrStopLossFactor;
+            return new StopLossComponentResult()
+            {
+                Comments = comments,
+                StopLossGap = stoplossGap
+            };
         }
     }
 }

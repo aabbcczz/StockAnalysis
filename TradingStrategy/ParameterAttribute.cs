@@ -55,7 +55,7 @@ namespace TradingStrategy
 
             if (DefaultValue.GetType() != type)
             {
-                throw new InvalidProgramException("At least one value in Default/Min/Max/Step is not expected type");
+                throw new InvalidProgramException("Default value is not expected type");
             }
         }
         
@@ -74,7 +74,9 @@ namespace TradingStrategy
         {
             return (type == typeof(int)
                 || type == typeof(double)
-                || type == typeof(string));
+                || type == typeof(string)
+                || type == typeof(bool)
+                || type.IsEnum);
         }
     }
 }

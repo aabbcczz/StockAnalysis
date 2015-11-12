@@ -19,6 +19,11 @@ namespace MetricsDefinition
 
         public SerialMetric Metric { get { return _metric; } }
 
+        public override double[] Values
+        {
+            get { return _metric.Values; }
+        }
+
         public override string[] FieldNames
         {
             get { return _fieldNames; }
@@ -49,7 +54,7 @@ namespace MetricsDefinition
             _moriMetric = _metric as MultipleOutputRawInputSerialMetric;
         }
 
-        public override double SingleOutputUpdate(double data)
+        public override void SingleOutputUpdate(double data)
         {
             if (_acceptBarInput)
             {
@@ -59,13 +64,14 @@ namespace MetricsDefinition
 
             if (_singleOutput)
             {
-                return _soriMetric.Update(data);
+                _soriMetric.Update(data);
             }
+
             throw new NotSupportedException(
                 string.Format("Metric {0} has multiple output", _metric.GetType().Name));
         }
 
-        public override double[] MultipleOutputUpdate(double data)
+        public override void MultipleOutputUpdate(double data)
         {
             if (_acceptBarInput)
             {
@@ -73,10 +79,17 @@ namespace MetricsDefinition
                     string.Format("Metric {0} requires Bar as input", _metric.GetType().Name));
             }
 
-            return _singleOutput ? new[] { _soriMetric.Update(data) } : _moriMetric.Update(data);
+            if (_singleOutput)
+            {
+                _soriMetric.Update(data);
+            }
+            else
+            {
+                _moriMetric.Update(data);
+            }
         }
 
-        public override double SingleOutputUpdate(Bar data)
+        public override void SingleOutputUpdate(Bar data)
         {
             if (!_singleOutput)
             {
@@ -84,17 +97,40 @@ namespace MetricsDefinition
                     string.Format("Metric {0} has multiple output", _metric.GetType().Name));
             }
 
-            return !_acceptBarInput ? _soriMetric.Update(data.ClosePrice) : _sobiMetric.Update(data);
+            if (_acceptBarInput)
+            {
+                _sobiMetric.Update(data);
+            }
+            else
+            {
+                _soriMetric.Update(data.ClosePrice);
+            }
         }
 
-        public override double[] MultipleOutputUpdate(Bar data)
+        public override void MultipleOutputUpdate(Bar data)
         {
             if (_acceptBarInput)
             {
-                return _singleOutput ? new[] { _sobiMetric.Update(data) } : _mobiMetric.Update(data);
+                if (_singleOutput)
+                {
+                    _sobiMetric.Update(data);
+                }
+                else
+                {
+                    _mobiMetric.Update(data);
+                }
             }
-
-            return _singleOutput ? new[] { _soriMetric.Update(data.ClosePrice) } : _moriMetric.Update(data.ClosePrice);
+            else
+            {
+                if (_singleOutput)
+                {
+                    _soriMetric.Update(data.ClosePrice);
+                }
+                else
+                {
+                    _moriMetric.Update(data.ClosePrice);
+                }
+            }
         }
     }
 }

@@ -16,7 +16,10 @@ namespace TradingStrategyEvaluation
         private readonly TradingSettings _settings;
         private readonly TradingTracker _tradingTracker;
         private ITradingObject[] _allTradingObjects;
-        private List<Instruction> _pendingInstructions = new List<Instruction>();
+        private DateTime[] _firstNonWarmupDataPeriods;
+
+        private List<Instruction> _currentPeriodInstructions = new List<Instruction>();
+        private List<Instruction> _nextPeriodInstructions = new List<Instruction>();
 
         private bool _evaluatable = true;
 
@@ -33,12 +36,14 @@ namespace TradingStrategyEvaluation
         public EventHandler<EvaluationProgressEventArgs> OnEvaluationProgress;
 
         public TradingStrategyEvaluator(
-            double initalCapital, 
+            ICapitalManager capitalManager,
             ITradingStrategy strategy, 
             IDictionary<ParameterAttribute, object> strategyParameters, 
             ITradingDataProvider provider, 
+            StockBlockRelationshipManager relationshipManager,
             TradingSettings settings,
-            ILogger logger)
+            ILogger logger,
+            IDataDumper dumper)
         {
             if (strategy == null || provider == null || settings == null)
             {
@@ -52,9 +57,9 @@ namespace TradingStrategyEvaluation
            
             _settings = settings;
 
-            _equityManager = new EquityManager(initalCapital);
-            _context = new StandardEvaluationContext(_provider, _equityManager, logger);
-            _tradingTracker = new TradingTracker(initalCapital);
+            _equityManager = new EquityManager(capitalManager, _settings.PositionFrozenDays);
+            _context = new StandardEvaluationContext(_provider, _equityManager, logger, settings, dumper, relationshipManager);
+            _tradingTracker = new TradingTracker(capitalManager.InitialCapital);
         }
 
         public void Evaluate()
@@ -69,28 +74,17 @@ namespace TradingStrategyEvaluation
 
             // Get all trading objects
             _allTradingObjects = _provider.GetAllTradingObjects();
-            Action<ITradingObject> warmupAction = 
-                obj =>
-                {
-                    var warmupData = _provider.GetWarmUpData(obj.Index);
-                    if (warmupData != null)
-                    {
-                        foreach (var bar in warmupData)
-                        {
-                            _strategy.WarmUp(obj, bar);
-                        }
-                    }
-                };
 
-            // warm up
-            foreach (var tradingObject in _allTradingObjects)
-            {
-                warmupAction(tradingObject);
-            }
+            // Get last warm up data periods
+            _firstNonWarmupDataPeriods = _provider.GetFirstNonWarmupDataPeriods();
 
             // evaluating
             var lastPeriodTime = DateTime.MinValue;
+            Bar[] lastPeriodData = null;
             var periods = _provider.GetAllPeriodsOrdered();
+
+            bool fullTradingDataReached = false;
+
             for (var periodIndex = 0; periodIndex < periods.Length; ++periodIndex)
             {
                 var thisPeriodTime = periods[periodIndex];
@@ -101,38 +95,127 @@ namespace TradingStrategyEvaluation
                     throw new InvalidOperationException("the number of data returned does not match the number of trading object");
                 }
                 
+                // process pure warm up data.
+                if (_firstNonWarmupDataPeriods.All(t => t > thisPeriodTime))
+                {
+                    // update metrics that registered by strategy
+                    _context.MetricManager.BeginUpdateMetrics();
+
+                    _context.MetricManager.UpdateMetrics(_allTradingObjects, thisPeriodData);
+                    
+                    _context.MetricManager.EndUpdateMetrics();
+
+                    continue;
+                }
+
+                // remove warm up data if necessary
+                var originalThisPeriodData = thisPeriodData;
+                if (!fullTradingDataReached)
+                {
+                    if (_firstNonWarmupDataPeriods.All(t => t <= thisPeriodTime))
+                    {
+                        // from now on, all data are useful trading data
+                        fullTradingDataReached = true;
+                    }
+                    else
+                    {
+                        thisPeriodData = new Bar[originalThisPeriodData.Length];
+                        Array.Copy(originalThisPeriodData, thisPeriodData, thisPeriodData.Length);
+
+                        for (int i =0; i < thisPeriodData.Length; ++i)
+                        {
+                            if (thisPeriodData[i].Time < _firstNonWarmupDataPeriods[i])
+                            {
+                                thisPeriodData[i].Time = Bar.InvalidTime;
+                            }
+                        }
+                    }
+                }
+
+                // set current period data in context
+                _context.SetCurrentPeriodData(thisPeriodData);
+
                 // start a new period
                 _strategy.StartPeriod(thisPeriodTime);
-                
-                // run pending instructions left over from previous period
-                RunPendingInstructions(thisPeriodData, thisPeriodTime, false);
 
+                // assign all instructions in next period to current period because new period starts
+                _currentPeriodInstructions.Clear();
+                _currentPeriodInstructions.AddRange(_nextPeriodInstructions);
+                _nextPeriodInstructions.Clear();
+
+                // run instructions left over from previous period
+                RunCurrentPeriodInstructions(lastPeriodData, thisPeriodData, thisPeriodTime);
+
+#if DEBUG
                 // check data
                 if (thisPeriodData.Any(bar => bar.Time != Bar.InvalidTime && bar.Time != thisPeriodTime))
                 {
                     throw new InvalidOperationException("Time in bar data is different with the time returned by data provider");
                 }
+#endif
+
+                // update metrics that registered by strategy. 
+                // here we should always use original data to update metrics.
+                _context.MetricManager.BeginUpdateMetrics();
+                _context.MetricManager.UpdateMetrics(_allTradingObjects, originalThisPeriodData);
+                _context.MetricManager.EndUpdateMetrics();
+
+                // update position lasted period count
+                foreach (var code in _context.GetAllPositionCodes())
+                {
+                    int tradingObjectIndex = _provider.GetIndexOfTradingObject(code);
+
+                    if (thisPeriodData[tradingObjectIndex].Time != Bar.InvalidTime)
+                    {
+                        foreach (var position in _context.GetPositionDetails(code))
+                        {
+                            if (position.BuyTime < thisPeriodTime)
+                            {
+                                position.IncreaseLastedPeriodCount();
+                            }
+                        }
+                    }
+                }
 
                 // evaluate bar data
                 _strategy.Evaluate(_allTradingObjects, thisPeriodData);
-
 
                 // get instructions and add them to pending instruction list
                 var instructions = _strategy.RetrieveInstructions().ToArray();
 
                 if (instructions.Any())
                 {
-                    _pendingInstructions.AddRange(instructions);
+                    foreach (var instruction in instructions)
+                    {
+                        UpdateInstructionWithDefaultPriceWhenNecessary(instruction);
+
+                        if (instruction.Price.Period == TradingPricePeriod.CurrentPeriod)
+                        {
+                            _currentPeriodInstructions.Add(instruction);
+                        }
+                        else if (instruction.Price.Period == TradingPricePeriod.NextPeriod)
+                        {
+                            _nextPeriodInstructions.Add(instruction);
+                        }
+                        else
+                        {
+                            throw new InvalidProgramException("unsupported price period");
+                        }
+                    }
 
                     // run instructions for current period
-                    RunPendingInstructions(thisPeriodData, thisPeriodTime, true);
+                    RunCurrentPeriodInstructions(lastPeriodData, thisPeriodData, thisPeriodTime);
                 }
 
                 // end period
                 _strategy.EndPeriod();
 
-                // update last period time
+                // reset current period data in context
+                _context.SetCurrentPeriodData(null);
+
+                // update last period time and data
                 lastPeriodTime = thisPeriodTime;
+                lastPeriodData = thisPeriodData;
 
                 // update progress event
                 if (OnEvaluationProgress != null)
@@ -152,7 +235,8 @@ namespace TradingStrategyEvaluation
             ClearEquityForcibly(lastPeriodTime);
 
             // clear all pending instructions.
-            _pendingInstructions.Clear();
+            _currentPeriodInstructions.Clear();
+            _nextPeriodInstructions.Clear();
 
             // update 'evaluatable' flag to avoid this function be called twice
             _evaluatable = false;
@@ -187,6 +271,7 @@ namespace TradingStrategyEvaluation
                     ExecutionTime = lastPeriodTime,
                     InstructionId = long.MaxValue,
                     Code = code,
+                    Name = _allTradingObjects[index].Name,
                     Price = bar.ClosePrice,
                     SellingType = SellingType.ByVolume,
                     Succeeded = false,
@@ -197,7 +282,7 @@ namespace TradingStrategyEvaluation
 
                 UpdateTransactionCommission(transaction, _allTradingObjects[index]);
 
-                if (!ExecuteTransaction(transaction, false))
+                if (!ExecuteTransaction(transaction, false, true))
                 {
                     throw new InvalidOperationException(
                         string.Format("failed to execute transaction, logic error", code));
@@ -205,96 +290,175 @@ namespace TradingStrategyEvaluation
             }
         }
 
-        private void RunPendingInstructions(
-            Bar[] tradingData, 
-            DateTime time, 
-            bool forCurrentPeriod)
+        private void RunCurrentPeriodInstructions(
+            Bar[] lastPeriodTradingData,
+            Bar[] currentPeriodTradingData, 
+            DateTime time)
         {
-            var pendingTansactions = new Dictionary<int, Transaction>();
+            var readyInstructions = new List<Tuple<Instruction, double>>(_currentPeriodInstructions.Count);
 
-            for (var i = 0; i < _pendingInstructions.Count; ++i)
+            foreach (var instruction in _currentPeriodInstructions)
             {
-                var instruction = _pendingInstructions[i];
+                var tradingObjectIndex = instruction.TradingObject.Index;
+                var currentBarOfObject = currentPeriodTradingData[tradingObjectIndex];
 
-                TradingPriceOption option;
+                if (currentBarOfObject.Time == Bar.InvalidTime)
+                {
+                    _context.Log(string.Format("the data for trading object {0} is invalid, can't execute instruction", instruction.TradingObject.Code));
+                    continue;
+                }
+
+                // exclude 开盘涨停/跌停
+                var lastBarOfObject = lastPeriodTradingData[tradingObjectIndex];
+                const double MaxChangesCoefficient = 0.99;
+
+                if (lastBarOfObject.Time != Bar.InvalidTime)
+                {
+                    if (instruction.Price.Option == TradingPriceOption.OpenPrice
+                        || instruction.Price.Option == TradingPriceOption.CustomPrice)
+                    {
+                        double priceChangeRatio = Math.Abs(currentBarOfObject.OpenPrice - lastBarOfObject.ClosePrice) / lastBarOfObject.ClosePrice;
+
+                        if (instruction.Action == TradingAction.OpenLong
+                            && priceChangeRatio >= instruction.TradingObject.LimitUpRatio * MaxChangesCoefficient)
+                        {
+                            _context.Log(
+                                string.Format(
+                                    "{0} price {1:0.0000} hit limit up in {2:yyyy-MM-dd}, failed to execute transaction",
+                                    instruction.TradingObject.Code,
+                                    currentBarOfObject.OpenPrice,
+                                    time));
+
+                            continue;
+                        }
+
+                        if (instruction.Action == TradingAction.CloseLong
+                            && priceChangeRatio >= instruction.TradingObject.LimitDownRatio * MaxChangesCoefficient)
+                        {
+                            _context.Log(
+                                string.Format(
+                                    "{0} price {1:0.0000} hit limit down in {2:yyyy-MM-dd}, failed to execute transaction",
+                                    instruction.TradingObject.Code,
+                                    currentBarOfObject.OpenPrice,
+                                    time));
+
+                            continue;
+                        }
+                    }
+                }
+
+                // exclude 一字板
+                if (currentBarOfObject.HighestPrice == currentBarOfObject.LowestPrice)
+                {
+                    if ((currentBarOfObject.LowestPrice < lastBarOfObject.ClosePrice
+                        && instruction.Action == TradingAction.CloseLong)
+                        || (currentBarOfObject.LowestPrice > lastBarOfObject.ClosePrice
+                            && instruction.Action == TradingAction.OpenLong))
+                    _context.Log(
+                        string.Format(
+                            "{0} price is locked down in {1:yyyy-MM-dd}, failed to execute transaction",
+                            instruction.TradingObject.Code,
+                            time));
+
+                    continue;
+                }
+
+                double price = CalculateTransactionPrice(
+                    currentBarOfObject, 
+                    lastBarOfObject,
+                    instruction);
+
+                // Exclude unrealistic price.
+                if ((_settings.IsLowestPriceAchievable && price < currentBarOfObject.LowestPrice)
+                    || (!_settings.IsLowestPriceAchievable && price <= currentBarOfObject.LowestPrice)
+                    || price > currentBarOfObject.HighestPrice)
+                {
+                    _context.Log(
+                        string.Format(
+                            "{0} price {1:0.000} in {2:yyyy-MM-dd} is not achievable",
+                            instruction.TradingObject.Code,
+                            price,
+                            time));
+
+                    continue;
+                }
+
+                readyInstructions.Add(Tuple.Create(instruction, price));
+            }
+            
+            int totalNumberOfObjectsToBeEstimated = readyInstructions.Count(t => t.Item1.Action == TradingAction.OpenLong);
+
+            var pendingTransactions = new List<Transaction>(readyInstructions.Count);
+            foreach (var readyInstruction in readyInstructions)
+            {
+                var instruction = readyInstruction.Item1;
+                double price = readyInstruction.Item2;
+
                 if (instruction.Action == TradingAction.OpenLong)
                 {
-                    option = _settings.OpenLongPriceOption;
-                }
-                else if (instruction.Action == TradingAction.CloseLong)
-                {
-                    option = _settings.CloseLongPriceOption;
-                }
-                else
-                {
-                    throw new InvalidOperationException(
-                        string.Format("unsupported action {0}", instruction.Action));
-                }
-
-                if (forCurrentPeriod)
-                {
-                    if (!option.HasFlag(TradingPriceOption.CurrentPeriod))
+                    _strategy.EstimateStoplossAndSizeForNewPosition(instruction, price, totalNumberOfObjectsToBeEstimated);
+                    if (instruction.Volume == 0)
                     {
+                        _context.Log(string.Format(
+                            "The volume of instruction for {0}/{1} is 0. //{2}",
+                            instruction.TradingObject.Code,
+                            instruction.TradingObject.Name,
+                            instruction.Comments));
+
                         continue;
                     }
-                }
-                else
-                {
-                    if (option.HasFlag(TradingPriceOption.CurrentPeriod))
-                    {
-                        throw new InvalidProgramException("Logic error, all transaction expect to be executed in today should have been fully executed");
-                    }
-                }
-
-                var tradingObjectIndex = instruction.TradingObject.Index;
-                if (tradingData[tradingObjectIndex].Time == Bar.InvalidTime)
-                {
-                    if (forCurrentPeriod)
-                    {
-                        throw new InvalidOperationException(
-                            string.Format("the data for trading object {0} is invalid", instruction.TradingObject.Code));
-                    }
-                    continue;
                 }
 
                 var transaction = BuildTransactionFromInstruction(
                     instruction,
                     time,
-                    tradingData[tradingObjectIndex]);
+                    price);
 
-                pendingTansactions.Add(i, transaction);
+                pendingTransactions.Add(transaction);
             }
 
-            var orderedTransactions = pendingTansactions.Values
-                .OrderBy(t => t, new Transaction.DefaultComparer());
-
-            // execute the close long transaction firstly
-            foreach (var transaction in orderedTransactions)
+            // always execute transaction according to the original order, so the strategy itself
+            // can decide the order.
+            foreach (var transaction in pendingTransactions)
             {
-                // execute transaction
                 ExecuteTransaction(transaction, true);
             }
 
-            foreach (var index in pendingTansactions.Keys)
-            {
-                // remove instruction that has been executed
-                _pendingInstructions[index] = null;
-            }
-
             // compact pending instruction list
-            _pendingInstructions = _pendingInstructions.Where(i => i != null).ToList();
+            _currentPeriodInstructions.Clear();
         }
 
-        private bool ExecuteTransaction(Transaction transaction, bool notifyTransactionStatus)
+        private bool ExecuteTransaction(Transaction transaction, bool notifyTransactionStatus, bool forcibly = false)
         {
             string error;
 
             CompletedTransaction completedTransaction;
             var succeeded = _equityManager.ExecuteTransaction(
-                transaction,
-                true,
-                out completedTransaction,
-                out error);
+                            transaction,
+                            _settings.AllowNegativeCapital,
+                            out completedTransaction,
+                            out error,
+                            forcibly);
+
+            if (!succeeded)
+            {
+                if (transaction.Action == TradingAction.OpenLong)
+                {
+                    // HACK: try to adjust volume to reduce money used and make transaction succeeded.
+                    var volume = (int)((double)transaction.Volume / 1.1);
+                    volume -= volume % 100;
+
+                    if (volume > 0)
+                    {
+                        transaction.Volume = volume;
+                        succeeded = _equityManager.ExecuteTransaction(
+                                        transaction,
+                                        _settings.AllowNegativeCapital,
+                                        out completedTransaction,
+                                        out error);
+                    }
+                }
+            }
 
             transaction.Succeeded = succeeded;
             transaction.Error = error;
@@ -318,13 +482,8 @@ namespace TradingStrategyEvaluation
             return succeeded;
         }
 
-        private Transaction BuildTransactionFromInstruction(Instruction instruction, DateTime time, Bar bar)
+        private Transaction BuildTransactionFromInstruction(Instruction instruction, DateTime time, double price)
         {
-            if (time != bar.Time)
-            {
-                throw new ArgumentException("Inconsistent time in bar and time parameters");
-            }
-
             if ((instruction.Action == TradingAction.OpenLong 
                     && instruction.Volume % instruction.TradingObject.VolumePerBuyingUnit != 0)
                 || (instruction.Action == TradingAction.CloseLong
@@ -333,21 +492,11 @@ namespace TradingStrategyEvaluation
                 throw new InvalidOperationException("The volume of transaction does not meet trading object's requirement");
             }
 
-            var transaction = new Transaction
+            var transaction = new Transaction(instruction, price)
             {
-                Action = instruction.Action,
                 Commission = 0.0,
                 ExecutionTime = time,
-                InstructionId = instruction.Id,
-                Code = instruction.TradingObject.Code,
-                Price = CalculateTransactionPrice(bar, instruction),
                 Succeeded = false,
-                SubmissionTime = instruction.SubmissionTime,
-                Volume = instruction.Volume,
-                SellingType = instruction.SellingType,
-                StopLossPriceForSell = instruction.StopLossPriceForSell,
-                PositionIdForSell = instruction.PositionIdForSell,
-                Comments = instruction.Comments,
             };
 
             // update commission
@@ -356,66 +505,68 @@ namespace TradingStrategyEvaluation
             return transaction;
         }
 
-        private double CalculateTransactionPrice(Bar bar, Instruction instruction)
+        private bool IsInstructionForStopLossing(Instruction instruction)
         {
-            double price;
+            return instruction.Action == TradingAction.CloseLong 
+                && (instruction as CloseInstruction).SellingType == SellingType.ByStopLossPrice;
+        }
 
-            TradingPriceOption option;
-            if (instruction.Action == TradingAction.OpenLong)
+        private void UpdateInstructionWithDefaultPriceWhenNecessary(Instruction instruction)
+        {
+            TradingPrice price;
+
+            if (instruction.Price == null)
             {
-                option = _settings.OpenLongPriceOption;
+                if (instruction.Action == TradingAction.OpenLong)
+                {
+                    price = new TradingPrice(_settings.OpenLongPricePeriod, _settings.OpenLongPriceOption, 0.0);
+                }
+                else if (instruction.Action == TradingAction.CloseLong)
+                {
+                    price = new TradingPrice(_settings.CloseLongPricePeriod, _settings.CloseLongPriceOption, 0.0);
+                }
+                else
+                {
+                    throw new InvalidOperationException(
+                        string.Format("unsupported action {0}", instruction.Action));
+                }
+
+                instruction.Price = price;
             }
-            else if (instruction.Action == TradingAction.CloseLong)
+        }
+        private double CalculateTransactionPrice(
+            Bar currentPeriodBar, 
+            Bar previousPeriodBar,
+            Instruction instruction)
+        {
+            double realPrice;
+
+            if (IsInstructionForStopLossing(instruction))
             {
-                option = _settings.CloseLongPriceOption;
+                realPrice = (instruction as CloseInstruction).StopLossPriceForSelling;
             }
             else
             {
-                throw new InvalidOperationException(
-                    string.Format("unsupported action {0}", instruction.Action));
+                realPrice = instruction.Price.GetRealPrice(currentPeriodBar, previousPeriodBar);
             }
 
-            if (option.HasFlag(TradingPriceOption.OpenPrice))
-            {
-                price = bar.OpenPrice;
-            }
-            else if (option.HasFlag(TradingPriceOption.ClosePrice))
-            {
-                price = bar.ClosePrice;
-            }
-            else if (option.HasFlag(TradingPriceOption.MiddlePrice))
-            {
-                price = (bar.OpenPrice + bar.ClosePrice + bar.HighestPrice + bar.LowestPrice ) / 4;
-            }
-            else if (option.HasFlag(TradingPriceOption.HighestPrice))
-            {
-                price = bar.HighestPrice;
-            }
-            else if (option.HasFlag(TradingPriceOption.LowestPrice))
-            {
-                price = bar.LowestPrice;
-            }
-            else
-            {
-                throw new InvalidProgramException("Logic error");
-            }
 
             // count the spread now
             if (instruction.Action == TradingAction.OpenLong)
             {
-                price += _settings.Spread * instruction.TradingObject.MinPriceUnit;
+                realPrice += _settings.Spread * instruction.TradingObject.MinPriceUnit;
             }
             else if (instruction.Action == TradingAction.CloseLong)
             {
-                price -= _settings.Spread * instruction.TradingObject.MinPriceUnit;
+                realPrice -= _settings.Spread * instruction.TradingObject.MinPriceUnit;
 
-                if (price < instruction.TradingObject.MinPriceUnit)
+                if (realPrice < instruction.TradingObject.MinPriceUnit)
                 {
-                    price = instruction.TradingObject.MinPriceUnit;
+                    realPrice = instruction.TradingObject.MinPriceUnit;
                 }
             }
 
-            return price;
+            return realPrice;
         }
 
         private void UpdateTransactionCommission(Transaction transaction, ITradingObject tradingObject)

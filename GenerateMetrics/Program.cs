@@ -123,7 +123,12 @@ namespace GenerateMetrics
             // calculate metrics
             var metricValues = data.DataOrderedByTime
                 .Select(bar => metricExpressions
-                    .SelectMany(m => m.MultipleOutputUpdate(bar))
+                    .SelectMany(
+                        m => 
+                        { 
+                            m.MultipleOutputUpdate(bar); 
+                            return m.Values; 
+                        })
                     .ToArray())
                 .ToList();
 

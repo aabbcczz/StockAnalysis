@@ -9,6 +9,6 @@ namespace MetricsDefinition
         {
         }
 
-        public abstract double[] Update(Bar bar);
+        public abstract void Update(Bar bar);
     }
 }

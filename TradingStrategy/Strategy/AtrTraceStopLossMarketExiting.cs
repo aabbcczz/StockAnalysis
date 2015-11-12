@@ -1,10 +1,13 @@
 ﻿using System;
+using TradingStrategy.Base;
 
 namespace TradingStrategy.Strategy
 {
-    public sealed class AtrTraceStopLossMarketExiting 
-        : MetricBasedTraceStopLossMarketExiting<AtrRuntimeMetric>
+    public sealed class AtrTraceStopLossMarketExiting
+        : GeneralTraceStopLossMarketExitingBase
     {
+        private RuntimeMetricProxy _atrMetricProxy;
+
         [Parameter(10, "ATR计算窗口大小")]
         public int AtrWindowSize { get; set; }
 
@@ -22,9 +25,13 @@ namespace TradingStrategy.Strategy
             get { return "当价格向有利方向变动时，持续跟踪设置止损价为当前价格减去ATR乘以Atr停价倍数"; }
         }
 
-        protected override Func<AtrRuntimeMetric> Creator
+        protected override void RegisterMetric()
         {
-            get { return (() => new AtrRuntimeMetric(AtrWindowSize)); }
+            base.RegisterMetric();
+
+            _atrMetricProxy = new RuntimeMetricProxy(
+                Context.MetricManager,
+                string.Format("ATR[{0}]", AtrWindowSize));
         }
 
         protected override void ValidateParameterValues()
@@ -39,15 +46,19 @@ namespace TradingStrategy.Strategy
 
         protected override double CalculateStopLossPrice(ITradingObject tradingObject, double currentPrice, out string comments)
         {
-            var metric = MetricManager.GetOrCreateRuntimeMetric(tradingObject);
+            var values = _atrMetricProxy.GetMetricValues(tradingObject);
 
+            var atr = values[0];
+
+            var stoploss = currentPrice - atr * AtrStopLossFactor;
             comments = string.Format(
-                "stoploss = price({2:0.000}) - ATR({0:0.000}) * AtrStopLossFactor({1:0.000})",
-                metric.Atr,
+                "stoploss({3:0.000}) = price({2:0.000}) - ATR({0:0.000}) * AtrStopLossFactor({1:0.000})",
+                atr,
                 AtrStopLossFactor,
-                currentPrice);
+                currentPrice,
+                stoploss);
 
-            return currentPrice - metric.Atr * AtrStopLossFactor;
+            return stoploss;
         }
     }
 }

@@ -1,11 +1,12 @@
 ﻿using System;
+using TradingStrategy.Base;
 
 namespace TradingStrategy.Strategy
 {
-    public sealed class VolatilityPercentagePositionSizing 
-        : MetricBasedPositionSizingBase<AtrRuntimeMetric>
+    public sealed class VolatilityPercentagePositionSizing
+        : GeneralPositionSizingBase
     {
-        private EquityEvaluationMethod _equityEvaluationMethod;
+        private RuntimeMetricProxy _atrMetricProxy;
 
         [Parameter(10, "波动率计算时间窗口大小")]
         public int VolatilityWindowSize { get; set; }
@@ -13,8 +14,8 @@ namespace TradingStrategy.Strategy
         [Parameter(1.0, "每份头寸的波动率占权益的百分比")]
         public double PercentageOfEquityForEachPositionVolatility { get; set; }
 
-        [Parameter(0, "权益计算方法。0：核心权益法，1：总权益法，2：抵减总权益法")]
-        public int EquityEvaluationMethod { get; set; }
+        [Parameter(EquityEvaluationMethod.InitialEquity, "权益计算方法。0：核心权益法，1：总权益法，2：抵减总权益法，3：初始权益法，4：控制损失初始权益法，5：控制损失总权益法，6：控制损失抵减总权益法")]
+        public EquityEvaluationMethod EquityEvaluationMethod { get; set; }
 
         public override string Name
         {
@@ -35,38 +36,39 @@ namespace TradingStrategy.Strategy
                 throw new ArgumentOutOfRangeException("PecentageOfEquityForPositionRisk is not in (0.0, 100.0]");
             }
 
-            _equityEvaluationMethod = (EquityEvaluationMethod)EquityEvaluationMethod;
-            if (!Enum.IsDefined(typeof(EquityEvaluationMethod), _equityEvaluationMethod))
-            {
-                throw new ArgumentOutOfRangeException("EquityEvaluationMethod is not a valid value");
-            }
-
             if(VolatilityWindowSize <= 0)
             {
                 throw new ArgumentNullException("VolatilityWindowSize must be greater than 0");
             }
         }
 
-        protected override Func<AtrRuntimeMetric> Creator
+        protected override void RegisterMetric()
         {
-            get { return (() => new AtrRuntimeMetric(VolatilityWindowSize)); }
+            base.RegisterMetric();
+            _atrMetricProxy = new RuntimeMetricProxy(Context.MetricManager, string.Format("ATR[{0}]", VolatilityWindowSize));
         }
 
-        public override int EstimatePositionSize(ITradingObject tradingObject, double price, double stopLossGap, out string comments)
+        public override PositionSizingComponentResult EstimatePositionSize(ITradingObject tradingObject, double price, double stopLossGap, int totalNumberOfObjectsToBeEstimated)
         {
-            var metric = MetricManager.GetOrCreateRuntimeMetric(tradingObject);
+            var values = _atrMetricProxy.GetMetricValues(tradingObject);
 
-            var volatility = metric.Atr;
+            var volatility = values[0];
 
-            var currentEquity = Context.GetCurrentEquity(Period, _equityEvaluationMethod);
+            var currentEquity = Context.GetCurrentEquity(CurrentPeriod, EquityEvaluationMethod);
 
-            comments = string.Format(
-                "positionsize = CurrentEquity({0:0.000}) * PercentageOfEquityForEachPositionVolatility({1:0.000}) / 100.0 / Volatility({2:0.000})",
+            var size = (int)(currentEquity * PercentageOfEquityForEachPositionVolatility / 100.0 / volatility);
+            var comments = string.Format(
+                "positionsize({3}) = CurrentEquity({0:0.000}) * PercentageOfEquityForEachPositionVolatility({1:0.000}) / 100.0 / Volatility({2:0.000})",
                 currentEquity,
                 PercentageOfEquityForEachPositionVolatility,
-                volatility);
+                volatility,
+                size);
 
-            return (int)(currentEquity * PercentageOfEquityForEachPositionVolatility / 100.0 / volatility);
+            return new PositionSizingComponentResult()
+                {
+                    Comments = comments,
+                    PositionSize = size
+                };
         }
     }
 }

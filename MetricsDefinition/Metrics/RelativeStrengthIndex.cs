@@ -10,13 +10,13 @@ namespace MetricsDefinition.Metrics
         private double _prevData;
         private bool _firstData = true;
         public RelativeStrengthIndex(int windowSize)
-            : base(1)
+            : base(0)
         {
             _msUc = new MovingSum(windowSize);
             _msDc = new MovingSum(windowSize);
         }
 
-        public override double Update(double dataPoint)
+        public override void Update(double dataPoint)
         {
             var uc = _firstData
                 ? 0.0
@@ -25,15 +25,20 @@ namespace MetricsDefinition.Metrics
             var dc = _firstData
                 ? 0.0
                 : Math.Max(0.0, _prevData - dataPoint);
+            
+            _msUc.Update(uc);
+            var msuc = _msUc.Value;
 
-            var msuc = _msUc.Update(uc);
-            var msdc = _msDc.Update(dc);
+            _msDc.Update(dc);
+            var msdc = _msDc.Value;
 
             // update status
             _prevData = dataPoint;
             _firstData = false;
 
-            return (Math.Abs(msuc + msdc) < 1e-6) ? 0.0 : msuc / (msuc + msdc) * 100.0;
+            var rsi = (Math.Abs(msuc + msdc) < 1e-6) ? 0.0 : msuc / (msuc + msdc) * 100.0;
+
+            SetValue(rsi);
         }
     }
 }

@@ -1,5 +1,7 @@
-move /Y c:\zd_zxzq\T0002\export\*.txt ..\RawLatestDailyData\ExcludeRight\
+CALL SetEnvironment.cmd
+
+move /Y %TDXROOT%\T0002\export\*.txt %STOCKROOT%\RawLatestDailyData\IncludeRight\
 CALL .\ProcessDailyData.cmd
 CALL .\GenerateMetrics.cmd
-dir /s /b ..\ProcessedLatestDailyData\ExcludeRightMetrics\*.* > ..\ProcessedLatestDailyMetricsFileList.txt
-..\bin\SelectStocksBasedOnMetrics.exe -l ..\ProcessedLatestDailyMetricsFileList.txt -o ..\SelectedStocks.csv
+CALL .\SelectStocksBasedOnMetrics.cmd
+

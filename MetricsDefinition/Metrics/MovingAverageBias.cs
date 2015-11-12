@@ -9,7 +9,7 @@ namespace MetricsDefinition.Metrics
         private readonly MovingAverage _maLong;
 
         public MovingAverageBias(int shortWindowSize, int longWindowSize)
-            : base(1)
+            : base(0)
         {
             if (shortWindowSize <= 0 || longWindowSize <= 0)
             {
@@ -25,9 +25,12 @@ namespace MetricsDefinition.Metrics
             _maLong = new MovingAverage(longWindowSize);
         }
 
-        public override double Update(double dataPoint)
+        public override void Update(double dataPoint)
         {
-            return _maShort.Update(dataPoint) - _maLong.Update(dataPoint);
+            _maShort.Update(dataPoint);
+            _maLong.Update(dataPoint);
+
+            SetValue(_maShort.Value - _maLong.Value);
         }
     }
 }

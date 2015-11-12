@@ -12,7 +12,8 @@ namespace EvaluatorCmdClient
 {
     public sealed class ResultSummary
     {
-        private const int MaxParameterCount = 40;
+        private const int MaxParameterCount = 80;
+        private const int MaxERatioCount = 40;
 
         public sealed class ResultSummaryMap : CsvClassMap<ResultSummary>
         {
@@ -34,11 +35,29 @@ namespace EvaluatorCmdClient
                         Map(e).Name(ParameterNames[i]);
                     }
                 }
+
+                for (var i = 0; i < MaxERatioCount; ++i)
+                {
+                    var exp = string.Format("m => m.ERatio{0}", i + 1);
+                    var e = DynamicExpression.ParseLambda<ResultSummary, object>(exp);
+
+                    if (i >= TradeMetricsCalculator.ERatioWindowSizes.Length || !ResultSummary.ShouldOutputERatio)
+                    {
+                        Map(e).Ignore();
+                    }
+                    else
+                    {
+                        Map(e).Name(string.Format("ERatio{0}", TradeMetricsCalculator.ERatioWindowSizes[i]));
+                    }
+                }
             }
         }
 
         public static string[] ParameterNames;
         private static PropertyInfo[] _parameterValueProperties;
+        private static PropertyInfo[] _eRatioProperties;
+
+        public static bool ShouldOutputERatio;
 
         public string ParameterValue1 { get; set; }
         public string ParameterValue2 { get; set; }
@@ -80,7 +99,90 @@ namespace EvaluatorCmdClient
         public string ParameterValue38 { get; set; }
         public string ParameterValue39 { get; set; }
         public string ParameterValue40 { get; set; }
+        public string ParameterValue41 { get; set; }
+        public string ParameterValue42 { get; set; }
+        public string ParameterValue43 { get; set; }
+        public string ParameterValue44 { get; set; }
+        public string ParameterValue45 { get; set; }
+        public string ParameterValue46 { get; set; }
+        public string ParameterValue47 { get; set; }
+        public string ParameterValue48 { get; set; }
+        public string ParameterValue49 { get; set; }
+        public string ParameterValue50 { get; set; }
+        public string ParameterValue51 { get; set; }
+        public string ParameterValue52 { get; set; }
+        public string ParameterValue53 { get; set; }
+        public string ParameterValue54 { get; set; }
+        public string ParameterValue55 { get; set; }
+        public string ParameterValue56 { get; set; }
+        public string ParameterValue57 { get; set; }
+        public string ParameterValue58 { get; set; }
+        public string ParameterValue59 { get; set; }
+        public string ParameterValue60 { get; set; }
+        public string ParameterValue61 { get; set; }
+        public string ParameterValue62 { get; set; }
+        public string ParameterValue63 { get; set; }
+        public string ParameterValue64 { get; set; }
+        public string ParameterValue65 { get; set; }
+        public string ParameterValue66 { get; set; }
+        public string ParameterValue67 { get; set; }
+        public string ParameterValue68 { get; set; }
+        public string ParameterValue69 { get; set; }
+        public string ParameterValue70 { get; set; }
+        public string ParameterValue71 { get; set; }
+        public string ParameterValue72 { get; set; }
+        public string ParameterValue73 { get; set; }
+        public string ParameterValue74 { get; set; }
+        public string ParameterValue75 { get; set; }
+        public string ParameterValue76 { get; set; }
+        public string ParameterValue77 { get; set; }
+        public string ParameterValue78 { get; set; }
+        public string ParameterValue79 { get; set; }
+        public string ParameterValue80 { get; set; }
 
+        public double ERatio1 { get; set; }
+        public double ERatio2 { get; set; }
+        public double ERatio3 { get; set; }
+        public double ERatio4 { get; set; }
+        public double ERatio5 { get; set; }
+        public double ERatio6 { get; set; }
+        public double ERatio7 { get; set; }
+        public double ERatio8 { get; set; }
+        public double ERatio9 { get; set; }
+        public double ERatio10 { get; set; }
+        public double ERatio11 { get; set; }
+        public double ERatio12 { get; set; }
+        public double ERatio13 { get; set; }
+        public double ERatio14 { get; set; }
+        public double ERatio15 { get; set; }
+        public double ERatio16 { get; set; }
+        public double ERatio17 { get; set; }
+        public double ERatio18 { get; set; }
+        public double ERatio19 { get; set; }
+        public double ERatio20 { get; set; }
+        public double ERatio21 { get; set; }
+        public double ERatio22 { get; set; }
+        public double ERatio23 { get; set; }
+        public double ERatio24 { get; set; }
+        public double ERatio25 { get; set; }
+        public double ERatio26 { get; set; }
+        public double ERatio27 { get; set; }
+        public double ERatio28 { get; set; }
+        public double ERatio29 { get; set; }
+        public double ERatio30 { get; set; }
+        public double ERatio31 { get; set; }
+        public double ERatio32 { get; set; }
+        public double ERatio33 { get; set; }
+        public double ERatio34 { get; set; }
+        public double ERatio35 { get; set; }
+        public double ERatio36 { get; set; }
+        public double ERatio37 { get; set; }
+        public double ERatio38 { get; set; }
+        public double ERatio39 { get; set; }
+        public double ERatio40 { get; set; }
+
+        public DateTime StartDate { get; set; }
+        public DateTime EndDate { get; set; }
         public double InitialEquity { get; set; } // 期初权益
         public double FinalEquity { get; set; } // 期末权益
         public double NetProfit { get; set; } // 净利润 = TotalProfit - TotalLoss - TotalCommission
@@ -96,7 +198,7 @@ namespace EvaluatorCmdClient
         public int ContextId { get; set; }
         public string ContextDirectory { get; set; }
 
-        public static void Initialize(IDictionary<ParameterAttribute, object> parameterValues)
+        public static void Initialize(IDictionary<ParameterAttribute, object> parameterValues, bool shouldOutputERatio)
         {
             if (parameterValues == null)
             {
@@ -121,11 +223,24 @@ namespace EvaluatorCmdClient
 
                 _parameterValueProperties[i] = typeof(ResultSummary).GetProperty(name);
             }
+
+            ResultSummary.ShouldOutputERatio = shouldOutputERatio;
+
+            _eRatioProperties = new PropertyInfo[MaxERatioCount];
+
+            for (var i = 0; i < MaxERatioCount; ++i)
+            {
+                var name = string.Format("ERatio{0}", i + 1);
+
+                _eRatioProperties[i] = typeof(ResultSummary).GetProperty(name);
+            }
         }
 
         public void Initialize(
             EvaluationResultContext context,
             IDictionary<ParameterAttribute, object> parameterValues, 
+            DateTime startDate,
+            DateTime endDate,
             TradeMetric metric)
         {
             if (context == null || parameterValues == null || metric == null)
@@ -141,6 +256,13 @@ namespace EvaluatorCmdClient
                 _parameterValueProperties[i].SetValue(this, serializableParameterValues.Parameters[i].Value);
             }
 
+            for (var i = 0; i < metric.ERatios.Length; ++i)
+            {
+                _eRatioProperties[i].SetValue(this, metric.ERatios[i]);
+            }
+
+            StartDate = startDate;
+            EndDate = endDate;
             InitialEquity = metric.InitialEquity;
             FinalEquity = metric.FinalEquity;
             NetProfit = metric.NetProfit;

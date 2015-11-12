@@ -16,19 +16,27 @@ namespace TradingStrategy
 
         public string Code { get; set; }
 
+        public string Name { get; set; }
+
         public TradingAction Action { get; set; }
 
         public SellingType SellingType { get; set; }
 
-        public int Volume { get; set; }
+        public long Volume { get; set; }
 
         public double Price { get; set; }
 
         /// <summary>
-        /// the stop loss price for sell, all positions that has stop loss price higher than this should be sold.
+        /// The stop loss gap (always smaller than or equal to 0.0) for buying. It means the price of buying plus
+        /// the stop loss gap will be the stop loss price of the position.
+        /// </summary>
+        public double StopLossGapForBuying { get; set; }
+
+        /// <summary>
+        /// the stop loss price for selling, all positions that has stop loss price higher than this should be sold.
         /// this field is used only when Action is CloseLong.
         /// </summary>
-        public double StopLossPriceForSell { get; set; }
+        public double StopLossPriceForSelling { get; set; }
 
         /// <summary>
         /// the id of position for sell. 
@@ -42,65 +50,62 @@ namespace TradingStrategy
 
         public string Comments { get; set; }
 
-        public class DefaultComparer : IComparer<Transaction>
-        {
-                 
-            public int Compare(Transaction x, Transaction y)
-            {
- 	            if (x.ExecutionTime != y.ExecutionTime)
-                {
-                    return x.ExecutionTime.CompareTo(y.ExecutionTime);
-                }
+        public object[] RelatedObjects { get; set; }
 
-                if (x.Action != y.Action)
-                {
-                    if (x.Action == TradingAction.CloseLong)
-                    {
-                        return 1;
-                    }
-
-                    if (y.Action == TradingAction.CloseLong)
-                    {
-                        return -1;
-                    }
-                }
-
-                if (x.SubmissionTime != y.SubmissionTime)
-                {
-                    return x.SubmissionTime.CompareTo(y.SubmissionTime);
-                }
-
-                if (x.Code != y.Code)
-                {
-                    return String.Compare(x.Code, y.Code, StringComparison.Ordinal);
-                }
-
-                if (x.InstructionId != y.InstructionId)
-                {
-                    return x.InstructionId.CompareTo(y.InstructionId);
-                }
-
-                return 0;
-            }
-        }
-
+        public double[] ObservedMetricValues { get; set; }
 
         public string Print()
         {
             return string.Format(
-                "{0},{1:u},{2:u}, {3}, {4}, {5}, {6:0.00}, {7:0.00}, {8:0.00}, {9:0.00}, {10},{11}",
+                "{0},{1:u},{2:u}, {3}, {4}, {5}, {6}, {7:0.00}, {8:0.00}, {9:0.00}, {10:0.00}, {11},{12}",
                 InstructionId,
                 SubmissionTime,
                 ExecutionTime,
                 (int)Action,
                 (int)SellingType,
                 Code,
+                Name,
                 Price,
                 Volume,
                 Commission,
                 Succeeded,
                 Error.Escape(),
                 Comments.Escape());
+        }
+
+        public Transaction()
+        {
+        }
+
+        public Transaction(Instruction instruction, double price)
+        {
+            Action = instruction.Action;
+            Commission = 0.0;
+            ExecutionTime = default(DateTime);
+            InstructionId = instruction.Id;
+            Code = instruction.TradingObject.Code;
+            Name = instruction.TradingObject.Name;
+            Succeeded = false;
+            Price = price;
+            SubmissionTime = instruction.SubmissionTime;
+            Volume = instruction.Volume;
+            Comments = instruction.Comments;
+            RelatedObjects = instruction.RelatedObjects;
+            ObservedMetricValues = instruction.ObservedMetricValues;
+
+            CloseInstruction closeInstruction = instruction as CloseInstruction;
+            if (closeInstruction != null)
+            {
+                SellingType = closeInstruction.SellingType;
+                StopLossPriceForSelling = closeInstruction.StopLossPriceForSelling;
+                PositionIdForSell = closeInstruction.PositionIdForSell;
+            }
+
+            OpenInstruction openInstruction = instruction as OpenInstruction;
+            if (openInstruction != null)
+            {
+                StopLossGapForBuying = openInstruction.StopLossGapForBuying;
+            }
         }
     }
 }

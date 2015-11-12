@@ -6,14 +6,16 @@
         private readonly MovingAverage _ma;
 
         public Oscillator(int windowSize)
-            : base(1)
+            : base(0)
         {
             _ma = new MovingAverage(windowSize);
         }
 
-        public override double Update(double dataPoint)
+        public override void Update(double dataPoint)
         {
-            return dataPoint - _ma.Update(dataPoint);
+            _ma.Update(dataPoint);
+
+            SetValue(dataPoint - _ma.Value);
         }
     }
 }

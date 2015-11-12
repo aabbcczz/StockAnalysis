@@ -14,7 +14,10 @@ namespace MetricsDefinition
         protected BarInputSerialMetric(int windowSize)
             : base(windowSize)
         {
-            _data = new CirculatedArray<Bar>(windowSize);
+            if (windowSize > 0)
+            {
+                _data = new CirculatedArray<Bar>(windowSize);
+            }
         }
     }
 }

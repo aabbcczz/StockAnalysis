@@ -1,14 +1,28 @@
 ﻿using System;
 using System.Collections.Generic;
+using TradingStrategy.Base;
 
 namespace TradingStrategy.Strategy
 {
     public sealed class EqualValuePositionSizing : GeneralPositionSizingBase
     {
-        private double _capitalOfEachPiece;
+        [Parameter(10, "权益被分割的块数，每份头寸将占有一份. 0表示自适应划分")]
+        public int PartsOfEquity { get; set; }
 
-        [Parameter(10, "资金被分割的块数，每份头寸将占有一份")]
-        public int PartsOfCapital { get; set; }
+        [Parameter(100, "自适应划分中所允许的最大划分数目")]
+        public int MaxPartsOfAdpativeAllocation { get; set; }
+
+        [Parameter(1, "自适应划分中所允许的最小划分数目")]
+        public int MinPartsOfAdpativeAllocation { get; set; }
+
+        [Parameter(1000, "最大待处理头寸数目，当待处理头寸数目超过此数时不买入任何头寸")]
+        public int MaxObjectNumberToBeEstimated { get; set; }
+
+        [Parameter(EquityEvaluationMethod.InitialEquity, "权益计算方法。0：核心权益法，1：总权益法，2：抵减总权益法，3：初始权益法，4：控制损失初始权益法，5：控制损失总权益法，6：控制损失抵减总权益法")]
+        public EquityEvaluationMethod EquityEvaluationMethod { get; set; }
+
+        [Parameter(1.0, "权益利用率，[0.0..1.0], 0.0代表自适应权益利用率")]
+        public double EquityUtilization { get; set; }
 
         public override string Name
         {
@@ -17,38 +31,77 @@ namespace TradingStrategy.Strategy
 
         public override string Description
         {
-            get { return "每份头寸占有的价值是总资金的固定比例(1/PartsOfCapital)"; }
+            get { return "每份头寸占有的价值是总权益的固定比例(1/PartsOfEquity)"; }
         }
 
         protected override void ValidateParameterValues()
         {
             base.ValidateParameterValues();
 
-            if (PartsOfCapital < 0)
+            if (PartsOfEquity < 0)
             {
-                throw new ArgumentOutOfRangeException("PartsOfCapitial must be greater than 0");
+                throw new ArgumentOutOfRangeException("PartsOfEquity must be greater than or equal to 0");
+            }
+
+            if (EquityUtilization < 0.0 || EquityUtilization > 1.0)
+            {
+                throw new ArgumentException("EquityUtilization must be in [0.0..1.0]");
             }
         }
 
-        public override void Initialize(IEvaluationContext context, IDictionary<ParameterAttribute, object> parameterValues)
+        private double GetDynamicEquityUtilization(int totalNumberOfObjectsToBeEstimated)
         {
-            base.Initialize(context, parameterValues);
-
-            var initalCapital = context.GetInitialEquity();
-            _capitalOfEachPiece = initalCapital / PartsOfCapital;
+            if (totalNumberOfObjectsToBeEstimated >= 40)
+            {
+                return 0.5;
+            }
+            if (totalNumberOfObjectsToBeEstimated >= 20)
+            {
+                return 0.6;
+            }
+            else if (totalNumberOfObjectsToBeEstimated >= 10)
+            {
+                return 0.7;
+            }
+            else if (totalNumberOfObjectsToBeEstimated >= 5)
+            {
+                return 0.8;
+            }
+            else
+            {
+                return 1.0;
+            }
         }
 
-        public override int EstimatePositionSize(ITradingObject tradingObject, double price, double stopLossGap, out string comments)
+        public override PositionSizingComponentResult EstimatePositionSize(ITradingObject tradingObject, double price, double stopLossGap, int totalNumberOfObjectsToBeEstimated)
         {
-            var currentEquity = Context.GetCurrentEquity(Period, EquityEvaluationMethod.CoreEquity);
+            var result = new PositionSizingComponentResult();
 
-            comments = string.Format(
-                "positionsize = Min(currentEquity{{0:0.000}), capitalOfEachPiece({1:0.000})) / price({2:0.000})",
+            if (totalNumberOfObjectsToBeEstimated > MaxObjectNumberToBeEstimated)
+            {
+                return result;
+            }
+
+            var currentEquity = Context.GetCurrentEquity(CurrentPeriod, EquityEvaluationMethod);
+
+            int parts = PartsOfEquity == 0
+                ? Math.Max(Math.Min(totalNumberOfObjectsToBeEstimated, MaxPartsOfAdpativeAllocation), MinPartsOfAdpativeAllocation)
+                : PartsOfEquity;
+
+            double equityUtilization = Math.Abs(EquityUtilization) < 1e-6
+                ? GetDynamicEquityUtilization(totalNumberOfObjectsToBeEstimated)
+                : EquityUtilization;
+
+            result.Comments = string.Format(
+                "positionsize = currentEquity({0:0.000}) * equityUtilization({1:0.000}) / Parts ({2}) / price({3:0.000})",
                 currentEquity,
-                _capitalOfEachPiece,
+                equityUtilization,
+                parts,
                 price);
 
-            return (int)(Math.Min(currentEquity, _capitalOfEachPiece) / price);
+            result.PositionSize = (int)(currentEquity * equityUtilization / parts / price);
+
+            return result;
         }
     }
 }

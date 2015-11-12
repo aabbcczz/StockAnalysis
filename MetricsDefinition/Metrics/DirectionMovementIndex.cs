@@ -23,9 +23,11 @@ namespace MetricsDefinition.Metrics
             _msTr = new MovingSum(windowSize);
             _maDx = new MovingAverage(windowSize);
             _adx = new CirculatedArray<double>(windowSize);
+
+            Values = new double[4];
         }
 
-        public override double[] Update(Bar bar)
+        public override void Update(Bar bar)
         {
             // calculate +DM and -DM
             double pdm, ndm;
@@ -68,9 +70,12 @@ namespace MetricsDefinition.Metrics
             }
 
             // calculate +DIM and -DIM
-            var mspdm = _msPdm.Update(pdm);
-            var msndm = _msNdm.Update(ndm);
-            var mstr = _msTr.Update(tr);
+            _msPdm.Update(pdm);
+            _msNdm.Update(ndm);
+            _msTr.Update(tr);
+            var mspdm = _msPdm.Value;
+            var msndm = _msNdm.Value;
+            var mstr = _msTr.Value;
 
             var pdim = mspdm * 100.0 / mstr;
             var ndim = msndm * 100.0 / mstr;
@@ -79,7 +84,8 @@ namespace MetricsDefinition.Metrics
             var dx = Math.Abs((pdim + ndim)) < 1e-6 ? 0.0 : Math.Abs(pdim - ndim) / (pdim + ndim);
             dx *= 100.0;
 
-            var adx = _maDx.Update(dx);
+            _maDx.Update(dx);
+            var adx = _maDx.Value;
 
             // calculate ADXR
             _adx.Add(adx);
@@ -90,7 +96,7 @@ namespace MetricsDefinition.Metrics
             _firstBar = false;
 
             // return result
-            return new[] { pdim, ndim, adx, adxr };
+            SetValue(pdim, ndim, adx, adxr);
         }
     }
 }

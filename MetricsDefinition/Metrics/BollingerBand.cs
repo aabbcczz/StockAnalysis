@@ -11,7 +11,7 @@ namespace MetricsDefinition.Metrics
         private readonly StdDev _sd;
 
         public BollingerBand(int windowSize, double alpha)
-            : base(1)
+            : base(0)
         {
             if (alpha <= 0.0)
             {
@@ -22,17 +22,22 @@ namespace MetricsDefinition.Metrics
 
             _ma = new MovingAverage(windowSize);
             _sd = new StdDev(windowSize);
+
+            Values = new double[3];
         }
 
-        public override double[] Update(double dataPoint)
+        public override void Update(double dataPoint)
         {
-            var ma = _ma.Update(dataPoint);
-            var stddev = _sd.Update(dataPoint);
+            _ma.Update(dataPoint);
+            var ma = _ma.Value;
+
+            _sd.Update(dataPoint);
+            var stddev = _sd.Value;
 
             var upperBound = ma + _alpha * stddev;
             var lowerBound = ma - _alpha * stddev;
 
-            return new[] { upperBound, ma, lowerBound };
+            SetValue(upperBound, ma, lowerBound);
         }
     }
 }

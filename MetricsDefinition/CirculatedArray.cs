@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace MetricsDefinition
 {
@@ -13,22 +15,30 @@ namespace MetricsDefinition
 
         public int Length { get { return _length; } }
 
+        public IEnumerable<T> InternalData
+        {
+            get { return _storage; }
+        }
+
         public T this[int index]
         {
             get 
-            { 
-                if (index < -_length || index >= _length)
+            {
+                unchecked
                 {
-                    throw new IndexOutOfRangeException();
-                }
+                    if (index < -_length || index >= _length)
+                    {
+                        throw new IndexOutOfRangeException();
+                    }
 
-                if (index < 0)
-                {
-                    index += _length;
-                }
+                    if (index < 0)
+                    {
+                        index += _length;
+                    }
 
-                index = (_startIndex + index) % _length;
-                return _storage[index]; 
+                    index = (_startIndex + index) % _length;
+                    return _storage[index];
+                }
             }
         }
 		
@@ -48,31 +58,34 @@ namespace MetricsDefinition
 
         public void Add(T value)
         {
-            // special case for adding first value.
-            if (_length == 0)
+            unchecked
             {
-                _storage[0] = value;
-                _endIndex = 0;
-                _length = 1;
+                // special case for adding first value.
+                if (_length == 0)
+                {
+                    _storage[0] = value;
+                    _endIndex = 0;
+                    _length = 1;
 
-                return;
+                    return;
+                }
+
+                if (_length < _capacity)
+                {
+                    ++_endIndex;
+                    ++_length;
+                }
+                else
+                {
+                    ++_startIndex;
+                    ++_endIndex;
+
+                    _startIndex %= _capacity;
+                    _endIndex %= _capacity;
+                }
+
+                _storage[_endIndex] = value;
             }
-
-            if (_length < _capacity)
-            {
-                ++_endIndex;
-                ++_length;
-            }
-            else
-            {
-                ++_startIndex;
-                ++_endIndex;
-
-                _startIndex %= _capacity;
-                _endIndex %= _capacity;
-            }
-
-            _storage[_endIndex] = value;
         }
 	}
 }

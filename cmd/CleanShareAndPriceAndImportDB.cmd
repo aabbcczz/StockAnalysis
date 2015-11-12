@@ -1,10 +1,12 @@
-..\bin\CleanCsv.exe ..\data\shares.txt ..\data\shares.csv
+CALL SetEnvironment.cmd
+
+%BINROOT%\CleanCsv.exe %STOCKROOT%\data\shares.txt %STOCKROOT%\data\shares.csv
 
 IF ERRORLEVEL 0 (
-..\bin\ImportTable.exe -c ..\data\shares.csv
+%BINROOT%\ImportTable.exe -c %STOCKROOT%\data\shares.csv
 )
 
-..\bin\CleanCsv.exe ..\data\prices.txt ..\data\prices.csv
+%BINROOT%\CleanCsv.exe %STOCKROOT%\data\prices.txt %STOCKROOT%\data\prices.csv
 IF ERRORLEVEL 0 (
-..\bin\ImportTable.exe -c ..\data\prices.csv
+%BINROOT%\ImportTable.exe -c %STOCKROOT%\data\prices.csv
 )

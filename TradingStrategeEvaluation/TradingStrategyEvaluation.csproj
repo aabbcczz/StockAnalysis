@@ -57,6 +57,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BlockTradingDetailSummarizer.cs" />
     <Compile Include="ChinaStock.cs" />
     <Compile Include="ChinaStockDataAccessor.cs" />
     <Compile Include="ChinaStockDataProvider.cs" />
@@ -66,15 +67,24 @@
     <Compile Include="CombinedStrategySettings.cs" />
     <Compile Include="EquityManager.cs" />
     <Compile Include="EquityPoint.cs" />
+    <Compile Include="EvaluationProgressEventArgs.cs" />
+    <Compile Include="FileDataDumper.cs" />
     <Compile Include="FileLogger.cs" />
+    <Compile Include="GenericRuntimeMetric.cs" />
+    <Compile Include="ICapitalManager.cs" />
     <Compile Include="MemoryLogger.cs" />
-    <Compile Include="MetricCalculator.cs" />
+    <Compile Include="SerializableParameterValues.cs" />
+    <Compile Include="AdvancedCapitalManager.cs" />
+    <Compile Include="SimpleCapitalManager.cs" />
+    <Compile Include="StandardGroupRuntimeMetricManager.cs" />
+    <Compile Include="StandardRuntimeMetricManager.cs" />
+    <Compile Include="TradeMetricsCalculator.cs" />
     <Compile Include="ParameterSettings.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="StandardEvaluationContext.cs" />
     <Compile Include="TradeMetric.cs" />
+    <Compile Include="TradingStrategyPredicator.cs" />
     <Compile Include="TradingTracker.cs" />
-    <Compile Include="TradingPriceOption.cs" />
     <Compile Include="TradingSettings.cs" />
     <Compile Include="TradingStrategyComponentSettings.cs" />
     <Compile Include="TradingStrategyEvaluator.cs" />

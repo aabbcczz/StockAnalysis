@@ -1,2 +1,4 @@
-dir /s /b ..\ProcessedLatestDailyData\ExcludeRight\*.* > ..\ProcessedLatestDailyDataFileList.txt
-..\bin\GenerateMetrics -l ..\ProcessedLatestDailyDataFileList.txt -o ..\ProcessedLatestDailyData\ExcludeRightMetrics
+CALL SetEnvironment.cmd
+
+dir /s /b %STOCKROOT%\ProcessedLatestDailyData\IncludeRight\*.* > %STOCKROOT%\ProcessedLatestDailyDataFileList.txt
+%BINROOT%\GenerateMetrics -l %STOCKROOT%\ProcessedLatestDailyDataFileList.txt -o %STOCKROOT%\ProcessedLatestDailyData\IncludeRightMetrics -m %STOCKROOT%\metricsDefinition.txt

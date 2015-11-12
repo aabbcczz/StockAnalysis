@@ -3,17 +3,26 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.IO;
+using System.Text;
+
 using CommandLine;
 using StockAnalysis.Share;
 using TradingStrategy;
 using TradingStrategy.Strategy;
 using TradingStrategyEvaluation;
+using TradingStrategy.Base;
+
+using System.Threading;
+using CsvHelper;
 
 namespace EvaluatorCmdClient
 {
     static class Program
     {
         private static EvaluationResultContextManager _contextManager;
+        private static long _totalNumberOfStrategies = 0;
+        private static long _numberOfEvaluatedStrategies = 0;
+        private static bool _toBeStopped = false;
 
         static void Main(string[] args)
         {
@@ -47,6 +56,12 @@ namespace EvaluatorCmdClient
                 ErrorExit("Initial capital must be greater than 0.0");
             }
 
+            if (options.ProportionOfCapitalForIncrementalPosition < 0.0 
+                || options.ProportionOfCapitalForIncrementalPosition > 1.0)
+            {
+                ErrorExit("Proportion of caption for incremental position must be in [0.0..1.0]");
+            }
+
             if (string.IsNullOrWhiteSpace(options.StockDataSettingsFile))
             {
                 ErrorExit("Stock data settings file is empty string");
@@ -68,21 +83,113 @@ namespace EvaluatorCmdClient
             }
         }
 
-        static void GenerateExampleFiles(Options options)
+        static string AddPrefixToFileName(string fileName, string prefix)
         {
-            var tradingSettings = TradingSettings.GenerateExampleSettings();
-            tradingSettings.SaveToFile(options.TradingSettingsFile);
-
-            var combinedStrategySettings = CombinedStrategySettings.GenerateExampleSettings();
-            combinedStrategySettings.SaveToFile(options.CombinedStrategySettingsFile);
-
-            var stockDataSettings = ChinaStockDataSettings.GenerateExampleSettings();
-            stockDataSettings.SaveToFile(options.StockDataSettingsFile);
+            string trueFileName = prefix + Path.GetFileName(fileName);
+            return Path.Combine(Path.GetDirectoryName(fileName), trueFileName);
         }
 
-        static string[] LoadCodeOfStocks(string codeFile)
+        static void GenerateExampleFiles(Options options)
         {
-            return File.ReadAllLines(codeFile).Where(s => !string.IsNullOrWhiteSpace(s)).ToArray();
+            string prefix = "gen.";
+
+            var tradingSettings = TradingSettings.GenerateExampleSettings();
+            tradingSettings.SaveToFile(AddPrefixToFileName(options.TradingSettingsFile, prefix));
+
+            var combinedStrategySettings = CombinedStrategySettings.GenerateExampleSettings();
+            combinedStrategySettings.SaveToFile(AddPrefixToFileName(options.CombinedStrategySettingsFile, prefix));
+
+            var stockDataSettings = ChinaStockDataSettings.GenerateExampleSettings();
+            stockDataSettings.SaveToFile(AddPrefixToFileName(options.StockDataSettingsFile, prefix));
+        }
+
+        static IEnumerable<string> LoadCodeOfStocks(string codeFile)
+        {
+            var codes = File.ReadAllLines(codeFile)
+                .Where(s => !string.IsNullOrWhiteSpace(s))
+                .Select(s => StockName.NormalizeCode(s))
+                .OrderBy(s => s)
+                .ToArray();
+
+            return codes;
+        }
+
+        static StockBlockRelationshipManager LoadStockBlockRelationship(string relationshipFile)
+        {
+            var relationships = StockBlockRelationship.LoadFromFile(relationshipFile);
+
+            return new StockBlockRelationshipManager(relationships);
+        }
+
+        static IEnumerable<Tuple<DateTime, DateTime>> GenerateIntervals(DateTime startDate, DateTime endDate, int yearInterval)
+        {
+            if (yearInterval <= 0)
+            {
+                yearInterval = 1000; // a big enough interval
+            }
+
+            DateTime actualEndDate;
+            do
+            {
+                actualEndDate = startDate.AddYears(yearInterval).AddDays(-1);
+                if (actualEndDate >= endDate)
+                {
+                    actualEndDate = endDate;
+                }
+
+                yield return Tuple.Create(startDate, actualEndDate);
+
+                startDate = startDate.AddMonths(3);
+                if (startDate >= endDate)
+                {
+                    yield break;
+                }
+            } while (actualEndDate < endDate);
+        }
+
+        static void SetTotalStrategyNumber(long number)
+        {
+            Interlocked.CompareExchange(ref _totalNumberOfStrategies, number, 0);
+        }
+
+        static void IncreaseProgress()
+        {
+            long numberOfEvaluatedStrategies 
+                = Interlocked.Increment(ref _numberOfEvaluatedStrategies);
+
+            long totalNumberOfEvaluatedStrategies 
+                = Interlocked.CompareExchange(ref _totalNumberOfStrategies, 0, 0);
+
+            if (numberOfEvaluatedStrategies % 5 == 0)
+            {
+                GC.Collect();
+            }
+
+            Console.Write(
+                "\r{0}/{1} ({2}%)",
+                numberOfEvaluatedStrategies,
+                totalNumberOfEvaluatedStrategies,
+                (long)numberOfEvaluatedStrategies * 100 / totalNumberOfEvaluatedStrategies);
+        }
+
+        static void DumpData(ITradingDataProvider provider)
+        {
+            string outputFileName = @"dump.csv";
+
+            using (var writer = new StreamWriter(outputFileName, false, System.Text.Encoding.UTF8))
+            {
+                var codes = provider.GetAllTradingObjects().Select(o => o.Code).ToArray();
+
+                writer.WriteLine(string.Join(",", codes));
+
+                foreach (var period in provider.GetAllPeriodsOrdered())
+                {
+                    var data = provider.GetDataOfPeriod(period);
+                    var dataStrings = data.Select(d => string.Format("{0:0.0000}", d.ClosePrice)).ToArray();
+
+                    writer.WriteLine(string.Join(",", dataStrings));
+                }
+            }
         }
 
         static void Run(Options options)
@@ -97,6 +204,7 @@ namespace EvaluatorCmdClient
                 return;
             }
 
+            // register handler for Ctrl+C/Ctrl+Break
             Console.CancelKeyPress += ConsoleCancelKeyPress;
 
             // load settings from files
@@ -104,23 +212,46 @@ namespace EvaluatorCmdClient
             var combinedStrategySettings = CombinedStrategySettings.LoadFromFile(options.CombinedStrategySettingsFile);
             var stockDataSettings = ChinaStockDataSettings.LoadFromFile(options.StockDataSettingsFile);
 
-            // initialize combined strategy assembler
-            var combinedStrategyAssembler = new CombinedStrategyAssembler(combinedStrategySettings);
-            
-            // load codes and stock name table, and initialize data provider
+            // load codes and stock name table
             var stockNameTable = new StockNameTable(stockDataSettings.StockNameTableFile);
             var codes = LoadCodeOfStocks(options.CodeFile);
-            var dataFiles = codes
+
+            // load stock block relationship if necessary, and filter codes
+            StockBlockRelationshipManager stockBlockRelationshipManager = null;
+            if (!string.IsNullOrWhiteSpace(options.StockBlockRelationshipFile))
+            {
+                stockBlockRelationshipManager = LoadStockBlockRelationship(options.StockBlockRelationshipFile);
+
+                // filter stock block relationship for loaded codes only
+                stockBlockRelationshipManager = stockBlockRelationshipManager.CreateSubsetForStocks(codes);
+
+                // codes will be updated according to stock-block relationships
+                codes = stockBlockRelationshipManager.Stocks;
+            }
+
+            var allDataFiles = codes
                 .Select(stockDataSettings.BuildActualDataFilePathAndName)
                 .ToArray();
 
-            var dataProvider 
-                = new ChinaStockDataProvider(
-                    stockNameTable,
-                    dataFiles,
-                    options.StartDate,
-                    options.EndDate,
-                    options.WarmupPeriods);
+            // dump data for temporary usage, will be commented out in real code
+            // create data provider
+            //var dumpDataProvider
+            //    = new ChinaStockDataProvider(
+            //        stockNameTable,
+            //        allDataFiles,
+            //        options.StartDate,
+            //        options.EndDate,
+            //        0);
+
+            //DumpData(dumpDataProvider);
+            
+            // generate evaluation time intervals
+            var intervals = 
+                GenerateIntervals(
+                    options.StartDate, 
+                    options.EndDate, 
+                    options.YearInterval)
+                .ToArray();
 
             using (_contextManager = new EvaluationResultContextManager(options.EvaluationName))
             {
@@ -132,52 +263,122 @@ namespace EvaluatorCmdClient
                     DataSettings = stockDataSettings,
                     StartTime = options.StartDate,
                     EndTime = options.EndDate,
+                    YearInterval = options.YearInterval,
                     ObjectNames = codes
-                        .Select(c => stockNameTable.ContainsStock(c) 
-                            ? c + '|' + stockNameTable[c].Names[0] 
+                        .Select(c => stockNameTable.ContainsStock(c)
+                            ? c + '|' + stockNameTable[c].Names[0]
                             : c)
                         .ToArray()
                 };
 
                 _contextManager.SaveEvaluationSummary(evaluationSummary);
 
-                var strategyInstances
-                    = new List<Tuple<CombinedStrategy, IDictionary<ParameterAttribute, object>>>();
-
-                IDictionary<ParameterAttribute, object> values;
-                while ((values = combinedStrategyAssembler.GetNextSetOfParameterValues()) != null)
-                {
-                    var strategy = combinedStrategyAssembler.NewStrategy();
-
-                    strategyInstances.Add(Tuple.Create(strategy, values));
-                }
-
-                if (strategyInstances.Count > 0)
-                {
-                    // initialize ResultSummary
-                    ResultSummary.Initialize(strategyInstances.First().Item2);
-                }
-
-                try
-                {
-                    Parallel.ForEach(
-                        strategyInstances,
-                        // below line is for performance profiling only.
-                        // new ParallelOptions() { MaxDegreeOfParallelism = 1 }, 
-                        t => EvaluateStrategy(
-                                _contextManager,
-                                t.Item1,
-                                t.Item2,
-                                options.InitialCapital,
-                                dataProvider,
-                                tradingSettings));
-                }
-                finally
-                {
-                    lock (_contextManager)
+                Action<Tuple<DateTime, DateTime>> evaluatingAction = 
+                    (Tuple<DateTime, DateTime> interval) =>
                     {
-                        // save result summary
-                        _contextManager.SaveResultSummaries();
+                        if (_toBeStopped)
+                        {
+                            return;
+                        }
+
+                        // initialize data provider
+                        var dataProvider
+                            = new ChinaStockDataProvider(
+                                stockNameTable,
+                                allDataFiles,
+                                interval.Item1, // interval start date
+                                interval.Item2, // interval end date
+                                options.WarmupPeriods);
+
+                        var finalCodes = dataProvider.GetAllTradingObjects().Select(to => to.Code);
+                        var filteredStockBlockRelationshipManager = stockBlockRelationshipManager == null 
+                            ? null 
+                            : stockBlockRelationshipManager.CreateSubsetForStocks(finalCodes);
+
+                        // initialize combined strategy assembler
+                        var combinedStrategyAssembler = new CombinedStrategyAssembler(combinedStrategySettings, true);
+
+                        var strategyInstances
+                            = new List<Tuple<CombinedStrategy, IDictionary<ParameterAttribute, object>>>();
+
+                        IDictionary<ParameterAttribute, object> values;
+                        while ((values = combinedStrategyAssembler.GetNextSetOfParameterValues()) != null)
+                        {
+                            var strategy = combinedStrategyAssembler.NewStrategy();
+
+                            strategyInstances.Add(Tuple.Create(strategy, values));
+                        }
+
+                        if (strategyInstances.Any())
+                        {
+                            // initialize ResultSummary
+                            ResultSummary.Initialize(strategyInstances.First().Item2, options.EnableERatioOutput);
+                        }
+
+                        SetTotalStrategyNumber(intervals.Count() * strategyInstances.Count());
+
+                        try
+                        {
+                            Parallel.For(
+                                0, 
+                                strategyInstances.Count,
+                                // below line is for performance profiling only.
+                                new ParallelOptions() { MaxDegreeOfParallelism = Environment.ProcessorCount * 2 }, 
+                                t =>
+                                {
+                                    if (_toBeStopped)
+                                    {
+                                        return;
+                                    }
+
+                                    ICapitalManager capitalManager = options.ProportionOfCapitalForIncrementalPosition > 0.0
+                                        ? (ICapitalManager)new AdvancedCapitalManager(options.InitialCapital, options.ProportionOfCapitalForIncrementalPosition)
+                                        : (ICapitalManager)new SimpleCapitalManager(options.InitialCapital)
+                                        ;
+
+                                    EvaluateStrategy(
+                                         _contextManager,
+                                         strategyInstances[t].Item1,
+                                         strategyInstances[t].Item2,
+                                         interval.Item1,
+                                         interval.Item2,
+                                         capitalManager,
+                                         dataProvider,
+                                         filteredStockBlockRelationshipManager,
+                                         options.ShouldDumpData,
+                                         tradingSettings);
+
+                                    IncreaseProgress();
+
+                                    // reset the strategy object to ensure the referred IEvaluationContext object being
+                                    // released, otherwise it will never be released until all strategies are evaluated.
+                                    // This is a bug hid for long time.
+                                    strategyInstances[t] = null;
+                                });
+                        }
+                        catch
+                        {
+                            _toBeStopped = true;
+                        }
+                        finally
+                        {
+                            lock (_contextManager)
+                            {
+                                // save result summary
+                                _contextManager.SaveResultSummaries();
+                            }
+                        }
+                    };
+
+                if (options.ParallelExecution)
+                {
+                    Parallel.ForEach(intervals, evaluatingAction);
+                }
+                else
+                {
+                    foreach (var interval in intervals)
+                    {
+                        evaluatingAction(interval);
                     }
                 }
             }
@@ -190,21 +391,29 @@ namespace EvaluatorCmdClient
 
         private static void ConsoleCancelKeyPress(object sender, ConsoleCancelEventArgs e)
         {
-            if (_contextManager != null)
-            {
-                lock (_contextManager)
-                {
-                    _contextManager.SaveResultSummaries();
-                }
-            }
+            //if (_contextManager != null)
+            //{
+            //    lock (_contextManager)
+            //    {
+            //        _contextManager.SaveResultSummaries();
+            //    }
+            //}
+
+            _toBeStopped = true;
+
+            e.Cancel = false;
         }
 
         private static void EvaluateStrategy(
             EvaluationResultContextManager contextManager, 
             ITradingStrategy strategy,
             IDictionary<ParameterAttribute, object> parameterValues,
-            double initialCapital,
+            DateTime startDate,
+            DateTime endDate,
+            ICapitalManager capitalManager,
             ITradingDataProvider dataProvider,
+            StockBlockRelationshipManager relationshipManager,
+            bool shouldDumpData,
             TradingSettings tradingSettings)
             //StockNameTable stockNameTable)
         {
@@ -219,14 +428,18 @@ namespace EvaluatorCmdClient
 
             using (context)
             {
+                IDataDumper dataDumper = shouldDumpData ? context.DataDumper : null;
+
                 var evaluator
                     = new TradingStrategyEvaluator(
-                        initialCapital,
+                        capitalManager,
                         strategy,
                         parameterValues,
                         dataProvider,
+                        relationshipManager,
                         tradingSettings,
-                        context.Logger);
+                        context.Logger,
+                        dataDumper);
 
                 //EventHandler<EvaluationProgressEventArgs> evaluationProgressHandler =
                 //    (object obj, EvaluationProgressEventArgs e) =>
@@ -254,10 +467,11 @@ namespace EvaluatorCmdClient
                 }
 
                 var calculator
-                    = new MetricCalculator(
+                    = new TradeMetricsCalculator(
                         //stockNameTable,
                         evaluator.Tracker,
-                        dataProvider);
+                        dataProvider,
+                        tradingSettings);
 
                 var metrics = calculator.Calculate();
 
@@ -265,20 +479,27 @@ namespace EvaluatorCmdClient
                 var tradeMetrics = metrics as TradeMetric[] ?? metrics.ToArray();
                 var overallMetric = tradeMetrics.First(m => m.Code == TradeMetric.CodeForAll);
 
+                // summarize block related data
+                BlockTradingDetailSummarizer summarizer = new BlockTradingDetailSummarizer(evaluator.Tracker, dataProvider);
+                var details = summarizer.Summarize();
+
                 // save results
-                context.SaveResults(parameterValues, tradeMetrics, evaluator.ClosedPositions);
+                context.SaveResults(parameterValues, tradeMetrics, evaluator.ClosedPositions, details);
 
                 // create result summary;
                 var resultSummary = new ResultSummary();
-                resultSummary.Initialize(context, parameterValues, overallMetric);
+                resultSummary.Initialize(
+                    context, 
+                    parameterValues,
+                    startDate,
+                    endDate,
+                    overallMetric);
 
                 lock (contextManager)
                 {
                     contextManager.AddResultSummary(resultSummary);
                 }
-            }
-
-            Console.Write(".");
+             }
         }
     }
 }

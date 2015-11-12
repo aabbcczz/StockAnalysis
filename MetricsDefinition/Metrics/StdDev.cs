@@ -10,11 +10,11 @@ namespace MetricsDefinition.Metrics
         {
         }
 
-        public override double Update(double dataPoint)
+        public override void Update(double dataPoint)
         {
             Data.Add(dataPoint);
 
-            return CalculateStdDev();
+            Values[0] = CalculateStdDev();
         }
 
         private double CalculateStdDev()

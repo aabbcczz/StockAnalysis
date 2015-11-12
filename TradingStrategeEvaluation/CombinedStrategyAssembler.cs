@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using TradingStrategy;
 using TradingStrategy.Strategy;
+using TradingStrategy.Base;
 
 namespace TradingStrategyEvaluation
 {
@@ -22,10 +23,11 @@ namespace TradingStrategyEvaluation
             = new List<ParameterValueSelector>();
 
         private bool _endPermutation;
+        private readonly bool _allowRemovingInstructionRandomly;
 
         public long NumberOfParmeterValueCombinations { get; private set; }
 
-        public CombinedStrategyAssembler(CombinedStrategySettings settings)
+        public CombinedStrategyAssembler(CombinedStrategySettings settings, bool allowRemovingInstructionRandomly)
         {
             if (settings == null)
             {
@@ -38,6 +40,8 @@ namespace TradingStrategyEvaluation
             {
                 throw new ArgumentException("No trading strategy component is enabled in settings");
             }
+
+            _allowRemovingInstructionRandomly = allowRemovingInstructionRandomly;
 
             // verify if component settings can be used for creating new combined strategy
             try
@@ -161,10 +165,17 @@ namespace TradingStrategyEvaluation
         {
             foreach (var settings in _componentSettings)
             {
-                if (Type.GetType(settings.ClassType, false) == null)
+                var classType = Type.GetType(settings.ClassType, false);
+                if (classType == null)
                 {
                     throw new InvalidOperationException(
                         string.Format("{0} is not valid type", settings.ClassType));
+                }
+
+                if (Attribute.IsDefined(classType, typeof(DeprecatedStrategyAttribute)))
+                {
+                    throw new InvalidOperationException(
+                        string.Format("{0} is deprecated", settings.ClassType));
                 }
             }
 
@@ -178,7 +189,7 @@ namespace TradingStrategyEvaluation
 
         public CombinedStrategy NewStrategy()
         {
-            var strategy = new CombinedStrategy(CreateComponents());
+            var strategy = new CombinedStrategy(CreateComponents(), _allowRemovingInstructionRandomly);
 
             return strategy;
         }

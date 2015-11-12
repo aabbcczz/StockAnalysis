@@ -1,5 +1,7 @@
-..\bin\CalcMarketValue.exe -s ..\data\shares.txt -p ..\data\prices.txt -o ..\data\marketvalue.csv
+CALL SetEnvironment.cmd
+
+%BINROOT%\CalcMarketValue.exe -s %STOCKROOT%\data\shares.txt -p %STOCKROOT%\data\prices.txt -o %STOCKROOT%\data\marketvalue.csv
 
 IF ERRORLEVEL 0 (
-..\bin\ImportTable.exe -c ..\data\marketvalue.csv
+%BINROOT%\ImportTable.exe -c %STOCKROOT%\data\marketvalue.csv
 )

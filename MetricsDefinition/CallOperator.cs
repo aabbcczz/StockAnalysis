@@ -8,6 +8,11 @@ namespace MetricsDefinition
         private readonly StandaloneMetric _caller;
         private readonly MetricExpression _callee;
 
+        public override double[] Values
+        {
+            get { return _caller.Values; }
+        }
+
         public override string[] FieldNames
         {
             get { return _caller.FieldNames; }
@@ -25,56 +30,64 @@ namespace MetricsDefinition
             _callee = callee;
         }
 
-        public override double SingleOutputUpdate(double data)
+        public override void SingleOutputUpdate(double data)
         {
             if (_callee.FieldNames.Length <= 1)
             {
-                double calleeResult = _callee.SingleOutputUpdate(data);
+                _callee.SingleOutputUpdate(data);
 
-                return _caller.SingleOutputUpdate(calleeResult);
+                _caller.SingleOutputUpdate(_callee.Value);
             }
-
-            throw new InvalidOperationException(
-                "callee has multiple outputs, and caller can't handle it");
+            else
+            {
+                throw new InvalidOperationException(
+                    "callee has multiple outputs, and caller can't handle it");
+            }
         }
 
-        public override double[] MultipleOutputUpdate(double data)
+        public override void MultipleOutputUpdate(double data)
         {
             if (_callee.FieldNames.Length <= 1)
             {
-                double calleeResult = _callee.SingleOutputUpdate(data);
+                _callee.SingleOutputUpdate(data);
 
-                return _caller.MultipleOutputUpdate(calleeResult);
+                _caller.MultipleOutputUpdate(_callee.Value);
             }
-
-            throw new InvalidOperationException(
-                "callee has multiple outputs, and caller can't handle it");
+            else
+            {
+                throw new InvalidOperationException(
+                    "callee has multiple outputs, and caller can't handle it");
+            }
         }
 
-        public override double SingleOutputUpdate(Bar data)
+        public override void SingleOutputUpdate(Bar data)
         {
             if (_callee.FieldNames.Length <= 1)
             {
-                double calleeResult = _callee.SingleOutputUpdate(data);
+                _callee.SingleOutputUpdate(data);
 
-                return _caller.SingleOutputUpdate(calleeResult);
+                _caller.SingleOutputUpdate(_callee.Value);
             }
-
-            throw new InvalidOperationException(
-                "callee has multiple outputs, and caller can't handle it");
+            else
+            {
+                throw new InvalidOperationException(
+                    "callee has multiple outputs, and caller can't handle it");
+            }
         }
 
-        public override double[] MultipleOutputUpdate(Bar data)
+        public override void MultipleOutputUpdate(Bar data)
         {
             if (_callee.FieldNames.Length <= 1)
             {
-                double calleeResult = _callee.SingleOutputUpdate(data);
+                _callee.SingleOutputUpdate(data);
 
-                return _caller.MultipleOutputUpdate(calleeResult);
+                _caller.MultipleOutputUpdate(_callee.Value);
             }
-
-            throw new InvalidOperationException(
-                "callee has multiple outputs, and caller can't handle it");
+            else
+            {
+                throw new InvalidOperationException(
+                    "callee has multiple outputs, and caller can't handle it");
+            }
         }
     }
 }

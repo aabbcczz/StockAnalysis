@@ -11,6 +11,7 @@ namespace EvaluatorCmdClient
         public ChinaStockDataSettings DataSettings { get; set; }
         public DateTime StartTime { get; set; }
         public DateTime EndTime { get; set; }
+        public int YearInterval { get; set; }
         public string[] ObjectNames { get; set; }
     }
 }

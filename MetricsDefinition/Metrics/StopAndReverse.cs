@@ -43,13 +43,14 @@ namespace MetricsDefinition.Metrics
             _accelerateFactor = _initialAccelerateFactor;
         }
 
-        public override double Update(Bar bar)
+        public override void Update(Bar bar)
         {
             if (Data.Length < WindowSize)
             {
                 UpdateInternal(bar);
 
-                return 0.0;
+                SetValue(0.0);
+                return;
             }
 
             if (!_initialized)
@@ -93,14 +94,18 @@ namespace MetricsDefinition.Metrics
 
             _ep = _ascending ? _highestPrice : _lowestPrice;
 
-            return _sar;
+            SetValue(_sar);
         }
 
         private void UpdateInternal(Bar bar)
         {
             Data.Add(bar);
-            _highestPrice = _highestMetric.Update(bar.HighestPrice);
-            _lowestPrice = _lowestMetric.Update(bar.LowestPrice);
+
+            _lowestMetric.Update(bar.LowestPrice);
+            _lowestPrice = _lowestMetric.Value;
+
+            _highestMetric.Update(bar.HighestPrice);
+            _highestPrice = _highestMetric.Value;
         }
     }
 }
