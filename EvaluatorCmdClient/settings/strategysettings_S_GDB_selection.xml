@@ -588,7 +588,7 @@
         </ParameterSettings>
       </ComponentParameterSettings>
     </TradingStrategyComponentSettings>
-    <TradingStrategyComponentSettings Enabled="true" Name="第一天亏损退出">
+    <TradingStrategyComponentSettings Enabled="false" Name="第一天亏损退出">
       <ClassType>TradingStrategy.Strategy.FirstDayLossMarketExiting, TradingStrategy, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</ClassType>
       <Description>当头寸持有第一天就亏损则退出市场</Description>
       <ImplementedInterfaces>ITradingStrategyComponent;IMarketExitingComponent</ImplementedInterfaces>
@@ -795,7 +795,7 @@
           <Description>最小亏损百分比，当亏损大于此值时退出</Description>
           <ValueType>System.Double, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
           <DefaultValue xsi:type="xsd:double">0</DefaultValue>
-          <Values>2.4</Values>
+          <Values>2.3</Values>
         </ParameterSettings>
         <ParameterSettings>
           <Name>ExitingPeriod</Name>
@@ -994,7 +994,7 @@
           <Description>权益利用率，[0.0..1.0], 0.0代表自适应权益利用率</Description>
           <ValueType>System.Double, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
           <DefaultValue xsi:type="xsd:double">1</DefaultValue>
-          <Values>1.0</Values>
+          <Values>1</Values>
         </ParameterSettings>
       </ComponentParameterSettings>
     </TradingStrategyComponentSettings>
@@ -1124,7 +1124,7 @@
         </ParameterSettings>
       </ComponentParameterSettings>
     </TradingStrategyComponentSettings>	
-    <TradingStrategyComponentSettings Enabled="true" Name="跳空反弹策略专用买入价过滤器">
+    <TradingStrategyComponentSettings Enabled="false" Name="跳空反弹策略专用买入价过滤器">
       <ClassType>TradingStrategy.Strategy.GapDownBounceBuyPriceFiltering, TradingStrategy, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</ClassType>
       <Description>跳空反弹策略专用买入价过滤器, 要求买入价不低于给定下限，并且在之前价格区间[Lo..Cl]的位置符合要求</Description>
       <ImplementedInterfaces>ITradingStrategyComponent;IBuyPriceFilteringComponent</ImplementedInterfaces>
