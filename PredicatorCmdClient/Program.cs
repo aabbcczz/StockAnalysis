@@ -257,10 +257,38 @@ namespace PredicatorCmdClient
             {
                 predicator.Predicate();
 
+                var auxiliaryData = predicator.PredicatedTransactions
+                    .Select(
+                        transaction =>
+                        {
+                            var codeIndex = dataProvider.GetIndexOfTradingObject(transaction.Code);
+                            Bar lastBar;
+                            
+                            if (!dataProvider.GetLastEffectiveBar(codeIndex, transaction.SubmissionTime, out lastBar))
+                            {
+                                lastBar.OpenPrice = 0.0;
+                                lastBar.HighestPrice = 0.0;
+                                lastBar.LowestPrice = 0.0;
+                                lastBar.ClosePrice = 0.0;
+                            }
+
+                            return new AuxiliaryData()
+                            {
+                                Code = transaction.Code,
+                                Name = transaction.Name,
+                                OpenPrice = lastBar.OpenPrice,
+                                ClosePrice = lastBar.ClosePrice,
+                                HighestPrice = lastBar.HighestPrice,
+                                LowestPrice = lastBar.LowestPrice
+                            };
+                        });
+                    
                 context.SaveResults(
+                    dataProvider,
                     parameterValues, 
                     predicator.ActivePositions, 
-                    predicator.PredicatedTransactions);
+                    predicator.PredicatedTransactions,
+                    auxiliaryData);
             }
             catch (Exception ex)
             {

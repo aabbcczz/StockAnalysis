@@ -8,6 +8,7 @@ using System.Xml.Serialization;
 using TradingStrategy;
 using TradingStrategyEvaluation;
 using CsvHelper;
+using StockAnalysis.Share;
 
 namespace PredicatorCmdClient
 {
@@ -17,6 +18,7 @@ namespace PredicatorCmdClient
         private const string ParameterValuesFileName = "ParameterValues.xml";
         private const string PositionFileName = "Positions.csv";
         private const string TransactionsFileName = "Transactions.csv";
+        private const string AuxiliaryDataFileName = "Auxiliary.csv";
 
         public string RootDirectory { get; private set; }
 
@@ -38,9 +40,11 @@ namespace PredicatorCmdClient
         }
 
         public void SaveResults(
+            ITradingDataProvider dataProvider,
             IDictionary<ParameterAttribute, object> parameterValues,
             IEnumerable<Position> activePositions,
-            IEnumerable<Transaction> transactions)
+            IEnumerable<Transaction> transactions,
+            IEnumerable<AuxiliaryData> auxiliaryData)
         {
             // save parameter values
             var searializedParameterValues = new SerializableParameterValues();
@@ -81,6 +85,18 @@ namespace PredicatorCmdClient
                 using (var csvWriter = new CsvWriter(writer))
                 {
                     csvWriter.WriteRecords(transactions);
+                }
+            }
+
+            // save auxiliary data
+            using (var writer = new StreamWriter(
+                Path.Combine(RootDirectory, AuxiliaryDataFileName),
+                false,
+                Encoding.UTF8))
+            {
+                using (var csvWriter = new CsvWriter(writer))
+                {
+                    csvWriter.WriteRecords(auxiliaryData);
                 }
             }
         }

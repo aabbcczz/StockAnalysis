@@ -1,0 +1,6 @@
+﻿Block,MinimumUpRate,MaximumUpRate
+中创100,0,30
+中小板指,0,30
+大盘成长,0,30
+巨潮科技,0,30
+银河99,0,30
