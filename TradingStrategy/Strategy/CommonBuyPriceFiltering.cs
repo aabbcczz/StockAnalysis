@@ -38,7 +38,7 @@ namespace TradingStrategy.Strategy
             var baseValue = _metricProxy.GetMetricValues(tradingObject)[0];
 
             if (price < baseValue * PriceDownLimitPercentage / 100.0
-                || price >= baseValue * PriceUpLimitPercentage / 100.0)
+                || price > baseValue * PriceUpLimitPercentage / 100.0)
             {
                 result.Comments = string.Format(
                     "Price {0:0.000} out of [{1:0.000}%..{2:0.000}%] of metric[{3}]:{4:0.000}",

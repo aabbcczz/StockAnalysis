@@ -14,7 +14,7 @@ namespace TradingStrategy.Strategy
         private RuntimeMetricProxy _previousDayBar;
         private RuntimeMetricProxy _previousTwoDaysBar;
 
-        [Parameter(5, "移动平均趋势线周期")]
+        [Parameter(5, "移动平均趋势线周期, 0表示忽略")]
         public int MovingAveragePeriod { get; set; }
 
         [Parameter(4.0, "收盘价应当比移动平均低的最小百分比例")]
@@ -36,9 +36,16 @@ namespace TradingStrategy.Strategy
         {
             base.RegisterMetric();
 
-            _movingAverage = new RuntimeMetricProxy(
-                Context.MetricManager,
-                string.Format("MA[{0}]", MovingAveragePeriod));
+            if (MovingAveragePeriod > 0)
+            {
+                _movingAverage = new RuntimeMetricProxy(
+                    Context.MetricManager,
+                    string.Format("MA[{0}]", MovingAveragePeriod));
+            }
+            else
+            {
+                _movingAverage = null;
+            }
 
             _previousDayBar = new RuntimeMetricProxy(
                 Context.MetricManager,
@@ -103,7 +110,7 @@ namespace TradingStrategy.Strategy
             }
 
             var todayBar = Context.GetBarOfTradingObjectForCurrentPeriod(tradingObject);
-            var movingAverage = _movingAverage.GetMetricValues(tradingObject)[0];
+            double movingAverage = _movingAverage == null ? 1000000.00 : _movingAverage.GetMetricValues(tradingObject)[0];
             var previousDayBarLowest = previousDayBarValues[3];
 
             var upShadowPercentage = Math.Abs(todayBar.HighestPrice - todayBar.LowestPrice) < 1e-6
