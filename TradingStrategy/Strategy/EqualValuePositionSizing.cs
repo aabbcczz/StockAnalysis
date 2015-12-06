@@ -9,7 +9,7 @@ namespace TradingStrategy.Strategy
         [Parameter(10, "权益被分割的块数，每份头寸将占有一份. 0表示自适应划分")]
         public int PartsOfEquity { get; set; }
 
-        [Parameter(100, "自适应划分中所允许的最大划分数目")]
+        [Parameter(100, "自适应划分中所允许的最大划分数目, 0表示和MinPartsOfAdpativeAllocation保持一致")]
         public int MaxPartsOfAdpativeAllocation { get; set; }
 
         [Parameter(1, "自适应划分中所允许的最小划分数目")]
@@ -21,7 +21,7 @@ namespace TradingStrategy.Strategy
         [Parameter(EquityEvaluationMethod.InitialEquity, "权益计算方法。0：核心权益法，1：总权益法，2：抵减总权益法，3：初始权益法，4：控制损失初始权益法，5：控制损失总权益法，6：控制损失抵减总权益法")]
         public EquityEvaluationMethod EquityEvaluationMethod { get; set; }
 
-        [Parameter(1.0, "权益利用率，[0.0..1.0], 0.0代表自适应权益利用率")]
+        [Parameter(1.0, "权益利用率[0.0..1.0], 0.0代表自适应权益利用率")]
         public double EquityUtilization { get; set; }
 
         public override string Name
@@ -84,8 +84,10 @@ namespace TradingStrategy.Strategy
 
             var currentEquity = Context.GetCurrentEquity(CurrentPeriod, EquityEvaluationMethod);
 
+            var maxParts = MaxPartsOfAdpativeAllocation == 0 ? MinPartsOfAdpativeAllocation : MaxPartsOfAdpativeAllocation;
+
             int parts = PartsOfEquity == 0
-                ? Math.Max(Math.Min(totalNumberOfObjectsToBeEstimated, MaxPartsOfAdpativeAllocation), MinPartsOfAdpativeAllocation)
+                ? Math.Max(Math.Min(totalNumberOfObjectsToBeEstimated, maxParts), MinPartsOfAdpativeAllocation)
                 : PartsOfEquity;
 
             double equityUtilization = Math.Abs(EquityUtilization) < 1e-6

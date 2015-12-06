@@ -8,6 +8,8 @@ namespace TradingStrategyEvaluation
 {
     public sealed class TradingStrategyEvaluator
     {
+        private readonly int _numberOfAccounts;
+        private readonly int _accountId;
         private readonly ITradingStrategy _strategy;
         private readonly IDictionary<ParameterAttribute, object> _strategyParameterValues;
         private readonly ITradingDataProvider _provider;
@@ -22,6 +24,7 @@ namespace TradingStrategyEvaluation
         private List<Instruction> _nextPeriodInstructions = new List<Instruction>();
 
         private bool _evaluatable = true;
+        private int _activeAccountId = -1;
 
         public TradingTracker Tracker
         {
@@ -36,6 +39,8 @@ namespace TradingStrategyEvaluation
         public EventHandler<EvaluationProgressEventArgs> OnEvaluationProgress;
 
         public TradingStrategyEvaluator(
+            int numberOfAccounts,
+            int accountId,
             ICapitalManager capitalManager,
             ITradingStrategy strategy, 
             IDictionary<ParameterAttribute, object> strategyParameters, 
@@ -45,11 +50,18 @@ namespace TradingStrategyEvaluation
             ILogger logger,
             IDataDumper dumper)
         {
+            if (numberOfAccounts <= 0 || accountId < 0 || accountId >= numberOfAccounts)
+            {
+                throw new ArgumentOutOfRangeException();
+            }
+
             if (strategy == null || provider == null || settings == null)
             {
                 throw new ArgumentNullException();
             }
 
+            _numberOfAccounts = numberOfAccounts;
+            _accountId = accountId;
             _strategy = strategy;
             _strategyParameterValues = strategyParameters;
 
@@ -66,7 +78,7 @@ namespace TradingStrategyEvaluation
         {
             if (!_evaluatable)
             {
-                throw new InvalidOperationException("Evalute() can be called only once");
+                throw new InvalidOperationException("Evaluate() can be called only once");
             }
 
             // initialize context
@@ -182,6 +194,20 @@ namespace TradingStrategyEvaluation
 
                 // get instructions and add them to pending instruction list
                 var instructions = _strategy.RetrieveInstructions().ToArray();
+
+                if (instructions.Any(i => i.Action == TradingAction.OpenLong))
+                {
+                    // update active account only if there is open long instruction
+                    _activeAccountId++;
+                    _activeAccountId %= _numberOfAccounts;
+
+                    // decide if instructions should be excuted in current account
+                    if (_activeAccountId != _accountId)
+                    {
+                        // remove OpenLong instructions
+                        instructions = instructions.Where(i => i.Action != TradingAction.OpenLong).ToArray();
+                    }
+                }
 
                 if (instructions.Any())
                 {

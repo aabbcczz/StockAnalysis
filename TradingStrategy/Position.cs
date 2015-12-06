@@ -32,7 +32,7 @@ namespace TradingStrategy
 
         public double SellCommission { get; set; }
 
-        // 初始风险，即 R
+        // 初始风险, 即 R
         public double InitialRisk { get; set; }
 
         // 止损价格

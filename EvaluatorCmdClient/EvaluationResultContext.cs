@@ -38,7 +38,7 @@ namespace EvaluatorCmdClient
                 if (_dataDumper == null)
                 {
                     var dataFile = Path.Combine(RootDirectory, DumpedDataFileName);
-                    _dataDumper = new FileDataDumper(dataFile, 8);
+                    _dataDumper = new FileDataDumper(dataFile, 8, 3);
                 }
 
                 return _dataDumper;
