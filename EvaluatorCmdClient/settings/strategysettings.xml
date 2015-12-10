@@ -595,21 +595,28 @@
         </ParameterSettings>
       </ComponentParameterSettings>
     </TradingStrategyComponentSettings>
-    <TradingStrategyComponentSettings Enabled="false" Name="第一天亏损退出">
+    <TradingStrategyComponentSettings Enabled="true" Name="第一天亏损退出">
       <ClassType>TradingStrategy.Strategy.FirstDayLossMarketExiting, TradingStrategy, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</ClassType>
       <Description>当头寸持有第一天就亏损则退出市场</Description>
       <ImplementedInterfaces>ITradingStrategyComponent;IMarketExitingComponent</ImplementedInterfaces>
       <ComponentParameterSettings>
         <ParameterSettings>
           <Name>MinLossPercentage</Name>
-          <Description>最小亏损百分比，当亏损大于此值时退出</Description>
+          <Description>最小亏损百分比, 当亏损大于此值时退出</Description>
           <ValueType>System.Double, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
           <DefaultValue xsi:type="xsd:double">0</DefaultValue>
-          <Values>4.0</Values>
-        </ParameterSettings>	  
+          <Values>2.1</Values>
+        </ParameterSettings>
+        <ParameterSettings>
+          <Name>MinLossPercentageToPreviousDayClose</Name>
+          <Description>相对前一日收盘亏损百分比, 当亏损大于此值时退出</Description>
+          <ValueType>System.Double, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
+          <DefaultValue xsi:type="xsd:double">0</DefaultValue>
+          <Values>4</Values>
+        </ParameterSettings>
         <ParameterSettings>
           <Name>ExitingPeriod</Name>
-          <Description>退出周期。0/CurrentPeriod为本周期，1/NextPeriod为下周期</Description>
+          <Description>退出周期。0/CurrentPeriod为本周期, 1/NextPeriod为下周期</Description>
           <ValueType>TradingStrategy.TradingPricePeriod, TradingStrategy, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</ValueType>
           <DefaultValue xsi:type="xsd:int">1</DefaultValue>
           <Values>CurrentPeriod</Values>
@@ -799,10 +806,24 @@
       <ComponentParameterSettings>
         <ParameterSettings>
           <Name>MinLossPercentage</Name>
-          <Description>最小亏损百分比，当亏损大于此值时退出</Description>
+          <Description>最小亏损百分比, 当亏损大于此值时退出</Description>
           <ValueType>System.Double, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
           <DefaultValue xsi:type="xsd:double">0</DefaultValue>
-          <Values>2.3</Values>
+          <Values>2.2</Values>
+        </ParameterSettings>
+        <ParameterSettings>
+          <Name>MinLossPercentageOpenToFirstDayClose</Name>
+          <Description>第二天开盘相对第一天收盘最小亏损百分比, 当亏损大于此值时退出</Description>
+          <ValueType>System.Double, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
+          <DefaultValue xsi:type="xsd:double">0</DefaultValue>
+          <Values>100</Values>
+        </ParameterSettings>
+        <ParameterSettings>
+          <Name>MinLossPercentageCloseToFirstDayClose</Name>
+          <Description>第二天收盘相对第一天收盘最小亏损百分比, 当亏损大于此值时退出</Description>
+          <ValueType>System.Double, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
+          <DefaultValue xsi:type="xsd:double">0</DefaultValue>
+          <Values>3</Values>
         </ParameterSettings>
         <ParameterSettings>
           <Name>ExitingPeriod</Name>
@@ -823,13 +844,13 @@
         </ParameterSettings>
         <ParameterSettings>
           <Name>ExitingCustomPrice</Name>
-          <Description>退出价格，当ExitingPriceOption = 2/CustomPrice时有效</Description>
+          <Description>退出价格, 当ExitingPriceOption = 2/CustomPrice时有效</Description>
           <ValueType>System.Double, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
           <DefaultValue xsi:type="xsd:double">0</DefaultValue>
           <Values>0</Values>
         </ParameterSettings>
       </ComponentParameterSettings>
-    </TradingStrategyComponentSettings>	
+    </TradingStrategyComponentSettings>
     <TradingStrategyComponentSettings Enabled="false" Name="单移动平均退市">
       <ClassType>TradingStrategy.Strategy.SingleMovingAverageMarketExiting, TradingStrategy, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</ClassType>
       <Description>当收盘价和移动平均值满足触发条件时退市</Description>
@@ -851,6 +872,65 @@
         </ParameterSettings>
       </ComponentParameterSettings>
     </TradingStrategyComponentSettings>
+    <TradingStrategyComponentSettings Enabled="false" Name="第三天开盘条件退出">
+      <ClassType>TradingStrategy.Strategy.ThirdDayLossMarketExiting, TradingStrategy, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</ClassType>
+      <Description>当头寸持有第三天开盘符合条件就退出市场</Description>
+      <ImplementedInterfaces>ITradingStrategyComponent;IMarketExitingComponent</ImplementedInterfaces>
+      <ComponentParameterSettings>
+        <ParameterSettings>
+          <Name>MinLossPercentageOpenToFirstDayClose</Name>
+          <Description>第三天开盘相对第一天收盘最小亏损百分比, 当亏损大于此值时退出</Description>
+          <ValueType>System.Double, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
+          <DefaultValue xsi:type="xsd:double">0</DefaultValue>
+          <Values>100</Values>
+        </ParameterSettings>
+        <ParameterSettings>
+          <Name>MinLossPercentageOpenToFirstDayOpen</Name>
+          <Description>第三天开盘相对第一天开盘最小亏损百分比, 当亏损大于此值时退出</Description>
+          <ValueType>System.Double, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
+          <DefaultValue xsi:type="xsd:double">0</DefaultValue>
+          <Values>100</Values>
+        </ParameterSettings>
+        <ParameterSettings>
+          <Name>MinLossPercentageOpenToSecondDayClose</Name>
+          <Description>第三天开盘相对第二天收盘最小亏损百分比, 当亏损大于此值时退出</Description>
+          <ValueType>System.Double, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
+          <DefaultValue xsi:type="xsd:double">0</DefaultValue>
+          <Values>100</Values>
+        </ParameterSettings>
+        <ParameterSettings>
+          <Name>MinLossPercentageOpenToSecondDayOpen</Name>
+          <Description>第三天开盘相对第二天开盘最小亏损百分比, 当亏损大于此值时退出</Description>
+          <ValueType>System.Double, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
+          <DefaultValue xsi:type="xsd:double">0</DefaultValue>
+          <Values>100</Values>
+        </ParameterSettings>
+        <ParameterSettings>
+          <Name>ExitingPeriod</Name>
+          <Description>退出周期。0/CurrentPeriod为本周期，1/NextPeriod为下周期</Description>
+          <ValueType>TradingStrategy.TradingPricePeriod, TradingStrategy, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</ValueType>
+          <DefaultValue xsi:type="xsd:int">1</DefaultValue>
+          <Values>CurrentPeriod</Values>
+        </ParameterSettings>
+        <ParameterSettings>
+          <Name>ExitingPriceOption</Name>
+          <Description>退出价格选项。
+                    OpenPrice = 0,
+                    ClosePrice = 1,
+                    CustomPrice = 2</Description>
+          <ValueType>TradingStrategy.TradingPriceOption, TradingStrategy, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</ValueType>
+          <DefaultValue xsi:type="xsd:int">0</DefaultValue>
+          <Values>OpenPrice</Values>
+        </ParameterSettings>
+        <ParameterSettings>
+          <Name>ExitingCustomPrice</Name>
+          <Description>退出价格, 当ExitingPriceOption = 2/CustomPrice时有效</Description>
+          <ValueType>System.Double, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
+          <DefaultValue xsi:type="xsd:double">0</DefaultValue>
+          <Values>0</Values>
+        </ParameterSettings>
+      </ComponentParameterSettings>
+    </TradingStrategyComponentSettings>	
     <TradingStrategyComponentSettings Enabled="false" Name="定时后出现首次下降退出">
       <ClassType>TradingStrategy.Strategy.TimeoutAndFirstDropMarketExiting, TradingStrategy, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</ClassType>
       <Description>当头寸持有超过一段时间后，并且开盘价未跳空高开，或者收阴线，或者收盘价出现首次下降立即退出市场</Description>
