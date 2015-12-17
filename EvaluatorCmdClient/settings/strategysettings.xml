@@ -81,7 +81,14 @@
           <ValueType>System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
           <DefaultValue xsi:type="xsd:int">50</DefaultValue>
           <Values>10</Values>
-        </ParameterSettings>		
+        </ParameterSettings>
+        <ParameterSettings>
+          <Name>CloseInstructionFirst</Name>
+          <Description>优先执行卖出指令以获得资金</Description>
+          <ValueType>System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
+          <DefaultValue xsi:type="xsd:boolean">false</DefaultValue>
+          <Values>false</Values>
+        </ParameterSettings>
         <ParameterSettings>
           <Name>AllowEnteringMarketOnlyWhenPriceIncreasing</Name>
           <Description>只允许在价格上涨时出发入市信号</Description>
@@ -101,7 +108,7 @@
           <Description>观察用指标, 每个指标用，分隔</Description>
           <ValueType>System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
           <DefaultValue xsi:type="xsd:string" />
-          <Values>BARM[0.8].UPFORCE</Values>
+          <Values>BARM[0.8].PROB</Values>
         </ParameterSettings>		
       </ComponentParameterSettings>
     </TradingStrategyComponentSettings>
@@ -465,7 +472,7 @@
           <Description>允许交易日期的掩码，最低7位分别代表星期日到星期六是否允许入市。当掩码位为1时可入市</Description>
           <ValueType>System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
           <DefaultValue xsi:type="xsd:int">127</DefaultValue>
-          <Values>52</Values>
+          <Values>60;58;54;46;30</Values>
         </ParameterSettings>
       </ComponentParameterSettings>
     </TradingStrategyComponentSettings>

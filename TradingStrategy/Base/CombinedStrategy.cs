@@ -610,7 +610,11 @@ namespace TradingStrategy.Base
 
             // reconstruct instructions in current period
             _instructionsInCurrentPeriod = new List<Instruction>();
-            _instructionsInCurrentPeriod.AddRange(closeLongInstructions);
+
+            if (_globalSettings.CloseInstructionFirst)
+            {
+                _instructionsInCurrentPeriod.AddRange(closeLongInstructions);
+            }
 
             switch(_globalSettings.InstructionOrder)
             { 
@@ -624,6 +628,11 @@ namespace TradingStrategy.Base
                     break;
                 default:
                     throw new NotImplementedException(string.Format("unsupported instruction order {0}", _globalSettings.InstructionOrder));
+            }
+
+            if (!_globalSettings.CloseInstructionFirst)
+            {
+                _instructionsInCurrentPeriod.AddRange(closeLongInstructions);
             }
         }
 

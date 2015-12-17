@@ -68,6 +68,9 @@ namespace TradingStrategy.Base
         [Parameter(50, "Randomly remove instruction threshold. [0..99]")]
         public int RandomlyRemoveInstructionThreshold { get; set; }
 
+        [Parameter(false, "优先执行卖出指令以获得资金")]
+        public bool CloseInstructionFirst { get; set; }
+
         [Parameter(false, "只允许在价格上涨时出发入市信号")]
         public bool AllowEnteringMarketOnlyWhenPriceIncreasing { get; set; }
 
