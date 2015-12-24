@@ -108,7 +108,7 @@
           <Description>观察用指标, 每个指标用，分隔</Description>
           <ValueType>System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
           <DefaultValue xsi:type="xsd:string" />
-          <Values>BARM[0.8].PROB</Values>
+          <Values>BARM[0.8].UPFORCE</Values>
         </ParameterSettings>		
       </ComponentParameterSettings>
     </TradingStrategyComponentSettings>
@@ -227,7 +227,7 @@
           <Description>移动平均趋势线周期, 0表示忽略</Description>
           <ValueType>System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
           <DefaultValue xsi:type="xsd:int">5</DefaultValue>
-          <Values>7</Values>
+          <Values>6</Values>
         </ParameterSettings>
         <ParameterSettings>
           <Name>MinPercentageBelowMovingAverage</Name>
@@ -378,6 +378,34 @@
         </ParameterSettings>
       </ComponentParameterSettings>
     </TradingStrategyComponentSettings>
+    <TradingStrategyComponentSettings Enabled="true" Name="原始指标入市">
+      <ClassType>TradingStrategy.Strategy.RawMetricMarketEntering, TradingStrategy, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</ClassType>
+      <Description>当指标值和阈值满足触发条件时允许入市</Description>
+      <ImplementedInterfaces>ITradingStrategyComponent;IMarketEnteringComponent</ImplementedInterfaces>
+      <ComponentParameterSettings>
+        <ParameterSettings>
+          <Name>RawMetric</Name>
+          <Description>原始指标</Description>
+          <ValueType>System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
+          <DefaultValue xsi:type="xsd:string">ATR[20]</DefaultValue>
+          <Values>BARM[0.8].UPFORCE</Values>
+        </ParameterSettings>
+        <ParameterSettings>
+          <Name>Threshold</Name>
+          <Description>阈值</Description>
+          <ValueType>System.Double, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
+          <DefaultValue xsi:type="xsd:double">10</DefaultValue>
+          <Values>0.016</Values>
+        </ParameterSettings>
+        <ParameterSettings>
+          <Name>TriggeringCondition</Name>
+          <Description>触发条件。1表示指标值高于Threshold触发, 0表示指标值低于Threshold触发</Description>
+          <ValueType>System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
+          <DefaultValue xsi:type="xsd:int">1</DefaultValue>
+          <Values>1</Values>
+        </ParameterSettings>
+      </ComponentParameterSettings>
+    </TradingStrategyComponentSettings>	
     <TradingStrategyComponentSettings Enabled="false" Name="RSI入市">
       <ClassType>TradingStrategy.Strategy.RsiMarketEntering, TradingStrategy, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</ClassType>
       <Description>当RSI和阈值满足触发条件时允许入市</Description>
@@ -602,7 +630,7 @@
         </ParameterSettings>
       </ComponentParameterSettings>
     </TradingStrategyComponentSettings>
-    <TradingStrategyComponentSettings Enabled="true" Name="第一天亏损退出">
+    <TradingStrategyComponentSettings Enabled="false" Name="第一天亏损退出">
       <ClassType>TradingStrategy.Strategy.FirstDayLossMarketExiting, TradingStrategy, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</ClassType>
       <Description>当头寸持有第一天就亏损则退出市场</Description>
       <ImplementedInterfaces>ITradingStrategyComponent;IMarketExitingComponent</ImplementedInterfaces>
@@ -806,7 +834,7 @@
         </ParameterSettings>
       </ComponentParameterSettings>
     </TradingStrategyComponentSettings>
-    <TradingStrategyComponentSettings Enabled="true" Name="第二天亏损退出">
+    <TradingStrategyComponentSettings Enabled="false" Name="第二天亏损退出">
       <ClassType>TradingStrategy.Strategy.SecondDayLossMarketExiting, TradingStrategy, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</ClassType>
       <Description>当头寸持有第二天就亏损则退出市场</Description>
       <ImplementedInterfaces>ITradingStrategyComponent;IMarketExitingComponent</ImplementedInterfaces>
@@ -1067,7 +1095,7 @@
           <Description>自适应划分中所允许的最小划分数目</Description>
           <ValueType>System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
           <DefaultValue xsi:type="xsd:int">1</DefaultValue>
-          <Values>6</Values>
+          <Values>3</Values>
         </ParameterSettings>		
         <ParameterSettings>
           <Name>MaxObjectNumberToBeEstimated</Name>
