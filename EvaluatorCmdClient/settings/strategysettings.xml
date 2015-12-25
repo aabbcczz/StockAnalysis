@@ -630,7 +630,7 @@
         </ParameterSettings>
       </ComponentParameterSettings>
     </TradingStrategyComponentSettings>
-    <TradingStrategyComponentSettings Enabled="false" Name="第一天亏损退出">
+    <TradingStrategyComponentSettings Enabled="true" Name="第一天亏损退出">
       <ClassType>TradingStrategy.Strategy.FirstDayLossMarketExiting, TradingStrategy, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</ClassType>
       <Description>当头寸持有第一天就亏损则退出市场</Description>
       <ImplementedInterfaces>ITradingStrategyComponent;IMarketExitingComponent</ImplementedInterfaces>
@@ -640,14 +640,14 @@
           <Description>最小亏损百分比, 当亏损大于此值时退出</Description>
           <ValueType>System.Double, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
           <DefaultValue xsi:type="xsd:double">0</DefaultValue>
-          <Values>2.1</Values>
+          <Values>2.2</Values>
         </ParameterSettings>
         <ParameterSettings>
           <Name>MinLossPercentageToPreviousDayClose</Name>
           <Description>相对前一日收盘亏损百分比, 当亏损大于此值时退出</Description>
           <ValueType>System.Double, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
           <DefaultValue xsi:type="xsd:double">0</DefaultValue>
-          <Values>4</Values>
+          <Values>100</Values>
         </ParameterSettings>
         <ParameterSettings>
           <Name>ExitingPeriod</Name>
@@ -834,7 +834,7 @@
         </ParameterSettings>
       </ComponentParameterSettings>
     </TradingStrategyComponentSettings>
-    <TradingStrategyComponentSettings Enabled="false" Name="第二天亏损退出">
+    <TradingStrategyComponentSettings Enabled="true" Name="第二天亏损退出">
       <ClassType>TradingStrategy.Strategy.SecondDayLossMarketExiting, TradingStrategy, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</ClassType>
       <Description>当头寸持有第二天就亏损则退出市场</Description>
       <ImplementedInterfaces>ITradingStrategyComponent;IMarketExitingComponent</ImplementedInterfaces>
@@ -844,7 +844,7 @@
           <Description>最小亏损百分比, 当亏损大于此值时退出</Description>
           <ValueType>System.Double, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
           <DefaultValue xsi:type="xsd:double">0</DefaultValue>
-          <Values>2.2</Values>
+          <Values>0.9</Values>
         </ParameterSettings>
         <ParameterSettings>
           <Name>MinLossPercentageOpenToFirstDayClose</Name>
@@ -858,7 +858,7 @@
           <Description>第二天收盘相对第一天收盘最小亏损百分比, 当亏损大于此值时退出</Description>
           <ValueType>System.Double, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
           <DefaultValue xsi:type="xsd:double">0</DefaultValue>
-          <Values>3</Values>
+          <Values>0.8</Values>
         </ParameterSettings>
         <ParameterSettings>
           <Name>ExitingPeriod</Name>
