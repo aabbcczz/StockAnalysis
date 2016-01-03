@@ -219,3 +219,7 @@ FakesAssemblies/
 
 *.csv
 *.bak
+RealTrading/RefDlls/mfc120.dll
+RealTrading/RefDlls/msvcr120.dll
+RealTrading/RefDlls/msvcp120.dll
+RealTrading/RefDlls/trade.dll
