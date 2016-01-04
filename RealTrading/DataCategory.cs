@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace RealTrading
 {
-    public enum DataCategory : int
+    enum DataCategory : int
     {
         Capital = 0,  // 资金
         Stock = 1,   // 股票

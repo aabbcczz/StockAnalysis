@@ -54,7 +54,7 @@ namespace RealTrading
 
 
 
-    public static class TdxWrapper
+    static class TdxWrapper
     {
         //基本版
 

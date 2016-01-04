@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Threading;
 using System.Runtime.InteropServices;
 
 namespace RealTrading
@@ -78,6 +79,15 @@ namespace RealTrading
                     client.QueryData(DataCategory.MarginableSecuirty, out result, out error);
                     WriteOutput(result, error);
 
+
+                    for (;;)
+                    {
+                        client.GetQuote("000001", out result, out error);
+
+                        WriteOutput(result, error);
+
+                        Thread.Sleep(2000);
+                    }
                 }
             }
             catch (Exception ex)

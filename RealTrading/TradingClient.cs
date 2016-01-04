@@ -6,13 +6,15 @@ using System.Threading.Tasks;
 
 namespace RealTrading
 {
-    public sealed class TradingClient : IDisposable
+    sealed class TradingClient : IDisposable
     {
         public const int InvalidClientId = -1;
         private const int MaxErrorStringSize = 1024;
         private const int MaxResultStringSize = 1024 * 1024;
 
         private bool _disposed = false;
+
+        private Dictionary<Exchange, string> _shareholderCodes = new Dictionary<Exchange,string>();
 
         public int ClientId { get; private set; }
 
@@ -83,9 +85,21 @@ namespace RealTrading
             else
             {
                 ClientId = clientId;
+
+                if (!InitializeAfterLoggedOn())
+                {
+                    LogOff();
+
+                    error = "Failed to initialize client after logged on";
+                }
             }
 
             return IsLoggedOn();
+        }
+
+        private bool InitializeAfterLoggedOn()
+        {
+            return true;
         }
 
         public bool IsLoggedOn()
@@ -123,6 +137,34 @@ namespace RealTrading
             result = resultInfo.ToString();
 
             return  string.IsNullOrEmpty(error);
+        }
+
+        public bool GetQuote(string securityCode, out string result, out string error)
+        {
+            CheckDisposed();
+            CheckLoggedOn();
+
+            StringBuilder resultInfo = new StringBuilder(MaxResultStringSize);
+            StringBuilder errorInfo = new StringBuilder(MaxErrorStringSize);
+
+            TdxWrapper.GetQuote(ClientId, securityCode, resultInfo, errorInfo);
+
+            error = errorInfo.ToString();
+            result = resultInfo.ToString();
+
+            return string.IsNullOrEmpty(error);
+        }
+
+        public string GetShareholderCode(Exchange exchange)
+        {
+            if (_shareholderCodes.ContainsKey(exchange))
+            {
+                return _shareholderCodes[exchange];
+            }
+            else
+            {
+                return string.Empty;
+            }
         }
 
         public void Dispose()
