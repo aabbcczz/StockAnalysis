@@ -14,7 +14,7 @@ namespace RealTrading
 
         private bool _disposed = false;
 
-        private Dictionary<Exchange, string> _shareholderCodes = new Dictionary<Exchange,string>();
+        private Dictionary<Exchange, string> _shareholderCodes = new Dictionary<Exchange, string>();
 
         public int ClientId { get; private set; }
 
@@ -86,19 +86,33 @@ namespace RealTrading
             {
                 ClientId = clientId;
 
-                if (!InitializeAfterLoggedOn())
+                if (!InitializeAfterLoggedOn(out error))
                 {
                     LogOff();
 
-                    error = "Failed to initialize client after logged on";
+                    error = "Failed to initialize client after logged on. " + error;
                 }
             }
 
             return IsLoggedOn();
         }
 
-        private bool InitializeAfterLoggedOn()
+        private bool InitializeAfterLoggedOn(out string error)
         {
+            TabulateData result;
+
+            if (!QueryData(DataCategory.ShareholderRegistryCode, out result, out error))
+            {
+                return false;
+            }
+
+            var registries = QueryShareholderRegistryResult.ExtractFrom(result);
+
+            foreach (var registry in registries)
+            {
+                _shareholderCodes.Add(registry.Exchange, registry.ShareholderCode);
+            }
+
             return true;
         }
 
@@ -123,7 +137,7 @@ namespace RealTrading
             ClientId = InvalidClientId;
         }
 
-        public bool QueryData(DataCategory category, out string result, out string error)
+        public bool QueryData(DataCategory category, out TabulateData result, out string error)
         {
             CheckDisposed();
             CheckLoggedOn();
@@ -134,12 +148,19 @@ namespace RealTrading
             TdxWrapper.QueryData(ClientId, (int)category, resultInfo, errorInfo);
 
             error = errorInfo.ToString();
-            result = resultInfo.ToString();
+            result = null;
 
-            return  string.IsNullOrEmpty(error);
+            bool succeeded = string.IsNullOrEmpty(error);
+
+            if (succeeded)
+            {
+                result = TabulateData.Parse(resultInfo.ToString());
+            }
+
+            return  succeeded;
         }
 
-        public bool GetQuote(string securityCode, out string result, out string error)
+        public bool GetQuote(string securityCode, out TabulateData result, out string error)
         {
             CheckDisposed();
             CheckLoggedOn();
@@ -150,13 +171,23 @@ namespace RealTrading
             TdxWrapper.GetQuote(ClientId, securityCode, resultInfo, errorInfo);
 
             error = errorInfo.ToString();
-            result = resultInfo.ToString();
+            result = null;
 
-            return string.IsNullOrEmpty(error);
+            bool succeeded = string.IsNullOrEmpty(error);
+
+            if (succeeded)
+            {
+                result = TabulateData.Parse(resultInfo.ToString());
+            }
+
+            return succeeded;
         }
 
         public string GetShareholderCode(Exchange exchange)
         {
+            CheckDisposed();
+            CheckLoggedOn();
+
             if (_shareholderCodes.ContainsKey(exchange))
             {
                 return _shareholderCodes[exchange];
@@ -165,6 +196,102 @@ namespace RealTrading
             {
                 return string.Empty;
             }
+        }
+
+        public bool SendOrder(
+            OrderCategory orderCategory, 
+            OrderPriceType orderPriceType, 
+            string securityCode, 
+            float price, 
+            int quantity, 
+            out TabulateData result, 
+            out string error)
+        {
+            CheckDisposed();
+            CheckLoggedOn();
+
+            result = null;
+            error = string.Empty;
+
+            Exchange exchange = Exchange.GetTradeableExchangeForSecurity(securityCode);
+            if (exchange == null)
+            {
+                error = string.Format("can't find exchange for trading security '{0}'", securityCode);
+                return false;
+            }
+
+            string shareholderCode = GetShareholderCode(exchange);
+
+            StringBuilder resultInfo = new StringBuilder(MaxResultStringSize);
+            StringBuilder errorInfo = new StringBuilder(MaxErrorStringSize);
+
+            TdxWrapper.SendOrder(
+                ClientId,
+                (int)orderCategory,
+                (int)orderPriceType,
+                shareholderCode,
+                securityCode, 
+                price,
+                quantity,
+                resultInfo, 
+                errorInfo);
+
+            error = errorInfo.ToString();
+
+            bool succeeded = string.IsNullOrEmpty(error);
+
+            if (succeeded)
+            {
+                result = TabulateData.Parse(resultInfo.ToString());
+            }
+
+            return succeeded;
+        }
+
+        public bool CancelOrder(Exchange exchange, int orderId, out TabulateData result, out string error)
+        {
+            CheckDisposed();
+            CheckLoggedOn();
+
+            StringBuilder resultInfo = new StringBuilder(MaxResultStringSize);
+            StringBuilder errorInfo = new StringBuilder(MaxErrorStringSize);
+
+            TdxWrapper.CancelOrder(ClientId, exchange.Id.ToString(), orderId.ToString(), resultInfo, errorInfo);
+
+            error = errorInfo.ToString();
+            result = null;
+
+            bool succeeded = string.IsNullOrEmpty(error);
+
+            if (succeeded)
+            {
+                result = TabulateData.Parse(resultInfo.ToString());
+            }
+
+            return succeeded;
+        }
+
+        public bool Payback(float amount, out TabulateData result, out string error)
+        {
+            CheckDisposed();
+            CheckLoggedOn();
+
+            StringBuilder resultInfo = new StringBuilder(MaxResultStringSize);
+            StringBuilder errorInfo = new StringBuilder(MaxErrorStringSize);
+
+            TdxWrapper.Repay(ClientId, amount.ToString("0.00"), resultInfo, errorInfo);
+
+            error = errorInfo.ToString();
+            result = null;
+
+            bool succeeded = string.IsNullOrEmpty(error);
+
+            if (succeeded)
+            {
+                result = TabulateData.Parse(resultInfo.ToString());
+            }
+
+            return succeeded;
         }
 
         public void Dispose()

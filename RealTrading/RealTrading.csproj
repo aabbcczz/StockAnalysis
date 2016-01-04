@@ -68,6 +68,8 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="DataCategory.cs" />
+    <Compile Include="QueryShareholderRegistryResult.cs" />
+    <Compile Include="TabulateData.cs" />
     <Compile Include="TdxWrapper.cs" />
     <Compile Include="TradingClient.cs" />
     <Compile Include="TradingEnvironment.cs" />

@@ -8,6 +8,12 @@ namespace RealTrading
 {
     sealed class Exchange
     {
+        public enum ExchangeId : int
+        {
+            ShenzhenExchange = 0,
+            ShanghaiExchange = 1
+        }
+
         /// <summary>
         /// name of exchange
         /// </summary>
@@ -21,7 +27,7 @@ namespace RealTrading
         /// <summary>
         /// Id of exchange, can be used in trading
         /// </summary>
-        public int Id { get; private set; }
+        public ExchangeId Id { get; private set; }
 
         /// <summary>
         /// All supported order price type
@@ -68,36 +74,42 @@ namespace RealTrading
 
         private Exchange()
         {
-
         }
 
-        public static Exchange ShanghaiExchange = new Exchange()
+        static Exchange()
         {
-            Name = "上海证券交易所",
-            Abbrevation = "SH",
-            Id = 1,
-            SupportedOrderPriceType = new OrderPriceType[] 
-                {
-                    OrderPriceType.LimitPrice,
-                    OrderPriceType.MakertPriceMakeDealInFiveGradesThenCancel,
-                    OrderPriceType.SHMakertPriceMakeDealInFiveGradesThenTurnToLimitPrice
-                },
-        };
+            ShanghaiExchange = new Exchange()
+            {
+                Name = "上海证券交易所",
+                Abbrevation = "SH",
+                Id = ExchangeId.ShanghaiExchange,
+                SupportedOrderPriceType = new OrderPriceType[] 
+                    {
+                        OrderPriceType.LimitPrice,
+                        OrderPriceType.MakertPriceMakeDealInFiveGradesThenCancel,
+                        OrderPriceType.SHMakertPriceMakeDealInFiveGradesThenTurnToLimitPrice
+                    },
+            };
 
-        public static Exchange ShenzhenExchange = new Exchange()
-        {
-            Name = "上海证券交易所",
-            Abbrevation = "SZ",
-            Id = 0,
-            SupportedOrderPriceType = new OrderPriceType[] 
-                {
-                    OrderPriceType.LimitPrice,
-                    OrderPriceType.MakertPriceMakeDealInFiveGradesThenCancel,
-                    OrderPriceType.SZMakertPriceFullOrCancel,
-                    OrderPriceType.SZMarketPriceBestForCounterparty,
-                    OrderPriceType.SZMarketPriceBestForSelf,
-                    OrderPriceType.SZMarketPriceMakeDealImmediatelyThenCancel
-                },
-        };
+            ShenzhenExchange = new Exchange()
+            {
+                Name = "上海证券交易所",
+                Abbrevation = "SZ",
+                Id = ExchangeId.ShenzhenExchange,
+                SupportedOrderPriceType = new OrderPriceType[] 
+                    {
+                        OrderPriceType.LimitPrice,
+                        OrderPriceType.MakertPriceMakeDealInFiveGradesThenCancel,
+                        OrderPriceType.SZMakertPriceFullOrCancel,
+                        OrderPriceType.SZMarketPriceBestForCounterparty,
+                        OrderPriceType.SZMarketPriceBestForSelf,
+                        OrderPriceType.SZMarketPriceMakeDealImmediatelyThenCancel
+                    },
+            };
+        }
+        
+        public static Exchange ShanghaiExchange;
+
+        public static Exchange ShenzhenExchange;
     }
 }

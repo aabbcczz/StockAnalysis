@@ -10,10 +10,34 @@ namespace RealTrading
 {
     class Program
     {
-        static void WriteOutput(string result, string error)
+        static void WriteOutput(TabulateData result, string error)
         {
-            Console.WriteLine("Result: {0}", result);
             Console.WriteLine("Error: {0}", error);
+            Console.WriteLine("Result:");
+            
+            if (result == null)
+            {
+                return;
+            }
+
+            var columns = result.Columns;
+
+            foreach (var column in columns)
+            {
+                Console.Write("{0}\t", column);
+            }
+
+            Console.WriteLine();
+
+            foreach (var row in result.Rows)
+            {
+                foreach (var field in row)
+                {
+                    Console.Write("{0}\t", field);
+                }
+            }
+
+            Console.WriteLine();
         }
 
         static void TestAccountEncryptionDecryption()
@@ -50,7 +74,7 @@ namespace RealTrading
 
                     Console.WriteLine("Logged on, client id = {0}", client.ClientId);
 
-                    string result;
+                    TabulateData result;
 
                     client.QueryData(DataCategory.Capital, out result, out error);
                     WriteOutput(result, error);
@@ -80,14 +104,8 @@ namespace RealTrading
                     WriteOutput(result, error);
 
 
-                    for (;;)
-                    {
-                        client.GetQuote("000001", out result, out error);
-
-                        WriteOutput(result, error);
-
-                        Thread.Sleep(2000);
-                    }
+                    client.GetQuote("000001", out result, out error);
+                    WriteOutput(result, error);
                 }
             }
             catch (Exception ex)
