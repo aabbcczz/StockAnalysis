@@ -55,14 +55,18 @@ namespace RealTrading
 
             foreach (var row in subData.Rows)
             {
-                yield return new QueryShareholderRegistryResult()
-                {
-                    ShareholderCode = row[0],
-                    Exchange = row[1] == "0" ? Exchange.ShenzhenExchange : (row[1] == "1" ? Exchange.ShanghaiExchange : null),
-                    CapitalAccount = row[2],
-                    SeatCode = row[3],
-                    Notes = row[4],
-                };
+                QueryShareholderRegistryResult result = new QueryShareholderRegistryResult();
+
+                int index = 0;
+                result.ShareholderCode = row[index++];
+                result.Exchange = row[index] == "0" ? Exchange.ShenzhenExchange : (row[index] == "1" ? Exchange.ShanghaiExchange : null); 
+                index++;
+
+                result.CapitalAccount = row[index++];
+                result.SeatCode = row[index++];;
+                result.Notes = row[index++];
+
+                yield return result;
             }
         }
     }

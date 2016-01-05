@@ -10,8 +10,8 @@ namespace RealTrading
     {
         Capital = 0,  // 资金
         Stock = 1,   // 股票
-        OrderSentToday = 2,  // 当日委托
-        SucceededOrderTody = 3, // 当日成交
+        OrderSubmittedToday = 2,  // 当日委托
+        OrderSucceededToday = 3, // 当日成交
         CancellableOrder = 4,  // 可取消委托
         ShareholderRegistryCode = 5, // 股东代码
         FinancingBalance = 6, // 融资余额
