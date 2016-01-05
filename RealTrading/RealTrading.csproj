@@ -78,7 +78,6 @@
     <Compile Include="SendOrderResult.cs" />
     <Compile Include="TabulateData.cs" />
     <Compile Include="TdxWrapper.cs" />
-    <Compile Include="temp.cs" />
     <Compile Include="TradingClient.cs" />
     <Compile Include="TradingEnvironment.cs" />
   </ItemGroup>
