@@ -44,6 +44,7 @@ namespace RealTrading
             }
         }
 
+
         public static float CalcLimit(float price, float limitPercentage)
         {
             if (float.IsNaN(price))

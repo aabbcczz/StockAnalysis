@@ -8,12 +8,39 @@ namespace RealTrading
 {
     enum OrderCategory : int
     {
-        Buy = 0,  // 买入
-        Sell = 1,  // 卖出
-        FinancingBuy = 2, // 融资买入
-        MarginSell = 3,  // 融券卖出
-        BuySecurityForReturningSecurity = 4, // 买券还券
-        SellSecurityForReturningMoney = 5, // 卖券还款
-        ReturnSecurityDirectly = 6  // 现券还券
+        /// <summary>
+        /// 买入
+        /// </summary>
+        Buy = 0,  
+ 
+        /// <summary>
+        /// 卖出
+        /// </summary>
+        Sell = 1,  
+ 
+        /// <summary>
+        /// 融资买入
+        /// </summary>
+        FinancingBuy = 2, 
+ 
+        /// <summary>
+        /// 融券卖出
+        /// </summary>
+        MarginSell = 3,  
+ 
+        /// <summary>
+        /// 买券还券
+        /// </summary>
+        BuySecurityForReturningSecurity = 4, 
+ 
+        /// <summary>
+        /// 卖券还款
+        /// </summary>
+        SellSecurityForReturningMoney = 5, 
+ 
+        /// <summary>
+        /// 现券还券
+        /// </summary>
+        ReturnSecurityDirectly = 6,   
     }
 }

@@ -136,11 +136,12 @@ namespace RealTrading
                     client.QueryData(DataCategory.MarginBalance, out result, out error);
                     WriteOutput(result, error);
 
-                    client.QueryData(DataCategory.MarginableSecuirty, out result, out error);
+                    client.QueryData(DataCategory.MarginableSecurity, out result, out error);
                     WriteOutput(result, error);
 
+                    bool succeeded;
 
-                    DateTime time;
+                    //DateTime time;
 
                     //for (; ; )
                     //{
@@ -213,6 +214,27 @@ namespace RealTrading
                     //        }
                     //    }
                     //}
+
+                    succeeded = client.QueryData(DataCategory.OrderSubmittedToday, out result, out error);
+                    if (succeeded)
+                    {
+                        var orders = QueryGeneralOrderResult.ExtractFrom(result);
+
+                        foreach (var order in orders)
+                        {
+                            Console.WriteLine("{0} {1} {2} {3} {4:0.000} {5} {6} {7}",
+                                order.OrderNo,
+                                order.SubmissionTime,
+                                order.BuySellFlag,
+                                order.Status,
+                                order.SubmissionPrice,
+                                order.SubmissionVolume,
+                                order.SubmissionType,
+                                order.PricingType);
+                        }
+                    }
+
+                    WriteOutput(result, error);
                 }
             }
             catch (Exception ex)

@@ -6,22 +6,19 @@ using System.Threading.Tasks;
 
 namespace RealTrading
 {
-    sealed class QuerySubmittedOrderResult
+    sealed class QuerySucceededOrderResult
     {
         private static string[] columns = new string[]
         {
             "委托编号",
-            "委托时间",
+            "成交编号",
+            "成交时间",
             "证券代码",
             "证券名称",
-            "买卖标志", // 0 是买入， 1 是卖出
-            "状态说明",
-            "委托价格",
-            "委托数量",
+            "买卖标志",
             "成交价格",
             "成交数量",
-            "委托方式",
-            "报价方式",
+            "成交金额",
         };
 
         private static int[] columnIndices = null;
@@ -32,10 +29,15 @@ namespace RealTrading
         public int OrderNo { get; private set; }
 
         /// <summary>
-        /// 委托时间
+        /// 成交编号
         /// </summary>
-        public string SubmissionTime { get; private set; }
+        public int DealNo { get; private set; }
 
+        /// <summary>
+        /// 成交时间
+        /// </summary>
+        public string DealTime { get; private set;}
+        
         /// <summary>
         /// 证券代码
         /// </summary>
@@ -49,22 +51,7 @@ namespace RealTrading
         /// <summary>
         /// 买卖标志
         /// </summary>
-        public int BuySellFlag { get; private set; }
-
-        /// <summary>
-        /// 状态说明
-        /// </summary>
-        public string Status { get; private set; }
-
-        /// <summary>
-        /// 委托价格
-        /// </summary>
-        public float SubmissionPrice { get; private set; }
-
-        /// <summary>
-        /// 委托数量
-        /// </summary>
-        public int SubmissionVolume { get; private set; }
+        public string BuySellFlag { get; private set; }
 
         /// <summary>
         /// 成交价格
@@ -74,19 +61,15 @@ namespace RealTrading
         /// <summary>
         /// 成交数量
         /// </summary>
-        public int DealVolume { get; private set; }
+        public float DealVolume { get; private set; }
 
         /// <summary>
-        /// 委托方式
+        /// 成交金额
         /// </summary>
-        public string SubmissionType { get; private set; }
+        public float DealAmount { get; private set; }
 
-        /// <summary>
-        /// 报价方式
-        /// </summary>
-        public string PricingType { get; private set; }
 
-        public static IEnumerable<QuerySubmittedOrderResult> ExtractFrom(TabulateData data)
+        public static IEnumerable<QuerySucceededOrderResult> ExtractFrom(TabulateData data)
         {
             if (columnIndices == null)
             {
@@ -97,21 +80,18 @@ namespace RealTrading
 
             foreach (var row in subData.Rows)
             {
-                QuerySubmittedOrderResult result = new QuerySubmittedOrderResult();
+                QuerySucceededOrderResult result = new QuerySucceededOrderResult();
 
                 int index = 0;
                 result.OrderNo = int.Parse(row[index++]);
-                result.SubmissionTime = row[index++];
+                result.DealNo = int.Parse(row[index++]);
+                result.DealTime = row[index++];
                 result.SecurityCode = row[index++];
                 result.SecurityName = row[index++];
-                result.BuySellFlag = int.Parse(row[index++]);
-                result.Status = row[index++];
-                result.SubmissionPrice = TradingHelper.SafeParseFloat(row[index++]);
-                result.SubmissionVolume = TradingHelper.SafeParseInt(row[index++]);
+                result.BuySellFlag = row[index++];
                 result.DealPrice = TradingHelper.SafeParseFloat(row[index++]);
-                result.DealVolume = TradingHelper.SafeParseInt(row[index++]);
-                result.SubmissionType = row[index++];
-                result.PricingType = row[index++];
+                result.DealVolume = TradingHelper.SafeParseFloat(row[index++]);
+                result.DealAmount = TradingHelper.SafeParseFloat(row[index++]);
 
                 yield return result;
             }

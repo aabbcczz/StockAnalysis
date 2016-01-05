@@ -248,13 +248,21 @@ namespace RealTrading
             return succeeded;
         }
 
-        public bool CancelOrder(Exchange exchange, int orderId, out TabulateData result, out string error)
+        public bool CancelOrder(string code, int orderId, out TabulateData result, out string error)
         {
             CheckDisposed();
             CheckLoggedOn();
 
             StringBuilder resultInfo = new StringBuilder(MaxResultStringSize);
             StringBuilder errorInfo = new StringBuilder(MaxErrorStringSize);
+
+            Exchange exchange = Exchange.GetTradeableExchangeForSecurity(code);
+            if (exchange == null)
+            {
+                result = null;
+                error = "Invalid code";
+                return false;
+            }
 
             TdxWrapper.CancelOrder(ClientId, exchange.Id.ToString(), orderId.ToString(), resultInfo, errorInfo);
 
@@ -280,6 +288,40 @@ namespace RealTrading
             StringBuilder errorInfo = new StringBuilder(MaxErrorStringSize);
 
             TdxWrapper.Repay(ClientId, amount.ToString("0.00"), resultInfo, errorInfo);
+
+            error = errorInfo.ToString();
+            result = null;
+
+            bool succeeded = string.IsNullOrEmpty(error);
+
+            if (succeeded)
+            {
+                result = TabulateData.Parse(resultInfo.ToString());
+            }
+
+            return succeeded;
+        }
+
+        public bool QueryHistoryData(
+            HistoryDataCategory category, 
+            DateTime startDate, 
+            DateTime endDate, 
+            out TabulateData result, 
+            out string error)
+        {
+            CheckDisposed();
+            CheckLoggedOn();
+
+            StringBuilder resultInfo = new StringBuilder(MaxResultStringSize);
+            StringBuilder errorInfo = new StringBuilder(MaxErrorStringSize);
+
+            TdxWrapper.QueryHistoryData(
+                ClientId, 
+                (int)category, 
+                startDate.ToString("yyyyMMdd"), 
+                endDate.ToString("yyyyMMdd"),
+                resultInfo, 
+                errorInfo);
 
             error = errorInfo.ToString();
             result = null;

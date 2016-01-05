@@ -8,8 +8,19 @@ namespace RealTrading
 {
     enum HistoryDataCategory : int
     {
-        OrderHistory = 0,  // 历史委托
-        SucceededOrderHistory = 1,  // 历史成交
-        DeliveryList = 2, // 交割单
+        /// <summary>
+        /// 历史委托
+        /// </summary>
+        SubmittedOrderHistory = 0,  
+ 
+        /// <summary>
+        /// 历史成交
+        /// </summary>
+        SucceededOrderHistory = 1,  
+ 
+        /// <summary>
+        /// 交割单
+        /// </summary>
+        DeliveryList = 2,  
     }
 }

@@ -65,7 +65,9 @@
     <Compile Include="HistoryDataCategory.cs" />
     <Compile Include="OrderCategory.cs" />
     <Compile Include="OrderPriceType.cs" />
-    <Compile Include="QuerySubmittedOrderResult.cs" />
+    <Compile Include="QueryGeneralOrderResult.cs" />
+    <Compile Include="QueryStockResult.cs" />
+    <Compile Include="QuerySucceededOrderResult.cs" />
     <Compile Include="TradingHelper.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
