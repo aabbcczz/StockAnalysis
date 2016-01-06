@@ -61,13 +61,13 @@ namespace RealTrading
 		/// <summary>
 		/// 打开通达信实例
 		/// </summary>
-		[DllImport("trade.dll", CharSet = CharSet.Ansi)]
+		[DllImport("trade.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
 		public static extern void OpenTdx();
 
 		/// <summary>
 		/// 关闭通达信实例
 		/// </summary>
-		[DllImport("trade.dll", CharSet = CharSet.Ansi)]
+        [DllImport("trade.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
 		public static extern void CloseTdx();
 
 		/// <summary>
@@ -83,14 +83,14 @@ namespace RealTrading
 		/// <param name="TxPassword">通讯密码</param>
 		/// <param name="ErrInfo">此API执行返回后，如果出错，保存了错误信息说明。一般要分配256字节的空间。没出错时为空字符串。</param>
 		/// <returns>客户端ID，失败时返回-1</returns>
-		[DllImport("trade.dll", CharSet = CharSet.Ansi)]
+        [DllImport("trade.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
 		public static extern int Logon(string IP, short Port, string Version, short YybID, string AccountNo, string TradeAccount, string JyPassword, string TxPassword, StringBuilder ErrInfo);
 		
 		/// <summary>
 		/// 交易账户注销
 		/// </summary>
 		/// <param name="ClientID">客户端ID</param>
-		[DllImport("trade.dll", CharSet = CharSet.Ansi)]
+        [DllImport("trade.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
 		public static extern void Logoff(int ClientID);
 		
 		/// <summary>
@@ -100,7 +100,7 @@ namespace RealTrading
 		/// <param name="Category">表示查询信息的种类，0资金  1股份   2当日委托  3当日成交     4可撤单   5股东代码  6融资余额   7融券余额  8可融证券</param>
 		/// <param name="Result">此API执行返回后，Result内保存了返回的查询数据, 形式为表格数据，行数据之间通过\n字符分割，列数据之间通过\t分隔。一般要分配1024*1024字节的空间。出错时为空字符串。</param>
 		/// <param name="ErrInfo">同Logon函数的ErrInfo说明</param>
-		[DllImport("trade.dll", CharSet = CharSet.Ansi)]
+        [DllImport("trade.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
 		public static extern void QueryData(int ClientID, int Category, StringBuilder Result, StringBuilder ErrInfo);
 		
 		/// <summary>
@@ -115,7 +115,7 @@ namespace RealTrading
 		/// <param name="Quantity">委托数量</param>
 		/// <param name="Result">同上,其中含有委托编号数据</param>
 		/// <param name="ErrInfo">同上</param>
-		[DllImport("trade.dll", CharSet = CharSet.Ansi)]
+        [DllImport("trade.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
 		public static extern void SendOrder(int ClientID, int Category, int PriceType, string Gddm, string Zqdm, float Price, int Quantity, StringBuilder Result, StringBuilder ErrInfo);
 		
 		/// <summary>
@@ -126,7 +126,7 @@ namespace RealTrading
 		/// <param name="hth">表示要撤的目标委托的编号</param>
 		/// <param name="Result">同上</param>
 		/// <param name="ErrInfo">同上</param>
-		[DllImport("trade.dll", CharSet = CharSet.Ansi)]
+        [DllImport("trade.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
 		public static extern void CancelOrder(int ClientID, string ExchangeID, string hth, StringBuilder Result, StringBuilder ErrInfo);
 		
 		/// <summary>
@@ -136,7 +136,7 @@ namespace RealTrading
 		/// <param name="Zqdm">证券代码</param>
 		/// <param name="Result">同上</param>
 		/// <param name="ErrInfo">同上</param>
-		[DllImport("trade.dll", CharSet = CharSet.Ansi)]
+        [DllImport("trade.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
 		public static extern void GetQuote(int ClientID, string Zqdm, StringBuilder Result, StringBuilder ErrInfo);
 		
 		/// <summary>
@@ -146,7 +146,7 @@ namespace RealTrading
 		/// <param name="Amount">还款金额</param>
 		/// <param name="Result">同上</param>
 		/// <param name="ErrInfo">同上</param>
-		[DllImport("trade.dll", CharSet = CharSet.Ansi)]
+        [DllImport("trade.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
 		public static extern void Repay(int ClientID, string Amount, StringBuilder Result, StringBuilder ErrInfo);
 
 
@@ -161,7 +161,7 @@ namespace RealTrading
 		/// <param name="EndDate">表示结束日期，格式为yyyyMMdd,比如2014年3月1日为  20140301
 		/// <param name="Result">同上</param>
 		/// <param name="ErrInfo">同上</param>
-		[DllImport("trade.dll", CharSet = CharSet.Ansi)]
+        [DllImport("trade.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
 		public static extern void QueryHistoryData(int ClientID, int Category, string StartDate, string EndDate, StringBuilder Result, StringBuilder ErrInfo);
 		
 		/// <summary>
@@ -172,8 +172,12 @@ namespace RealTrading
 		/// <param name="Count">查询的个数，即数组的长度</param>
 		/// <param name="Result">返回数据的数组, 第i个元素表示第i个委托的返回信息. 此API执行返回后，Result[i]含义同上。</param>
 		/// <param name="ErrInfo">错误信息的数组，第i个元素表示第i个委托的错误信息. 此API执行返回后，ErrInfo[i]含义同上。</param>
-		[DllImport("trade.dll", CharSet = CharSet.Ansi)]
-		public static extern void QueryDatas(int ClientID, int[] Category, int Count, IntPtr[] Result, IntPtr[] ErrInfo);
+        [DllImport("trade.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
+		public static extern void QueryDatas(int ClientID,
+            int[] Category, 
+            int Count,
+            IntPtr[] Result,
+            IntPtr[] ErrInfo);
 		
 		/// <summary>
 		/// 属于普通批量版功能,批量下委托交易证券，用数组传入每个委托的参数，数组第i个元素表示第i个委托的相应参数
@@ -188,7 +192,7 @@ namespace RealTrading
 		/// <param name="Count">委托的个数，即数组的长度</param>
 		/// <param name="Result">同上</param>
 		/// <param name="ErrInfo">同上</param>
-		[DllImport("trade.dll", CharSet = CharSet.Ansi)]
+        [DllImport("trade.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
 		public static extern void SendOrders(int ClientID, int[] Category, int[] PriceType, string[] Gddm, string[] Zqdm, float[] Price, int[] Quantity, int Count, IntPtr[] Result, IntPtr[] ErrInfo);
 		
 		/// <summary>
@@ -200,7 +204,7 @@ namespace RealTrading
 		/// <param name="Count">撤委托的个数，即数组的长度</param>
 		/// <param name="Result">同上</param>
 		/// <param name="ErrInfo">同上</param>
-		[DllImport("trade.dll", CharSet = CharSet.Ansi)]
+        [DllImport("trade.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
 		public static extern void CancelOrders(int ClientID, string[] ExchangeID, string[] hth, int Count, IntPtr[] Result, IntPtr[] ErrInfo);
 		
 		/// <summary>
@@ -210,7 +214,7 @@ namespace RealTrading
 		/// <param name="Zqdm">证券代码</param>
 		/// <param name="Result">同上</param>
 		/// <param name="ErrInfo">同上</param>
-		[DllImport("trade.dll", CharSet = CharSet.Ansi)]
+        [DllImport("trade.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
 		public static extern void GetQuotes(int ClientID, string[] Zqdm, int Count, IntPtr[] Result, IntPtr[] ErrInfo);
 
 
@@ -224,7 +228,7 @@ namespace RealTrading
 		/// <param name="Count">查询的个数，即数组的长度</param>
 		/// <param name="Result">返回数据的数组, 第i个元素表示第i个委托的返回信息. 此API执行返回后，Result[i]含义同上。</param>
 		/// <param name="ErrInfo">错误信息的数组，第i个元素表示第i个委托的错误信息. 此API执行返回后，ErrInfo[i]含义同上。</param>
-		[DllImport("trade.dll", CharSet = CharSet.Ansi)]
+        [DllImport("trade.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
 		public static extern void QueryMultiAccountsDatas(int[] ClientID, int[] Category, int Count, IntPtr[] Result, IntPtr[] ErrInfo);
 		
 		/// <summary>
@@ -240,7 +244,7 @@ namespace RealTrading
 		/// <param name="Count">委托的个数，即数组的长度</param>
 		/// <param name="Result">同上</param>
 		/// <param name="ErrInfo">同上</param>
-		[DllImport("trade.dll", CharSet = CharSet.Ansi)]
+        [DllImport("trade.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
 		public static extern void SendMultiAccountsOrders(int[] ClientID, int[] Category, int[] PriceType, string[] Gddm, string[] Zqdm, float[] Price, int[] Quantity, int Count, IntPtr[] Result, IntPtr[] ErrInfo);
 		
 		/// <summary>
@@ -252,7 +256,7 @@ namespace RealTrading
 		/// <param name="Count">撤委托的个数，即数组的长度</param>
 		/// <param name="Result">同上</param>
 		/// <param name="ErrInfo">同上</param>        
-		[DllImport("trade.dll", CharSet = CharSet.Ansi)]
+        [DllImport("trade.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
 		public static extern void CancelMultiAccountsOrders(int[] ClientID, string[] ExchangeID, string[] hth, int Count, IntPtr[] Result, IntPtr[] ErrInfo);
 		
 		/// 属于高级批量版功能,批量获取证券的实时五档行情
@@ -261,7 +265,7 @@ namespace RealTrading
 		/// <param name="Zqdm">证券代码</param>
 		/// <param name="Result">同上</param>
 		/// <param name="ErrInfo">同上</param>        
-		[DllImport("trade.dll", CharSet = CharSet.Ansi)]
+        [DllImport("trade.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
 		public static extern void GetMultiAccountsQuotes(int[] ClientID, string[] Zqdm, int Count, IntPtr[] Result, IntPtr[] ErrInfo);
 
 

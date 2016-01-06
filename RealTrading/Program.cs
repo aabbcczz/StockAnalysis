@@ -139,6 +139,43 @@ namespace RealTrading
                     client.QueryData(DataCategory.MarginableSecurity, out result, out error);
                     WriteOutput(result, error);
 
+
+                    Console.WriteLine(">>>>>>> test array api");
+
+                    TabulateData[] results;
+                    string[] errors;
+                    DataCategory[] categories = new DataCategory[]
+                    {
+                        DataCategory.Capital,
+                        DataCategory.OrderSubmittedToday,
+                        DataCategory.OrderSucceededToday,
+                        DataCategory.Stock,
+                        DataCategory.ShareholderRegistryCode,
+                        DataCategory.CancellableOrder,
+                    };
+
+
+                    bool[] succeeds = client.QueryData(categories, out results, out errors);
+                    for(int i = 0; i < categories.Length; ++i)
+                    {
+                        WriteOutput(results[i], errors[i]);
+                    }
+                    
+                    
+                    string[] codes = new string[]{ "000001", "000003", "601398" };
+                    succeeds = client.GetQuote(codes, out results, out errors);
+                    for (int i = 0; i < codes.Length; ++i)
+                    {
+                        if (succeeds[i])
+                        {
+                            ShowQuote(results[i], DateTime.Now);
+                        }
+                        else
+                        {
+                            Console.WriteLine("error: {0}", errors[i]);
+                        }
+                    }
+                    
                     bool succeeded;
 
                     //DateTime time;

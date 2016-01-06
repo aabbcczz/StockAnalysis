@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Runtime.InteropServices;
 
 namespace RealTrading
 {
@@ -160,6 +161,83 @@ namespace RealTrading
             return  succeeded;
         }
 
+        private IntPtr[] AllocateStringBuffers(int count, int bufferSize)
+        {
+            IntPtr[] ptrs = new IntPtr[count];
+
+            for (int i = 0; i < count; ++i)
+            {
+                ptrs[i] = Marshal.AllocHGlobal(bufferSize);
+            }
+
+            return ptrs;
+        }
+
+        private string[] ConvertStringBufferToString(IntPtr[] ptrs)
+        {
+            string[] strings = new string[ptrs.Length];
+
+            for (int i = 0; i < strings.Length; ++i)
+            {
+                strings[i] = Marshal.PtrToStringAnsi(ptrs[i]);
+            }
+
+            return strings;
+        }
+
+        private void FreeStringBuffers(IntPtr[] ptrs)
+        {
+            foreach (var ptr in ptrs)
+            {
+                Marshal.FreeHGlobal(ptr);
+            }
+        }
+
+        public bool[] QueryData(DataCategory[] categories, out TabulateData[] results, out string[] errors)
+        {
+            CheckDisposed();
+            CheckLoggedOn();
+
+            if (categories == null || categories.Length == 0)
+            {
+                throw new ArgumentNullException();
+            }
+
+            IntPtr[] resultInfos = AllocateStringBuffers(categories.Length, MaxResultStringSize);
+            IntPtr[] errorInfos = AllocateStringBuffers(categories.Length, MaxErrorStringSize);
+
+            try
+            {
+                int[] categoryArray = new int[categories.Length];
+                for (int i = 0; i < categoryArray.Length; ++i)
+                {
+                    categoryArray[i] = (int)categories[i];
+                }
+
+                TdxWrapper.QueryDatas(ClientId, categoryArray, categoryArray.Length, resultInfos, errorInfos);
+
+                string[] resultStrings = ConvertStringBufferToString(resultInfos);
+                errors = ConvertStringBufferToString(errorInfos);
+
+                bool[] succeeds = new bool[categories.Length];
+                results = new TabulateData[categories.Length];
+
+                for (int i = 0; i < results.Length; ++i)
+                {
+                    succeeds[i] = string.IsNullOrEmpty(errors[i]);
+
+                    results[i] = succeeds[i] ? TabulateData.Parse(resultStrings[i]) : null;
+                }
+
+                return succeeds;
+            }
+            finally
+            {
+                FreeStringBuffers(resultInfos);
+                FreeStringBuffers(errorInfos);
+            }
+        }
+
         public bool GetQuote(string securityCode, out TabulateData result, out string error)
         {
             CheckDisposed();
@@ -181,6 +259,45 @@ namespace RealTrading
             }
 
             return succeeded;
+        }
+
+        public bool[] GetQuote(string[] securityCodes, out TabulateData[] results, out string[] errors)
+        {
+            CheckDisposed();
+            CheckLoggedOn();
+
+            if (securityCodes == null || securityCodes.Length == 0)
+            {
+                throw new ArgumentNullException();
+            }
+
+            IntPtr[] resultInfos = AllocateStringBuffers(securityCodes.Length, MaxResultStringSize);
+            IntPtr[] errorInfos = AllocateStringBuffers(securityCodes.Length, MaxErrorStringSize);
+
+            try
+            {
+                TdxWrapper.GetQuotes(ClientId, securityCodes, securityCodes.Length, resultInfos, errorInfos);
+
+                string[] resultStrings = ConvertStringBufferToString(resultInfos);
+                errors = ConvertStringBufferToString(errorInfos);
+
+                bool[] succeeds = new bool[securityCodes.Length];
+                results = new TabulateData[securityCodes.Length];
+
+                for (int i = 0; i < results.Length; ++i)
+                {
+                    succeeds[i] = string.IsNullOrEmpty(errors[i]);
+
+                    results[i] = succeeds[i] ? TabulateData.Parse(resultStrings[i]) : null;
+                }
+
+                return succeeds;
+            }
+            finally
+            {
+                FreeStringBuffers(resultInfos);
+                FreeStringBuffers(errorInfos);
+            }
         }
 
         public string GetShareholderCode(Exchange exchange)
