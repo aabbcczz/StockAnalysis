@@ -208,12 +208,8 @@ namespace RealTrading
 
             try
             {
-                int[] categoryArray = new int[categories.Length];
-                for (int i = 0; i < categoryArray.Length; ++i)
-                {
-                    categoryArray[i] = (int)categories[i];
-                }
-
+                int[] categoryArray = categories.Select(c => (int)c).ToArray();
+ 
                 TdxWrapper.QueryDatas(ClientId, categoryArray, categoryArray.Length, resultInfos, errorInfos);
 
                 string[] resultStrings = ConvertStringBufferToString(resultInfos);
@@ -315,12 +311,20 @@ namespace RealTrading
             }
         }
 
+        public string GetShareholderCode(string securityCode)
+        {
+            Exchange exchange = Exchange.GetTradeableExchangeForSecurity(securityCode);
+            if (exchange == null)
+            {
+                return string.Empty;
+            }
+
+            string shareholderCode = GetShareholderCode(exchange);
+            return shareholderCode;
+        }
+
         public bool SendOrder(
-            OrderCategory orderCategory, 
-            OrderPriceType orderPriceType, 
-            string securityCode, 
-            float price, 
-            int quantity, 
+            OrderRequest request,
             out TabulateData result, 
             out string error)
         {
@@ -330,26 +334,19 @@ namespace RealTrading
             result = null;
             error = string.Empty;
 
-            Exchange exchange = Exchange.GetTradeableExchangeForSecurity(securityCode);
-            if (exchange == null)
-            {
-                error = string.Format("can't find exchange for trading security '{0}'", securityCode);
-                return false;
-            }
-
-            string shareholderCode = GetShareholderCode(exchange);
+            string shareholderCode = GetShareholderCode(request.SecurityCode);
 
             StringBuilder resultInfo = new StringBuilder(MaxResultStringSize);
             StringBuilder errorInfo = new StringBuilder(MaxErrorStringSize);
 
             TdxWrapper.SendOrder(
                 ClientId,
-                (int)orderCategory,
-                (int)orderPriceType,
+                (int)request.Category,
+                (int)request.PriceType,
                 shareholderCode,
-                securityCode, 
-                price,
-                quantity,
+                request.SecurityCode, 
+                request.Price,
+                request.Quantity,
                 resultInfo, 
                 errorInfo);
 
@@ -363,6 +360,62 @@ namespace RealTrading
             }
 
             return succeeded;
+        }
+
+        public bool[] SendOrder(OrderRequest[] requests, out TabulateData[] results, out string[] errors)
+        {
+            CheckDisposed();
+            CheckLoggedOn();
+
+            if (requests == null || requests.Length == 0)
+            {
+                throw new ArgumentNullException();
+            }
+
+            IntPtr[] resultInfos = AllocateStringBuffers(requests.Length, MaxResultStringSize);
+            IntPtr[] errorInfos = AllocateStringBuffers(requests.Length, MaxErrorStringSize);
+
+            try
+            {
+                var shareholderCodes = requests.Select(req => GetShareholderCode(req.SecurityCode)).ToArray();
+                var categories = requests.Select(req => (int)req.Category).ToArray();
+                var priceTypes = requests.Select(req => (int)req.PriceType).ToArray();
+                var securityCodes = requests.Select(req => req.SecurityCode).ToArray();
+                var prices = requests.Select(req => req.Price).ToArray();
+                var quantities = requests.Select(req => req.Quantity).ToArray();
+
+                TdxWrapper.SendOrders(
+                    ClientId,
+                    categories,
+                    priceTypes,
+                    shareholderCodes,
+                    securityCodes,
+                    prices,
+                    quantities,
+                    requests.Count(),
+                    resultInfos,
+                    errorInfos);
+                    
+                string[] resultStrings = ConvertStringBufferToString(resultInfos);
+                errors = ConvertStringBufferToString(errorInfos);
+
+                bool[] succeeds = new bool[securityCodes.Length];
+                results = new TabulateData[securityCodes.Length];
+
+                for (int i = 0; i < results.Length; ++i)
+                {
+                    succeeds[i] = string.IsNullOrEmpty(errors[i]);
+
+                    results[i] = succeeds[i] ? TabulateData.Parse(resultStrings[i]) : null;
+                }
+
+                return succeeds;
+            }
+            finally
+            {
+                FreeStringBuffers(resultInfos);
+                FreeStringBuffers(errorInfos);
+            }
         }
 
         public bool CancelOrder(string code, int orderId, out TabulateData result, out string error)
@@ -394,6 +447,56 @@ namespace RealTrading
             }
 
             return succeeded;
+        }
+
+        public bool[] CancelOrder(string[] codes, int[] orderIds, out TabulateData[] results, out string[] errors)
+        {
+            CheckDisposed();
+            CheckLoggedOn();
+
+            if (codes == null || codes.Length == 0 || orderIds == null || orderIds.Length != codes.Length)
+            {
+                throw new ArgumentNullException();
+            }
+
+            IntPtr[] resultInfos = AllocateStringBuffers(codes.Length, MaxResultStringSize);
+            IntPtr[] errorInfos = AllocateStringBuffers(codes.Length, MaxErrorStringSize);
+
+            try
+            {
+                var exchangeIds = codes.Select(c => Exchange.GetTradeableExchangeForSecurity(c))
+                    .Select(e => e == null ? string.Empty : e.Id.ToString())
+                    .ToArray();
+                var orderIdStrings = orderIds.Select(id => id.ToString()).ToArray();
+
+                TdxWrapper.CancelOrders(
+                    ClientId,
+                    exchangeIds,
+                    orderIdStrings,
+                    codes.Length,
+                    resultInfos,
+                    errorInfos);
+
+                string[] resultStrings = ConvertStringBufferToString(resultInfos);
+                errors = ConvertStringBufferToString(errorInfos);
+
+                bool[] succeeds = new bool[codes.Length];
+                results = new TabulateData[codes.Length];
+
+                for (int i = 0; i < results.Length; ++i)
+                {
+                    succeeds[i] = string.IsNullOrEmpty(errors[i]);
+
+                    results[i] = succeeds[i] ? TabulateData.Parse(resultStrings[i]) : null;
+                }
+
+                return succeeds;
+            }
+            finally
+            {
+                FreeStringBuffers(resultInfos);
+                FreeStringBuffers(errorInfos);
+            }
         }
 
         public bool Payback(float amount, out TabulateData result, out string error)

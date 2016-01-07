@@ -162,18 +162,30 @@ namespace RealTrading
                     }
                     
                     
-                    string[] codes = new string[]{ "000001", "000003", "601398" };
-                    succeeds = client.GetQuote(codes, out results, out errors);
-                    for (int i = 0; i < codes.Length; ++i)
+                    string[] codes = new string[]{ "000001", "000004", "601398" };
+
+                    for (int k = 0; k < 20; k++)
                     {
-                        if (succeeds[i])
+                        succeeds = client.GetQuote(codes, out results, out errors);
+                        for (int i = 0; i < codes.Length; ++i)
                         {
-                            ShowQuote(results[i], DateTime.Now);
+                            if (succeeds[i])
+                            {
+                                ShowQuote(results[i], DateTime.Now);
+                            }
+                            else
+                            {
+                                Console.WriteLine("error: {0}", errors[i]);
+                            }
                         }
-                        else
-                        {
-                            Console.WriteLine("error: {0}", errors[i]);
-                        }
+
+                        Thread.Sleep(1000);
+
+                        //DateTime now = DateTime.Now;
+                        //if (now.TimeOfDay > new TimeSpan(9, 25, 1))
+                        //{
+                        //    break;
+                        //}
                     }
                     
                     bool succeeded;
