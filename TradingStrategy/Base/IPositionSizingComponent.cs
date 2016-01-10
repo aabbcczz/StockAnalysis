@@ -24,5 +24,12 @@
         /// <param name="comments">comments on how the size is estimated</param>
         /// <returns>size of position</returns>
         PositionSizingComponentResult EstimatePositionSize(ITradingObject tradingObject, double price, double stopLossGap, int totalNumberOfObjectsToBeEstimated);
+
+        /// <summary>
+        /// Estimate the max number of positions can be created today
+        /// </summary>
+        /// <param name="totalNumberOfObjectsToBeEstimated"></param>
+        /// <returns>the max number of positions can be created today</returns>
+        int GetMaxPositionCount(int totalNumberOfObjectsToBeEstimated);
     }
 }

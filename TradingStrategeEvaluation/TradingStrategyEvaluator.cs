@@ -413,6 +413,7 @@ namespace TradingStrategyEvaluation
             }
             
             int totalNumberOfObjectsToBeEstimated = readyInstructions.Count(t => t.Item1.Action == TradingAction.OpenLong);
+            int maxNewPositionCount = _strategy.GetMaxNewPositionCount(totalNumberOfObjectsToBeEstimated);
 
             var pendingTransactions = new List<Transaction>(readyInstructions.Count);
             foreach (var readyInstruction in readyInstructions)
@@ -422,6 +423,17 @@ namespace TradingStrategyEvaluation
 
                 if (instruction.Action == TradingAction.OpenLong)
                 {
+                    if (maxNewPositionCount <= 0)
+                    {
+                        _context.Log(string.Format(
+                            "Max new position count reached, ignore this instruction: {0}/{1}. //{2}",
+                            instruction.TradingObject.Code,
+                            instruction.TradingObject.Name,
+                            instruction.Comments));
+
+                        continue;
+                    }
+
                     _strategy.EstimateStoplossAndSizeForNewPosition(instruction, price, totalNumberOfObjectsToBeEstimated);
                     if (instruction.Volume == 0)
                     {
@@ -433,6 +445,8 @@ namespace TradingStrategyEvaluation
 
                         continue;
                     }
+
+                    --maxNewPositionCount;
                 }
 
                 var transaction = BuildTransactionFromInstruction(

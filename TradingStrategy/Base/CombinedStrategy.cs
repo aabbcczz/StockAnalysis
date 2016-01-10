@@ -259,6 +259,11 @@ namespace TradingStrategy.Base
             }
         }
 
+        public int GetMaxNewPositionCount(int totalNumberOfObjectsToBeEstimated)
+        {
+            return _positionSizing.GetMaxPositionCount(totalNumberOfObjectsToBeEstimated);
+        }
+
         private void GenerateInstructions(ITradingObject[] tradingObjects, Bar[] bars)
         {
             // check if positions needs to be adjusted

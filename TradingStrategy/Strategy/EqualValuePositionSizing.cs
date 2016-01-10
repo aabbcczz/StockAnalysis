@@ -73,6 +73,17 @@ namespace TradingStrategy.Strategy
             }
         }
 
+        public override int GetMaxPositionCount(int totalNumberOfObjectsToBeEstimated)
+        {
+            var maxParts = MaxPartsOfAdpativeAllocation == 0 ? MinPartsOfAdpativeAllocation : MaxPartsOfAdpativeAllocation;
+
+            int parts = PartsOfEquity == 0
+                ? Math.Max(Math.Min(totalNumberOfObjectsToBeEstimated, maxParts), MinPartsOfAdpativeAllocation)
+                : PartsOfEquity;
+
+            return parts;
+        }
+
         public override PositionSizingComponentResult EstimatePositionSize(ITradingObject tradingObject, double price, double stopLossGap, int totalNumberOfObjectsToBeEstimated)
         {
             var result = new PositionSizingComponentResult();
