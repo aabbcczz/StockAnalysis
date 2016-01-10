@@ -11,7 +11,7 @@ namespace RealTrading
     {
         public const int InvalidClientId = -1;
         private const int MaxErrorStringSize = 1024;
-        private const int MaxResultStringSize = 1024 * 1024;
+        private const int MaxResultStringSize = 128 * 1024;
 
         private bool _disposed = false;
 
@@ -100,14 +100,12 @@ namespace RealTrading
 
         private bool InitializeAfterLoggedOn(out string error)
         {
-            TabulateData result;
+            var registries = QueryShareholderRegistry(out error);
 
-            if (!QueryData(DataCategory.ShareholderRegistryCode, out result, out error))
+            if (registries == null)
             {
                 return false;
             }
-
-            var registries = QueryShareholderRegistryResult.ExtractFrom(result);
 
             foreach (var registry in registries)
             {
@@ -136,6 +134,80 @@ namespace RealTrading
             TdxWrapper.Logoff(ClientId);
 
             ClientId = InvalidClientId;
+        }
+
+        public QueryCapitalResult QueryCapital(out string error)
+        {
+            TabulateData data;
+            if (!QueryData(DataCategory.Capital, out data, out error))
+            {
+                return null;
+            }
+
+            var results = QueryCapitalResult.ExtractFrom(data);
+
+            if (results == null || results.Count() == 0)
+            {
+                error = "QueryCapital succeeded, but no result";
+                return null;
+            }
+
+            return results.First();
+        }
+
+        public IEnumerable<QueryStockResult> QueryStock(out string error)
+        {
+            TabulateData data;
+            if (!QueryData(DataCategory.Stock, out data, out error))
+            {
+                return null;
+            }
+
+            return QueryStockResult.ExtractFrom(data);
+        }
+
+        public IEnumerable<QueryShareholderRegistryResult> QueryShareholderRegistry(out string error)
+        {
+            TabulateData data;
+            if (!QueryData(DataCategory.ShareholderRegistryCode, out data, out error))
+            {
+                return null;
+            }
+
+            return QueryShareholderRegistryResult.ExtractFrom(data);
+        }
+
+        public IEnumerable<QueryGeneralOrderResult> QuerySubmittedOrderToday(out string error)
+        {
+            TabulateData data;
+            if (!QueryData(DataCategory.OrderSubmittedToday, out data, out error))
+            {
+                return null;
+            }
+
+            return QueryGeneralOrderResult.ExtractFrom(data);
+        }
+
+        public IEnumerable<QuerySucceededOrderResult> QuerySucceededOrderToday(out string error)
+        {
+            TabulateData data;
+            if (!QueryData(DataCategory.OrderSucceededToday, out data, out error))
+            {
+                return null;
+            }
+
+            return QuerySucceededOrderResult.ExtractFrom(data);
+        }
+
+        public IEnumerable<QueryGeneralOrderResult> QueryCancellableOrder(out string error)
+        {
+            TabulateData data;
+            if (!QueryData(DataCategory.CancellableOrder, out data, out error))
+            {
+                return null;
+            }
+
+            return QueryGeneralOrderResult.ExtractFrom(data);
         }
 
         public bool QueryData(DataCategory category, out TabulateData result, out string error)
@@ -234,6 +306,25 @@ namespace RealTrading
             }
         }
 
+        public FiveLevelQuote GetQuote(string securityCode, out string error)
+        {
+            TabulateData data;
+            if (!GetQuote(securityCode, out data, out error))
+            {
+                return null;
+            }
+
+            var results = FiveLevelQuote.ExtractFrom(data);
+
+            if (results == null || results.Count() == 0)
+            {
+                error = "GetQuote succeeded, but not result";
+                return null;
+            }
+
+            return results.First();
+        }
+
         public bool GetQuote(string securityCode, out TabulateData result, out string error)
         {
             CheckDisposed();
@@ -255,6 +346,39 @@ namespace RealTrading
             }
 
             return succeeded;
+        }
+
+        public FiveLevelQuote[] GetQuote(string[] securityCodes, out string[] errors)
+        {
+            TabulateData[] data;
+            bool[] succeeds = GetQuote(securityCodes, out data, out errors);
+
+
+            FiveLevelQuote[] quotes = new FiveLevelQuote[securityCodes.Length];
+
+            for (int i = 0; i < securityCodes.Length; ++i)
+            {
+                if (!succeeds[i])
+                {
+                    quotes[i] = null;
+                }
+                else
+                {
+                    var results = FiveLevelQuote.ExtractFrom(data[i]);
+
+                    if (results == null || results.Count() == 0)
+                    {
+                        errors[i] = "GetQuote succeeded, but not result";
+                        quotes[i] = null;
+                    }
+                    else
+                    {
+                        quotes[i] = results.First();
+                    }
+                }
+            }
+
+            return quotes;
         }
 
         public bool[] GetQuote(string[] securityCodes, out TabulateData[] results, out string[] errors)
@@ -323,10 +447,27 @@ namespace RealTrading
             return shareholderCode;
         }
 
-        public bool SendOrder(
-            OrderRequest request,
-            out TabulateData result, 
-            out string error)
+
+        public SendOrderResult SendOrder(OrderRequest request, out string error)
+        {
+            TabulateData data;
+
+            if (!SendOrder(request, out data, out error))
+            {
+                return null;
+            }
+
+            var results = SendOrderResult.ExtractFrom(data);
+            if (results == null || results.Count() == 0)
+            {
+                error = "SendOrder succeeded, but no result";
+                return null;
+            }
+
+            return results.First();
+        }
+
+        public bool SendOrder(OrderRequest request, out TabulateData result, out string error)
         {
             CheckDisposed();
             CheckLoggedOn();
@@ -360,6 +501,38 @@ namespace RealTrading
             }
 
             return succeeded;
+        }
+
+        public SendOrderResult[] SendOrder(OrderRequest[] requests, out string[] errors)
+        {
+            TabulateData[] data;
+
+            bool[] succeeds = SendOrder(requests, out data, out errors);
+
+            SendOrderResult[] sendOrderResults = new SendOrderResult[requests.Length];
+
+            for (int i = 0; i < sendOrderResults.Length; ++i)
+            {
+                if (!succeeds[i])
+                {
+                    sendOrderResults[i] = null;
+                }
+                else
+                {
+                    var results = SendOrderResult.ExtractFrom(data[i]);
+                    if (results == null || results.Count() == 0)
+                    {
+                        errors[i] = "SendOrder succeeded, but no result";
+                        sendOrderResults[i] = null;
+                    }
+                    else
+                    {
+                        sendOrderResults[i] = results.First();
+                    }
+                }
+            }
+
+            return sendOrderResults;
         }
 
         public bool[] SendOrder(OrderRequest[] requests, out TabulateData[] results, out string[] errors)
@@ -418,6 +591,13 @@ namespace RealTrading
             }
         }
 
+        public bool CancelOrder(string code, int orderId, out string error)
+        {
+            TabulateData data;
+
+            return CancelOrder(code, orderId, out data, out error);
+        }
+
         public bool CancelOrder(string code, int orderId, out TabulateData result, out string error)
         {
             CheckDisposed();
@@ -447,6 +627,13 @@ namespace RealTrading
             }
 
             return succeeded;
+        }
+
+        public bool[] CancelOrder(string[] codes, int[] orderIds, out string[] errors)
+        {
+            TabulateData[] data;
+
+            return CancelOrder(codes, orderIds, out data, out errors);
         }
 
         public bool[] CancelOrder(string[] codes, int[] orderIds, out TabulateData[] results, out string[] errors)
@@ -520,6 +707,28 @@ namespace RealTrading
             }
 
             return succeeded;
+        }
+
+        public IEnumerable<QueryGeneralOrderResult> QuerySubmittedOrderHistory(DateTime startDate, DateTime endDate, out string error)
+        {
+            TabulateData data;
+            if (!QueryHistoryData(HistoryDataCategory.OrderSubmittedInHistory, startDate, endDate, out data, out error))
+            {
+                return null;
+            }
+
+            return QueryGeneralOrderResult.ExtractFrom(data);
+        }
+
+        public IEnumerable<QuerySucceededOrderResult> QuerySucceededOrderHistory(DateTime startDate, DateTime endDate, out string error)
+        {
+            TabulateData data;
+            if (!QueryHistoryData(HistoryDataCategory.OrderSucceededInHistory, startDate, endDate, out data, out error))
+            {
+                return null;
+            }
+
+            return QuerySucceededOrderResult.ExtractFrom(data);
         }
 
         public bool QueryHistoryData(

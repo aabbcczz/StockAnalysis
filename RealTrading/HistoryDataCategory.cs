@@ -11,12 +11,12 @@ namespace RealTrading
         /// <summary>
         /// 历史委托
         /// </summary>
-        SubmittedOrderHistory = 0,  
+        OrderSubmittedInHistory = 0,  
  
         /// <summary>
         /// 历史成交
         /// </summary>
-        SucceededOrderHistory = 1,  
+        OrderSucceededInHistory = 1,  
  
         /// <summary>
         /// 交割单
