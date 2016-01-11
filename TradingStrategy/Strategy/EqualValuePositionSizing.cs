@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using TradingStrategy.Base;
+using TradingStrategy;
 
 namespace TradingStrategy.Strategy
 {
@@ -23,6 +24,9 @@ namespace TradingStrategy.Strategy
 
         [Parameter(1.0, "权益利用率[0.0..1.0], 0.0代表自适应权益利用率")]
         public double EquityUtilization { get; set; }
+
+        [Parameter(true, "限制新头寸数目不超过划分数目")]
+        public bool LimitNewPositionCountAsParts { get; set; }
 
         public override string Name
         {
@@ -51,37 +55,37 @@ namespace TradingStrategy.Strategy
 
         private double GetDynamicEquityUtilization(int totalNumberOfObjectsToBeEstimated)
         {
-            if (totalNumberOfObjectsToBeEstimated >= 40)
+            var currentEquity = Context.GetCurrentEquity(CurrentPeriod, EquityEvaluationMethod);
+            var initialEquity = Context.GetInitialEquity();
+
+            if (currentEquity <= initialEquity)
             {
-                return 0.5;
-            }
-            if (totalNumberOfObjectsToBeEstimated >= 20)
-            {
-                return 0.6;
-            }
-            else if (totalNumberOfObjectsToBeEstimated >= 10)
-            {
-                return 0.7;
-            }
-            else if (totalNumberOfObjectsToBeEstimated >= 5)
-            {
-                return 0.8;
+                return 1.0;
             }
             else
             {
-                return 1.0;
+                var x = currentEquity / initialEquity;
+
+                return 2.0 / (1.0 + Math.Exp(0.03 * (x - 1.0)));
             }
         }
 
         public override int GetMaxPositionCount(int totalNumberOfObjectsToBeEstimated)
         {
-            var maxParts = MaxPartsOfAdpativeAllocation == 0 ? MinPartsOfAdpativeAllocation : MaxPartsOfAdpativeAllocation;
+            if (LimitNewPositionCountAsParts)
+            {
+                var maxParts = MaxPartsOfAdpativeAllocation == 0 ? MinPartsOfAdpativeAllocation : MaxPartsOfAdpativeAllocation;
 
-            int parts = PartsOfEquity == 0
-                ? Math.Max(Math.Min(totalNumberOfObjectsToBeEstimated, maxParts), MinPartsOfAdpativeAllocation)
-                : PartsOfEquity;
+                int parts = PartsOfEquity == 0
+                    ? Math.Max(Math.Min(totalNumberOfObjectsToBeEstimated, maxParts), MinPartsOfAdpativeAllocation)
+                    : PartsOfEquity;
 
-            return parts;
+                return parts;
+            }
+            else
+            {
+                return base.GetMaxPositionCount(totalNumberOfObjectsToBeEstimated);
+            }
         }
 
         public override PositionSizingComponentResult EstimatePositionSize(ITradingObject tradingObject, double price, double stopLossGap, int totalNumberOfObjectsToBeEstimated)

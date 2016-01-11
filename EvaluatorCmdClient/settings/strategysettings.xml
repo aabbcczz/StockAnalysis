@@ -774,7 +774,7 @@
           <Description>从最高点回撤的最大百分比</Description>
           <ValueType>System.Double, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
           <DefaultValue xsi:type="xsd:double">5</DefaultValue>
-          <Values>5</Values>
+          <Values>1;2;3;4;5;6;7;8;9;10;11;12;13;14;15;100</Values>
         </ParameterSettings>
       </ComponentParameterSettings>
     </TradingStrategyComponentSettings>
@@ -1118,6 +1118,13 @@
           <DefaultValue xsi:type="xsd:double">1</DefaultValue>
           <Values>1</Values>
         </ParameterSettings>
+        <ParameterSettings>
+          <Name>LimitNewPositionCountAsParts</Name>
+          <Description>限制新头寸数目不超过划分数目</Description>
+          <ValueType>System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
+          <DefaultValue xsi:type="xsd:boolean">true</DefaultValue>
+          <Values>true</Values>
+        </ParameterSettings>		
       </ComponentParameterSettings>
     </TradingStrategyComponentSettings>	
     <TradingStrategyComponentSettings Enabled="false" Name="风险百分比模型">
@@ -1242,7 +1249,7 @@
           <Description>价格下限百分比</Description>
           <ValueType>System.Double, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
           <DefaultValue xsi:type="xsd:double">90</DefaultValue>
-          <Values>90</Values>
+          <Values>94</Values>
         </ParameterSettings>
       </ComponentParameterSettings>
     </TradingStrategyComponentSettings>	
