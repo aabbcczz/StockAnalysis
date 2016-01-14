@@ -1116,7 +1116,7 @@
           <Description>权益利用率，[0.0..1.0], 0.0代表自适应权益利用率</Description>
           <ValueType>System.Double, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
           <DefaultValue xsi:type="xsd:double">1</DefaultValue>
-          <Values>1</Values>
+          <Values>0.72</Values>
         </ParameterSettings>
         <ParameterSettings>
           <Name>LimitNewPositionCountAsParts</Name>
