@@ -38,6 +38,9 @@ namespace TradingStrategy.Strategy
             get { return "每份头寸占有的价值是总权益的固定比例(1/PartsOfEquity)"; }
         }
 
+        private double _latestHighEquity = 0.0;
+        private double _dynamicEquityUtilization = 0.0;
+
         protected override void ValidateParameterValues()
         {
             base.ValidateParameterValues();
@@ -55,18 +58,40 @@ namespace TradingStrategy.Strategy
 
         private double GetDynamicEquityUtilization(int totalNumberOfObjectsToBeEstimated)
         {
-            var currentEquity = Context.GetCurrentEquity(CurrentPeriod, EquityEvaluationMethod);
-            var initialEquity = Context.GetInitialEquity();
+            //var currentEquity = Context.GetCurrentEquity(CurrentPeriod, EquityEvaluationMethod);
+            //var initialEquity = Context.GetInitialEquity();
 
-            if (currentEquity <= initialEquity)
+            //if (currentEquity <= initialEquity)
+            //{
+            //    return 1.0;
+            //}
+            //else
+            //{
+            //    var x = currentEquity / initialEquity;
+
+            //    return 2.0 / (1.0 + Math.Exp(0.03 * (x - 1.0)));
+            //}
+
+            return _dynamicEquityUtilization;
+        }
+
+        public override void StartPeriod(DateTime time)
+        {
+            base.StartPeriod(time);
+
+            double currentEquity = Context.GetCurrentEquity(CurrentPeriod, EquityEvaluationMethod.TotalEquity);
+            if (currentEquity > _latestHighEquity)
             {
-                return 1.0;
+                _latestHighEquity = currentEquity;
             }
-            else
-            {
-                var x = currentEquity / initialEquity;
 
-                return 2.0 / (1.0 + Math.Exp(0.03 * (x - 1.0)));
+            double drawdown = (currentEquity - _latestHighEquity) / _latestHighEquity;
+
+            _dynamicEquityUtilization = EquityUtilization + 3 * drawdown;
+
+            if (_dynamicEquityUtilization < 0.3)
+            {
+                _dynamicEquityUtilization = 0.3;
             }
         }
 
@@ -105,9 +130,10 @@ namespace TradingStrategy.Strategy
                 ? Math.Max(Math.Min(totalNumberOfObjectsToBeEstimated, maxParts), MinPartsOfAdpativeAllocation)
                 : PartsOfEquity;
 
-            double equityUtilization = Math.Abs(EquityUtilization) < 1e-6
-                ? GetDynamicEquityUtilization(totalNumberOfObjectsToBeEstimated)
-                : EquityUtilization;
+            //double equityUtilization = Math.Abs(EquityUtilization) < 1e-6
+            //    ? GetDynamicEquityUtilization(totalNumberOfObjectsToBeEstimated)
+            //    : EquityUtilization;
+            double equityUtilization = GetDynamicEquityUtilization(totalNumberOfObjectsToBeEstimated);
 
             result.Comments = string.Format(
                 "positionsize = currentEquity({0:0.000}) * equityUtilization({1:0.000}) / Parts ({2}) / price({3:0.000})",
