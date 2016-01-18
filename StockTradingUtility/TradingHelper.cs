@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace StockTrading.Utility
 {
-    static class TradingHelper
+    public static class TradingHelper
     {
         public const float DefaultUpLimitPercentage = 10.0F;
         public const float DefaultDownLimitPercentage = -10.0F;

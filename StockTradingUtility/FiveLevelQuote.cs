@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace StockTrading.Utility
 {
-    sealed class FiveLevelQuote
+    public sealed class FiveLevelQuote
     {
         private static string[] columns = new string[]
         {

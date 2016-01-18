@@ -7,7 +7,7 @@ using System.Runtime.InteropServices;
 
 namespace StockTrading.Utility
 {
-    sealed class TradingClient : IDisposable
+    public sealed class TradingClient : IDisposable
     {
         public const int InvalidClientId = -1;
         private const int MaxErrorStringSize = 1024;

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace StockTrading.Utility
 {
-    sealed class OrderRequest
+    public sealed class OrderRequest
     {
         /// <summary>
         /// 委托类型

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace StockTrading.Utility
 {
-    sealed class QueryCapitalResult
+    public sealed class QueryCapitalResult
     {
         private static string[] columns = new string[]
         {

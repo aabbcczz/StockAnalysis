@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace StockTrading.Utility
 {
-    sealed class TabulateData
+    public sealed class TabulateData
     {
         private string[] _columns;
         private Dictionary<string, int> _columnNameToIndexMap = new Dictionary<string, int>();

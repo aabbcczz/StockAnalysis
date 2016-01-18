@@ -43,6 +43,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataStatistic", "DataStatis
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StockTradingUtility", "StockTradingUtility\StockTradingUtility.csproj", "{BBD0E400-69E5-4167-AECF-5BD5ED7CC273}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TradingClient", "TradingClient\TradingClient.csproj", "{D317E35D-1AB0-469F-A552-137F2D4B1BC6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -173,6 +175,12 @@ Global
 		{BBD0E400-69E5-4167-AECF-5BD5ED7CC273}.Release|Any CPU.Build.0 = Release|x86
 		{BBD0E400-69E5-4167-AECF-5BD5ED7CC273}.Release|x86.ActiveCfg = Release|x86
 		{BBD0E400-69E5-4167-AECF-5BD5ED7CC273}.Release|x86.Build.0 = Release|x86
+		{D317E35D-1AB0-469F-A552-137F2D4B1BC6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D317E35D-1AB0-469F-A552-137F2D4B1BC6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D317E35D-1AB0-469F-A552-137F2D4B1BC6}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{D317E35D-1AB0-469F-A552-137F2D4B1BC6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D317E35D-1AB0-469F-A552-137F2D4B1BC6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D317E35D-1AB0-469F-A552-137F2D4B1BC6}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace StockTrading.Utility
 {
-    enum HistoryDataCategory : int
+    public enum HistoryDataCategory : int
     {
         /// <summary>
         /// 历史委托

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace StockTrading.Utility
 {
-    static class TradingEnvironment
+    public static class TradingEnvironment
     {
         private static int InitializationCount = 0;
         private static object SyncObj = new object();

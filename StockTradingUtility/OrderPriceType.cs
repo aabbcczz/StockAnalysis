@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace StockTrading.Utility
 {
-    enum OrderPriceType : int
+    public enum OrderPriceType : int
     {
         /// <summary>
         /// 限价委托

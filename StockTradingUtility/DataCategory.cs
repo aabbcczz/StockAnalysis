@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace StockTrading.Utility
 {
-    enum DataCategory : int
+    public enum DataCategory : int
     {
         /// <summary>
         /// 资金

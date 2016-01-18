@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace StockTrading.Utility
 {
-    sealed class Exchange
+    public sealed class Exchange
     {
         public enum ExchangeId : int
         {

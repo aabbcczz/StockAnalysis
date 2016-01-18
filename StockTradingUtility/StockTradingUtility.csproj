@@ -55,9 +55,6 @@
     <StartupObject />
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="log4net">
-      <HintPath>..\SharedUtilityDll\log4net.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -76,7 +73,6 @@
     <Compile Include="QueryStockResult.cs" />
     <Compile Include="QuerySucceededOrderResult.cs" />
     <Compile Include="TradingHelper.cs" />
-    <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="DataCategory.cs" />
     <Compile Include="QueryCapitalResult.cs" />

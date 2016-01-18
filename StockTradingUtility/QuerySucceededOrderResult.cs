@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace StockTrading.Utility
 {
-    sealed class QuerySucceededOrderResult
+    public sealed class QuerySucceededOrderResult
     {
         private static string[] columns = new string[]
         {
