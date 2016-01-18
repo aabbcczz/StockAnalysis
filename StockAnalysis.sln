@@ -41,7 +41,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StockAnalysisShareTests", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataStatistic", "DataStatistic\DataStatistic.csproj", "{EE25B2EC-3CEA-425B-9A05-EEA2205E1748}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RealTrading", "RealTrading\RealTrading.csproj", "{BBD0E400-69E5-4167-AECF-5BD5ED7CC273}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StockTradingUtility", "StockTradingUtility\StockTradingUtility.csproj", "{BBD0E400-69E5-4167-AECF-5BD5ED7CC273}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
