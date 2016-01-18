@@ -184,6 +184,11 @@ namespace TradingStrategy.Base
                         continue;
                     }
 
+                    if (UntradableObject.Untradable(tradingObjects[i].Code))
+                    {
+                        continue;
+                    }
+
                     component.EvaluateSingleObject(tradingObjects[i], bars[i]);
                 }
             }

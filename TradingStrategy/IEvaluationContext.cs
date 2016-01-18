@@ -32,6 +32,10 @@ namespace TradingStrategy
 
         ITradingObject GetTradingObject(string code);
 
+        ITradingObject GetBoardIndexTradingObject(ITradingObject tradingObject);
+
+        ITradingObject GetBoardIndexTradingObject(StockBoard board);
+
         Bar GetBarOfTradingObjectForCurrentPeriod(ITradingObject tradingObject);
 
         void Log(string log);

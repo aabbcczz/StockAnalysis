@@ -49,7 +49,9 @@ namespace TradingStrategy.MetricBooleanExpression
             }
             else
             {
-                return _proxy.GetMetricValues(tradingObject)[0];
+                var values = _proxy.GetMetricValues(tradingObject);
+
+                return values == null ? double.NaN : values[0];
             }
         }
     }

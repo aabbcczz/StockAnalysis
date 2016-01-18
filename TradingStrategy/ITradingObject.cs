@@ -16,7 +16,7 @@
 
         // specific object associated with this trading object. the value depends on the type of
         // trading object. for example, for china stock trading object, this field will be associated
-        // which a StockName object.
+        // with a StockName object.
         object Object { get; }
 
         int VolumePerHand { get; }

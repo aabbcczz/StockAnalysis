@@ -16,6 +16,7 @@ namespace TradingStrategyEvaluation
         private readonly StockBlockRelationshipManager _relationshipManager;
         private readonly IDataDumper _dumper;
         private readonly TradingSettings _settings = null;
+        private readonly IDictionary<string, ITradingObject> _boardIndexTradingObjects;
 
         public IRuntimeMetricManager MetricManager
         {
@@ -60,6 +61,22 @@ namespace TradingStrategyEvaluation
 
             _metricManager = metricManager;
             _groupMetricManager = groupMetricManager;
+
+            _boardIndexTradingObjects = new Dictionary<string, ITradingObject>();
+
+            var boards = new StockBoard[] 
+            { 
+                StockBoard.GrowingBoard, 
+                StockBoard.MainBoard, 
+                StockBoard.SmallMiddleBoard 
+            };
+
+            foreach (var board in boards)
+            {
+                string boardIndex = StockName.GetBoardIndex(board);
+                ITradingObject tradingObject = GetTradingObject(boardIndex);
+                _boardIndexTradingObjects.Add(boardIndex, tradingObject);
+            }
         }
 
         public double GetInitialEquity()
@@ -87,11 +104,34 @@ namespace TradingStrategyEvaluation
             int index = _provider.GetIndexOfTradingObject(code);
             if (index < 0)
             {
-                throw new IndexOutOfRangeException("can't find trading object for code " + code);
+                return null;
             }
 
             return _provider.GetAllTradingObjects()[index];
         }
+
+        public ITradingObject GetBoardIndexTradingObject(ITradingObject tradingObject)
+        {
+            if (tradingObject == null)
+            {
+                throw new ArgumentNullException();
+            }
+
+            StockName stockName;
+
+            if (tradingObject.Object == null || (stockName = tradingObject.Object as StockName) == null)
+            {
+                return null;
+            }
+
+            return _boardIndexTradingObjects[stockName.GetBoardIndex()];
+        }
+
+        public ITradingObject GetBoardIndexTradingObject(StockBoard board)
+        {
+            return _boardIndexTradingObjects[StockName.GetBoardIndex(board)];
+        }
+
 
         public IEnumerable<string> GetAllPositionCodes()
         {

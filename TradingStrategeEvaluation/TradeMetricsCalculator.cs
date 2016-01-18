@@ -139,7 +139,7 @@ namespace TradingStrategyEvaluation
         }
 
 
-        private double EstimateUsedCapital(Transaction[] transactions)
+        private double EstimateRequiredInitialCapital(Transaction[] transactions, double initalCapital)
         {
             if (transactions == null)
             {
@@ -153,10 +153,11 @@ namespace TradingStrategyEvaluation
 
             if (transactions[0].Action != TradingAction.OpenLong)
             {
-                throw new ArgumentException("First transaction is not openning long");
+                throw new ArgumentException("First transaction is not opening long");
             }
 
-            var usedCapital = 0.0;
+            var usedCapital = initalCapital;
+            var requiredInitialCapital = 0.0;
             var currentCapital = 0.0;
 
             for (var i = 0; i < transactions.Length; ++i)
@@ -174,7 +175,19 @@ namespace TradingStrategyEvaluation
 
                     if (capitalForThisTransaction > currentCapital)
                     {
-                        usedCapital += capitalForThisTransaction - currentCapital;
+                        var difference = capitalForThisTransaction - currentCapital;
+
+                        if (requiredInitialCapital == 0.0)
+                        {
+                            requiredInitialCapital = difference;
+                        }
+                        else
+                        {
+                            requiredInitialCapital += difference * initalCapital / usedCapital;
+                        }
+
+                        usedCapital += difference;
+
                         currentCapital = 0.0;
                     }
                     else
@@ -195,7 +208,7 @@ namespace TradingStrategyEvaluation
                 }
             }
 
-            return usedCapital + 1.0; // add 1.0 to avoid accumulated precision loss.
+            return requiredInitialCapital + 1.0; // add 1.0 to avoid accumulated precision loss.
         }
 
         /// <summary>
@@ -325,8 +338,8 @@ namespace TradingStrategyEvaluation
                 ? _transactionHistory
                 : _transactionHistory.Where(t => t.Code == code).ToArray();
 
-            var usedCapital = EstimateUsedCapital(transactions);
-            var initialCapital = Math.Max(_initialCapital, usedCapital);
+            var requiredInitialCapital = EstimateRequiredInitialCapital(transactions, _initialCapital);
+            var initialCapital = Math.Max(_initialCapital, requiredInitialCapital);
 
             var manager = new EquityManager(new SimpleCapitalManager(initialCapital), _settings.PositionFrozenDays);
 

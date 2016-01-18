@@ -455,6 +455,27 @@
         </ParameterSettings>
       </ComponentParameterSettings>
     </TradingStrategyComponentSettings>
+    <TradingStrategyComponentSettings Enabled="false" Name="单移动平均板块指数入市">
+      <ClassType>TradingStrategy.Strategy.SingleMovingAverageBoardIndexMarketEntering, TradingStrategy, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</ClassType>
+      <Description>当板块指数收盘价和移动平均值满足触发条件时允许入市</Description>
+      <ImplementedInterfaces>ITradingStrategyComponent;IMarketEnteringComponent</ImplementedInterfaces>
+      <ComponentParameterSettings>
+        <ParameterSettings>
+          <Name>MovingAveragePeriod</Name>
+          <Description>移动平均周期</Description>
+          <ValueType>System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
+          <DefaultValue xsi:type="xsd:int">10</DefaultValue>
+          <Values>50</Values>
+        </ParameterSettings>
+        <ParameterSettings>
+          <Name>TriggeringCondition</Name>
+          <Description>触发条件。1表示收盘价高于移动平均值触发, 0表示收盘价低于移动平均值触发</Description>
+          <ValueType>System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
+          <DefaultValue xsi:type="xsd:int">1</DefaultValue>
+          <Values>1</Values>
+        </ParameterSettings>
+      </ComponentParameterSettings>
+    </TradingStrategyComponentSettings>	
     <TradingStrategyComponentSettings Enabled="false" Name="TRIN指标入市">
       <ClassType>TradingStrategy.Strategy.TrinMarketEntering, TradingStrategy, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</ClassType>
       <Description>当TRIN指标连续高于或者低于阈值后入市</Description>
@@ -1102,7 +1123,7 @@
           <Description>最大待处理头寸数目，当待处理头寸数目超过此数时不买入任何头寸</Description>
           <ValueType>System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
           <DefaultValue xsi:type="xsd:int">1000</DefaultValue>
-          <Values>1000</Values>
+          <Values>10000</Values>
         </ParameterSettings>		
         <ParameterSettings>
           <Name>EquityEvaluationMethod</Name>
@@ -1116,7 +1137,7 @@
           <Description>权益利用率，[0.0..1.0], 0.0代表自适应权益利用率</Description>
           <ValueType>System.Double, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
           <DefaultValue xsi:type="xsd:double">1</DefaultValue>
-          <Values>0.72</Values>
+          <Values>0.74</Values>
         </ParameterSettings>
         <ParameterSettings>
           <Name>LimitNewPositionCountAsParts</Name>

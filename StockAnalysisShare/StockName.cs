@@ -81,6 +81,11 @@ namespace StockAnalysis.Share
                 return StockBoard.SmallMiddleBoard;
             }
 
+            if (code.StartsWith("0"))
+            {
+                return StockBoard.MainBoard;
+            }
+
             return StockBoard.Unknown;
         }
 
@@ -99,6 +104,16 @@ namespace StockAnalysis.Share
         {
             Code = NormalizeCode(code);
             Names = names;
+        }
+
+        public string GetBoardIndex()
+        {
+            return StockName.GetBoardIndex(Board);
+        }
+
+        public static string GetBoardIndex(StockBoard board)
+        {
+            return StockName.NormalizeCode(StockBoardIndex.GetBoardIndex(board));
         }
 
         public override string ToString()

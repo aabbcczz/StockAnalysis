@@ -79,6 +79,7 @@
     <Compile Include="StockBlockRelationship.cs" />
     <Compile Include="StockBlockRelationshipManager.cs" />
     <Compile Include="StockBoard.cs" />
+    <Compile Include="StockBoardIndex.cs" />
     <Compile Include="StockHistoryData.cs" />
     <Compile Include="Bar.cs" />
     <Compile Include="StockMarket.cs" />
@@ -88,6 +89,7 @@
     <Compile Include="TdxBinaryBlockDataReader.cs" />
     <Compile Include="TdxHangYeBlockDataReader.cs" />
     <Compile Include="TdxStockBlockConfigReader.cs" />
+    <Compile Include="UntradableObject.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

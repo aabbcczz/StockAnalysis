@@ -19,7 +19,7 @@ namespace TradingStrategy.Strategy
         [Parameter(1000, "最大待处理头寸数目，当待处理头寸数目超过此数时不买入任何头寸")]
         public int MaxObjectNumberToBeEstimated { get; set; }
 
-        [Parameter(EquityEvaluationMethod.InitialEquity, "权益计算方法。0：核心权益法，1：总权益法，2：抵减总权益法，3：初始权益法，4：控制损失初始权益法，5：控制损失总权益法，6：控制损失抵减总权益法")]
+        [Parameter(EquityEvaluationMethod.InitialEquity, "权益计算方法。0:核心权益法,1:总权益法,2:抵减总权益法,3:初始权益法,4:控制损失初始权益法,5:控制损失总权益法,6:控制损失抵减总权益法")]
         public EquityEvaluationMethod EquityEvaluationMethod { get; set; }
 
         [Parameter(1.0, "权益利用率[0.0..1.0], 0.0代表自适应权益利用率")]
@@ -38,8 +38,18 @@ namespace TradingStrategy.Strategy
             get { return "每份头寸占有的价值是总权益的固定比例(1/PartsOfEquity)"; }
         }
 
+        private BoardIndexBasedEquityUtilizationCalculator _calculator = null;
+
         private double _latestHighEquity = 0.0;
         private double _dynamicEquityUtilization = 0.0;
+
+
+        public override void Initialize(IEvaluationContext context, IDictionary<ParameterAttribute, object> parameterValues)
+        {
+            base.Initialize(context, parameterValues);
+
+            _calculator = new BoardIndexBasedEquityUtilizationCalculator(context);
+        }
 
         protected override void ValidateParameterValues()
         {
@@ -56,22 +66,35 @@ namespace TradingStrategy.Strategy
             }
         }
 
-        private double GetDynamicEquityUtilization(int totalNumberOfObjectsToBeEstimated)
+        private double GetEquityUtilizationPenalty(double drawdown)
         {
-            //var currentEquity = Context.GetCurrentEquity(CurrentPeriod, EquityEvaluationMethod);
-            //var initialEquity = Context.GetInitialEquity();
+            drawdown = Math.Abs(drawdown);
 
-            //if (currentEquity <= initialEquity)
-            //{
-            //    return 1.0;
-            //}
-            //else
-            //{
-            //    var x = currentEquity / initialEquity;
+            return 2.0 * drawdown;
+        }
 
-            //    return 2.0 / (1.0 + Math.Exp(0.03 * (x - 1.0)));
-            //}
+        private void UpdateDynamicEquityUtilization()
+        {
+            double currentEquity = Context.GetCurrentEquity(CurrentPeriod, EquityEvaluationMethod.TotalEquity);
+            
+            if (currentEquity > _latestHighEquity)
+            {
+                _latestHighEquity = currentEquity;
+            }
 
+            double drawdown = Math.Abs((currentEquity - _latestHighEquity) / _latestHighEquity);
+
+            _dynamicEquityUtilization = EquityUtilization * (1.0 - GetEquityUtilizationPenalty(drawdown));
+
+            if (_dynamicEquityUtilization < 0.3)
+            {
+                _dynamicEquityUtilization = 0.3;
+            }
+        }
+
+        private double GetDynamicEquityUtilization(ITradingObject tradingObject)
+        {
+            // return _calculator.CalculateEquityUtilization(tradingObject) * _dynamicEquityUtilization;
             return _dynamicEquityUtilization;
         }
 
@@ -79,20 +102,7 @@ namespace TradingStrategy.Strategy
         {
             base.StartPeriod(time);
 
-            double currentEquity = Context.GetCurrentEquity(CurrentPeriod, EquityEvaluationMethod.TotalEquity);
-            if (currentEquity > _latestHighEquity)
-            {
-                _latestHighEquity = currentEquity;
-            }
-
-            double drawdown = (currentEquity - _latestHighEquity) / _latestHighEquity;
-
-            _dynamicEquityUtilization = EquityUtilization + 3 * drawdown;
-
-            if (_dynamicEquityUtilization < 0.3)
-            {
-                _dynamicEquityUtilization = 0.3;
-            }
+            UpdateDynamicEquityUtilization();
         }
 
         public override int GetMaxPositionCount(int totalNumberOfObjectsToBeEstimated)
@@ -130,10 +140,7 @@ namespace TradingStrategy.Strategy
                 ? Math.Max(Math.Min(totalNumberOfObjectsToBeEstimated, maxParts), MinPartsOfAdpativeAllocation)
                 : PartsOfEquity;
 
-            //double equityUtilization = Math.Abs(EquityUtilization) < 1e-6
-            //    ? GetDynamicEquityUtilization(totalNumberOfObjectsToBeEstimated)
-            //    : EquityUtilization;
-            double equityUtilization = GetDynamicEquityUtilization(totalNumberOfObjectsToBeEstimated);
+            double equityUtilization = GetDynamicEquityUtilization(tradingObject);
 
             result.Comments = string.Format(
                 "positionsize = currentEquity({0:0.000}) * equityUtilization({1:0.000}) / Parts ({2}) / price({3:0.000})",
