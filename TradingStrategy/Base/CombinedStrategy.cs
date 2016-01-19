@@ -236,6 +236,10 @@ namespace TradingStrategy.Base
 
                         return;
                     }
+                    else
+                    {
+                        price = filterResult.AcceptablePrice;
+                    }
                 }
 
                 var stopLossResult = _stopLoss.EstimateStopLossGap(instruction.TradingObject, price);

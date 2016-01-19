@@ -9,6 +9,11 @@ namespace StockTrading.Utility
     public sealed class OrderRequest
     {
         /// <summary>
+        /// 客户端请求编号, 由客户端生成。
+        /// </summary>
+        public Guid RequestId { get; private set; }
+
+        /// <summary>
         /// 委托类型
         /// </summary>
         public OrderCategory Category { get; set; }
@@ -32,5 +37,10 @@ namespace StockTrading.Utility
         /// 委托数量
         /// </summary>
         public int Quantity { get; set; }
+
+        public OrderRequest()
+        {
+            RequestId = Guid.NewGuid();
+        }
     }
 }

@@ -10,22 +10,24 @@ using log4net.Core;
 
 namespace StockTrading.Utility
 {
-    sealed class QuoteController
+    sealed class QuotePublisher
     {
-        public delegate void OnQuoteReadyDelegate(FiveLevelQuote[] quotes, string[] errors);
+        private const int MaxBatchSize = 50;
 
         private readonly TradingClient _client;
         private readonly int _refreshingIntervalInMillisecond;
 
         private Timer _timer;
-        private object _quoteLockObj = new object();
+        private bool _isStopped = false;
+
+        private object _publisherLockObj = new object();
         private object _codeListLockObj = new object();
 
         private List<string> _codeList = new List<string>();
 
-        private OnQuoteReadyDelegate _onQuoteReadyCallback = null;
+        private CtpSimulator.OnQuoteReadyDelegate _onQuoteReadyCallback = null;
 
-        public QuoteController(TradingClient client, int refreshingIntervalInMillisecond)
+        public QuotePublisher(TradingClient client, int refreshingIntervalInMillisecond)
         {
             if (client == null)
             {
@@ -47,16 +49,22 @@ namespace StockTrading.Utility
         {
             _timer.Dispose();
             _timer = null;
+
+            lock (_publisherLockObj)
+            {
+                _isStopped = true;
+            }
+
         }
 
-        public void RegisterQuoteReadyCallback(OnQuoteReadyDelegate callback)
+        public void RegisterQuoteReadyCallback(CtpSimulator.OnQuoteReadyDelegate callback)
         {
             if (callback == null)
             {
                 throw new ArgumentNullException();
             }
 
-            lock (_quoteLockObj)
+            lock (_publisherLockObj)
             {
                 _onQuoteReadyCallback += callback;
             }
@@ -86,16 +94,26 @@ namespace StockTrading.Utility
 
         private void GetQuote(object state)
         {
-            if (!Monitor.TryEnter(_quoteLockObj))
+            if (!Monitor.TryEnter(_publisherLockObj))
             {
                 // ignore this refresh because previous refreshing is still on going.
+                return;
+            }
+
+            if (_isStopped)
+            {
+                return;
+            }
+
+            if (_client == null || !_client.IsLoggedOn())
+            {
                 return;
             }
 
             try
             {
                 // get a duplicate quote list to avoid lock quote list too long
-                string[] codes = null;
+                List<string> codes = null;
 
                 lock (_codeListLockObj)
                 {
@@ -104,15 +122,34 @@ namespace StockTrading.Utility
                         return;
                     }
 
-                    codes = _codeList.ToArray();
+                    codes = new List<string>(_codeList);
                 }
 
-                System.Diagnostics.Debug.Assert(codes.Length > 0);
+                System.Diagnostics.Debug.Assert(codes.Count > 0);
 
-                string[] errors;
-                FiveLevelQuote[] quotes = _client.GetQuote(codes, out errors);
+                List<string[]> subsets = new List<string[]>();
+                for (int index = 0; index < codes.Count; index += MaxBatchSize)
+                {
+                    int count = Math.Min(codes.Count - index, MaxBatchSize);
+                    if (count == 0)
+                    {
+                        break;
+                    }
 
-                PublishQuotes(quotes, errors);
+                    var subset = codes.GetRange(index, count).ToArray();
+
+                    subsets.Add(subset);
+                }
+
+                Parallel.ForEach(
+                    subsets,
+                    subset => 
+                        {
+                            string[] errors;
+                            FiveLevelQuote[] quotes = _client.GetQuote(subset, out errors);
+
+                            PublishQuotes(quotes, errors);
+                        });
             }
             catch (Exception ex)
             {
@@ -124,7 +161,7 @@ namespace StockTrading.Utility
             }
             finally
             {
-                Monitor.Exit(_quoteLockObj);
+                Monitor.Exit(_publisherLockObj);
             }
         }
 

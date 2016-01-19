@@ -9,6 +9,13 @@ namespace StockTrading.Utility
 {
     public sealed class CtpSimulator
     {
+        public delegate void OnQuoteReadyDelegate(FiveLevelQuote[] quotes, string[] errors);
+
+        /// <summary>
+        /// the quote refreshing interval in millisecond.
+        /// </summary>
+        public const int QuoteRefreshingInterval = 3000;
+
         private static CtpSimulator _instance = null;
 
         private object _syncObj = new object();
@@ -16,7 +23,7 @@ namespace StockTrading.Utility
         private TradingClient _client = null;
         private bool _initialized = false;
 
-        private Thread _quoteThread = null;
+        private QuotePublisher _quotePublisher = null;
 
         public static CtpSimulator GetInstance()
         {
@@ -60,8 +67,7 @@ namespace StockTrading.Utility
 
                         _client = new TradingClient();
 
-                        _quoteThread = new Thread(QuoteThreadStart);
-                        _quoteThread.Start();
+                        _quotePublisher = new QuotePublisher(_client, QuoteRefreshingInterval);
 
                         _initialized = true;
                     }
@@ -81,8 +87,8 @@ namespace StockTrading.Utility
                 {
                     if (_initialized)
                     {
-                        _quoteThread.Join();
-                        _quoteThread = null;
+                        _quotePublisher.Stop();
+                        _quotePublisher = null;
 
                         _client.LogOff();
                         _client = null;
@@ -95,9 +101,19 @@ namespace StockTrading.Utility
             }
         }
 
-        private void QuoteThreadStart()
+        public void SubscribeQuote(string code)
         {
+            _quotePublisher.Subscribe(code);
+        }
 
+        public void SubscribeQuote(IEnumerable<string> codes)
+        {
+            _quotePublisher.Subscribe(codes);
+        }
+
+        public void RegisterQuoteReadyCallback(OnQuoteReadyDelegate callback)
+        {
+            _quotePublisher.RegisterQuoteReadyCallback(callback);
         }
     }
 }

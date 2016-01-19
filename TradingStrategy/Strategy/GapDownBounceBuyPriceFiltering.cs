@@ -33,7 +33,7 @@ namespace TradingStrategy.Strategy
 
         public override BuyPriceFilteringComponentResult IsPriceAcceptable(ITradingObject tradingObject, double price)
         {
-            var result = new BuyPriceFilteringComponentResult();
+            var result = new BuyPriceFilteringComponentResult(price);
 
             double buyPriceDownLimit = GetBuyPriceLimit(tradingObject);
 
@@ -45,6 +45,7 @@ namespace TradingStrategy.Strategy
                     buyPriceDownLimit);
 
                 result.IsPriceAcceptable = false;
+                result.AcceptablePrice = double.NaN;
             }
 
             return result;
