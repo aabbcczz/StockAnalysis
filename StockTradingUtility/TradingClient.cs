@@ -160,7 +160,7 @@ namespace StockTrading.Utility
             TabulateData data;
             if (!QueryData(DataCategory.Stock, out data, out error))
             {
-                return null;
+                return new List<QueryStockResult>();
             }
 
             return QueryStockResult.ExtractFrom(data);
@@ -171,7 +171,7 @@ namespace StockTrading.Utility
             TabulateData data;
             if (!QueryData(DataCategory.ShareholderRegistryCode, out data, out error))
             {
-                return null;
+                return new List<QueryShareholderRegistryResult>();
             }
 
             return QueryShareholderRegistryResult.ExtractFrom(data);
@@ -182,7 +182,7 @@ namespace StockTrading.Utility
             TabulateData data;
             if (!QueryData(DataCategory.OrderSubmittedToday, out data, out error))
             {
-                return null;
+                return new List<QueryGeneralOrderResult>();
             }
 
             return QueryGeneralOrderResult.ExtractFrom(data);
@@ -193,7 +193,7 @@ namespace StockTrading.Utility
             TabulateData data;
             if (!QueryData(DataCategory.OrderSucceededToday, out data, out error))
             {
-                return null;
+                return new List<QuerySucceededOrderResult>();
             }
 
             return QuerySucceededOrderResult.ExtractFrom(data);
@@ -204,7 +204,7 @@ namespace StockTrading.Utility
             TabulateData data;
             if (!QueryData(DataCategory.CancellableOrder, out data, out error))
             {
-                return null;
+                return new List<QueryGeneralOrderResult>();
             }
 
             return QueryGeneralOrderResult.ExtractFrom(data);

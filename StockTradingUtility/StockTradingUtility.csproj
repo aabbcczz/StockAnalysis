@@ -68,7 +68,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CtpSimulator.cs" />
-    <Compile Include="DispatchOrderResult.cs" />
+    <Compile Include="DispatchedOrder.cs" />
     <Compile Include="Exchange.cs" />
     <Compile Include="HistoryDataCategory.cs" />
     <Compile Include="OrderCategory.cs" />

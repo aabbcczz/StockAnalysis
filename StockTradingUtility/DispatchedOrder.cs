@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace StockTrading.Utility
 {
-    public sealed class DispatchOrderResult
+    public sealed class DispatchedOrder
     {
         public int OrderNo { get; set; }
 

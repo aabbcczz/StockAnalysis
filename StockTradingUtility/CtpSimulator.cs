@@ -11,6 +11,8 @@ namespace StockTrading.Utility
     {
         public delegate void OnQuoteReadyDelegate(FiveLevelQuote[] quotes, string[] errors);
 
+        public delegate void OnOrderFullySucceededDelegate(DispatchedOrder dispatchedOrder);
+
         /// <summary>
         /// the quote refreshing interval in millisecond.
         /// </summary>

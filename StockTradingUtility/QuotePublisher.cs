@@ -14,7 +14,7 @@ namespace StockTrading.Utility
     {
         private const int MaxBatchSize = 50;
 
-        private readonly TradingClient _client;
+        private TradingClient _client;
         private readonly int _refreshingIntervalInMillisecond;
 
         private Timer _timer;
@@ -53,6 +53,8 @@ namespace StockTrading.Utility
             lock (_publisherLockObj)
             {
                 _isStopped = true;
+
+                _client = null;
             }
 
         }
