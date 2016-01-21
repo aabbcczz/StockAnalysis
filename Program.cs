@@ -1,32 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Threading;
-using System.Windows.Forms;
+using System.Runtime.InteropServices;
 
-using StockTrading.Utility;
-
-namespace TradingClient
+namespace StockTrading.Utility
 {
-    public partial class MainForm : Form
+    class Program
     {
-        public MainForm()
+        static void WriteOutput(TabulateData result, string error)
         {
-            InitializeComponent();
-        }
-
-
-        private void WriteOutput(TabulateData result, string error)
-        {
-            textBox1.AppendText("\n");
-            textBox1.AppendText(string.Format("Error: {0}", error));
-            textBox1.AppendText("\n");
-            textBox1.AppendText("Result:");
+            Console.WriteLine("Error: {0}", error);
+            Console.WriteLine("Result:");
             
             if (result == null)
             {
@@ -35,36 +22,38 @@ namespace TradingClient
 
             var columns = result.Columns;
 
-            textBox1.AppendText("\n");
             foreach (var column in columns)
             {
-                textBox1.AppendText(string.Format("{0}\t", column));
+                Console.Write("{0}\t", column);
             }
 
-            textBox1.AppendText("\n");
+            Console.WriteLine();
+
             foreach (var row in result.Rows)
             {
                 foreach (var field in row)
                 {
-                    textBox1.AppendText(string.Format("{0}\t", field));
+                    Console.Write("{0}\t", field);
                 }
             }
+
+            Console.WriteLine();
         }
 
         //static void TestAccountEncryptionDecryption()
         //{
         //    string decryptedAccount = TdxWrapper.DecryptAccount("CAEZBMBJ");
 
-        //    textBox1.AppendText(decryptedAccount);
+        //    Console.WriteLine(decryptedAccount);
 
         //    string encryptedAccount = TdxWrapper.EncryptAccount("13003470");
-        //    textBox1.AppendText(encryptedAccount);
+        //    Console.WriteLine(encryptedAccount);
 
         //    string encryptedAccount1 = TdxWrapper.EncryptAccount("42000042387");
-        //    textBox1.AppendText(encryptedAccount1);
+        //    Console.WriteLine(encryptedAccount1);
 
         //    string decryptedAccount1 = TdxWrapper.DecryptAccount(encryptedAccount1);
-        //    textBox1.AppendText(decryptedAccount1);
+        //    Console.WriteLine(decryptedAccount1);
         //}
 
         //static void TestCalcLimit()
@@ -76,35 +65,32 @@ namespace TradingClient
         //        float upLimit = TradingHelper.CalcUpLimit(price);
         //        float downLimit = TradingHelper.CalcDownLimit(price);
 
-        //        textBox1.AppendText("Price: {0:0.000}, Up limit: {1:0.000}, Down limit: {2:0.000}", price, upLimit, downLimit);
+        //        Console.WriteLine("Price: {0:0.000}, Up limit: {1:0.000}, Down limit: {2:0.000}", price, upLimit, downLimit);
         //    }
         //}
 
-        private void ShowQuote(TabulateData result, DateTime time)
+        static void ShowQuote(TabulateData result, DateTime time)
         {
             foreach (var quote in FiveLevelQuote.ExtractFrom(result, time))
             {
-                textBox1.AppendText("\n");
-
-                textBox1.AppendText(string.Format("{0} {1} {2} {3:0.000} {4:0.000} {5:0.000}", quote.Timestamp, quote.SecurityCode, quote.SecurityName, quote.YesterdayClosePrice, quote.TodayOpenPrice, quote.CurrentPrice));
+                Console.WriteLine("{0} {1} {2} {3:0.000} {4:0.000} {5:0.000}", quote.Timestamp, quote.SecurityCode, quote.SecurityName, quote.YesterdayClosePrice, quote.TodayOpenPrice, quote.CurrentPrice);
                 for (int j = quote.AskPrices.Length - 1; j >= 0; --j)
                 {
-                    textBox1.AppendText("\n");
-                    textBox1.AppendText(string.Format("{0:0.000} {1}", quote.AskPrices[j], quote.AskVolumes[j]));
+                    Console.WriteLine("{0:0.000} {1}", quote.AskPrices[j], quote.AskVolumes[j]);
                 }
 
-                textBox1.AppendText("\n");
-                textBox1.AppendText("-----------------");
+                Console.WriteLine("-----------------");
 
                 for (int j = 0; j < quote.BidPrices.Length; ++j)
                 {
-                    textBox1.AppendText("\n");
-                    textBox1.AppendText(string.Format("{0:0.000} {1}", quote.BidPrices[j], quote.BidVolumes[j]));
+                    Console.WriteLine("{0:0.000} {1}", quote.BidPrices[j], quote.BidVolumes[j]);
                 }
+
+                Console.WriteLine();
             }
         }
 
-        private void button1_Click(object sender, EventArgs e)
+        static void Main(string[] args)
         {
             // TestAccountEncryptionDecryption();
             // TestCalcLimit();
@@ -113,7 +99,7 @@ namespace TradingClient
 
             try
             {
-                using (var client = new StockTrading.Utility.TradingClient())
+                using (var client = new TradingClient())
                 {
                     string error;
 
@@ -121,8 +107,7 @@ namespace TradingClient
                     {
                         if (!client.LogOn("wt5.foundersc.com", 7708, "6.19", 1, "13003470", 9, "13003470", "789012", string.Empty, out error))
                         {
-                            textBox1.AppendText("\n");
-                            textBox1.AppendText(string.Format("Log on failed: {0}", error));
+                            Console.WriteLine("Log on failed: {0}", error);
                         }
                         else
                         {
@@ -130,8 +115,7 @@ namespace TradingClient
                         }
                     }
 
-                    textBox1.AppendText("\n");
-                    textBox1.AppendText(string.Format("Logged on, client id = {0}", client.ClientId));
+                    Console.WriteLine("Logged on, client id = {0}", client.ClientId);
 
                     TabulateData result;
 
@@ -162,8 +146,8 @@ namespace TradingClient
                     client.QueryData(DataCategory.MarginableSecurity, out result, out error);
                     WriteOutput(result, error);
 
-                    textBox1.AppendText("\n");
-                    textBox1.AppendText(">>>>>>> test array api");
+
+                    Console.WriteLine(">>>>>>> test array api");
 
                     TabulateData[] results;
                     string[] errors;
@@ -187,14 +171,9 @@ namespace TradingClient
                     
                     string[] codes = new string[]{ "000001", "000004", "601398" };
 
-                    for (int k = 0; k < 5; k++)
+                    for (int k = 0; k < 20; k++)
                     {
                         succeeds = client.GetQuote(codes, out results, out errors);
-                        if (k == 0)
-                        {
-                            WriteOutput(results[0], errors[0]);
-                        }
-
                         for (int i = 0; i < codes.Length; ++i)
                         {
                             if (succeeds[i])
@@ -203,13 +182,11 @@ namespace TradingClient
                             }
                             else
                             {
-                                textBox1.AppendText("\n");
-
-                                textBox1.AppendText(string.Format("error: {0}", errors[i]));
+                                Console.WriteLine("error: {0}", errors[i]);
                             }
                         }
 
-                        Thread.Sleep(3000);
+                        Thread.Sleep(1000);
 
                         //DateTime now = DateTime.Now;
                         //if (now.TimeOfDay > new TimeSpan(9, 25, 1))
@@ -224,7 +201,7 @@ namespace TradingClient
 
                     //for (; ; )
                     //{
-                    //    textBox1.AppendText("Please input code.");
+                    //    Console.WriteLine("Please input code.");
                     //    string line = Console.ReadLine();
 
                     //    time = DateTime.Now;
@@ -241,7 +218,7 @@ namespace TradingClient
                     //    }
                     //    else
                     //    {
-                    //        textBox1.AppendText("error: {0}", error);
+                    //        Console.WriteLine("error: {0}", error);
                     //    }
                     //}
 
@@ -250,7 +227,7 @@ namespace TradingClient
                     //time = DateTime.Now;
                     //if (!client.GetQuote(icbcCode, out result, out error))
                     //{
-                    //    textBox1.AppendText("error: {0}", error);
+                    //    Console.WriteLine("error: {0}", error);
                     //}
 
                     //ShowQuote(result, time);
@@ -258,7 +235,7 @@ namespace TradingClient
                     //var quotes = FiveLevelQuote.ExtractFrom(result, time);
                     //if (quotes.Count() == 0)
                     //{
-                    //    textBox1.AppendText("unable to get quote for {0}", icbcCode);
+                    //    Console.WriteLine("unable to get quote for {0}", icbcCode);
                     //}
                     //else
                     //{
@@ -267,7 +244,7 @@ namespace TradingClient
                     //    float yesterdayClosePrice = quote.YesterdayClosePrice;
                     //    float downLimit = PriceHelper.CalcDownLimit(yesterdayClosePrice);
 
-                    //    textBox1.AppendText("try to send order to buy 601398 at price {0:0.000}", downLimit);
+                    //    Console.WriteLine("try to send order to buy 601398 at price {0:0.000}", downLimit);
 
                     //    bool succeeded = client.SendOrder(OrderCategory.Buy, OrderPriceType.LimitPrice, icbcCode, downLimit, 100, out result, out error);
                     //    WriteOutput(result, error);
@@ -277,7 +254,7 @@ namespace TradingClient
                     //        var sendOrderResults = SendOrderResult.ExtractFrom(result);
                     //        if (sendOrderResults.Count() == 0)
                     //        {
-                    //            textBox1.AppendText("Failed to get result for SendOrder()");
+                    //            Console.WriteLine("Failed to get result for SendOrder()");
                     //        }
                     //        else
                     //        {
@@ -285,7 +262,7 @@ namespace TradingClient
 
                     //            Thread.Sleep(5000);
 
-                    //            textBox1.AppendText("try to cancel order {0}", sendOrderResult.OrderNo);
+                    //            Console.WriteLine("try to cancel order {0}", sendOrderResult.OrderNo);
 
                     //            succeeded = client.CancelOrder(Exchange.GetTradeableExchangeForSecurity(icbcCode), sendOrderResult.OrderNo, out result, out error);
 
@@ -301,19 +278,15 @@ namespace TradingClient
 
                         foreach (var order in orders)
                         {
-                            textBox1.AppendText("\n");
-
-                            textBox1.AppendText(
-                                string.Format(
-                                    "{0} {1} {2} {3} {4:0.000} {5} {6} {7}",
-                                    order.OrderNo,
-                                    order.SubmissionTime,
-                                    order.BuySellFlag,
-                                    order.Status,
-                                    order.SubmissionPrice,
-                                    order.SubmissionVolume,
-                                    order.SubmissionType,
-                                    order.PricingType));
+                            Console.WriteLine("{0} {1} {2} {3} {4:0.000} {5} {6} {7}",
+                                order.OrderNo,
+                                order.SubmissionTime,
+                                order.BuySellFlag,
+                                order.Status,
+                                order.SubmissionPrice,
+                                order.SubmissionVolume,
+                                order.SubmissionType,
+                                order.PricingType);
                         }
                     }
 
@@ -322,14 +295,17 @@ namespace TradingClient
             }
             catch (Exception ex)
             {
-                textBox1.AppendText("\n");
-
-                textBox1.AppendText(string.Format("{0}", ex));
+                Console.WriteLine("{0}", ex);
             }
             finally
             {
                 TradingEnvironment.UnInitialize();
             }
+
+#if DEBUG
+            Console.WriteLine("Press any key to exit.");
+            Console.ReadKey();
+#endif
         }
     }
 }
