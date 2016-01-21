@@ -43,5 +43,7 @@ namespace TradingStrategy
         void DumpBarsFromCurrentPeriod(ITradingObject tradingObject);
 
         void SetDefaultPriceForInstructionWhenNecessary(Instruction instruction);
+
+        int GetPositionFrozenDays();
     }
 }

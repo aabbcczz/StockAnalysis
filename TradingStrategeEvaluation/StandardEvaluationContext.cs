@@ -232,5 +232,10 @@ namespace TradingStrategyEvaluation
                 instruction.Price = price;
             }
         }
+
+        public int GetPositionFrozenDays()
+        {
+            return _settings.PositionFrozenDays;
+        }
     }
 }
