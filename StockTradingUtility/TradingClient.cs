@@ -614,7 +614,7 @@ namespace StockTrading.Utility
                 return false;
             }
 
-            TdxWrapper.CancelOrder(ClientId, exchange.Id.ToString(), orderId.ToString(), resultInfo, errorInfo);
+            TdxWrapper.CancelOrder(ClientId, exchange.ExchangeId.ToString(), orderId.ToString(), resultInfo, errorInfo);
 
             error = errorInfo.ToString();
             result = null;
@@ -652,7 +652,7 @@ namespace StockTrading.Utility
             try
             {
                 var exchangeIds = codes.Select(c => Exchange.GetTradeableExchangeForSecurity(c))
-                    .Select(e => e == null ? string.Empty : e.Id.ToString())
+                    .Select(e => e == null ? string.Empty : e.ExchangeId.ToString())
                     .ToArray();
                 var orderIdStrings = orderIds.Select(id => id.ToString()).ToArray();
 

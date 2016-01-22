@@ -7,6 +7,7 @@ using System.Threading;
 
 using log4net;
 using log4net.Core;
+using StockAnalysis.Share;
 
 namespace StockTrading.Utility
 {
@@ -145,11 +146,27 @@ namespace StockTrading.Utility
 
                 Parallel.ForEach(
                     subsets,
-                    subset => 
+                    async subset => 
                         {
+                            List<SinaStockQuote> sinaQuotes = await SinaStockQuoteInterface.GetQuote(subset);
+
                             string[] errors;
                             FiveLevelQuote[] quotes = _client.GetQuote(subset, out errors);
 
+                            if (quotes.Length != sinaQuotes.Count)
+                            {
+                                throw new InvalidOperationException("The count of sina quote does not match tdx quote");
+                            }
+
+                            for (int i = 0; i < quotes.Length; ++i)
+                            {
+                                if (quotes[i] != null)
+                                {
+                                    quotes[i].DealAmount = sinaQuotes[i].DealAmount;
+                                    quotes[i].DealVolumeInHand = sinaQuotes[i].DealVolumeInHand;
+                                }
+                            }
+                            
                             PublishQuotes(quotes, errors);
                         });
             }

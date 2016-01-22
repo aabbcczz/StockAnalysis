@@ -267,11 +267,11 @@ namespace ReportParser
             var name = StockName.Parse(code);
 
             var prefix = string.Empty;
-            if (name.Market == StockExchangeMarket.ShangHai)
+            if (name.ExchangeId == StockExchangeId.ShanghaiExchange)
             {
                 prefix = "SH";
             }
-            else if (name.Market == StockExchangeMarket.ShengZhen)
+            else if (name.ExchangeId == StockExchangeId.ShenzhenExchange)
             {
                 prefix = "SZ";
             }

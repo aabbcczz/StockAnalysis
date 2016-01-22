@@ -72,22 +72,32 @@ namespace StockTrading.Utility
         /// <summary>
         /// 买入价
         /// </summary>
-        public float[] BidPrices { get; private set; } 
+        public float[] BuyPrices { get; private set; } 
 
         /// <summary>
         /// 买入量
         /// </summary>
-        public int[] BidVolumes { get; private set; }
+        public int[] BuyVolumesInHand { get; private set; }
 
         /// <summary>
         /// 卖出价
         /// </summary>
-        public float[] AskPrices { get; private set; }
+        public float[] SellPrices { get; private set; }
 
         /// <summary>
         /// 卖出量
         /// </summary>
-        public int[] AskVolumes { get; private set; }
+        public int[] SellVolumesInHand { get; private set; }
+
+        /// <summary>
+        /// 至今成交量
+        /// </summary>
+        public long DealVolumeInHand { get; set; }
+
+        /// <summary>
+        /// 至今成交额
+        /// </summary>
+        public float DealAmount { get; set; }
 
         public FiveLevelQuote()
         {
@@ -123,34 +133,34 @@ namespace StockTrading.Utility
                 quote.YesterdayClosePrice = TradingHelper.SafeParseFloat(row[index++]);
                 quote.TodayOpenPrice = TradingHelper.SafeParseFloat(row[index++]);
                 quote.CurrentPrice = TradingHelper.SafeParseFloat(row[index++]);
-                quote.BidPrices = new float[5];
-                quote.BidVolumes = new int[5];
-                quote.AskPrices = new float[5];
-                quote.AskVolumes = new int[5];
+                quote.BuyPrices = new float[5];
+                quote.BuyVolumesInHand = new int[5];
+                quote.SellPrices = new float[5];
+                quote.SellVolumesInHand = new int[5];
 
-                quote.BidPrices[0] = TradingHelper.SafeParseFloat(row[index++]);
-                quote.BidPrices[1] = TradingHelper.SafeParseFloat(row[index++]);
-                quote.BidPrices[2] = TradingHelper.SafeParseFloat(row[index++]);
-                quote.BidPrices[3] = TradingHelper.SafeParseFloat(row[index++]);
-                quote.BidPrices[4] = TradingHelper.SafeParseFloat(row[index++]);
+                quote.BuyPrices[0] = TradingHelper.SafeParseFloat(row[index++]);
+                quote.BuyPrices[1] = TradingHelper.SafeParseFloat(row[index++]);
+                quote.BuyPrices[2] = TradingHelper.SafeParseFloat(row[index++]);
+                quote.BuyPrices[3] = TradingHelper.SafeParseFloat(row[index++]);
+                quote.BuyPrices[4] = TradingHelper.SafeParseFloat(row[index++]);
 
-                quote.BidVolumes[0] = TradingHelper.SafeParseInt(row[index++]);
-                quote.BidVolumes[1] = TradingHelper.SafeParseInt(row[index++]);
-                quote.BidVolumes[2] = TradingHelper.SafeParseInt(row[index++]);
-                quote.BidVolumes[3] = TradingHelper.SafeParseInt(row[index++]);
-                quote.BidVolumes[4] = TradingHelper.SafeParseInt(row[index++]);
+                quote.BuyVolumesInHand[0] = TradingHelper.SafeParseInt(row[index++]);
+                quote.BuyVolumesInHand[1] = TradingHelper.SafeParseInt(row[index++]);
+                quote.BuyVolumesInHand[2] = TradingHelper.SafeParseInt(row[index++]);
+                quote.BuyVolumesInHand[3] = TradingHelper.SafeParseInt(row[index++]);
+                quote.BuyVolumesInHand[4] = TradingHelper.SafeParseInt(row[index++]);
 
-                quote.AskPrices[0] = TradingHelper.SafeParseFloat(row[index++]);
-                quote.AskPrices[1] = TradingHelper.SafeParseFloat(row[index++]);
-                quote.AskPrices[2] = TradingHelper.SafeParseFloat(row[index++]);
-                quote.AskPrices[3] = TradingHelper.SafeParseFloat(row[index++]);
-                quote.AskPrices[4] = TradingHelper.SafeParseFloat(row[index++]);
+                quote.SellPrices[0] = TradingHelper.SafeParseFloat(row[index++]);
+                quote.SellPrices[1] = TradingHelper.SafeParseFloat(row[index++]);
+                quote.SellPrices[2] = TradingHelper.SafeParseFloat(row[index++]);
+                quote.SellPrices[3] = TradingHelper.SafeParseFloat(row[index++]);
+                quote.SellPrices[4] = TradingHelper.SafeParseFloat(row[index++]);
 
-                quote.AskVolumes[0] = TradingHelper.SafeParseInt(row[index++]);
-                quote.AskVolumes[1] = TradingHelper.SafeParseInt(row[index++]);
-                quote.AskVolumes[2] = TradingHelper.SafeParseInt(row[index++]);
-                quote.AskVolumes[3] = TradingHelper.SafeParseInt(row[index++]);
-                quote.AskVolumes[4] = TradingHelper.SafeParseInt(row[index++]);
+                quote.SellVolumesInHand[0] = TradingHelper.SafeParseInt(row[index++]);
+                quote.SellVolumesInHand[1] = TradingHelper.SafeParseInt(row[index++]);
+                quote.SellVolumesInHand[2] = TradingHelper.SafeParseInt(row[index++]);
+                quote.SellVolumesInHand[3] = TradingHelper.SafeParseInt(row[index++]);
+                quote.SellVolumesInHand[4] = TradingHelper.SafeParseInt(row[index++]);
 
                 yield return quote;
             }

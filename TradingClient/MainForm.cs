@@ -10,6 +10,7 @@ using System.Threading;
 using System.Windows.Forms;
 
 using StockTrading.Utility;
+using StockAnalysis.Share;
 
 namespace TradingClient
 {
@@ -87,24 +88,60 @@ namespace TradingClient
                 textBox1.AppendText("\n");
 
                 textBox1.AppendText(string.Format("{0} {1} {2} {3:0.000} {4:0.000} {5:0.000}", quote.Timestamp, quote.SecurityCode, quote.SecurityName, quote.YesterdayClosePrice, quote.TodayOpenPrice, quote.CurrentPrice));
-                for (int j = quote.AskPrices.Length - 1; j >= 0; --j)
+                for (int j = quote.SellPrices.Length - 1; j >= 0; --j)
                 {
                     textBox1.AppendText("\n");
-                    textBox1.AppendText(string.Format("{0:0.000} {1}", quote.AskPrices[j], quote.AskVolumes[j]));
+                    textBox1.AppendText(string.Format("{0:0.000} {1}", quote.SellPrices[j], quote.SellVolumesInHand[j]));
                 }
 
                 textBox1.AppendText("\n");
                 textBox1.AppendText("-----------------");
 
-                for (int j = 0; j < quote.BidPrices.Length; ++j)
+                for (int j = 0; j < quote.BuyPrices.Length; ++j)
                 {
                     textBox1.AppendText("\n");
-                    textBox1.AppendText(string.Format("{0:0.000} {1}", quote.BidPrices[j], quote.BidVolumes[j]));
+                    textBox1.AppendText(string.Format("{0:0.000} {1}", quote.BuyPrices[j], quote.BuyVolumesInHand[j]));
                 }
             }
         }
 
-        private void button1_Click(object sender, EventArgs e)
+        private void ShowQuote(SinaStockQuote quote)
+        {
+            textBox1.AppendText("\n");
+
+            if (quote == null)
+            {
+                textBox1.AppendText("null quote");
+
+                return;
+            }
+
+            textBox1.AppendText(string.Format("{0} {1} {2} {3:0.000} {4:0.000} {5:0.000}", quote.QuoteTime, quote.SecurityCode, quote.SecurityName, quote.YesterdayClosePrice, quote.TodayOpenPrice, quote.CurrentPrice));
+            for (int j = quote.SellPrices.Length - 1; j >= 0; --j)
+            {
+                textBox1.AppendText("\n");
+                textBox1.AppendText(string.Format("{0:0.000} {1}", quote.SellPrices[j], quote.SellVolumesInHand[j]));
+            }
+
+            textBox1.AppendText("\n");
+            textBox1.AppendText("-----------------");
+
+            for (int j = 0; j < quote.BuyPrices.Length; ++j)
+            {
+                textBox1.AppendText("\n");
+                textBox1.AppendText(string.Format("{0:0.000} {1}", quote.BuyPrices[j], quote.BuyVolumesInHand[j]));
+            }
+        }
+
+        private void ShowQuote(IEnumerable<SinaStockQuote> quotes)
+        {
+            foreach (var quote in quotes)
+            {
+                ShowQuote(quote);
+            }
+        }
+
+        private async void button1_Click(object sender, EventArgs e)
         {
             // TestAccountEncryptionDecryption();
             // TestCalcLimit();
@@ -113,21 +150,43 @@ namespace TradingClient
 
             try
             {
+                var sinaQuote = await SinaStockQuoteInterface.GetQuote("000001");
+                ShowQuote(sinaQuote);
+
+                string[] sinaCodes = new string[]
+                {
+                    "000001",
+                    "000002",
+                    "000003",
+                    "000004"
+                };
+
+                var sinaQuotes = await SinaStockQuoteInterface.GetQuote(sinaCodes);
+                ShowQuote(sinaQuotes);
+
                 using (var client = new StockTrading.Utility.TradingClient())
                 {
                     string error;
 
-                    while (true)
+                    int logonFailureCount = 0;
+                    while (logonFailureCount < 5)
                     {
                         if (!client.LogOn("wt5.foundersc.com", 7708, "6.19", 1, "13003470", 9, "13003470", "789012", string.Empty, out error))
                         {
                             textBox1.AppendText("\n");
                             textBox1.AppendText(string.Format("Log on failed: {0}", error));
+
+                            logonFailureCount++;
                         }
                         else
                         {
                             break;
                         }
+                    }
+
+                    if (!client.IsLoggedOn())
+                    {
+                        return;
                     }
 
                     textBox1.AppendText("\n");

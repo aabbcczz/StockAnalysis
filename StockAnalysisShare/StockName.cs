@@ -14,12 +14,12 @@ namespace StockAnalysis.Share
             private set
             {
                 _code = NormalizeCode(value);
-                Market = GetMarket(value);
+                ExchangeId = GetExchangeId(value);
                 Board = GetBoard(value);
             }
         }
 
-        public StockExchangeMarket Market { get; private set; }
+        public StockExchangeId ExchangeId { get; private set; }
 
         public StockBoard Board { get; private set; }
 
@@ -49,21 +49,27 @@ namespace StockAnalysis.Share
             }
         }
 
-        private static StockExchangeMarket GetMarket(string code)
+        public static StockExchangeId GetExchangeId(string code)
         {
             code = UnnormalizeCode(code);
-            if (code.StartsWith("3") || code.StartsWith("0"))
+
+            switch (code[0])
             {
-                return StockExchangeMarket.ShengZhen;
+                case '0':
+                case '1':
+                case '2':
+                case '3':
+                    return StockExchangeId.ShenzhenExchange;
+                case '5':
+                case '6':
+                case '9':
+                    return StockExchangeId.ShanghaiExchange;
+                default:
+                    throw new InvalidOperationException(string.Format("unsupported code {0}", code));
             }
-            if (code.StartsWith("6"))
-            {
-                return StockExchangeMarket.ShangHai;
-            }
-            return StockExchangeMarket.Unknown;
         }
 
-        private static StockBoard GetBoard(string code)
+        public static StockBoard GetBoard(string code)
         {
             code = UnnormalizeCode(code);
             if (code.StartsWith("3"))

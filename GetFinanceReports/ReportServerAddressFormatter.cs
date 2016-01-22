@@ -5,7 +5,7 @@ namespace GetFinanceReports
 {
     static class ReportServerAddressFormatter
     {
-        public static string Format(string format, StockName stock, Func<StockExchangeMarket, string> marketFormatter = null)
+        public static string Format(string format, StockName stock, Func<StockExchangeId, string> marketFormatter = null)
         {
             if (format == null)
             {
@@ -21,20 +21,20 @@ namespace GetFinanceReports
             format = format.Replace("%code%", stock.Code);
 
             // replace %market%
-            var market = marketFormatter == null ? stock.Market.ToString() : marketFormatter(stock.Market);
+            var market = marketFormatter == null ? stock.ExchangeId.ToString() : marketFormatter(stock.ExchangeId);
 
             format = format.Replace("%market%", market);
 
             return format;
         }
 
-        public static string DefaultAbbrevationMarketFormatter(StockExchangeMarket market)
+        public static string DefaultAbbrevationMarketFormatter(StockExchangeId market)
         {
             switch (market)
-            { 
-                case StockExchangeMarket.ShangHai:
+            {
+                case StockExchangeId.ShanghaiExchange:
                     return "sh";
-                case StockExchangeMarket.ShengZhen:
+                case StockExchangeId.ShenzhenExchange:
                     return "sz";
                 default:
                     return "";

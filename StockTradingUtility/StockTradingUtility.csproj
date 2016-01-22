@@ -91,7 +91,12 @@
     <Compile Include="TradingClient.cs" />
     <Compile Include="TradingEnvironment.cs" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\StockAnalysisShare\StockAnalysisShare.csproj">
+      <Project>{46eebd03-e7d2-4958-a782-d22435cbc2bb}</Project>
+      <Name>StockAnalysisShare</Name>
+    </ProjectReference>
+  </ItemGroup>
   <ItemGroup>
     <Content Include="RefDlls\mfc120.dll" />
     <Content Include="RefDlls\msvcp120.dll" />

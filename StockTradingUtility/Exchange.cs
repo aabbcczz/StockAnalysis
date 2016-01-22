@@ -4,16 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using StockAnalysis.Share;
+
 namespace StockTrading.Utility
 {
     public sealed class Exchange
     {
-        public enum ExchangeId : int
-        {
-            ShenzhenExchange = 0,
-            ShanghaiExchange = 1
-        }
-
         /// <summary>
         /// name of exchange
         /// </summary>
@@ -27,7 +23,7 @@ namespace StockTrading.Utility
         /// <summary>
         /// Id of exchange, can be used in trading
         /// </summary>
-        public ExchangeId Id { get; private set; }
+        public StockExchangeId ExchangeId { get; private set; }
 
         /// <summary>
         /// All supported order price type
@@ -56,19 +52,14 @@ namespace StockTrading.Utility
                 throw new ArgumentNullException();
             }
 
-            switch (code[0])
+            switch (StockName.GetExchangeId(code))
             {
-                case '0':
-                case '1':
-                case '2':
-                case '3':
-                    return ShenzhenExchange;
-                case '5':
-                case '6':
-                case '9':
-                    return ShanghaiExchange;
+                case StockExchangeId.ShanghaiExchange:
+                    return Exchange.ShanghaiExchange;
+                case StockExchangeId.ShenzhenExchange:
+                    return Exchange.ShenzhenExchange;
                 default:
-                    return null;
+                    throw new ArgumentException(string.Format("unsupported code {0}", code));
             }
         }
 
@@ -82,7 +73,7 @@ namespace StockTrading.Utility
             {
                 Name = "上海证券交易所",
                 Abbrevation = "SH",
-                Id = ExchangeId.ShanghaiExchange,
+                ExchangeId = StockExchangeId.ShanghaiExchange,
                 SupportedOrderPriceType = new OrderPriceType[] 
                     {
                         OrderPriceType.LimitPrice,
@@ -93,9 +84,9 @@ namespace StockTrading.Utility
 
             ShenzhenExchange = new Exchange()
             {
-                Name = "上海证券交易所",
+                Name = "深圳证券交易所",
                 Abbrevation = "SZ",
-                Id = ExchangeId.ShenzhenExchange,
+                ExchangeId = StockExchangeId.ShenzhenExchange,
                 SupportedOrderPriceType = new OrderPriceType[] 
                     {
                         OrderPriceType.LimitPrice,
