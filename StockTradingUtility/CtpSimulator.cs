@@ -11,12 +11,17 @@ namespace StockTrading.Utility
     {
         public delegate void OnQuoteReadyDelegate(FiveLevelQuote[] quotes, string[] errors);
 
-        public delegate void OnOrderFullySucceededDelegate(DispatchedOrder dispatchedOrder);
+        public delegate void OnOrderStatusChangedDelegate(DispatchedOrder dispatchedOrder);
 
         /// <summary>
         /// the quote refreshing interval in millisecond.
         /// </summary>
         public const int QuoteRefreshingInterval = 3000;
+
+        /// <summary>
+        /// the order refreshing interval in millisecond.
+        /// </summary>
+        public const int OrderRefreshingInterval = 1000;
 
         private static CtpSimulator _instance = null;
 
@@ -26,6 +31,7 @@ namespace StockTrading.Utility
         private bool _initialized = false;
 
         private QuotePublisher _quotePublisher = null;
+        private OrderDispatcher _orderDispatcher = null;
 
         public static CtpSimulator GetInstance()
         {
@@ -69,16 +75,26 @@ namespace StockTrading.Utility
 
                         _client = new TradingClient();
 
+                        if (!_client.LogOn(address, port, protocolVersion, yybId, accountNo, accountType, tradeAccount, tradePassword, communicationPassword, out error))
+                        {
+                            _client.Dispose();
+                            _client = null;
+
+                            return false;
+                        }
+
                         _quotePublisher = new QuotePublisher(_client, QuoteRefreshingInterval);
+                        _orderDispatcher = new OrderDispatcher(_client, OrderRefreshingInterval);
 
                         _initialized = true;
+
+                        return true;
                     }
                 }
             }
 
-            _client.LogOff();
-
-            return _client.LogOn(address, port, protocolVersion, yybId, accountNo, accountType, tradeAccount, tradePassword, communicationPassword, out error);
+            error = "CtpSimulator has been initialized already, can't be reinitialized";
+            return false;
         }
 
         public void UnInitialize()
@@ -91,6 +107,9 @@ namespace StockTrading.Utility
                     {
                         _quotePublisher.Stop();
                         _quotePublisher = null;
+
+                        _orderDispatcher.Stop();
+                        _orderDispatcher = null;
 
                         _client.LogOff();
                         _client = null;
@@ -113,9 +132,24 @@ namespace StockTrading.Utility
             _quotePublisher.Subscribe(codes);
         }
 
+        public DispatchedOrder DispatchOrder(OrderRequest request, out string error)
+        {
+            return _orderDispatcher.DispatchOrder(request, out error);
+        }
+
+        public bool CancelOrder(DispatchedOrder order, out string error)
+        {
+            return _orderDispatcher.CancelOrder(order, out error);
+        }
+
         public void RegisterQuoteReadyCallback(OnQuoteReadyDelegate callback)
         {
             _quotePublisher.RegisterQuoteReadyCallback(callback);
+        }
+
+        public void RegisterOrderStatusChangedCallback(OnOrderStatusChangedDelegate callback)
+        {
+            _orderDispatcher.RegisterOrderStatusChangedCallback(callback);
         }
     }
 }

@@ -368,7 +368,7 @@ namespace TradingClient
                                     order.OrderNo,
                                     order.SubmissionTime,
                                     order.BuySellFlag,
-                                    order.Status,
+                                    order.StatusString,
                                     order.SubmissionPrice,
                                     order.SubmissionVolume,
                                     order.SubmissionType,

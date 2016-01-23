@@ -54,7 +54,12 @@ namespace StockTrading.Utility
         /// <summary>
         /// 状态说明
         /// </summary>
-        public string Status { get; private set; }
+        public string StatusString { get; private set; }
+
+        /// <summary>
+        /// 状态
+        /// </summary>
+        public OrderStatus Status { get; private set; }
 
         /// <summary>
         /// 委托价格
@@ -64,7 +69,7 @@ namespace StockTrading.Utility
         /// <summary>
         /// 委托数量
         /// </summary>
-        public float SubmissionVolume { get; private set; }
+        public int SubmissionVolume { get; private set; }
 
         /// <summary>
         /// 成交价格
@@ -74,7 +79,7 @@ namespace StockTrading.Utility
         /// <summary>
         /// 成交数量
         /// </summary>
-        public float DealVolume { get; private set; }
+        public int DealVolume { get; private set; }
 
         /// <summary>
         /// 委托方式
@@ -105,11 +110,13 @@ namespace StockTrading.Utility
                 result.SecurityCode = row[index++];
                 result.SecurityName = row[index++];
                 result.BuySellFlag = row[index++];
-                result.Status = row[index++];
+                result.StatusString = row[index++];
+                result.Status = TradingHelper.ConvertStringToOrderStatus(result.StatusString);
+
                 result.SubmissionPrice = TradingHelper.SafeParseFloat(row[index++]);
-                result.SubmissionVolume = TradingHelper.SafeParseFloat(row[index++]);
+                result.SubmissionVolume = TradingHelper.SafeParseInt(row[index++]);
                 result.DealPrice = TradingHelper.SafeParseFloat(row[index++]);
-                result.DealVolume = TradingHelper.SafeParseFloat(row[index++]);
+                result.DealVolume = TradingHelper.SafeParseInt(row[index++]);
                 result.SubmissionType = row[index++];
                 result.PricingType = row[index++];
 

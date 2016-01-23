@@ -11,18 +11,21 @@ namespace StockTrading.Utility
 {
     sealed class OrderDispatcher
     {
+        private readonly int _refreshingIntervalInMillisecond;
+
         private TradingClient _client = null;
 
         private object _dispatcherLockObj = new object();
         private object _orderLockObj = new object();
 
+        private Timer _timer = null;
         private bool _isStopped = false;
 
-        private IDictionary<int, DispatchedOrder> _orderNoToRequestIdMap = new Dictionary<int, DispatchedOrder>();
+        private IDictionary<int, DispatchedOrder> _allActiveOrders = new Dictionary<int, DispatchedOrder>();
 
-        private CtpSimulator.OnOrderFullySucceededDelegate _onOrderFullySucceededCallback = null;
+        private CtpSimulator.OnOrderStatusChangedDelegate _onOrderStatusChangedCallback = null;
 
-        public OrderDispatcher(TradingClient client)
+        public OrderDispatcher(TradingClient client, int refreshingIntervalInMillisecond)
         {
             if (client == null)
             {
@@ -30,12 +33,16 @@ namespace StockTrading.Utility
             }
 
             _client = client;
+            _refreshingIntervalInMillisecond = refreshingIntervalInMillisecond;
 
-            ThreadPool.QueueUserWorkItem(QueryOrderStatus);
+            _timer = new Timer(QueryOrderStatus, null, 0, _refreshingIntervalInMillisecond);
         }
 
         public void Stop()
         {
+            _timer.Dispose();
+            _timer = null;
+
             lock (_dispatcherLockObj)
             {
                 _isStopped = true;
@@ -44,7 +51,7 @@ namespace StockTrading.Utility
             }
         }
 
-        public void RegisterOrderFullySucceededCallback(CtpSimulator.OnOrderFullySucceededDelegate callback)
+        public void RegisterOrderStatusChangedCallback(CtpSimulator.OnOrderStatusChangedDelegate callback)
         {
             if (callback == null)
             {
@@ -53,7 +60,7 @@ namespace StockTrading.Utility
 
             lock (_dispatcherLockObj)
             {
-                _onOrderFullySucceededCallback += callback;
+                _onOrderStatusChangedCallback += callback;
             }
         }
 
@@ -69,99 +76,145 @@ namespace StockTrading.Utility
             DispatchedOrder dispatchedOrder = new DispatchedOrder()
             {
                 OrderNo = result.OrderNo,
-                Request = request
+                Request = request,
+                SucceededVolume = 0,
+                LastStatus = OrderStatus.NotSubmitted,
             };
 
             lock (_orderLockObj)
             {
-                _orderNoToRequestIdMap.Add(result.OrderNo, dispatchedOrder);
+                _allActiveOrders.Add(result.OrderNo, dispatchedOrder);
             }
 
             return dispatchedOrder;
         }
 
-        public bool CancelOrder(DispatchedOrder result, out string error)
+        public bool CancelOrder(DispatchedOrder order, out string error)
         {
-            bool isCancelled = _client.CancelOrder(result.Request.SecurityCode, result.OrderNo, out error);
-
-            if (isCancelled)
-            {
-                lock (_orderLockObj)
-                {
-                    _orderNoToRequestIdMap.Remove(result.OrderNo);
-                }
-            }
+            bool isCancelled = _client.CancelOrder(order.Request.SecurityCode, order.OrderNo, out error);
 
             return isCancelled;
         }
 
         private void QueryOrderStatus(object state)
         {
-            while (!_isStopped)
+            if (!Monitor.TryEnter(_dispatcherLockObj))
             {
-                Thread.Sleep(1000);
+                // ignore this refresh because previous refreshing is still on going.
+                return;
+            }
 
-                if (_client == null || _client.IsLoggedOn())
+            if (_isStopped)
+            {
+                return;
+            }
+
+            if (_client == null || !_client.IsLoggedOn())
+            {
+                return;
+            }
+
+            try
+            {
+                bool hasActiveOrder = false;
+                lock (_orderLockObj)
                 {
-                    continue;
+                    hasActiveOrder = _allActiveOrders.Count > 0;
                 }
 
-                try
+                if (!hasActiveOrder)
                 {
-                    string error;
-                    var succeededOrders = _client.QuerySucceededOrderToday(out error).ToList();
+                    return;
+                }
 
-                    if (succeededOrders.Count() == 0)
+                string error;
+                var submittedOrders = _client.QuerySubmittedOrderToday(out error).ToList();
+
+                if (submittedOrders.Count() == 0)
+                {
+                    if (!string.IsNullOrEmpty(error))
                     {
-                        if (!string.IsNullOrEmpty(error))
+                        ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+                        if (logger != null)
                         {
-                            ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-                            if (logger != null)
-                            {
-                                logger.WarnFormat("Failed to query succeeded order. error: {0}", error);
-                            }
+                            logger.WarnFormat("Failed to query cancellable order. error: {0}", error);
                         }
                     }
-                    else
+                }
+                else
+                {
+                    foreach (var order in submittedOrders)
                     {
-                        foreach (var order in succeededOrders)
-                        {
-                            DispatchedOrder dispatchedOrder;
+                        DispatchedOrder dispatchedOrder;
 
+                        lock (_orderLockObj)
+                        {
+                            if (!_allActiveOrders.TryGetValue(order.OrderNo, out dispatchedOrder))
+                            {
+                                // not submitted by the dispatcher or the order is finished, ignore it.
+                                continue;
+                            }
+                        }
+
+                        // check if order status has been changed and notify client if necessary
+                        CheckOrderStatusChangeAndNotify(ref dispatchedOrder, order);
+
+                        // remove order in finished status
+                        if (TradingHelper.IsFinishedStatus(order.Status))
+                        {
                             lock (_orderLockObj)
                             {
-                                if (!_orderNoToRequestIdMap.TryGetValue(order.OrderNo, out dispatchedOrder))
-                                {
-                                    // not submitted by the dispatcher, ignore it.
-                                    continue;
-                                }
-                                else
-                                {
-                                    _orderNoToRequestIdMap.Remove(order.OrderNo);
-                                }
+                                _allActiveOrders.Remove(dispatchedOrder.OrderNo);
                             }
-
-                            // now we got the request id, prepare to notify client
-                            NotifyOrderFullySucceeded(dispatchedOrder);
                         }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-                    if (logger != null)
-                    {
-                        logger.ErrorFormat("Exception in querying order status: {0}", ex);
                     }
                 }
             }
+            catch (Exception ex)
+            {
+                ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+                if (logger != null)
+                {
+                    logger.ErrorFormat("Exception in querying order status: {0}", ex);
+                }
+            }
+            finally
+            {
+                Monitor.Exit(_dispatcherLockObj);
+            }
         }
 
-        private void NotifyOrderFullySucceeded(DispatchedOrder dispatchedOrder)
+        private bool CheckOrderStatusChangeAndNotify(ref DispatchedOrder dispatchedOrder, QueryGeneralOrderResult order)
         {
-            if (_onOrderFullySucceededCallback != null)
+            bool isStatusChanged = false;
+
+            if (order.Status != dispatchedOrder.LastStatus)
             {
-                _onOrderFullySucceededCallback(dispatchedOrder);
+                isStatusChanged = true;
+            }
+            else if (order.Status == OrderStatus.PartiallySucceeded 
+                && dispatchedOrder.LastStatus == order.Status
+                && order.DealVolume != dispatchedOrder.SucceededVolume)
+            {
+                isStatusChanged = true;
+            }
+
+            dispatchedOrder.LastStatus = order.Status;
+            dispatchedOrder.SucceededVolume = order.DealVolume;
+
+            if (isStatusChanged)
+            {
+                NotifyOrderStatusChanged(dispatchedOrder);
+            }
+
+            return isStatusChanged;
+        }
+
+        private void NotifyOrderStatusChanged(DispatchedOrder dispatchedOrder)
+        {
+            if (_onOrderStatusChangedCallback != null)
+            {
+                _onOrderStatusChangedCallback(dispatchedOrder);
             }
         }
     }

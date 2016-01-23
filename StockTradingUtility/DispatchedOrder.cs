@@ -10,6 +10,10 @@ namespace StockTrading.Utility
     {
         public int OrderNo { get; set; }
 
+        public int SucceededVolume { get; set; }
+
+        public OrderStatus LastStatus { get; set; }
+
         public OrderRequest Request { get; set; }
     }
 }

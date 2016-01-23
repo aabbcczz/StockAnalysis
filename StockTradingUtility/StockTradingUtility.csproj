@@ -75,6 +75,7 @@
     <Compile Include="OrderDispatcher.cs" />
     <Compile Include="OrderPriceType.cs" />
     <Compile Include="OrderRequest.cs" />
+    <Compile Include="OrderStatus.cs" />
     <Compile Include="QueryGeneralOrderResult.cs" />
     <Compile Include="QueryStockResult.cs" />
     <Compile Include="QuerySucceededOrderResult.cs" />
