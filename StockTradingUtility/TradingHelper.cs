@@ -113,7 +113,7 @@ namespace StockTrading.Utility
             }
         }
 
-        public static bool IsFinishedStatus(OrderStatus status)
+        public static bool IsFinalStatus(OrderStatus status)
         {
             switch (status)
             {
@@ -121,6 +121,18 @@ namespace StockTrading.Utility
                 case OrderStatus.CompletelySucceeded:
                 case OrderStatus.InvalidCancellation:
                 case OrderStatus.InvalidOrder:
+                case OrderStatus.PartiallySucceededAndThenCancelled:
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
+        public static bool IsSucceededFinalStatus(OrderStatus status)
+        {
+            switch (status)
+            {
+                case OrderStatus.CompletelySucceeded:
                 case OrderStatus.PartiallySucceededAndThenCancelled:
                     return true;
                 default:

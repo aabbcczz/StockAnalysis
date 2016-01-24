@@ -219,13 +219,24 @@ namespace StockTrading.Utility
                     return;
                 }
 
-                if (TradingHelper.IsFinishedStatus(dispatchedOrder.LastStatus))
+                if (TradingHelper.IsFinalStatus(dispatchedOrder.LastStatus))
                 {
                     lock (_orderLockObj)
                     {
                         if (!IsSentOrder(order))
                         {
                             return;
+                        }
+
+                        ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+                        if (logger != null)
+                        {
+                            logger.InfoFormat(
+                                "Stoploss order executed:  id {0} code {1} status {2} suceeded volume {3}.",
+                                order.OrderId,
+                                order.SecurityCode,
+                                dispatchedOrder.LastStatus,
+                                dispatchedOrder.SucceededVolume);
                         }
 
                         order.UpdateExistingVolume(dispatchedOrder.SucceededVolume);
@@ -237,20 +248,12 @@ namespace StockTrading.Utility
                             // the order has not been finished yet, put it back into active order
                             AddActiveStoplossOrder(order);
 
-                            // send out order again
-                            SendStoplossOrder(order);
+                            if (TradingHelper.IsSucceededFinalStatus(dispatchedOrder.LastStatus))
+                            {
+                                // send out order again
+                                SendStoplossOrder(order);
+                            }
                         }
-                    }
-
-                    ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-                    if (logger != null)
-                    {
-                        logger.InfoFormat(
-                            "Stoploss order executed:  id {0} code {1} status {2} suceeded volume {3}.",
-                            order.OrderId,
-                            order.SecurityCode,
-                            dispatchedOrder.LastStatus,
-                            dispatchedOrder.SucceededVolume);
                     }
                 }
             }

@@ -67,6 +67,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BiddingMethod.cs" />
+    <Compile Include="BiddingTimeRange.cs" />
     <Compile Include="CtpSimulator.cs" />
     <Compile Include="DispatchedOrder.cs" />
     <Compile Include="Exchange.cs" />

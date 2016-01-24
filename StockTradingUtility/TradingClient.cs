@@ -591,14 +591,14 @@ namespace StockTrading.Utility
             }
         }
 
-        public bool CancelOrder(string code, int orderId, out string error)
+        public bool CancelOrder(string code, int orderNo, out string error)
         {
             TabulateData data;
 
-            return CancelOrder(code, orderId, out data, out error);
+            return CancelOrder(code, orderNo, out data, out error);
         }
 
-        public bool CancelOrder(string code, int orderId, out TabulateData result, out string error)
+        public bool CancelOrder(string code, int orderNo, out TabulateData result, out string error)
         {
             CheckDisposed();
             CheckLoggedOn();
@@ -614,7 +614,7 @@ namespace StockTrading.Utility
                 return false;
             }
 
-            TdxWrapper.CancelOrder(ClientId, exchange.ExchangeId.ToString(), orderId.ToString(), resultInfo, errorInfo);
+            TdxWrapper.CancelOrder(ClientId, exchange.ExchangeId.ToString(), orderNo.ToString(), resultInfo, errorInfo);
 
             error = errorInfo.ToString();
             result = null;
@@ -629,19 +629,19 @@ namespace StockTrading.Utility
             return succeeded;
         }
 
-        public bool[] CancelOrder(string[] codes, int[] orderIds, out string[] errors)
+        public bool[] CancelOrder(string[] codes, int[] orderNos, out string[] errors)
         {
             TabulateData[] data;
 
-            return CancelOrder(codes, orderIds, out data, out errors);
+            return CancelOrder(codes, orderNos, out data, out errors);
         }
 
-        public bool[] CancelOrder(string[] codes, int[] orderIds, out TabulateData[] results, out string[] errors)
+        public bool[] CancelOrder(string[] codes, int[] orderNos, out TabulateData[] results, out string[] errors)
         {
             CheckDisposed();
             CheckLoggedOn();
 
-            if (codes == null || codes.Length == 0 || orderIds == null || orderIds.Length != codes.Length)
+            if (codes == null || codes.Length == 0 || orderNos == null || orderNos.Length != codes.Length)
             {
                 throw new ArgumentNullException();
             }
@@ -654,12 +654,12 @@ namespace StockTrading.Utility
                 var exchangeIds = codes.Select(c => Exchange.GetTradeableExchangeForSecurity(c))
                     .Select(e => e == null ? string.Empty : e.ExchangeId.ToString())
                     .ToArray();
-                var orderIdStrings = orderIds.Select(id => id.ToString()).ToArray();
+                var orderNoStrings = orderNos.Select(id => id.ToString()).ToArray();
 
                 TdxWrapper.CancelOrders(
                     ClientId,
                     exchangeIds,
-                    orderIdStrings,
+                    orderNoStrings,
                     codes.Length,
                     resultInfos,
                     errorInfos);

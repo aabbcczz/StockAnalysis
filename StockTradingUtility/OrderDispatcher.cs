@@ -89,11 +89,52 @@ namespace StockTrading.Utility
             return dispatchedOrder;
         }
 
+        public DispatchedOrder[] DispatchOrder(OrderRequest[] requests, out string[] errors)
+        {
+            var results = _client.SendOrder(requests, out errors);
+
+            lock (_orderLockObj)
+            {
+                DispatchedOrder[] orders = new DispatchedOrder[results.Length];
+
+                for (int i = 0; i < results.Length; ++i)
+                {
+                    if (results[i] != null)
+                    {
+                        DispatchedOrder dispatchedOrder = new DispatchedOrder()
+                        {
+                            OrderNo = results[i].OrderNo,
+                            Request = requests[i],
+                            SucceededVolume = 0,
+                            LastStatus = OrderStatus.NotSubmitted,
+                        };
+
+                        _allActiveOrders.Add(results[i].OrderNo, dispatchedOrder);
+
+                        orders[i] = dispatchedOrder;
+
+                    }
+                    else
+                    {
+                        orders[i] = null;
+                    }
+                }
+
+                return orders.ToArray();
+            }
+        }
+
         public bool CancelOrder(DispatchedOrder order, out string error)
         {
-            bool isCancelled = _client.CancelOrder(order.Request.SecurityCode, order.OrderNo, out error);
+            return _client.CancelOrder(order.Request.SecurityCode, order.OrderNo, out error);
+        }
 
-            return isCancelled;
+        public bool[] CancelOrder(DispatchedOrder[] orders, out string[] errors)
+        {
+            var codes = orders.Select(o => o.Request.SecurityCode).ToArray();
+            var orderNos = orders.Select(o => o.OrderNo).ToArray();
+
+            return _client.CancelOrder(codes, orderNos, out errors);
         }
 
         public void QueryOrderStatusForcibly()
@@ -166,7 +207,7 @@ namespace StockTrading.Utility
                         CheckOrderStatusChangeAndNotify(ref dispatchedOrder, order);
 
                         // remove order in finished status
-                        if (TradingHelper.IsFinishedStatus(order.Status))
+                        if (TradingHelper.IsFinalStatus(order.Status))
                         {
                             lock (_orderLockObj)
                             {

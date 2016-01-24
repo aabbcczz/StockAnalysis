@@ -18,7 +18,7 @@ namespace StockTrading.Utility
         /// <summary>
         /// English abbrevation of exchange in CAPITAL
         /// </summary>
-        public string Abbrevation { get; private set; }
+        public string CapitalizedAbbrevation { get; private set; }
 
         /// <summary>
         /// Id of exchange, can be used in trading
@@ -30,6 +30,16 @@ namespace StockTrading.Utility
         /// </summary>
         public IEnumerable<OrderPricingType> SupportedOrderPriceType { get; private set; }
 
+        private List<BiddingTimeRange> _orderedBiddingTimeRanges;
+
+        /// <summary>
+        /// All bidding time ranges.
+        /// </summary>
+        public IEnumerable<BiddingTimeRange> OrderedBiddingTimeRanges 
+        { 
+            get { return _orderedBiddingTimeRanges; }
+        }
+
         /// <summary>
         /// Determine if a given price type supported by this exchange.
         /// </summary>
@@ -38,6 +48,24 @@ namespace StockTrading.Utility
         public bool IsSupportedOrderPriceType(OrderPricingType orderPriceType)
         {
             return SupportedOrderPriceType.Contains(orderPriceType);
+        }
+
+        public BiddingTimeRange GetBiddingTimeRange(TimeSpan time)
+        {
+            foreach (var range in _orderedBiddingTimeRanges)
+            {
+                if (time < range.StartTime)
+                {
+                    break;
+                }
+
+                if (time >= range.StartTime && time < range.EndTime)
+                {
+                    return range;
+                }
+            }
+
+            return null; 
         }
 
         /// <summary>
@@ -72,7 +100,7 @@ namespace StockTrading.Utility
             ShanghaiExchange = new Exchange()
             {
                 Name = "上海证券交易所",
-                Abbrevation = "SH",
+                CapitalizedAbbrevation = "SH",
                 ExchangeId = StockExchangeId.ShanghaiExchange,
                 SupportedOrderPriceType = new OrderPricingType[] 
                     {
@@ -80,12 +108,22 @@ namespace StockTrading.Utility
                         OrderPricingType.MakertPriceMakeDealInFiveGradesThenCancel,
                         OrderPricingType.SHMakertPriceMakeDealInFiveGradesThenTurnToLimitPrice
                     },
+
+                _orderedBiddingTimeRanges = new List<BiddingTimeRange>() 
+                    { 
+                        new BiddingTimeRange(new TimeSpan(9, 15, 0), new TimeSpan(9, 20, 0), BiddingMethod.CollectiveBidding, true),
+                        new BiddingTimeRange(new TimeSpan(9, 20, 0), new TimeSpan(9, 25, 0), BiddingMethod.CollectiveBidding, false),
+                        new BiddingTimeRange(new TimeSpan(9, 25, 0), new TimeSpan(9, 30, 0), BiddingMethod.NotBidding, false),
+                        new BiddingTimeRange(new TimeSpan(9, 30, 0), new TimeSpan(11, 30, 0), BiddingMethod.ContinousBidding, true),
+                        new BiddingTimeRange(new TimeSpan(13, 0, 0), new TimeSpan(15, 30, 0), BiddingMethod.ContinousBidding, true),
+                        
+                    }.OrderBy(btr => btr.StartTime).ToList(),
             };
 
             ShenzhenExchange = new Exchange()
             {
                 Name = "深圳证券交易所",
-                Abbrevation = "SZ",
+                CapitalizedAbbrevation = "SZ",
                 ExchangeId = StockExchangeId.ShenzhenExchange,
                 SupportedOrderPriceType = new OrderPricingType[] 
                     {
@@ -96,6 +134,16 @@ namespace StockTrading.Utility
                         OrderPricingType.SZMarketPriceBestForSelf,
                         OrderPricingType.SZMarketPriceMakeDealImmediatelyThenCancel
                     },
+
+                _orderedBiddingTimeRanges = new List<BiddingTimeRange>() 
+                    { 
+                        new BiddingTimeRange(new TimeSpan(9, 15, 0), new TimeSpan(9, 20, 0), BiddingMethod.CollectiveBidding, true),
+                        new BiddingTimeRange(new TimeSpan(9, 20, 0), new TimeSpan(9, 25, 0), BiddingMethod.CollectiveBidding, false),
+                        new BiddingTimeRange(new TimeSpan(9, 25, 0), new TimeSpan(9, 30, 0), BiddingMethod.NotBidding, false),
+                        new BiddingTimeRange(new TimeSpan(9, 30, 0), new TimeSpan(11, 30, 0), BiddingMethod.ContinousBidding, true),
+                        new BiddingTimeRange(new TimeSpan(13, 0, 0), new TimeSpan(14, 57, 0), BiddingMethod.ContinousBidding, true),
+                        new BiddingTimeRange(new TimeSpan(14, 57, 0), new TimeSpan(15, 0, 0), BiddingMethod.CollectiveBidding, true),
+                    }.OrderBy(btr => btr.StartTime).ToList(),
             };
         }
         

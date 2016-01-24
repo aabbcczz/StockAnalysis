@@ -57,7 +57,6 @@ namespace StockTrading.Utility
 
                 _client = null;
             }
-
         }
 
         public void RegisterQuoteReadyCallback(CtpSimulator.OnQuoteReadyDelegate callback)
