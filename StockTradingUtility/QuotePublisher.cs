@@ -84,6 +84,15 @@ namespace StockTrading.Utility
             }
 
         }
+
+        public void Unsubscribe(string code)
+        {
+            lock (_codeListLockObj)
+            {
+                _codeList.Remove(code);
+            }
+        }
+
         public void Subscribe(IEnumerable<string> codes)
         {
             lock (_codeListLockObj)
@@ -92,6 +101,17 @@ namespace StockTrading.Utility
 
                 // remove duplicated quotes
                 _codeList = _codeList.GroupBy(s => s).Select(g => g.Key).ToList();
+            }
+        }
+
+        public void Unsubscribe(IEnumerable<string> codes)
+        {
+            lock (_codeListLockObj)
+            {
+                foreach (var code in codes)
+                {
+                    _codeList.Remove(code);
+                }
             }
         }
 

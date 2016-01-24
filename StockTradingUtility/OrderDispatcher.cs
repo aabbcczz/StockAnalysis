@@ -96,6 +96,12 @@ namespace StockTrading.Utility
             return isCancelled;
         }
 
+        public void QueryOrderStatusForcibly()
+        {
+            // force query order status
+            QueryOrderStatus(null);
+        }
+
         private void QueryOrderStatus(object state)
         {
             if (!Monitor.TryEnter(_dispatcherLockObj))

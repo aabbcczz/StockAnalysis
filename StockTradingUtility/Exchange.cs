@@ -28,14 +28,14 @@ namespace StockTrading.Utility
         /// <summary>
         /// All supported order price type
         /// </summary>
-        public IEnumerable<OrderPriceType> SupportedOrderPriceType { get; private set; }
+        public IEnumerable<OrderPricingType> SupportedOrderPriceType { get; private set; }
 
         /// <summary>
         /// Determine if a given price type supported by this exchange.
         /// </summary>
         /// <param name="orderPriceType">order price type</param>
         /// <returns>true if the order price type is supported, otherwise false</returns>
-        public bool IsSupportedOrderPriceType(OrderPriceType orderPriceType)
+        public bool IsSupportedOrderPriceType(OrderPricingType orderPriceType)
         {
             return SupportedOrderPriceType.Contains(orderPriceType);
         }
@@ -74,11 +74,11 @@ namespace StockTrading.Utility
                 Name = "上海证券交易所",
                 Abbrevation = "SH",
                 ExchangeId = StockExchangeId.ShanghaiExchange,
-                SupportedOrderPriceType = new OrderPriceType[] 
+                SupportedOrderPriceType = new OrderPricingType[] 
                     {
-                        OrderPriceType.LimitPrice,
-                        OrderPriceType.MakertPriceMakeDealInFiveGradesThenCancel,
-                        OrderPriceType.SHMakertPriceMakeDealInFiveGradesThenTurnToLimitPrice
+                        OrderPricingType.LimitPrice,
+                        OrderPricingType.MakertPriceMakeDealInFiveGradesThenCancel,
+                        OrderPricingType.SHMakertPriceMakeDealInFiveGradesThenTurnToLimitPrice
                     },
             };
 
@@ -87,14 +87,14 @@ namespace StockTrading.Utility
                 Name = "深圳证券交易所",
                 Abbrevation = "SZ",
                 ExchangeId = StockExchangeId.ShenzhenExchange,
-                SupportedOrderPriceType = new OrderPriceType[] 
+                SupportedOrderPriceType = new OrderPricingType[] 
                     {
-                        OrderPriceType.LimitPrice,
-                        OrderPriceType.MakertPriceMakeDealInFiveGradesThenCancel,
-                        OrderPriceType.SZMakertPriceFullOrCancel,
-                        OrderPriceType.SZMarketPriceBestForCounterparty,
-                        OrderPriceType.SZMarketPriceBestForSelf,
-                        OrderPriceType.SZMarketPriceMakeDealImmediatelyThenCancel
+                        OrderPricingType.LimitPrice,
+                        OrderPricingType.MakertPriceMakeDealInFiveGradesThenCancel,
+                        OrderPricingType.SZMakertPriceFullOrCancel,
+                        OrderPricingType.SZMarketPriceBestForCounterparty,
+                        OrderPricingType.SZMarketPriceBestForSelf,
+                        OrderPricingType.SZMarketPriceMakeDealImmediatelyThenCancel
                     },
             };
         }

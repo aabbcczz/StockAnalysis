@@ -25,7 +25,7 @@ namespace StockTrading.Utility
 
         private static CtpSimulator _instance = null;
 
-        private object _syncObj = new object();
+        private object _initializationLockObj = new object();
 
         private TradingClient _client = null;
         private bool _initialized = false;
@@ -67,7 +67,7 @@ namespace StockTrading.Utility
         {
             if (!_initialized)
             {
-                lock (_syncObj)
+                lock (_initializationLockObj)
                 {
                     if (!_initialized)
                     {
@@ -101,7 +101,7 @@ namespace StockTrading.Utility
         {
             if (_initialized)
             {
-                lock (_syncObj)
+                lock (_initializationLockObj)
                 {
                     if (_initialized)
                     {
@@ -132,6 +132,16 @@ namespace StockTrading.Utility
             _quotePublisher.Subscribe(codes);
         }
 
+        public void UnsubscribeQuote(string code)
+        {
+            _quotePublisher.Subscribe(code);
+        }
+
+        public void UnsubscribeQuote(IEnumerable<string> codes)
+        {
+            _quotePublisher.Subscribe(codes);
+        }
+
         public DispatchedOrder DispatchOrder(OrderRequest request, out string error)
         {
             return _orderDispatcher.DispatchOrder(request, out error);
@@ -140,6 +150,11 @@ namespace StockTrading.Utility
         public bool CancelOrder(DispatchedOrder order, out string error)
         {
             return _orderDispatcher.CancelOrder(order, out error);
+        }
+
+        public void QueryOrderStatusForcibly()
+        {
+            _orderDispatcher.QueryOrderStatusForcibly();
         }
 
         public void RegisterQuoteReadyCallback(OnQuoteReadyDelegate callback)

@@ -483,11 +483,11 @@ namespace StockTrading.Utility
             TdxWrapper.SendOrder(
                 ClientId,
                 (int)request.Category,
-                (int)request.PriceType,
+                (int)request.PricingType,
                 shareholderCode,
                 request.SecurityCode, 
                 request.Price,
-                request.Quantity,
+                request.Volume,
                 resultInfo, 
                 errorInfo);
 
@@ -552,10 +552,10 @@ namespace StockTrading.Utility
             {
                 var shareholderCodes = requests.Select(req => GetShareholderCode(req.SecurityCode)).ToArray();
                 var categories = requests.Select(req => (int)req.Category).ToArray();
-                var priceTypes = requests.Select(req => (int)req.PriceType).ToArray();
+                var priceTypes = requests.Select(req => (int)req.PricingType).ToArray();
                 var securityCodes = requests.Select(req => req.SecurityCode).ToArray();
                 var prices = requests.Select(req => req.Price).ToArray();
-                var quantities = requests.Select(req => req.Quantity).ToArray();
+                var quantities = requests.Select(req => req.Volume).ToArray();
 
                 TdxWrapper.SendOrders(
                     ClientId,

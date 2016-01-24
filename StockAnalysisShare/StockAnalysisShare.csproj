@@ -62,7 +62,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AliasNameMapping.cs" />
-    <Compile Include="ChinaStockConstants.cs" />
+    <Compile Include="ChinaStockHelper.cs" />
     <Compile Include="Csv.cs" />
     <Compile Include="DataDictionary.cs" />
     <Compile Include="FinanceReport.cs" />

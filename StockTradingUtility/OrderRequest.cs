@@ -9,7 +9,7 @@ namespace StockTrading.Utility
     public sealed class OrderRequest
     {
         /// <summary>
-        /// 客户端请求编号, 由客户端生成。
+        /// 客户端请求编号, 由构造函数自动生成。
         /// </summary>
         public Guid RequestId { get; private set; }
 
@@ -21,7 +21,7 @@ namespace StockTrading.Utility
         /// <summary>
         /// 委托价格类型
         /// </summary>
-        public OrderPriceType PriceType { get; set; }
+        public OrderPricingType PricingType { get; set; }
 
         /// <summary>
         /// 证券代码
@@ -36,11 +36,18 @@ namespace StockTrading.Utility
         /// <summary>
         /// 委托数量
         /// </summary>
-        public int Quantity { get; set; }
+        public int Volume { get; set; }
 
-        public OrderRequest()
+        /// <summary>
+        /// 关联对象, 由创建者指定
+        /// </summary>
+        public object AssociatedObject { get; private set; }
+
+        public OrderRequest(object associatedObject)
         {
             RequestId = Guid.NewGuid();
+
+            AssociatedObject = associatedObject;
         }
     }
 }

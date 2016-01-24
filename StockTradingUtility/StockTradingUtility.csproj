@@ -73,13 +73,15 @@
     <Compile Include="HistoryDataCategory.cs" />
     <Compile Include="OrderCategory.cs" />
     <Compile Include="OrderDispatcher.cs" />
-    <Compile Include="OrderPriceType.cs" />
+    <Compile Include="OrderPricingType.cs" />
     <Compile Include="OrderRequest.cs" />
     <Compile Include="OrderStatus.cs" />
     <Compile Include="QueryGeneralOrderResult.cs" />
     <Compile Include="QueryStockResult.cs" />
     <Compile Include="QuerySucceededOrderResult.cs" />
     <Compile Include="QuotePublisher.cs" />
+    <Compile Include="StoplossOrder.cs" />
+    <Compile Include="StoplossOrderManager.cs" />
     <Compile Include="TradingHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="DataCategory.cs" />
