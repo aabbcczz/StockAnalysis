@@ -45,6 +45,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StockTradingUtility", "Stoc
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TradingClient", "TradingClient\TradingClient.csproj", "{D317E35D-1AB0-469F-A552-137F2D4B1BC6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AutoExportStockData", "AutoExportStockData\AutoExportStockData.csproj", "{FF2B0614-2F8C-4D18-B7A2-0CC64885E340}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -181,6 +183,12 @@ Global
 		{D317E35D-1AB0-469F-A552-137F2D4B1BC6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D317E35D-1AB0-469F-A552-137F2D4B1BC6}.Release|Any CPU.Build.0 = Release|Any CPU
 		{D317E35D-1AB0-469F-A552-137F2D4B1BC6}.Release|x86.ActiveCfg = Release|Any CPU
+		{FF2B0614-2F8C-4D18-B7A2-0CC64885E340}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FF2B0614-2F8C-4D18-B7A2-0CC64885E340}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FF2B0614-2F8C-4D18-B7A2-0CC64885E340}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{FF2B0614-2F8C-4D18-B7A2-0CC64885E340}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FF2B0614-2F8C-4D18-B7A2-0CC64885E340}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FF2B0614-2F8C-4D18-B7A2-0CC64885E340}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
