@@ -34,7 +34,7 @@ namespace TradingStrategy.Strategy
         {
             return new Comparison(
                 string.Format(
-                    "BAR.CP {0} MA[{1}]",
+                    "BAR.CP {0} AMA[{1}]",
                     TriggeringCondition == 0 ? '<' : '>',
                     MovingAveragePeriod));
         }
