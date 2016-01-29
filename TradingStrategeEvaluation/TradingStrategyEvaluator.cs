@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.IO;
 using StockAnalysis.Share;
 using TradingStrategy;
 
@@ -48,7 +49,7 @@ namespace TradingStrategyEvaluation
             StockBlockRelationshipManager relationshipManager,
             TradingSettings settings,
             ILogger logger,
-            IDataDumper dumper)
+            StreamWriter dumpDataWriter)
         {
             if (numberOfAccounts <= 0 || accountId < 0 || accountId >= numberOfAccounts)
             {
@@ -70,7 +71,7 @@ namespace TradingStrategyEvaluation
             _settings = settings;
 
             _equityManager = new EquityManager(capitalManager, _settings.PositionFrozenDays);
-            _context = new StandardEvaluationContext(_provider, _equityManager, logger, settings, dumper, relationshipManager);
+            _context = new StandardEvaluationContext(_provider, _equityManager, logger, settings, dumpDataWriter, relationshipManager);
             _tradingTracker = new TradingTracker(capitalManager.InitialCapital);
         }
 

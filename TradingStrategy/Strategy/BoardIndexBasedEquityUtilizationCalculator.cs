@@ -45,7 +45,7 @@ namespace TradingStrategy.Strategy
             var ma10values = _ma10.GetMetricValues(boardIndexTradingObject);
             if (ma10values == null)
             {
-                // the board index value is ready yet, back off to main board index
+                // the board index value is not ready yet, back off to main board index
                 boardIndexTradingObject = _context.GetBoardIndexTradingObject(StockBoard.MainBoard);
             }
 

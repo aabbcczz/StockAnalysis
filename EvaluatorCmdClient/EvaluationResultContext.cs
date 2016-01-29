@@ -23,7 +23,7 @@ namespace EvaluatorCmdClient
         private const string CompletedTransactionsFileName = "CompletedTransactions.csv";
         private const string BlockTradingDetailsFileName = "BlockTradingDetails.csv";
         
-        private FileDataDumper _dataDumper = null;
+        private StreamWriter _dumpDataWriter = null;
         public string RootDirectory { get; private set; }
         public int ContextId { get; private set; }
 
@@ -31,17 +31,17 @@ namespace EvaluatorCmdClient
 
         public ILogger Logger { get; private set; }
 
-        public IDataDumper DataDumper 
+        public StreamWriter DumpDataWriter 
         {
             get
             {
-                if (_dataDumper == null)
+                if (_dumpDataWriter == null)
                 {
                     var dataFile = Path.Combine(RootDirectory, DumpedDataFileName);
-                    _dataDumper = new FileDataDumper(dataFile, 8, 3);
+                    _dumpDataWriter = new StreamWriter(dataFile, false, Encoding.UTF8);
                 }
 
-                return _dataDumper;
+                return _dumpDataWriter;
             }
         }
 
@@ -186,10 +186,10 @@ namespace EvaluatorCmdClient
                 Logger = null;
             }
 
-            if (_dataDumper != null)
+            if (_dumpDataWriter != null)
             {
-                _dataDumper.Dispose();
-                _dataDumper = null;
+                _dumpDataWriter.Dispose();
+                _dumpDataWriter = null;
             }
 
             _disposed = true;

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using TradingStrategy;
 using StockAnalysis.Share;
 
@@ -38,7 +39,7 @@ namespace TradingStrategyEvaluation
             EquityManager equityManager, 
             ILogger logger,
             TradingSettings settings = null,
-            IDataDumper dumper = null,
+            StreamWriter dumpDataWriter = null,
             StockBlockRelationshipManager relationshipManager  = null)
         {
             if (equityManager == null || provider == null || logger == null)
@@ -50,7 +51,7 @@ namespace TradingStrategyEvaluation
             _equityManager = equityManager;
             _logger = logger;
             _settings = settings;
-            _dumper = dumper;
+
             _relationshipManager = relationshipManager;
 
             var metricManager = new StandardRuntimeMetricManager(_provider.GetAllTradingObjects().Length);
@@ -77,6 +78,8 @@ namespace TradingStrategyEvaluation
                 ITradingObject tradingObject = GetTradingObject(boardIndex);
                 _boardIndexTradingObjects.Add(boardIndex, tradingObject);
             }
+
+            _dumper = dumpDataWriter == null ? null : new StreamDataDumper(dumpDataWriter, 8, 3, _settings.DumpMetrics, this, _provider);
         }
 
         public double GetInitialEquity()
@@ -185,23 +188,9 @@ namespace TradingStrategyEvaluation
 
             if (_dumper != null)
             {
-                var bars = _provider.GetAllBarsForTradingObject(tradingObject.Index);
-                var currentBar = GetBarOfTradingObjectForCurrentPeriod(tradingObject);
-
-                int index = FindIndexOfBar(bars, currentBar);
-                if (index < 0)
-                {
-                    throw new InvalidOperationException("Logic error");
-                }
-
-                _dumper.Dump(bars, index);
+                Bar bar = GetBarOfTradingObjectForCurrentPeriod(tradingObject);
+                _dumper.Dump(tradingObject);
             }
-        }
-
-        private int FindIndexOfBar(Bar[] bars, Bar bar)
-        {
-            int index = Array.BinarySearch(bars, bar, new Bar.TimeComparer());
-            return index < 0 ? -1 : index;
         }
 
         public void SetDefaultPriceForInstructionWhenNecessary(Instruction instruction)

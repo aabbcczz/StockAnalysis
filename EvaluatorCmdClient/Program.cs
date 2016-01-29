@@ -436,7 +436,7 @@ namespace EvaluatorCmdClient
 
             using (context)
             {
-                IDataDumper dataDumper = shouldDumpData ? context.DataDumper : null;
+                StreamWriter dumpDataWriter = shouldDumpData ? context.DumpDataWriter : null;
 
                 var evaluator
                     = new TradingStrategyEvaluator(
@@ -449,7 +449,7 @@ namespace EvaluatorCmdClient
                         relationshipManager,
                         tradingSettings,
                         context.Logger,
-                        dataDumper);
+                        dumpDataWriter);
 
                 //EventHandler<EvaluationProgressEventArgs> evaluationProgressHandler =
                 //    (object obj, EvaluationProgressEventArgs e) =>
