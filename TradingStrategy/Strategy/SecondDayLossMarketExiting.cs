@@ -24,16 +24,16 @@ namespace TradingStrategy.Strategy
         [Parameter(0.0, "最小亏损百分比, 当亏损大于此值时退出")]
         public double MinLossPercentage { get; set; }
 
-        [Parameter(0.0, "第二天开盘相对第一天收盘最小亏损百分比, 当亏损大于此值时退出")]
-        public double MinLossPercentageOpenToFirstDayClose { get; set; }
+        [Parameter(0.0, "第二天开盘相对第一天开盘收盘小者的最小亏损百分比, 当亏损大于此值时退出")]
+        public double MinLossPercentageOpenToFirstDayMin { get; set; }
 
-        [Parameter(0.0, "第二天收盘相对第一天收盘最小亏损百分比, 当亏损大于此值时退出")]
-        public double MinLossPercentageCloseToFirstDayClose { get; set; }
+        [Parameter(0.0, "第二天收盘相对第一天开盘收盘小者的最小亏损百分比, 当亏损大于此值时退出")]
+        public double MinLossPercentageCloseToFirstDayMin { get; set; }
 
-        [Parameter(TradingPricePeriod.NextPeriod, "退出周期。0/CurrentPeriod为本周期，1/NextPeriod为下周期")]
+        [Parameter(TradingPricePeriod.CurrentPeriod, "退出周期。0/CurrentPeriod为本周期，1/NextPeriod为下周期")]
         public TradingPricePeriod ExitingPeriod { get; set; }
 
-        [Parameter(TradingPriceOption.OpenPrice, @"退出价格选项。
+        [Parameter(TradingPriceOption.ClosePrice, @"退出价格选项。
                     OpenPrice = 0,
                     ClosePrice = 1,
                     CustomPrice = 2")]
@@ -63,15 +63,16 @@ namespace TradingStrategy.Strategy
                     var firstDayBar = _firstDayBarProxy.GetMetricValues(tradingObject);
                     var firstDayClosePrice = firstDayBar[0];
                     var firstDayOpenPrice = firstDayBar[1];
+                    var firstDayMinPrice = Math.Min(firstDayOpenPrice, firstDayClosePrice);
 
                     var secondDayBar = Context.GetBarOfTradingObjectForCurrentPeriod(tradingObject);
                     var lossPercentage = (secondDayBar.ClosePrice - secondDayBar.OpenPrice) / secondDayBar.OpenPrice * 100.0;
-                    var lossPercentageOpenToFirstDayClose = (secondDayBar.OpenPrice - firstDayClosePrice) / firstDayClosePrice * 100.0;
-                    var lossPercentageCloseToFirstDayClose = (secondDayBar.ClosePrice - firstDayClosePrice) / firstDayClosePrice * 100.0;
+                    var lossPercentageOpenToFirstDayMin = (secondDayBar.OpenPrice - firstDayMinPrice) / firstDayMinPrice * 100.0;
+                    var lossPercentageCloseToFirstDayMin = (secondDayBar.ClosePrice - firstDayMinPrice) / firstDayMinPrice * 100.0;
 
-                    if (lossPercentageOpenToFirstDayClose < -MinLossPercentageOpenToFirstDayClose)
+                    if (lossPercentageOpenToFirstDayMin < -MinLossPercentageOpenToFirstDayMin)
                     {
-                        result.Comments = string.Format("2nd day loss: today open price {0:0.000}, first day close price {1:0.000}", secondDayBar.OpenPrice, firstDayClosePrice);
+                        result.Comments = string.Format("2nd day loss: today open price {0:0.000}, first day min price {1:0.000}", secondDayBar.OpenPrice, firstDayMinPrice);
 
                         result.Price = new TradingPrice(TradingPricePeriod.CurrentPeriod, TradingPriceOption.OpenPrice, 0.0);
 
@@ -85,9 +86,9 @@ namespace TradingStrategy.Strategy
 
                         result.ShouldExit = true;
                     }
-                    else if (lossPercentageCloseToFirstDayClose < -MinLossPercentageCloseToFirstDayClose)
+                    else if (lossPercentageCloseToFirstDayMin < -MinLossPercentageCloseToFirstDayMin)
                     {
-                        result.Comments = string.Format("2nd day loss: today close price {0:0.000}, first day close price {1:0.000}", secondDayBar.ClosePrice, firstDayClosePrice);
+                        result.Comments = string.Format("2nd day loss: today close price {0:0.000}, first day min price {1:0.000}", secondDayBar.ClosePrice, firstDayMinPrice);
 
                         result.Price = new TradingPrice(ExitingPeriod, ExitingPriceOption, ExitingCustomPrice);
 

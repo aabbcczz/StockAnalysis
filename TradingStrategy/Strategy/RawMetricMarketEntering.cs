@@ -12,10 +12,13 @@ namespace TradingStrategy.Strategy
         [Parameter("ATR[20]", "原始指标")]
         public string RawMetric { get; set; }
 
-        [Parameter(10.0, "阈值")]
-        public double Threshold { get; set; }
+        [Parameter(10.0, "上阈值")]
+        public double HighThreshold { get; set; }
 
-        [Parameter(1, "触发条件。1表示指标值高于Threshold触发, 0表示指标值低于Threshold触发")]
+        [Parameter(0.0, "下阈值")]
+        public double LowThreshold { get; set; }
+
+        [Parameter(1, "触发条件。1表示指标值在上下阈值之间(含)触发, 0表示指标值在上下阈值之外触发")]
         public int TriggeringCondition { get; set; }
 
         protected override void ValidateParameterValues()
@@ -35,12 +38,25 @@ namespace TradingStrategy.Strategy
 
         protected override MetricBooleanExpression.IMetricBooleanExpression BuildExpression()
         {
-            return new Comparison(
-                string.Format(
-                    "{0} {1} {2:0.000}",
-                    RawMetric,
-                    TriggeringCondition == 0 ? '<' : '>',
-                    Threshold));
+            IMetricBooleanExpression expression = 
+                new LogicAnd(
+                    new Comparison(
+                        string.Format(
+                            "{0} >= {1:0.0000}",
+                            RawMetric,
+                            LowThreshold)),
+                    new Comparison(
+                        string.Format(
+                            "{0} <= {1:0.0000}",
+                            RawMetric,
+                            HighThreshold)));
+            
+            if (TriggeringCondition == 0)
+            {
+                expression = new LogicNot(expression);
+            }
+
+            return expression;
         }
 
         public override string Name

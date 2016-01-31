@@ -40,7 +40,7 @@ namespace TradingStrategy.Strategy
             _movingAverage = MovingAveragePeriod > 0 
                 ? new RuntimeMetricProxy(
                     Context.MetricManager,
-                    string.Format("MA[{0}]", MovingAveragePeriod))
+                    string.Format("AMA[{0}]", MovingAveragePeriod))
                 : null;
 
             _previousDayBar = new RuntimeMetricProxy(

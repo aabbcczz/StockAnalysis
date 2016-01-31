@@ -94,8 +94,13 @@ namespace TradingStrategy.Strategy
 
         private double GetDynamicEquityUtilization(ITradingObject tradingObject)
         {
-            return _calculator.CalculateEquityUtilization(tradingObject) * _dynamicEquityUtilization;
-            //return _dynamicEquityUtilization;
+            if(EquityUtilization == 0.0)
+            {
+                return 1.0;
+            }
+
+            //return _calculator.CalculateEquityUtilization(tradingObject) * _dynamicEquityUtilization;
+            return _dynamicEquityUtilization;
         }
 
         public override void StartPeriod(DateTime time)
