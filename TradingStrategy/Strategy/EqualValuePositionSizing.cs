@@ -22,7 +22,7 @@ namespace TradingStrategy.Strategy
         [Parameter(EquityEvaluationMethod.InitialEquity, "权益计算方法。0:核心权益法,1:总权益法,2:抵减总权益法,3:初始权益法,4:控制损失初始权益法,5:控制损失总权益法,6:控制损失抵减总权益法")]
         public EquityEvaluationMethod EquityEvaluationMethod { get; set; }
 
-        [Parameter(1.0, "权益利用率[0.0..1.0], 0.0代表自适应权益利用率")]
+        [Parameter(1.0, "权益利用率[0.0..1.0], 0.0代表恒定权益利用率为1.0")]
         public double EquityUtilization { get; set; }
 
         [Parameter(true, "限制新头寸数目不超过划分数目")]

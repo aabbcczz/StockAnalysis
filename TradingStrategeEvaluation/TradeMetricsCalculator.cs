@@ -138,8 +138,17 @@ namespace TradingStrategyEvaluation
             return metrics;   
         }
 
+        private double GetCostOfTranscation(Transaction t)
+        {
+            return t.Action == TradingAction.OpenLong ? t.Price * t.Volume + t.Commission : 0.0;
+        }
 
-        private double EstimateRequiredInitialCapital(Transaction[] transactions, double initalCapital)
+        private double GetReturnOfTransaction(Transaction t)
+        {
+            return t.Action == TradingAction.CloseLong ? t.Price * t.Volume - t.Commission : 0.0;
+        }
+
+        private double EstimateRequiredInitialCapital(Transaction[] transactions, double initialCapital)
         {
             if (transactions == null)
             {
@@ -156,56 +165,41 @@ namespace TradingStrategyEvaluation
                 throw new ArgumentException("First transaction is not opening long");
             }
 
-            var usedCapital = initalCapital;
-            var requiredInitialCapital = 0.0;
-            var currentCapital = 0.0;
+            // group succeeded transaction by date firstly
+            var orderedTransactionGroups = transactions.Where(t => t.Succeeded).GroupBy(t => t.ExecutionTime).OrderBy(g => g.Key);
 
-            for (var i = 0; i < transactions.Length; ++i)
+            if (orderedTransactionGroups.Count() == 0)
             {
-                var transaction = transactions[i];
-                if (!transaction.Succeeded)
+                return 1.0;
+            }
+
+            // initial capital should be enough for all first day transcations (open)
+            initialCapital = orderedTransactionGroups.First().Sum(t => GetCostOfTranscation(t));
+            var maxUsedCapital = initialCapital;
+            var requiredInitialCapital = initialCapital;
+            var currentCapital = initialCapital;
+
+            foreach (var group in orderedTransactionGroups)
+            {
+                double cost = group.Sum(t => GetCostOfTranscation(t));
+                double gain = group.Sum(t => GetReturnOfTransaction(t));
+
+                if (cost > currentCapital)
                 {
-                    continue;
-                }
+                    var difference = cost - currentCapital;
 
-                if (transaction.Action == TradingAction.OpenLong)
-                {
-                    var capitalForThisTransaction = 
-                        transaction.Price * transaction.Volume + transaction.Commission;
+                    requiredInitialCapital += difference ;
 
-                    if (capitalForThisTransaction > currentCapital)
-                    {
-                        var difference = capitalForThisTransaction - currentCapital;
+                    maxUsedCapital += difference;
 
-                        if (requiredInitialCapital == 0.0)
-                        {
-                            requiredInitialCapital = difference;
-                        }
-                        else
-                        {
-                            requiredInitialCapital += difference * initalCapital / usedCapital;
-                        }
-
-                        usedCapital += difference;
-
-                        currentCapital = 0.0;
-                    }
-                    else
-                    {
-                        currentCapital -= capitalForThisTransaction;
-                    }
-                }
-                else if (transaction.Action == TradingAction.CloseLong)
-                {
-                    var capitalForThisTransaction = 
-                        transaction.Price * transaction.Volume - transaction.Commission;
-
-                    currentCapital += capitalForThisTransaction;
+                    currentCapital = 0.0;
                 }
                 else
                 {
-                    throw new InvalidProgramException("Logic error");
+                    currentCapital -= cost;
                 }
+
+                currentCapital += gain;
             }
 
             return requiredInitialCapital + 1.0; // add 1.0 to avoid accumulated precision loss.
