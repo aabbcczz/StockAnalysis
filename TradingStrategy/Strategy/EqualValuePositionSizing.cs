@@ -86,9 +86,9 @@ namespace TradingStrategy.Strategy
 
             _dynamicEquityUtilization = EquityUtilization * (1.0 - GetEquityUtilizationPenalty(drawdown));
 
-            if (_dynamicEquityUtilization < 0.3)
+            if (_dynamicEquityUtilization < 0.1)
             {
-                _dynamicEquityUtilization = 0.3;
+                _dynamicEquityUtilization = 0.1;
             }
         }
 
