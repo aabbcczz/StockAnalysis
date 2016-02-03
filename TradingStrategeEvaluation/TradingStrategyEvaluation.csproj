@@ -68,7 +68,7 @@
     <Compile Include="EquityManager.cs" />
     <Compile Include="EquityPoint.cs" />
     <Compile Include="EvaluationProgressEventArgs.cs" />
-    <Compile Include="FileDataDumper.cs" />
+    <Compile Include="StreamDataDumper.cs" />
     <Compile Include="FileLogger.cs" />
     <Compile Include="GenericRuntimeMetric.cs" />
     <Compile Include="ICapitalManager.cs" />

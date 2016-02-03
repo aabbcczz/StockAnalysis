@@ -63,6 +63,7 @@
   <ItemGroup>
     <Compile Include="Base\GeneralBuyPriceFilteringBase.cs" />
     <Compile Include="Base\IBuyPriceFilteringComponent.cs" />
+    <Compile Include="Base\BoardIndexMetricBasedMarketEntering.cs" />
     <Compile Include="Base\MetricBasedTraceStopLossMarketExiting.cs" />
     <Compile Include="Base\MetricBasedStoploss.cs" />
     <Compile Include="Base\MetricBasedMarketExiting.cs" />
@@ -110,7 +111,12 @@
     <Compile Include="SellingType.cs" />
     <Compile Include="Strategy\AtrDevTraceStopLossMarketExiting.cs" />
     <Compile Include="Strategy\AtrDevStopLoss.cs" />
+    <Compile Include="Strategy\BoardIndexBasedEquityUtilizationCalculator.cs" />
+    <Compile Include="Strategy\SlowThanBoardIndexMarketExiting.cs" />
     <Compile Include="Strategy\ContinueTwoDayLossMarketExiting.cs" />
+    <Compile Include="Strategy\RawMetricMarketEntering.cs" />
+    <Compile Include="Strategy\SingleMovingAverageBoardIndexMarketEntering .cs" />
+    <Compile Include="Strategy\ThirdDayLossMarketExiting.cs" />
     <Compile Include="Strategy\SecondDayLossMarketExiting.cs" />
     <Compile Include="Strategy\GapDownBouncePositionAdjusting.cs" />
     <Compile Include="Strategy\FirstDayLossTraceStopLossMarketExiting.cs" />

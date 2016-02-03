@@ -138,8 +138,17 @@ namespace TradingStrategyEvaluation
             return metrics;   
         }
 
+        private double GetCostOfTranscation(Transaction t)
+        {
+            return t.Action == TradingAction.OpenLong ? t.Price * t.Volume + t.Commission : 0.0;
+        }
 
-        private double EstimateUsedCapital(Transaction[] transactions)
+        private double GetReturnOfTransaction(Transaction t)
+        {
+            return t.Action == TradingAction.CloseLong ? t.Price * t.Volume - t.Commission : 0.0;
+        }
+
+        private double EstimateRequiredInitialCapital(Transaction[] transactions, double initialCapital)
         {
             if (transactions == null)
             {
@@ -153,49 +162,47 @@ namespace TradingStrategyEvaluation
 
             if (transactions[0].Action != TradingAction.OpenLong)
             {
-                throw new ArgumentException("First transaction is not openning long");
+                throw new ArgumentException("First transaction is not opening long");
             }
 
-            var usedCapital = 0.0;
-            var currentCapital = 0.0;
+            // group succeeded transaction by date firstly
+            var orderedTransactionGroups = transactions.Where(t => t.Succeeded).GroupBy(t => t.ExecutionTime).OrderBy(g => g.Key);
 
-            for (var i = 0; i < transactions.Length; ++i)
+            if (orderedTransactionGroups.Count() == 0)
             {
-                var transaction = transactions[i];
-                if (!transaction.Succeeded)
-                {
-                    continue;
-                }
+                return 1.0;
+            }
 
-                if (transaction.Action == TradingAction.OpenLong)
-                {
-                    var capitalForThisTransaction = 
-                        transaction.Price * transaction.Volume + transaction.Commission;
+            // initial capital should be enough for all first day transcations (open)
+            initialCapital = orderedTransactionGroups.First().Sum(t => GetCostOfTranscation(t));
+            var maxUsedCapital = initialCapital;
+            var requiredInitialCapital = initialCapital;
+            var currentCapital = initialCapital;
 
-                    if (capitalForThisTransaction > currentCapital)
-                    {
-                        usedCapital += capitalForThisTransaction - currentCapital;
-                        currentCapital = 0.0;
-                    }
-                    else
-                    {
-                        currentCapital -= capitalForThisTransaction;
-                    }
-                }
-                else if (transaction.Action == TradingAction.CloseLong)
-                {
-                    var capitalForThisTransaction = 
-                        transaction.Price * transaction.Volume - transaction.Commission;
+            foreach (var group in orderedTransactionGroups)
+            {
+                double cost = group.Sum(t => GetCostOfTranscation(t));
+                double gain = group.Sum(t => GetReturnOfTransaction(t));
 
-                    currentCapital += capitalForThisTransaction;
+                if (cost > currentCapital)
+                {
+                    var difference = cost - currentCapital;
+
+                    requiredInitialCapital += difference ;
+
+                    maxUsedCapital += difference;
+
+                    currentCapital = 0.0;
                 }
                 else
                 {
-                    throw new InvalidProgramException("Logic error");
+                    currentCapital -= cost;
                 }
+
+                currentCapital += gain;
             }
 
-            return usedCapital + 1.0; // add 1.0 to avoid accumulated precision loss.
+            return requiredInitialCapital + 1.0; // add 1.0 to avoid accumulated precision loss.
         }
 
         /// <summary>
@@ -325,8 +332,8 @@ namespace TradingStrategyEvaluation
                 ? _transactionHistory
                 : _transactionHistory.Where(t => t.Code == code).ToArray();
 
-            var usedCapital = EstimateUsedCapital(transactions);
-            var initialCapital = Math.Max(_initialCapital, usedCapital);
+            var requiredInitialCapital = EstimateRequiredInitialCapital(transactions, _initialCapital);
+            var initialCapital = Math.Max(_initialCapital, requiredInitialCapital);
 
             var manager = new EquityManager(new SimpleCapitalManager(initialCapital), _settings.PositionFrozenDays);
 

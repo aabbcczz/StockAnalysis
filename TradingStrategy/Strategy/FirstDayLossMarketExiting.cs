@@ -9,7 +9,8 @@ namespace TradingStrategy.Strategy
     public sealed class FirstDayLossMarketExiting 
         : GeneralMarketExitingBase
     {
-        private RuntimeMetricProxy _referenceBarProxy;
+        private RuntimeMetricProxy _firstDayBarProxy;
+        private RuntimeMetricProxy _theDayBeforeFirstDayBarProxy;
 
         public override string Name
         {
@@ -21,10 +22,13 @@ namespace TradingStrategy.Strategy
             get { return "当头寸持有第一天就亏损则退出市场"; }
         }
 
-        [Parameter(0.0, "最小亏损百分比，当亏损大于此值时退出")]
+        [Parameter(0.0, "最小亏损百分比, 当亏损大于此值时退出")]
         public double MinLossPercentage { get; set; }
 
-        [Parameter(TradingPricePeriod.NextPeriod, "退出周期。0/CurrentPeriod为本周期，1/NextPeriod为下周期")]
+        [Parameter(0.0, "相对前一日收盘亏损百分比, 当亏损大于此值时退出")]
+        public double MinLossPercentageToPreviousDayClose { get; set; }
+
+        [Parameter(TradingPricePeriod.NextPeriod, "退出周期。0/CurrentPeriod为本周期, 1/NextPeriod为下周期")]
         public TradingPricePeriod ExitingPeriod { get; set; }
 
         [Parameter(TradingPriceOption.OpenPrice, @"退出价格选项。
@@ -40,9 +44,13 @@ namespace TradingStrategy.Strategy
         {
             base.RegisterMetric();
 
-            _referenceBarProxy = new RuntimeMetricProxy(
+            _firstDayBarProxy = new RuntimeMetricProxy(
                 Context.MetricManager,
                 "REFBAR[1]");
+            
+            _theDayBeforeFirstDayBarProxy = new RuntimeMetricProxy(
+                Context.MetricManager,
+                "REFBAR[2]");
         }
 
         public override MarketExitingComponentResult ShouldExit(ITradingObject tradingObject)
@@ -54,13 +62,19 @@ namespace TradingStrategy.Strategy
                 var position = Context.GetPositionDetails(tradingObject.Code).First();
                 if (position.LastedPeriodCount == 1)
                 {
-                    var referenceBar = _referenceBarProxy.GetMetricValues(tradingObject);
-                    var closePrice = referenceBar[0];
-                    var lossPercentage = (closePrice - position.BuyPrice) / position.BuyPrice * 100.0;
+                    var firstDayBar = _firstDayBarProxy.GetMetricValues(tradingObject);
+                    var theDayBeforeFirstDayBar = _theDayBeforeFirstDayBarProxy.GetMetricValues(tradingObject);
 
-                    if (lossPercentage < -MinLossPercentage)
+                    var firstDayClosePrice = firstDayBar[0];
+                    var theDayBeforeFirstDayClosePrice = theDayBeforeFirstDayBar[0];
+
+                    var lossPercentage = (firstDayClosePrice - position.BuyPrice) / position.BuyPrice * 100.0;
+                    var lossPercentageToPreviousDay = (firstDayClosePrice - theDayBeforeFirstDayClosePrice) / theDayBeforeFirstDayClosePrice * 100.0;
+
+                    if (lossPercentage < -MinLossPercentage 
+                        || lossPercentageToPreviousDay < -MinLossPercentageToPreviousDayClose)
                     {
-                        result.Comments = string.Format("Loss: buy price {0:0.000}, prev close price {1:0.000}", position.BuyPrice, closePrice);
+                        result.Comments = string.Format("Loss: buy price {0:0.000}, close price {1:0.000}, prev close price {2:0.000}", position.BuyPrice, firstDayClosePrice, theDayBeforeFirstDayClosePrice);
 
                         result.Price = new TradingPrice(ExitingPeriod, ExitingPriceOption, ExitingCustomPrice);
 

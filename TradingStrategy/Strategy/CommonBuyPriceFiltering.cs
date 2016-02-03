@@ -31,14 +31,18 @@ namespace TradingStrategy.Strategy
         [Parameter(90.0, "价格下限百分比")]
         public double PriceDownLimitPercentage { get; set; }
 
+        [Parameter(false, "是否允许价格超过上限后按上限价格买入")]
+        public bool IsUpLimitPriceAcceptable { get; set; }
+
         public override BuyPriceFilteringComponentResult IsPriceAcceptable(ITradingObject tradingObject, double price)
         {
-            var result = new BuyPriceFilteringComponentResult();
+            var result = new BuyPriceFilteringComponentResult(price);
 
             var baseValue = _metricProxy.GetMetricValues(tradingObject)[0];
+            var upLimit = baseValue * PriceUpLimitPercentage / 100.0;
+            var downLimit = baseValue * PriceDownLimitPercentage / 100.0;
 
-            if (price < baseValue * PriceDownLimitPercentage / 100.0
-                || price >= baseValue * PriceUpLimitPercentage / 100.0)
+            if (price < downLimit || price > upLimit )
             {
                 result.Comments = string.Format(
                     "Price {0:0.000} out of [{1:0.000}%..{2:0.000}%] of metric[{3}]:{4:0.000}",
@@ -48,7 +52,16 @@ namespace TradingStrategy.Strategy
                     RawMetric,
                     baseValue);
 
-                result.IsPriceAcceptable = false;
+                if (price > upLimit && IsUpLimitPriceAcceptable)
+                {
+                    result.AcceptablePrice = upLimit;
+                    result.IsPriceAcceptable = true;
+                }
+                else
+                {
+                    result.IsPriceAcceptable = false;
+                    result.AcceptablePrice = double.NaN;
+                }
             }
 
             return result;

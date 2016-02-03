@@ -19,6 +19,8 @@ namespace TradingStrategy
 
         void EstimateStoplossAndSizeForNewPosition(Instruction instruction, double price, int totalNumberOfObjectsToBeEstimated);
 
+        int GetMaxNewPositionCount(int totalNumberOfObjectsToBeEstimated);
+
         void NotifyTransactionStatus(Transaction transaction);
 
         IEnumerable<Instruction> RetrieveInstructions();

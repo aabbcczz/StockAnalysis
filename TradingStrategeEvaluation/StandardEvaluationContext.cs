@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using TradingStrategy;
 using StockAnalysis.Share;
 
@@ -16,6 +17,7 @@ namespace TradingStrategyEvaluation
         private readonly StockBlockRelationshipManager _relationshipManager;
         private readonly IDataDumper _dumper;
         private readonly TradingSettings _settings = null;
+        private readonly IDictionary<string, ITradingObject> _boardIndexTradingObjects;
 
         public IRuntimeMetricManager MetricManager
         {
@@ -37,7 +39,7 @@ namespace TradingStrategyEvaluation
             EquityManager equityManager, 
             ILogger logger,
             TradingSettings settings = null,
-            IDataDumper dumper = null,
+            StreamWriter dumpDataWriter = null,
             StockBlockRelationshipManager relationshipManager  = null)
         {
             if (equityManager == null || provider == null || logger == null)
@@ -49,7 +51,7 @@ namespace TradingStrategyEvaluation
             _equityManager = equityManager;
             _logger = logger;
             _settings = settings;
-            _dumper = dumper;
+
             _relationshipManager = relationshipManager;
 
             var metricManager = new StandardRuntimeMetricManager(_provider.GetAllTradingObjects().Length);
@@ -60,6 +62,24 @@ namespace TradingStrategyEvaluation
 
             _metricManager = metricManager;
             _groupMetricManager = groupMetricManager;
+
+            _boardIndexTradingObjects = new Dictionary<string, ITradingObject>();
+
+            var boards = new StockBoard[] 
+            { 
+                StockBoard.GrowingBoard, 
+                StockBoard.MainBoard, 
+                StockBoard.SmallMiddleBoard 
+            };
+
+            foreach (var board in boards)
+            {
+                string boardIndex = StockName.GetBoardIndex(board);
+                ITradingObject tradingObject = GetTradingObject(boardIndex);
+                _boardIndexTradingObjects.Add(boardIndex, tradingObject);
+            }
+
+            _dumper = dumpDataWriter == null ? null : new StreamDataDumper(dumpDataWriter, 8, 3, _settings.DumpMetrics, this, _provider);
         }
 
         public double GetInitialEquity()
@@ -87,11 +107,34 @@ namespace TradingStrategyEvaluation
             int index = _provider.GetIndexOfTradingObject(code);
             if (index < 0)
             {
-                throw new IndexOutOfRangeException("can't find trading object for code " + code);
+                return null;
             }
 
             return _provider.GetAllTradingObjects()[index];
         }
+
+        public ITradingObject GetBoardIndexTradingObject(ITradingObject tradingObject)
+        {
+            if (tradingObject == null)
+            {
+                throw new ArgumentNullException();
+            }
+
+            StockName stockName;
+
+            if (tradingObject.Object == null || (stockName = tradingObject.Object as StockName) == null)
+            {
+                return null;
+            }
+
+            return _boardIndexTradingObjects[stockName.GetBoardIndex()];
+        }
+
+        public ITradingObject GetBoardIndexTradingObject(StockBoard board)
+        {
+            return _boardIndexTradingObjects[StockName.GetBoardIndex(board)];
+        }
+
 
         public IEnumerable<string> GetAllPositionCodes()
         {
@@ -145,23 +188,9 @@ namespace TradingStrategyEvaluation
 
             if (_dumper != null)
             {
-                var bars = _provider.GetAllBarsForTradingObject(tradingObject.Index);
-                var currentBar = GetBarOfTradingObjectForCurrentPeriod(tradingObject);
-
-                int index = FindIndexOfBar(bars, currentBar);
-                if (index < 0)
-                {
-                    throw new InvalidOperationException("Logic error");
-                }
-
-                _dumper.Dump(bars, index);
+                Bar bar = GetBarOfTradingObjectForCurrentPeriod(tradingObject);
+                _dumper.Dump(tradingObject);
             }
-        }
-
-        private int FindIndexOfBar(Bar[] bars, Bar bar)
-        {
-            int index = Array.BinarySearch(bars, bar, new Bar.TimeComparer());
-            return index < 0 ? -1 : index;
         }
 
         public void SetDefaultPriceForInstructionWhenNecessary(Instruction instruction)
@@ -191,6 +220,11 @@ namespace TradingStrategyEvaluation
 
                 instruction.Price = price;
             }
+        }
+
+        public int GetPositionFrozenDays()
+        {
+            return _settings.PositionFrozenDays;
         }
     }
 }

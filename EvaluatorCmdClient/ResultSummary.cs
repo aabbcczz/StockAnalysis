@@ -195,6 +195,8 @@ namespace EvaluatorCmdClient
         public double MaxDrawDown { get; set; } // 最大回撤 =（前期高点-低点）
         public double MaxDrawDownRatio { get; set; } // 最大回测比率 =（前期高点-低点）/前期高点
         public double Mar { get; set; } // = AnnualProfitRatio / MaxDrawDownRatio
+        public double Expectation { get; set; } // = AverageProfitPerTrading * ProfitTimesRatio - (1 - ProfitTimesRatio) * AverageLossPerTrading;
+        public double BestFactor { get; set; } // best factor according to Kelly formular: f = (bp-q)/b.
         public int ContextId { get; set; }
         public string ContextDirectory { get; set; }
 
@@ -275,6 +277,10 @@ namespace EvaluatorCmdClient
             MaxDrawDown = metric.MaxDrawDown;
             MaxDrawDownRatio = metric.MaxDrawDownRatio;
             Mar = metric.Mar;
+            Expectation = ProfitTimesRatio * AverageProfitPerTrading - (1.0 - ProfitTimesRatio) * AverageLossPerTrading;
+
+            var b = AverageProfitPerTrading / AverageLossPerTrading;
+            BestFactor = (b * ProfitTimesRatio - (1.0 - ProfitTimesRatio)) / b;
 
             ContextId = context.ContextId;
             ContextDirectory = context.RootDirectory;

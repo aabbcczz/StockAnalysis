@@ -32,6 +32,10 @@ namespace TradingStrategy
 
         ITradingObject GetTradingObject(string code);
 
+        ITradingObject GetBoardIndexTradingObject(ITradingObject tradingObject);
+
+        ITradingObject GetBoardIndexTradingObject(StockBoard board);
+
         Bar GetBarOfTradingObjectForCurrentPeriod(ITradingObject tradingObject);
 
         void Log(string log);
@@ -39,5 +43,7 @@ namespace TradingStrategy
         void DumpBarsFromCurrentPeriod(ITradingObject tradingObject);
 
         void SetDefaultPriceForInstructionWhenNecessary(Instruction instruction);
+
+        int GetPositionFrozenDays();
     }
 }

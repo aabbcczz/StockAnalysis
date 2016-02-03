@@ -29,6 +29,9 @@ namespace TradingStrategy.Base
                     _maxPrices[tradingObject.Index] = maxPrice;
                 }
  
+                // TODO: this is a bug. Because the bar is for today. if today is a high raise day, it will 
+                // cause the stop loss price is higher than open price and make the system believe it should 
+                // sell at the stop loss price *TODAY*.
                 string comments;
                 var stopLossPrice = CalculateStopLossPrice(tradingObject, maxPrice, out comments);
 

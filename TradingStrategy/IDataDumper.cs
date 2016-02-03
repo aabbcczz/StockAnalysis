@@ -9,6 +9,6 @@ namespace TradingStrategy
 {
     public interface IDataDumper
     {
-        void Dump(Bar[] bars, int index);
+        void Dump(ITradingObject tradingObject);
     }
 }

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TradingSettings xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <AllowNegativeCapital>false</AllowNegativeCapital>
+  <BuyingCommission>
+    <Type>ByAmount</Type>
+    <Tariff>0.0005</Tariff>
+  </BuyingCommission>
+  <SellingCommission>
+    <Type>ByAmount</Type>
+    <Tariff>0.0015</Tariff>
+  </SellingCommission>
+  <Spread>5</Spread>
+  <OpenLongPriceOption>NextOpenPrice</OpenLongPriceOption>
+  <CloseLongPriceOption>CurrentClosePrice</CloseLongPriceOption>
+</TradingSettings>

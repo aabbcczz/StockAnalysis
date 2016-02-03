@@ -326,27 +326,33 @@ namespace EvaluatorCmdClient
                                 new ParallelOptions() { MaxDegreeOfParallelism = Environment.ProcessorCount * 2 }, 
                                 t =>
                                 {
-                                    if (_toBeStopped)
+                                    for (int i = 0; i < options.AccountNumber; ++i)
                                     {
-                                        return;
+                                        if (_toBeStopped)
+                                        {
+                                            return;
+                                        }
+
+                                        ICapitalManager capitalManager = options.ProportionOfCapitalForIncrementalPosition > 0.0
+                                            ? (ICapitalManager)new AdvancedCapitalManager(options.InitialCapital, options.ProportionOfCapitalForIncrementalPosition)
+                                            : (ICapitalManager)new SimpleCapitalManager(options.InitialCapital)
+                                            ;
+
+                                        EvaluateStrategy(
+                                            options.AccountNumber,
+                                            i,
+                                            _contextManager,
+                                            strategyInstances[t].Item1,
+                                            strategyInstances[t].Item2,
+                                            interval.Item1,
+                                            interval.Item2,
+                                            capitalManager,
+                                            dataProvider,
+                                            filteredStockBlockRelationshipManager,
+                                            options.ShouldDumpData,
+                                            tradingSettings);
+
                                     }
-
-                                    ICapitalManager capitalManager = options.ProportionOfCapitalForIncrementalPosition > 0.0
-                                        ? (ICapitalManager)new AdvancedCapitalManager(options.InitialCapital, options.ProportionOfCapitalForIncrementalPosition)
-                                        : (ICapitalManager)new SimpleCapitalManager(options.InitialCapital)
-                                        ;
-
-                                    EvaluateStrategy(
-                                         _contextManager,
-                                         strategyInstances[t].Item1,
-                                         strategyInstances[t].Item2,
-                                         interval.Item1,
-                                         interval.Item2,
-                                         capitalManager,
-                                         dataProvider,
-                                         filteredStockBlockRelationshipManager,
-                                         options.ShouldDumpData,
-                                         tradingSettings);
 
                                     IncreaseProgress();
 
@@ -405,6 +411,8 @@ namespace EvaluatorCmdClient
         }
 
         private static void EvaluateStrategy(
+            int numberOfAccounts,
+            int accountId,
             EvaluationResultContextManager contextManager, 
             ITradingStrategy strategy,
             IDictionary<ParameterAttribute, object> parameterValues,
@@ -428,10 +436,12 @@ namespace EvaluatorCmdClient
 
             using (context)
             {
-                IDataDumper dataDumper = shouldDumpData ? context.DataDumper : null;
+                StreamWriter dumpDataWriter = shouldDumpData ? context.DumpDataWriter : null;
 
                 var evaluator
                     = new TradingStrategyEvaluator(
+                        numberOfAccounts,
+                        accountId,
                         capitalManager,
                         strategy,
                         parameterValues,
@@ -439,7 +449,7 @@ namespace EvaluatorCmdClient
                         relationshipManager,
                         tradingSettings,
                         context.Logger,
-                        dataDumper);
+                        dumpDataWriter);
 
                 //EventHandler<EvaluationProgressEventArgs> evaluationProgressHandler =
                 //    (object obj, EvaluationProgressEventArgs e) =>
@@ -499,7 +509,7 @@ namespace EvaluatorCmdClient
                 {
                     contextManager.AddResultSummary(resultSummary);
                 }
-             }
+            }
         }
     }
 }

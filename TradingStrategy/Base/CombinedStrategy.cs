@@ -184,6 +184,11 @@ namespace TradingStrategy.Base
                         continue;
                     }
 
+                    if (UntradableObject.Untradable(tradingObjects[i].Code))
+                    {
+                        continue;
+                    }
+
                     component.EvaluateSingleObject(tradingObjects[i], bars[i]);
                 }
             }
@@ -231,6 +236,10 @@ namespace TradingStrategy.Base
 
                         return;
                     }
+                    else
+                    {
+                        price = filterResult.AcceptablePrice;
+                    }
                 }
 
                 var stopLossResult = _stopLoss.EstimateStopLossGap(instruction.TradingObject, price);
@@ -257,6 +266,11 @@ namespace TradingStrategy.Base
 
                 openInstruction.StopLossPriceForBuying = price + stopLossGap;
             }
+        }
+
+        public int GetMaxNewPositionCount(int totalNumberOfObjectsToBeEstimated)
+        {
+            return _positionSizing.GetMaxPositionCount(totalNumberOfObjectsToBeEstimated);
         }
 
         private void GenerateInstructions(ITradingObject[] tradingObjects, Bar[] bars)
@@ -610,7 +624,11 @@ namespace TradingStrategy.Base
 
             // reconstruct instructions in current period
             _instructionsInCurrentPeriod = new List<Instruction>();
-            _instructionsInCurrentPeriod.AddRange(closeLongInstructions);
+
+            if (_globalSettings.CloseInstructionFirst)
+            {
+                _instructionsInCurrentPeriod.AddRange(closeLongInstructions);
+            }
 
             switch(_globalSettings.InstructionOrder)
             { 
@@ -624,6 +642,11 @@ namespace TradingStrategy.Base
                     break;
                 default:
                     throw new NotImplementedException(string.Format("unsupported instruction order {0}", _globalSettings.InstructionOrder));
+            }
+
+            if (!_globalSettings.CloseInstructionFirst)
+            {
+                _instructionsInCurrentPeriod.AddRange(closeLongInstructions);
             }
         }
 

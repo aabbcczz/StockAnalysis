@@ -10,10 +10,13 @@ namespace TradingStrategy.Base
     {
         public bool IsPriceAcceptable { get; set; }
 
-        public BuyPriceFilteringComponentResult()
+        public double AcceptablePrice { get; set; } 
+
+        public BuyPriceFilteringComponentResult(double price)
             : base()
         {
             IsPriceAcceptable = true;
+            AcceptablePrice = price;
         }
     }
 

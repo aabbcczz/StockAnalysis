@@ -3,7 +3,7 @@ using StockAnalysis.Share;
 
 namespace MetricsDefinition.Metrics
 {
-    [Metric("BARM", "UPSHADOW,DOWNSHADOW,CHANGERATIO,CHANGERATIOOVERPREVLOWEST,UPFORCE")]
+    [Metric("BARM", "UPSHADOW,DOWNSHADOW,CHANGERATIO,CHANGERATIOOVERPREVLOWEST,UPFORCE,PROB")]
     public sealed class BarMetric : MultipleOutputBarInputSerialMetric
     {
         private readonly double _alpha;
@@ -18,7 +18,7 @@ namespace MetricsDefinition.Metrics
 
             _alpha = alpha;
 
-            Values = new double[5];
+            Values = new double[6];
 
         }
 
@@ -36,6 +36,7 @@ namespace MetricsDefinition.Metrics
             double changeRatio = (bar.ClosePrice - bar.OpenPrice) / bar.OpenPrice;
             double changeRatioOverPreviousLowest = 0.0;
             double upForce = 0.0;
+            double probability = 0.0;
 
             if (Data.Length > 0)
             {
@@ -49,9 +50,16 @@ namespace MetricsDefinition.Metrics
                     : (bar.LowestPrice - previousLowest) / previousLowest;
 
                 upForce = _alpha * changeRatioOverPreviousLowest + (1.0 - _alpha) * lowestRatioOverPreviousLowest;
+                //upForce = _alpha * (bar.ClosePrice - bar.LowestPrice) / bar.LowestPrice
+                //    + (bar.LowestPrice - previousLowest) / bar.LowestPrice;
+
+                probability = 1.0 / (1.0 + Math.Exp(
+                    0.182984207
+                    - 0.851275184339506 * changeRatioOverPreviousLowest
+                    - 1.14857035385934 * lowestRatioOverPreviousLowest));
             }
 
-            SetValue(upShadow, downShadow, changeRatio, changeRatioOverPreviousLowest, upForce);
+            SetValue(upShadow, downShadow, changeRatio, changeRatioOverPreviousLowest, upForce, probability);
 
             Data.Add(bar);
         }

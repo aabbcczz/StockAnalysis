@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.IO;
 using StockAnalysis.Share;
 using TradingStrategy;
 
@@ -8,6 +9,8 @@ namespace TradingStrategyEvaluation
 {
     public sealed class TradingStrategyEvaluator
     {
+        private readonly int _numberOfAccounts;
+        private readonly int _accountId;
         private readonly ITradingStrategy _strategy;
         private readonly IDictionary<ParameterAttribute, object> _strategyParameterValues;
         private readonly ITradingDataProvider _provider;
@@ -22,6 +25,7 @@ namespace TradingStrategyEvaluation
         private List<Instruction> _nextPeriodInstructions = new List<Instruction>();
 
         private bool _evaluatable = true;
+        private int _activeAccountId = -1;
 
         public TradingTracker Tracker
         {
@@ -36,6 +40,8 @@ namespace TradingStrategyEvaluation
         public EventHandler<EvaluationProgressEventArgs> OnEvaluationProgress;
 
         public TradingStrategyEvaluator(
+            int numberOfAccounts,
+            int accountId,
             ICapitalManager capitalManager,
             ITradingStrategy strategy, 
             IDictionary<ParameterAttribute, object> strategyParameters, 
@@ -43,13 +49,20 @@ namespace TradingStrategyEvaluation
             StockBlockRelationshipManager relationshipManager,
             TradingSettings settings,
             ILogger logger,
-            IDataDumper dumper)
+            StreamWriter dumpDataWriter)
         {
+            if (numberOfAccounts <= 0 || accountId < 0 || accountId >= numberOfAccounts)
+            {
+                throw new ArgumentOutOfRangeException();
+            }
+
             if (strategy == null || provider == null || settings == null)
             {
                 throw new ArgumentNullException();
             }
 
+            _numberOfAccounts = numberOfAccounts;
+            _accountId = accountId;
             _strategy = strategy;
             _strategyParameterValues = strategyParameters;
 
@@ -58,7 +71,7 @@ namespace TradingStrategyEvaluation
             _settings = settings;
 
             _equityManager = new EquityManager(capitalManager, _settings.PositionFrozenDays);
-            _context = new StandardEvaluationContext(_provider, _equityManager, logger, settings, dumper, relationshipManager);
+            _context = new StandardEvaluationContext(_provider, _equityManager, logger, settings, dumpDataWriter, relationshipManager);
             _tradingTracker = new TradingTracker(capitalManager.InitialCapital);
         }
 
@@ -66,7 +79,7 @@ namespace TradingStrategyEvaluation
         {
             if (!_evaluatable)
             {
-                throw new InvalidOperationException("Evalute() can be called only once");
+                throw new InvalidOperationException("Evaluate() can be called only once");
             }
 
             // initialize context
@@ -182,6 +195,20 @@ namespace TradingStrategyEvaluation
 
                 // get instructions and add them to pending instruction list
                 var instructions = _strategy.RetrieveInstructions().ToArray();
+
+                if (instructions.Any(i => i.Action == TradingAction.OpenLong))
+                {
+                    // update active account only if there is open long instruction
+                    _activeAccountId++;
+                    _activeAccountId %= _numberOfAccounts;
+
+                    // decide if instructions should be excuted in current account
+                    if (_activeAccountId != _accountId)
+                    {
+                        // remove OpenLong instructions
+                        instructions = instructions.Where(i => i.Action != TradingAction.OpenLong).ToArray();
+                    }
+                }
 
                 if (instructions.Any())
                 {
@@ -387,6 +414,7 @@ namespace TradingStrategyEvaluation
             }
             
             int totalNumberOfObjectsToBeEstimated = readyInstructions.Count(t => t.Item1.Action == TradingAction.OpenLong);
+            int maxNewPositionCount = _strategy.GetMaxNewPositionCount(totalNumberOfObjectsToBeEstimated);
 
             var pendingTransactions = new List<Transaction>(readyInstructions.Count);
             foreach (var readyInstruction in readyInstructions)
@@ -396,6 +424,17 @@ namespace TradingStrategyEvaluation
 
                 if (instruction.Action == TradingAction.OpenLong)
                 {
+                    if (maxNewPositionCount <= 0)
+                    {
+                        _context.Log(string.Format(
+                            "Max new position count reached, ignore this instruction: {0}/{1}. //{2}",
+                            instruction.TradingObject.Code,
+                            instruction.TradingObject.Name,
+                            instruction.Comments));
+
+                        continue;
+                    }
+
                     _strategy.EstimateStoplossAndSizeForNewPosition(instruction, price, totalNumberOfObjectsToBeEstimated);
                     if (instruction.Volume == 0)
                     {
@@ -407,6 +446,8 @@ namespace TradingStrategyEvaluation
 
                         continue;
                     }
+
+                    --maxNewPositionCount;
                 }
 
                 var transaction = BuildTransactionFromInstruction(

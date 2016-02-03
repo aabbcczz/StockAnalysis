@@ -58,6 +58,9 @@ namespace EvaluatorCmdClient
         [Option('d', "Dump", HelpText = "Dump data for debugging")]
         public bool ShouldDumpData { get; set; }
 
+        [Option('j', "AccountNumber", HelpText = "Number of accounts")]
+        public int AccountNumber { get; set; }
+
         [HelpOption]
         public string GetUsage()
         {
@@ -105,6 +108,11 @@ namespace EvaluatorCmdClient
             if (YearInterval < 0)
             {
                 YearInterval = 0;
+            }
+
+            if (AccountNumber <= 0)
+            {
+                AccountNumber = 1;
             }
         }
     }
