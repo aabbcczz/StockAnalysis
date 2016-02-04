@@ -336,6 +336,11 @@ namespace TradingStrategyEvaluation
                 }
 
                 // exclude 开盘涨停/跌停
+                if (lastPeriodTradingData == null)
+                {
+                    continue;
+                }
+
                 var lastBarOfObject = lastPeriodTradingData[tradingObjectIndex];
                 const double MaxChangesCoefficient = 0.99;
 

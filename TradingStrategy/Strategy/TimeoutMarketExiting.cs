@@ -45,6 +45,11 @@ namespace TradingStrategy.Strategy
                 {
                     result.Comments = string.Format("hold for {0} periods", HoldingPeriods);
                     result.ShouldExit = true;
+
+                    if (Context.GetPositionFrozenDays() > periodCount)
+                    {
+                        result.Price = new TradingPrice(TradingPricePeriod.NextPeriod, TradingPriceOption.OpenPrice, 0.0);
+                    }
                 }
             }
 

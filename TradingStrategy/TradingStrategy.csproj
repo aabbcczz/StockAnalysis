@@ -112,6 +112,7 @@
     <Compile Include="Strategy\AtrDevTraceStopLossMarketExiting.cs" />
     <Compile Include="Strategy\AtrDevStopLoss.cs" />
     <Compile Include="Strategy\BoardIndexBasedEquityUtilizationCalculator.cs" />
+    <Compile Include="Strategy\GapDownBounceOverMarketEntering.cs" />
     <Compile Include="Strategy\SlowThanBoardIndexMarketExiting.cs" />
     <Compile Include="Strategy\ContinueTwoDayLossMarketExiting.cs" />
     <Compile Include="Strategy\RawMetricMarketEntering.cs" />
