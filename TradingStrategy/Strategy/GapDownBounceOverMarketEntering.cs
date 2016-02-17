@@ -10,7 +10,6 @@ namespace TradingStrategy.Strategy
     {
         private RuntimeMetricProxy _movingAverage;
         private RuntimeMetricProxy _previousDayBar;
-        private RuntimeMetricProxy _lowest;
 
         [Parameter(5, "移动平均趋势线周期, 0表示忽略")]
         public int MovingAveragePeriod { get; set; }

@@ -59,6 +59,8 @@
   <ItemGroup>
     <Compile Include="BarInputSerialMetric.cs" />
     <Compile Include="CirculatedArray.cs" />
+    <Compile Include="Metrics\FractalAdaptiveMovingAverageExtend.cs" />
+    <Compile Include="Metrics\FractalAdaptiveMovingAverage.cs" />
     <Compile Include="Metrics\AdaptiveMovingAverage.cs" />
     <Compile Include="Metrics\Growth.cs" />
     <Compile Include="Metrics\BarMetric.cs" />
