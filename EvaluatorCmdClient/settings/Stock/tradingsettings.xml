@@ -16,4 +16,7 @@
   <OpenLongPriceOption>OpenPrice</OpenLongPriceOption>
   <CloseLongPricePeriod>CurrentPeriod</CloseLongPricePeriod>
   <CloseLongPriceOption>ClosePrice</CloseLongPriceOption>
+<!--  <DumpMetrics>B_BAR.CP, B_AMA[5], B_AMA[10], B_AMA[15], B_AMA[20], B_AMA[25], B_AMA[30]</DumpMetrics>
+-->
+	<DumpMetrics>BARM[0.8].UPFORCE</DumpMetrics>
 </TradingSettings>
