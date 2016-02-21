@@ -201,6 +201,7 @@
     <Compile Include="TradingPriceOption.cs" />
     <Compile Include="TradingPricePeriod.cs" />
     <Compile Include="Transaction.cs" />
+    <Compile Include="UnifiedMetricProxy.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\MetricsDefinition\MetricsDefinition.csproj">

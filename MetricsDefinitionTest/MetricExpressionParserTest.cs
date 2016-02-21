@@ -57,6 +57,7 @@ namespace MetricsDefinitionTest
             Assert.IsNotNull(parser.Parse("MA[20] "));
             Assert.IsNotNull(parser.Parse("MA [20]"));
             Assert.IsNotNull(parser.Parse("MA[ 20 ]"));
+            Assert.IsNotNull(parser.Parse("TESTMETRIC[20, \"abc\", 1.1]"));
 
             // valid syntax
             Assert.IsNotNull(parser.Parse("BAR"));

@@ -26,7 +26,7 @@ namespace TradingStrategyEvaluation
         public TradingPricePeriod CloseLongPricePeriod { get; set; }
         public TradingPriceOption CloseLongPriceOption { get; set; }
 
-        public string DumpMetrics { get; set; }
+        public string[] DumpMetrics { get; set; }
 
         public static TradingSettings LoadFromFile(string file)
         {
@@ -94,7 +94,7 @@ namespace TradingStrategyEvaluation
                 CloseLongPricePeriod = TradingPricePeriod.NextPeriod,
                 CloseLongPriceOption = TradingPriceOption.ClosePrice,
 
-                DumpMetrics = string.Empty,
+                DumpMetrics = new string[] { "", "" },
             };
 
             return settings;

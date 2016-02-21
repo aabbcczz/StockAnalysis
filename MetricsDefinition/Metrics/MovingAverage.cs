@@ -5,6 +5,11 @@
     {
         private readonly MovingSum _movingSum;
 
+        public override CirculatedArray<double> Data
+        {
+            get { return _movingSum.Data; }
+        }
+
         public MovingAverage(int windowSize)
             : base(0)
         {

@@ -9,10 +9,19 @@ namespace TradingStrategy.Strategy
     public sealed class SingleMovingAverageMarketEntering
         : MetricBasedMarketEntering
     {
+        [Parameter("AMA", "移动平均指标名")]
+        public string MovingAverageMetricName { get; set; }
+
         [Parameter(10, "移动平均周期")]
         public int MovingAveragePeriod { get; set; }
 
-        [Parameter(1, "触发条件。1表示收盘价高于移动平均值触发，0表示收盘价低于移动平均值触发")]
+        [Parameter(-1, "参数1, 小于0将被忽略")]
+        public int Argument1 { get; set; }
+
+        [Parameter(-1, "参数2, 小于0将被忽略")]
+        public int Argument2 { get; set; }
+
+        [Parameter(1, "触发条件。1表示收盘价高于移动平均值触发, 0表示收盘价低于移动平均值触发")]
         public int TriggeringCondition { get; set; }
 
         protected override void ValidateParameterValues()
@@ -32,11 +41,46 @@ namespace TradingStrategy.Strategy
 
         protected override MetricBooleanExpression.IMetricBooleanExpression BuildExpression()
         {
-            return new Comparison(
-                string.Format(
-                    "BAR.CP {0} MA[{1}]",
-                    TriggeringCondition == 0 ? '<' : '>',
-                    MovingAveragePeriod));
+            string expression;
+
+            if (Argument2 < 0)
+            {
+                if (Argument1 < 0)
+                {
+                    expression =
+                        string.Format(
+                            "BAR.CP {0} {1}[{2}]",
+                            TriggeringCondition == 0 ? '<' : '>',
+                            MovingAverageMetricName,
+                            MovingAveragePeriod);
+
+                }
+                else
+                {
+                    expression =
+                        string.Format(
+                            "BAR.CP {0} {1}[{2},{3}]",
+                            TriggeringCondition == 0 ? '<' : '>',
+                            MovingAverageMetricName,
+                            MovingAveragePeriod,
+                            Argument1);
+
+                }
+            }
+            else
+            {
+                expression =
+                    string.Format(
+                        "BAR.CP {0} {1}[{2},{3},{4}]",
+                        TriggeringCondition == 0 ? '<' : '>',
+                        MovingAverageMetricName,
+                        MovingAveragePeriod,
+                        Argument1,
+                        Argument2);
+
+            }
+
+            return new Comparison(expression);
         }
 
         public override string Name

@@ -28,6 +28,9 @@ namespace TradingStrategy.Strategy
         [Parameter(true, "限制新头寸数目不超过划分数目")]
         public bool LimitNewPositionCountAsParts { get; set; }
 
+        [Parameter(2.0, "对数底, 用于计算权益使用率, 0.0表示不使用")]
+        public double LogarithmBase { get; set; }
+        
         public override string Name
         {
             get { return "价格等值模型"; }
@@ -64,6 +67,11 @@ namespace TradingStrategy.Strategy
             {
                 throw new ArgumentException("EquityUtilization must be in [0.0..1.0]");
             }
+
+            if (LogarithmBase != 0.0 && LogarithmBase <= 1.0)
+            {
+                throw new ArgumentException("LogarithmBase must be greater than 1.0");
+            }
         }
 
         private double GetEquityUtilizationPenalty(double drawdown)
@@ -75,8 +83,10 @@ namespace TradingStrategy.Strategy
 
         private void UpdateDynamicEquityUtilization()
         {
+            double initialEquity = Context.GetInitialEquity();
+
             double currentEquity = Context.GetCurrentEquity(CurrentPeriod, EquityEvaluationMethod.TotalEquity);
-            
+
             if (currentEquity > _latestHighEquity)
             {
                 _latestHighEquity = currentEquity;
@@ -99,7 +109,6 @@ namespace TradingStrategy.Strategy
                 return 1.0;
             }
 
-            //return _calculator.CalculateEquityUtilization(tradingObject) * _dynamicEquityUtilization;
             return _dynamicEquityUtilization;
         }
 
@@ -145,16 +154,34 @@ namespace TradingStrategy.Strategy
                 ? Math.Max(Math.Min(totalNumberOfObjectsToBeEstimated, maxParts), MinPartsOfAdpativeAllocation)
                 : PartsOfEquity;
 
-            double equityUtilization = GetDynamicEquityUtilization(tradingObject);
+            double totalEquityUtilization = GetDynamicEquityUtilization(tradingObject);
+
+            if (LogarithmBase != 0.0
+                && EquityEvaluationMethod != TradingStrategy.EquityEvaluationMethod.InitialEquity)
+            {
+                double initialEquity = Context.GetInitialEquity();
+                double proportion = (1.0 + Math.Log(currentEquity / initialEquity, LogarithmBase));
+
+                if (proportion < 0.0)
+                {
+                    proportion = 0.1;
+                }
+
+                currentEquity *= proportion;
+            }
+
+            double perObjectUtilization = _calculator.CalculateEquityUtilizationPerTradingObject(tradingObject);
+
+            double finalUtilization = totalEquityUtilization * perObjectUtilization;
 
             result.Comments = string.Format(
                 "positionsize = currentEquity({0:0.000}) * equityUtilization({1:0.000}) / Parts ({2}) / price({3:0.000})",
                 currentEquity,
-                equityUtilization,
+                totalEquityUtilization,
                 parts,
                 price);
 
-            result.PositionSize = (int)(currentEquity * equityUtilization / parts / price);
+            result.PositionSize = (int)(currentEquity * finalUtilization / price);
 
             return result;
         }

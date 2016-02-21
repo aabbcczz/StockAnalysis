@@ -29,8 +29,6 @@ namespace MetricsDefinition.Metrics
         private readonly Highest _secondHalfHighest;
         private readonly Lowest _secondHalfLowest;
 
-        private int _processedDataCount = 0;
-
         public FractalAdaptiveMovingAverageExtend(int period, int fastMovingAverage, int slowMovingAverage)
             : base(0)
         {
@@ -89,10 +87,10 @@ namespace MetricsDefinition.Metrics
 
         public override void Update(Bar bar)
         {
-            if (_processedDataCount < _period)
+            if (_secondHalfHighest.Data.Length < _halfPeriod)
             {
                 // second half is not full yet
-                if (_processedDataCount < _halfPeriod)
+                if (_firstHalfHighest.Data.Length < _halfPeriod)
                 {
                     // first half is not full yet
                     _firstHalfHighest.Update(bar.HighestPrice);
@@ -114,14 +112,12 @@ namespace MetricsDefinition.Metrics
                 _secondHalfLowest.Update(bar.LowestPrice);
             }
 
-            _processedDataCount++;
-
             // warming up stage
             if (double.IsNaN(_lastFrama))
             {
                 _initialFrama.Update(bar.ClosePrice);
 
-                if (_processedDataCount >= _h)
+                if (_initialFrama.Data.Length >= _h)
                 {
                     _lastFrama = _initialFrama.Value;
                 }

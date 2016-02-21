@@ -6,7 +6,7 @@ namespace MetricsDefinition
     {
         private readonly CirculatedArray<Bar> _data;
 
-        internal CirculatedArray<Bar> Data
+        public virtual CirculatedArray<Bar> Data
         {
             get { return _data; }
         }

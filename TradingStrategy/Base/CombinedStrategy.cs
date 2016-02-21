@@ -703,7 +703,7 @@ namespace TradingStrategy.Base
                     if (instruction.Action == TradingAction.OpenLong)
                     {
                         instruction.ObservedMetricValues = _globalSettings.ObservableMetricProxies
-                            .Select(p => p.GetMetricValues(instruction.TradingObject)[0])
+                            .Select(p => p.GetValue(instruction.TradingObject))
                             .ToArray();
                     }
                 }

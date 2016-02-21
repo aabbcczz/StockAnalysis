@@ -7,6 +7,7 @@ namespace MetricsDefinition
     {
         static readonly Regex RegexIdentifier = new Regex(@"[_a-zA-Z\%][_a-zA-Z\%0-9]*", RegexOptions.Compiled);
         static readonly Regex RegexNumber = new Regex(@"-?\d+(\.\d+)?", RegexOptions.Compiled);
+        static readonly Regex RegexString = new Regex("\"[^\"]*\"", RegexOptions.Compiled);
 
         private readonly string _expression;
         private int _position;
@@ -72,6 +73,9 @@ namespace MetricsDefinition
                         token = new Token(TokenType.Dot, _position, _position, ".");
                         ++_position;
                         break;
+                    case '\"':
+                        token = ParseString();
+                        break;
                     default:
                         if (char.IsLetter(ch) || ch == '_')
                         {
@@ -113,6 +117,26 @@ namespace MetricsDefinition
                 startPosition,
                 _position - 1,
                 match.Value);
+        }
+
+        private Token ParseString()
+        {
+            var startPosition = _position;
+
+            var match = RegexString.Match(_expression, startPosition);
+            if (!match.Success || match.Index != _position)
+            {
+                throw new InvalidOperationException(
+                    string.Format("Match string starts from {0} in expression \"{1}\" failed", _position, _expression));
+            }
+
+            _position += match.Length;
+
+            return new Token(
+                TokenType.String,
+                startPosition + 1,
+                _position - 2,
+                match.Value.Trim('\"'));
         }
 
         private Token ParseNumber()
