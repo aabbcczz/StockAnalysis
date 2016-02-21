@@ -15,34 +15,8 @@ namespace TradingStrategy.Strategy
         private readonly RuntimeMetricProxy _ma;
         private readonly RuntimeMetricProxy _close;
 
-        private const int MinPercentage = 90;
-        private const int MaxPercentage = 110;
-
-        // 90..110
-        private double[] _utilizations = new double[]
-        {
-            0.10,
-            0.22,
-            0.25,
-            0.10,
-            0.29,
-            0.16,
-            0.16,
-            0.36,
-            0.12,
-            0.31,
-            0.43,
-            0.36,
-            0.39,
-            0.37,
-            0.31,
-            0.48,
-            0.19,
-            0.49,
-            0.79,
-            0.25,
-            0.27,
-        };
+        private static double _reciprocalSqrt2Pi = 1.0 / Math.Sqrt(2 * Math.PI);
+        private double _normalDistribution0 = NormalDistribution(0, 1.0, 0);
 
         public BoardIndexBasedEquityUtilizationCalculator(IEvaluationContext context)
         {
@@ -57,7 +31,14 @@ namespace TradingStrategy.Strategy
             _close = new RuntimeMetricProxy(_context.MetricManager, "BAR.CP");
         }
 
-        public double CalculateEquityUtilizationPerTradingObject(ITradingObject tradingObject)
+        private static double NormalDistribution(double mu, double sigma, double x)
+        {
+            double u = (x - mu) / sigma;
+
+            return _reciprocalSqrt2Pi * Math.Exp(-u * u / 2.0);
+        }
+
+        public double CalculateEquityUtilization(ITradingObject tradingObject)
         {
             var boardIndexTradingObject = _context.GetBoardIndexTradingObject(tradingObject);
             if (boardIndexTradingObject == null)
@@ -75,14 +56,29 @@ namespace TradingStrategy.Strategy
             var closeValue = _close.GetMetricValues(boardIndexTradingObject)[0];
             var maValue = _ma.GetMetricValues(boardIndexTradingObject)[0];
 
-            var percentage = (int)(closeValue * 100.0 / maValue);
+            var percentage = closeValue / maValue;
 
-            if (percentage < MinPercentage || percentage > MaxPercentage)
-            {
-                return 0.0;
-            }
+            double utilization;
 
-            return _utilizations[percentage - MinPercentage];
+            //if (percentage > 1.1)
+            //{
+            //    utilization = 1.0 - (percentage - 1.1) * 2.0;
+            //}
+            //else if (percentage < 0.9)
+            //{
+            //    utilization = 1.0;
+            //}
+            //else
+            //{
+            //    utilization = 0.7;
+            //}
+
+            utilization = 1.0;
+            return Math.Max(Math.Min(utilization, 1.0), 0.1);
+
+            //var utilization = NormalDistribution(1.0, 0.1, percentage) / _normalDistribution0;
+
+            //return Math.Max(utilization, 0.1);
         }
     }
 }

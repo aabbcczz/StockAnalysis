@@ -119,17 +119,37 @@ namespace TradingStrategy.Strategy
             UpdateDynamicEquityUtilization();
         }
 
+        private int GetParts(int totalNumberOfObjectsToBeEstimated)
+        {
+            var maxParts = MaxPartsOfAdpativeAllocation == 0 ? MinPartsOfAdpativeAllocation : MaxPartsOfAdpativeAllocation;
+
+            int parts = PartsOfEquity == 0
+                ? Math.Max(Math.Min(totalNumberOfObjectsToBeEstimated, maxParts), MinPartsOfAdpativeAllocation)
+                : PartsOfEquity;
+
+            if (LogarithmBase != 0.0
+                && EquityEvaluationMethod != TradingStrategy.EquityEvaluationMethod.InitialEquity)
+            {
+                double currentEquity = Context.GetCurrentEquity(CurrentPeriod, EquityEvaluationMethod);
+                double initialEquity = Context.GetInitialEquity();
+                double proportion = (1.0 + Math.Log(currentEquity / initialEquity, LogarithmBase));
+
+                if (proportion < 0.0)
+                {
+                    proportion = 1.0;
+                }
+
+                parts = Math.Max(parts, (int)(parts * proportion));
+            }
+
+            return parts;
+        }
+
         public override int GetMaxPositionCount(int totalNumberOfObjectsToBeEstimated)
         {
             if (LimitNewPositionCountAsParts)
             {
-                var maxParts = MaxPartsOfAdpativeAllocation == 0 ? MinPartsOfAdpativeAllocation : MaxPartsOfAdpativeAllocation;
-
-                int parts = PartsOfEquity == 0
-                    ? Math.Max(Math.Min(totalNumberOfObjectsToBeEstimated, maxParts), MinPartsOfAdpativeAllocation)
-                    : PartsOfEquity;
-
-                return parts;
+                return GetParts(totalNumberOfObjectsToBeEstimated);
             }
             else
             {
@@ -148,40 +168,22 @@ namespace TradingStrategy.Strategy
 
             var currentEquity = Context.GetCurrentEquity(CurrentPeriod, EquityEvaluationMethod);
 
-            var maxParts = MaxPartsOfAdpativeAllocation == 0 ? MinPartsOfAdpativeAllocation : MaxPartsOfAdpativeAllocation;
-
-            int parts = PartsOfEquity == 0
-                ? Math.Max(Math.Min(totalNumberOfObjectsToBeEstimated, maxParts), MinPartsOfAdpativeAllocation)
-                : PartsOfEquity;
+            int parts = GetParts(totalNumberOfObjectsToBeEstimated);
 
             double totalEquityUtilization = GetDynamicEquityUtilization(tradingObject);
 
-            if (LogarithmBase != 0.0
-                && EquityEvaluationMethod != TradingStrategy.EquityEvaluationMethod.InitialEquity)
-            {
-                double initialEquity = Context.GetInitialEquity();
-                double proportion = (1.0 + Math.Log(currentEquity / initialEquity, LogarithmBase));
+            double boardIndexUtilization = _calculator.CalculateEquityUtilization(tradingObject);
 
-                if (proportion < 0.0)
-                {
-                    proportion = 0.1;
-                }
-
-                currentEquity *= proportion;
-            }
-
-            double perObjectUtilization = _calculator.CalculateEquityUtilizationPerTradingObject(tradingObject);
-
-            double finalUtilization = totalEquityUtilization * perObjectUtilization;
+            double finalUtilization = totalEquityUtilization * boardIndexUtilization;
 
             result.Comments = string.Format(
                 "positionsize = currentEquity({0:0.000}) * equityUtilization({1:0.000}) / Parts ({2}) / price({3:0.000})",
                 currentEquity,
-                totalEquityUtilization,
+                finalUtilization,
                 parts,
                 price);
 
-            result.PositionSize = (int)(currentEquity * finalUtilization / price);
+            result.PositionSize = (int)(currentEquity * finalUtilization/ parts / price);
 
             return result;
         }
