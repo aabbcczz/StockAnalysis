@@ -80,7 +80,7 @@
           <Description>Randomly remove instruction threshold. [0..99]</Description>
           <ValueType>System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
           <DefaultValue xsi:type="xsd:int">50</DefaultValue>
-          <Values>10</Values>
+          <Values>0</Values>
         </ParameterSettings>
         <ParameterSettings>
           <Name>CloseInstructionFirst</Name>
@@ -94,7 +94,7 @@
           <Description>只允许在价格上涨时出发入市信号</Description>
           <ValueType>System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
           <DefaultValue xsi:type="xsd:boolean">false</DefaultValue>
-          <Values>true</Values>
+          <Values>false</Values>
         </ParameterSettings>
         <ParameterSettings>
           <Name>StopLossByClosePrice</Name>
@@ -105,13 +105,41 @@
         </ParameterSettings>		
         <ParameterSettings>
           <Name>ObservableMetrics</Name>
-          <Description>观察用指标, 每个指标用，分隔</Description>
+          <Description>观察用指标, 每个指标用|分隔</Description>
           <ValueType>System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
           <DefaultValue xsi:type="xsd:string" />
-          <Values>BARM[0.8].UPFORCE</Values>
+          <Values></Values>
         </ParameterSettings>		
       </ComponentParameterSettings>
     </TradingStrategyComponentSettings>
+    <TradingStrategyComponentSettings Enabled="false" Name="板块指数指标入市">
+      <ClassType>TradingStrategy.Strategy.BoardIndexMetricMarketEntering, TradingStrategy, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</ClassType>
+      <Description>当板块指数指标和给定阈值满足触发条件时允许入市</Description>
+      <ImplementedInterfaces>ITradingStrategyComponent;IMarketEnteringComponent</ImplementedInterfaces>
+      <ComponentParameterSettings>
+        <ParameterSettings>
+          <Name>Metric</Name>
+          <Description>指标定义</Description>
+          <ValueType>System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
+          <DefaultValue xsi:type="xsd:string">RSI[20]</DefaultValue>
+          <Values>RSI[3]</Values>
+        </ParameterSettings>
+        <ParameterSettings>
+          <Name>Threshold</Name>
+          <Description>阈值</Description>
+          <ValueType>System.Double, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
+          <DefaultValue xsi:type="xsd:double">10</DefaultValue>
+          <Values>60</Values>
+        </ParameterSettings>
+        <ParameterSettings>
+          <Name>TriggeringCondition</Name>
+          <Description>触发条件。1表示指标值&gt;阈值触发, 0指标值&lt;阈值触发</Description>
+          <ValueType>System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
+          <DefaultValue xsi:type="xsd:int">1</DefaultValue>
+          <Values>1</Values>
+        </ParameterSettings>
+      </ComponentParameterSettings>
+    </TradingStrategyComponentSettings>	
     <TradingStrategyComponentSettings Enabled="false" Name="通道突破入市">
       <ClassType>TradingStrategy.Strategy.BreakoutMarketEntering, TradingStrategy, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</ClassType>
       <Description>当价格突破通道后入市</Description>
@@ -217,7 +245,7 @@
         </ParameterSettings>
       </ComponentParameterSettings>
     </TradingStrategyComponentSettings>
-    <TradingStrategyComponentSettings Enabled="true" Name="跳空后反弹入市策略">
+    <TradingStrategyComponentSettings Enabled="false" Name="跳空后反弹入市策略">
       <ClassType>TradingStrategy.Strategy.GapDownBounceMarketEntering, TradingStrategy, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</ClassType>
       <Description>当收盘价低于移动平均一定程度，并且开盘跳空，收盘超过昨日收盘后入市</Description>
       <ImplementedInterfaces>ITradingStrategyComponent;IMarketEnteringComponent</ImplementedInterfaces>
@@ -271,6 +299,34 @@
           <DefaultValue xsi:type="xsd:int">5</DefaultValue>
           <Values>0</Values>
         </ParameterSettings>		
+      </ComponentParameterSettings>
+    </TradingStrategyComponentSettings>
+    <TradingStrategyComponentSettings Enabled="false" Name="跳空后盘中反弹过昨日最低点入市策略">
+      <ClassType>TradingStrategy.Strategy.GapDownBounceOverMarketEntering, TradingStrategy, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</ClassType>
+      <Description>当昨日收盘价低于移动平均一定程度并且今日开盘跳空后盘中昨日收盘后以昨日收盘价入市</Description>
+      <ImplementedInterfaces>ITradingStrategyComponent;IMarketEnteringComponent</ImplementedInterfaces>
+      <ComponentParameterSettings>
+        <ParameterSettings>
+          <Name>MovingAveragePeriod</Name>
+          <Description>移动平均趋势线周期, 0表示忽略</Description>
+          <ValueType>System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
+          <DefaultValue xsi:type="xsd:int">5</DefaultValue>
+          <Values>0</Values>
+        </ParameterSettings>
+        <ParameterSettings>
+          <Name>MinPercentageBelowMovingAverage</Name>
+          <Description>昨日收盘价应当比移动平均低的最小百分比例</Description>
+          <ValueType>System.Double, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
+          <DefaultValue xsi:type="xsd:double">4</DefaultValue>
+          <Values>0</Values>
+        </ParameterSettings>
+        <ParameterSettings>
+          <Name>MinPercentageOfGapDown</Name>
+          <Description>跳空开盘价低于昨日最低价的最小百分比</Description>
+          <ValueType>System.Double, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
+          <DefaultValue xsi:type="xsd:double">1</DefaultValue>
+          <Values>0</Values>
+        </ParameterSettings>
       </ComponentParameterSettings>
     </TradingStrategyComponentSettings>    
     <TradingStrategyComponentSettings Enabled="false" Name="移动平均交叉入市">
@@ -378,7 +434,7 @@
         </ParameterSettings>
       </ComponentParameterSettings>
     </TradingStrategyComponentSettings>
-    <TradingStrategyComponentSettings Enabled="true" Name="原始指标入市">
+    <TradingStrategyComponentSettings Enabled="false" Name="原始指标入市">
       <ClassType>TradingStrategy.Strategy.RawMetricMarketEntering, TradingStrategy, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</ClassType>
       <Description>当指标值和阈值满足触发条件时允许入市</Description>
       <ImplementedInterfaces>ITradingStrategyComponent;IMarketEnteringComponent</ImplementedInterfaces>
@@ -441,38 +497,38 @@
         </ParameterSettings>
       </ComponentParameterSettings>
     </TradingStrategyComponentSettings>
-    <TradingStrategyComponentSettings Enabled="false" Name="单移动平均入市">
-      <ClassType>TradingStrategy.Strategy.SingleMovingAverageMarketEntering, TradingStrategy, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</ClassType>
-      <Description>当收盘价和移动平均值满足触发条件时允许入市</Description>
-      <ImplementedInterfaces>ITradingStrategyComponent;IMarketEnteringComponent</ImplementedInterfaces>
-      <ComponentParameterSettings>
-        <ParameterSettings>
-          <Name>MovingAveragePeriod</Name>
-          <Description>移动平均周期</Description>
-          <ValueType>System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
-          <DefaultValue xsi:type="xsd:int">10</DefaultValue>
-          <Values>20</Values>
-        </ParameterSettings>
-        <ParameterSettings>
-          <Name>TriggeringCondition</Name>
-          <Description>触发条件。1表示收盘价高于移动平均值触发，0表示收盘价低于移动平均值触发</Description>
-          <ValueType>System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
-          <DefaultValue xsi:type="xsd:int">1</DefaultValue>
-          <Values>1</Values>
-        </ParameterSettings>
-      </ComponentParameterSettings>
-    </TradingStrategyComponentSettings>
-    <TradingStrategyComponentSettings Enabled="true" Name="单移动平均板块指数入市">
+    <TradingStrategyComponentSettings Enabled="false" Name="单移动平均板块指数入市">
       <ClassType>TradingStrategy.Strategy.SingleMovingAverageBoardIndexMarketEntering, TradingStrategy, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</ClassType>
       <Description>当板块指数收盘价和移动平均值满足触发条件时允许入市</Description>
       <ImplementedInterfaces>ITradingStrategyComponent;IMarketEnteringComponent</ImplementedInterfaces>
       <ComponentParameterSettings>
+        <ParameterSettings>
+          <Name>MovingAverageMetricName</Name>
+          <Description>移动平均指标名</Description>
+          <ValueType>System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
+          <DefaultValue xsi:type="xsd:string">AMA</DefaultValue>
+          <Values>AMA</Values>
+        </ParameterSettings>
         <ParameterSettings>
           <Name>MovingAveragePeriod</Name>
           <Description>移动平均周期</Description>
           <ValueType>System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
           <DefaultValue xsi:type="xsd:int">10</DefaultValue>
           <Values>22</Values>
+        </ParameterSettings>
+        <ParameterSettings>
+          <Name>Argument1</Name>
+          <Description>参数1, 小于0将被忽略</Description>
+          <ValueType>System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
+          <DefaultValue xsi:type="xsd:int">-1</DefaultValue>
+          <Values>-1</Values>
+        </ParameterSettings>
+        <ParameterSettings>
+          <Name>Argument2</Name>
+          <Description>参数2, 小于0将被忽略</Description>
+          <ValueType>System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
+          <DefaultValue xsi:type="xsd:int">-1</DefaultValue>
+          <Values>-1</Values>
         </ParameterSettings>
         <ParameterSettings>
           <Name>TriggeringCondition</Name>
@@ -482,7 +538,49 @@
           <Values>1</Values>
         </ParameterSettings>
       </ComponentParameterSettings>
-    </TradingStrategyComponentSettings>	
+    </TradingStrategyComponentSettings>
+    <TradingStrategyComponentSettings Enabled="true" Name="单移动平均入市">
+      <ClassType>TradingStrategy.Strategy.SingleMovingAverageMarketEntering, TradingStrategy, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</ClassType>
+      <Description>当收盘价和移动平均值满足触发条件时允许入市</Description>
+      <ImplementedInterfaces>ITradingStrategyComponent;IMarketEnteringComponent</ImplementedInterfaces>
+      <ComponentParameterSettings>
+        <ParameterSettings>
+          <Name>MovingAverageMetricName</Name>
+          <Description>移动平均指标名</Description>
+          <ValueType>System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
+          <DefaultValue xsi:type="xsd:string">AMA</DefaultValue>
+          <Values>FRAMA_EX</Values>
+        </ParameterSettings>
+        <ParameterSettings>
+          <Name>MovingAveragePeriod</Name>
+          <Description>移动平均周期</Description>
+          <ValueType>System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
+          <DefaultValue xsi:type="xsd:int">10</DefaultValue>
+          <Values>10/260/10</Values>
+        </ParameterSettings>
+        <ParameterSettings>
+          <Name>Argument1</Name>
+          <Description>参数1, 小于0将被忽略</Description>
+          <ValueType>System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
+          <DefaultValue xsi:type="xsd:int">-1</DefaultValue>
+          <Values>12</Values>
+        </ParameterSettings>
+        <ParameterSettings>
+          <Name>Argument2</Name>
+          <Description>参数2, 小于0将被忽略</Description>
+          <ValueType>System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
+          <DefaultValue xsi:type="xsd:int">-1</DefaultValue>
+          <Values>200</Values>
+        </ParameterSettings>
+        <ParameterSettings>
+          <Name>TriggeringCondition</Name>
+          <Description>触发条件。1表示收盘价高于移动平均值触发, 0表示收盘价低于移动平均值触发</Description>
+          <ValueType>System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
+          <DefaultValue xsi:type="xsd:int">1</DefaultValue>
+          <Values>1</Values>
+        </ParameterSettings>
+      </ComponentParameterSettings>
+    </TradingStrategyComponentSettings>
     <TradingStrategyComponentSettings Enabled="false" Name="TRIN指标入市">
       <ClassType>TradingStrategy.Strategy.TrinMarketEntering, TradingStrategy, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</ClassType>
       <Description>当TRIN指标连续高于或者低于阈值后入市</Description>
@@ -862,7 +960,7 @@
         </ParameterSettings>
       </ComponentParameterSettings>
     </TradingStrategyComponentSettings>
-    <TradingStrategyComponentSettings Enabled="true" Name="第二天亏损退出">
+    <TradingStrategyComponentSettings Enabled="false" Name="第二天亏损退出">
       <ClassType>TradingStrategy.Strategy.SecondDayLossMarketExiting, TradingStrategy, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</ClassType>
       <Description>当头寸持有第二天就亏损则退出市场</Description>
       <ImplementedInterfaces>ITradingStrategyComponent;IMarketExitingComponent</ImplementedInterfaces>
@@ -914,21 +1012,42 @@
         </ParameterSettings>
       </ComponentParameterSettings>
     </TradingStrategyComponentSettings>
-    <TradingStrategyComponentSettings Enabled="false" Name="单移动平均退市">
+    <TradingStrategyComponentSettings Enabled="true" Name="单移动平均退市">
       <ClassType>TradingStrategy.Strategy.SingleMovingAverageMarketExiting, TradingStrategy, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</ClassType>
       <Description>当收盘价和移动平均值满足触发条件时退市</Description>
       <ImplementedInterfaces>ITradingStrategyComponent;IMarketExitingComponent</ImplementedInterfaces>
       <ComponentParameterSettings>
         <ParameterSettings>
+          <Name>MovingAverageMetricName</Name>
+          <Description>移动平均指标名</Description>
+          <ValueType>System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
+          <DefaultValue xsi:type="xsd:string">AMA</DefaultValue>
+          <Values>FRAMA_EX</Values>
+        </ParameterSettings>
+        <ParameterSettings>
           <Name>MovingAveragePeriod</Name>
           <Description>移动平均周期</Description>
           <ValueType>System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
           <DefaultValue xsi:type="xsd:int">10</DefaultValue>
-          <Values>20</Values>
+          <Values>10/260/10</Values>
+        </ParameterSettings>
+        <ParameterSettings>
+          <Name>Argument1</Name>
+          <Description>参数1, 小于0将被忽略</Description>
+          <ValueType>System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
+          <DefaultValue xsi:type="xsd:int">-1</DefaultValue>
+          <Values>12</Values>
+        </ParameterSettings>
+        <ParameterSettings>
+          <Name>Argument2</Name>
+          <Description>参数2, 小于0将被忽略</Description>
+          <ValueType>System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
+          <DefaultValue xsi:type="xsd:int">-1</DefaultValue>
+          <Values>200</Values>
         </ParameterSettings>
         <ParameterSettings>
           <Name>TriggeringCondition</Name>
-          <Description>触发条件。1表示收盘价高于移动平均值触发，0表示收盘价低于移动平均值触发</Description>
+          <Description>触发条件。1表示收盘价高于移动平均值触发, 0表示收盘价低于移动平均值触发</Description>
           <ValueType>System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
           <DefaultValue xsi:type="xsd:int">0</DefaultValue>
           <Values>0</Values>
@@ -970,7 +1089,7 @@
         </ParameterSettings>
       </ComponentParameterSettings>
     </TradingStrategyComponentSettings>
-    <TradingStrategyComponentSettings Enabled="true" Name="定时退出">
+    <TradingStrategyComponentSettings Enabled="false" Name="定时退出">
       <ClassType>TradingStrategy.Strategy.TimeoutMarketExiting, TradingStrategy, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</ClassType>
       <Description>当头寸持有超过一段时间后立即退出市场</Description>
       <ImplementedInterfaces>ITradingStrategyComponent;IMarketExitingComponent</ImplementedInterfaces>
@@ -1026,7 +1145,7 @@
         </ParameterSettings>
       </ComponentParameterSettings>
     </TradingStrategyComponentSettings>
-    <TradingStrategyComponentSettings Enabled="false" Name="百分比折回停价">
+    <TradingStrategyComponentSettings Enabled="true" Name="百分比折回停价">
       <ClassType>TradingStrategy.Strategy.PercentageStopLoss, TradingStrategy, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</ClassType>
       <Description>如果当前价格低于买入价的一定百分比则触发停价</Description>
       <ImplementedInterfaces>ITradingStrategyComponent;IStopLossComponent</ImplementedInterfaces>
@@ -1040,7 +1159,7 @@
         </ParameterSettings>
       </ComponentParameterSettings>
     </TradingStrategyComponentSettings>
-    <TradingStrategyComponentSettings Enabled="true" Name="原始指标停价">
+    <TradingStrategyComponentSettings Enabled="false" Name="原始指标停价">
       <ClassType>TradingStrategy.Strategy.RawMetricStopLoss, TradingStrategy, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</ClassType>
       <Description>以原始指标的值作为停价</Description>
       <ImplementedInterfaces>ITradingStrategyComponent;IStopLossComponent</ImplementedInterfaces>
@@ -1071,7 +1190,7 @@
           <Description>权益被分割的块数，每份头寸将占有一份. 0表示自适应划分</Description>
           <ValueType>System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
           <DefaultValue xsi:type="xsd:int">10</DefaultValue>
-          <Values>0</Values>
+          <Values>5</Values>
         </ParameterSettings>
         <ParameterSettings>
           <Name>MaxPartsOfAdpativeAllocation</Name>
@@ -1106,7 +1225,7 @@
           <Description>权益利用率，[0.0..1.0], 0.0代表恒定权益利用率为1.0</Description>
           <ValueType>System.Double, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
           <DefaultValue xsi:type="xsd:double">1</DefaultValue>
-          <Values>1.0</Values>
+          <Values>0.0</Values>
         </ParameterSettings>
         <ParameterSettings>
           <Name>LimitNewPositionCountAsParts</Name>
@@ -1114,6 +1233,13 @@
           <ValueType>System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
           <DefaultValue xsi:type="xsd:boolean">true</DefaultValue>
           <Values>true</Values>
+        </ParameterSettings>
+        <ParameterSettings>
+          <Name>LogarithmBase</Name>
+          <Description>对数底, 用于计算权益使用率, 0.0表示不使用</Description>
+          <ValueType>System.Double, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
+          <DefaultValue xsi:type="xsd:double">2</DefaultValue>
+          <Values>0.0</Values>
         </ParameterSettings>		
       </ComponentParameterSettings>
     </TradingStrategyComponentSettings>	
@@ -1215,7 +1341,7 @@
         </ParameterSettings>		
 	  </ComponentParameterSettings>
     </TradingStrategyComponentSettings>
-    <TradingStrategyComponentSettings Enabled="true" Name="通用买入价过滤器">
+    <TradingStrategyComponentSettings Enabled="false" Name="通用买入价过滤器">
       <ClassType>TradingStrategy.Strategy.CommonBuyPriceFiltering, TradingStrategy, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</ClassType>
       <Description>通用买入价过滤，只接受价格在给定指标值的一定上下范围内活动</Description>
       <ImplementedInterfaces>ITradingStrategyComponent;IBuyPriceFilteringComponent</ImplementedInterfaces>
