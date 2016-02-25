@@ -12,4 +12,6 @@ XCOPY /Y /D %BINARYSRCROOT%\EvaluatorCmdClient\bin\release\*.* %BINROOT%\
 XCopy /Y /D %BINARYSRCROOT%\PredicatorCmdClient\bin\release\*.* %BINROOT%\
 XCopy /Y /D %BINARYSRCROOT%\DTViewer\bin\release\*.* %BINROOT%\
 XCopy /Y /D %BINARYSRCROOT%\ConvertTdxBlockData\bin\release\*.* %BINROOT%\
+XCopy /Y /D %BINARYSRCROOT%\AutoExportStockData\bin\release\*.* %BINROOT%\
+
 

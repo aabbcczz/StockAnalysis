@@ -56,6 +56,10 @@ namespace AutoExportStockData
                         string.Format("Failed to run {0}", exePath));
                 }
             }
+            else
+            {
+                Console.WriteLine("Main windows had been opened");
+            }
 
             try
             {
@@ -113,8 +117,46 @@ namespace AutoExportStockData
             return handle != 0;
         }
 
+        static void DownloadQuote(IntPtr hwndMain)
+        {
+            // find out main menu entry
+            IntPtr hwndMenu = AutoItX.ControlGetHandle(hwndMain, "[CLASSNN:AfxWnd422]");
+
+            if (hwndMenu == IntPtr.Zero)
+            {
+                throw new InvalidOperationException("Can't find main menu button");
+            }
+
+            // activate the window by click the menu and cancel it.
+            AutoItX.ControlClick(hwndMain, hwndMenu);
+
+            AutoItX.Sleep(1000); // wait menu to show.
+
+            // goto the download quote menu item
+            AutoItX.Send("{DOWN}");
+            AutoItX.Send("{RIGHT}");
+            AutoItX.Send("{DOWN}");
+            AutoItX.Send("{DOWN}");
+            AutoItX.Send("{DOWN}");
+            AutoItX.Send("{DOWN}");
+            AutoItX.Send("{DOWN}");
+            AutoItX.Send("{DOWN}");
+            AutoItX.Send("{DOWN}");
+            AutoItX.Send("{DOWN}");
+            AutoItX.Send("{DOWN}");
+            AutoItX.Send("{DOWN}");
+
+            AutoItX.Send("{ENTER}");
+
+            DownloadQuote();
+        }
+
         static void ExportData()
         {
+            AutoItX.Sleep(3000);
+            AutoItX.WinClose("消息标题");
+//            AutoItX.WinClose("消息标题:交易提示");
+
             string title = "[TITLE:中信证券金融终端; CLASS:TdxW_MainFrame_Class]";
 
             int handle = AutoItX.WinWait(title, "", 20);
@@ -129,36 +171,10 @@ namespace AutoExportStockData
             // close 中信证券消息中心 window
             AutoItX.WinClose("中信证券消息中心");
 
-            // find out main menu entry
-            IntPtr hwndMenu = AutoItX.ControlGetHandle(hwnd, "[CLASSNN:AfxWnd422]");
+            // wait for the password/warning message box being closed automatically
+            AutoItX.Sleep(15000);
 
-            if (hwndMenu == IntPtr.Zero)
-            {
-                throw new InvalidOperationException("Can't find main menu button");
-            }
-
-            // activate the window by click the menu and cancel it.
-            //AutoItX.ControlClick(hwnd, hwndMenu);
-
-            //AutoItX.Sleep(1000); // wait menu to show.
-
-            //// goto the download quote menu item
-            //AutoItX.Send("{DOWN}");
-            //AutoItX.Send("{RIGHT}");
-            //AutoItX.Send("{DOWN}");
-            //AutoItX.Send("{DOWN}");
-            //AutoItX.Send("{DOWN}");
-            //AutoItX.Send("{DOWN}");
-            //AutoItX.Send("{DOWN}");
-            //AutoItX.Send("{DOWN}");
-            //AutoItX.Send("{DOWN}");
-            //AutoItX.Send("{DOWN}");
-            //AutoItX.Send("{DOWN}");
-            //AutoItX.Send("{DOWN}");
-
-            //AutoItX.Send("{ENTER}");
-
-            //DownloadQuote();
+            DownloadQuote(hwnd);
 
             // export data.
             // show a stock to enable menu item.
@@ -167,17 +183,46 @@ namespace AutoExportStockData
                 throw new InvalidOperationException("failed to activate main window");
             }
 
-            AutoItX.Send("000001");
-            AutoItX.Send("{ENTER}");
+            IntPtr buttonQuoteHandle = AutoItX.ControlGetHandle(hwnd, "[ClassNN:AfxWnd428]");
+            if (buttonQuoteHandle == IntPtr.Zero)
+            {
+                throw new InvalidOperationException("failed to find 行情 button");
+            }
 
-            AutoItX.Sleep(2000);
+            // click 行情 twice to ensure menu item "export data" is activated
+            AutoItX.ControlClick(hwnd, buttonQuoteHandle);
+            AutoItX.Sleep(3000);
+            AutoItX.ControlClick(hwnd, buttonQuoteHandle);
+            AutoItX.Sleep(3000);
 
-            AutoItX.Send("34"); // the key shortcut for exporting data
+            ExportData(hwnd);
+        }
+
+        static void ExportData(IntPtr hwndMain)
+        {
+            // find out main menu entry
+            IntPtr hwndMenu = AutoItX.ControlGetHandle(hwndMain, "[CLASSNN:AfxWnd422]");
+
+            if (hwndMenu == IntPtr.Zero)
+            {
+                throw new InvalidOperationException("Can't find main menu button");
+            }
+
+            // activate the window by click the menu and cancel it.
+            AutoItX.ControlClick(hwndMain, hwndMenu);
+
+            AutoItX.Sleep(1000); // wait menu to show.
+
+            // goto the download quote menu item
+            AutoItX.Send("{DOWN}");
+            AutoItX.Send("{RIGHT}");
+            AutoItX.Send("{DOWN}");
+            AutoItX.Send("{DOWN}");
+
             AutoItX.Send("{ENTER}");
 
             ExportDataAction();
         }
-
         static void ExportDataAction()
         {
             string title = "数据导出";
@@ -226,8 +271,79 @@ namespace AutoExportStockData
 
             AutoItX.Sleep(2000);
 
-            AutoItX.ControlClick(hwnd, buttonClose);
+            AutoItX.ControlClick(hwnd, buttonAddObject); 
 
+            SelectData(1);
+
+            AutoItX.ControlClick(hwnd, buttonAddObject);
+
+            SelectData(2);
+
+            AutoItX.ControlClick(hwnd, buttonAddObject);
+
+            SelectData(3);
+
+            AutoItX.ControlClick(hwnd, buttonAddObject);
+
+            SelectData(4);
+
+            // begin export
+            AutoItX.ControlClick(hwnd, buttonBeginExport);
+
+            int finishDialogHandle = AutoItX.WinWait("TdxW");
+            AutoItX.WinClose("TdxW");
+
+            AutoItX.ControlClick(hwnd, buttonClose);
+        }
+
+        static void SelectData(int step)
+        {
+            string title = "选择品种";
+
+            int handle = AutoItX.WinWait(title, "", 10);
+
+            if (handle == 0)
+            {
+                throw new InvalidOperationException("failed to find dialog for selecting data");
+            }
+
+            IntPtr hwnd = AutoItX.WinGetHandle(title, "");
+
+            AutoItX.WinActivate(hwnd);
+
+            IntPtr buttonSelectAll = AutoItX.ControlGetHandle(hwnd, "[CLASSNN:Button3]");
+            IntPtr buttonOk = AutoItX.ControlGetHandle(hwnd, "[CLASSNN:Button1]");
+            IntPtr listView = AutoItX.ControlGetHandle(hwnd, "[CLASSNN:SysListView321]");
+
+            switch(step)
+            {
+                case 1:
+                    AutoItX.ControlListView(hwnd, listView, "Select", "6", "");
+                    AutoItX.ControlClick(hwnd, buttonSelectAll);
+                    AutoItX.Sleep(1000);
+                    AutoItX.ControlClick(hwnd, buttonOk);
+                    break;
+                case 2:
+                    AutoItX.Send("399005");
+                    AutoItX.Send("{ENTER}");
+                    AutoItX.Sleep(1000);
+                    break;
+                case 3:
+                    AutoItX.Send("399006");
+                    AutoItX.Send("{ENTER}");
+                    AutoItX.Sleep(1000);
+                    break;
+                case 4:
+                    AutoItX.Send("399300");
+                    AutoItX.Send("{ENTER}");
+                    AutoItX.Sleep(1000);
+                    break;
+                default:
+                    AutoItX.WinClose(hwnd);
+                    break;
+            }
+
+            AutoItX.Sleep(1000);
         }
 
         static void DownloadQuote()

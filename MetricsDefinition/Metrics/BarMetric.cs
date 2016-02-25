@@ -3,7 +3,7 @@ using StockAnalysis.Share;
 
 namespace MetricsDefinition.Metrics
 {
-    [Metric("BARM", "UPSHADOW,DOWNSHADOW,CHANGERATIO,CHANGERATIOOVERPREVLOWEST,UPFORCE,PROB")]
+    [Metric("BARM", "UPSHADOW,DOWNSHADOW,CHANGERATIO,CHANGERATIOOVERPREVLOWEST,UPFORCE")]
     public sealed class BarMetric : MultipleOutputBarInputSerialMetric
     {
         private readonly double _alpha;
@@ -18,25 +18,26 @@ namespace MetricsDefinition.Metrics
 
             _alpha = alpha;
 
-            Values = new double[6];
+            Values = new double[5];
 
         }
 
         public override void Update(Bar bar)
         {
-            double wholeBarLength = bar.HighestPrice - bar.LowestPrice;
+            double maxOpenClose = Math.Max(bar.OpenPrice, bar.ClosePrice);
+            double minOpenClose = Math.Min(bar.OpenPrice, bar.ClosePrice);
 
-            if (Math.Abs(wholeBarLength) < 1e-6)
-            {
-                SetValue(0.0, 0.0, 0.0, 0.0,0.0);
-            }
+            double upShadow = bar.HighestPrice == maxOpenClose 
+                ? 0.0 
+                : (bar.HighestPrice - maxOpenClose) / (bar.HighestPrice - minOpenClose);
 
-            double upShadow = (bar.HighestPrice - Math.Max(bar.OpenPrice, bar.ClosePrice)) / wholeBarLength;
-            double downShadow = (Math.Min(bar.OpenPrice, bar.ClosePrice) - bar.LowestPrice) / wholeBarLength;
+            double downShadow = bar.LowestPrice == minOpenClose
+                ? 0.0
+                : (minOpenClose - bar.LowestPrice) / (maxOpenClose - bar.LowestPrice);
+
             double changeRatio = (bar.ClosePrice - bar.OpenPrice) / bar.OpenPrice;
             double changeRatioOverPreviousLowest = 0.0;
             double upForce = 0.0;
-            double probability = 0.0;
 
             if (Data.Length > 0)
             {
@@ -52,14 +53,9 @@ namespace MetricsDefinition.Metrics
                 upForce = _alpha * changeRatioOverPreviousLowest + (1.0 - _alpha) * lowestRatioOverPreviousLowest;
                 //upForce = _alpha * (bar.ClosePrice - bar.LowestPrice) / bar.LowestPrice
                 //    + (bar.LowestPrice - previousLowest) / bar.LowestPrice;
-
-                probability = 1.0 / (1.0 + Math.Exp(
-                    0.182984207
-                    - 0.851275184339506 * changeRatioOverPreviousLowest
-                    - 1.14857035385934 * lowestRatioOverPreviousLowest));
             }
 
-            SetValue(upShadow, downShadow, changeRatio, changeRatioOverPreviousLowest, upForce, probability);
+            SetValue(upShadow, downShadow, changeRatio, changeRatioOverPreviousLowest, upForce);
 
             Data.Add(bar);
         }
