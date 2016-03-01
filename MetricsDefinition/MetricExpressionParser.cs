@@ -5,9 +5,14 @@ using System.Reflection;
 
 namespace MetricsDefinition
 {
-    internal sealed class MetricExpressionParser
+    public sealed class MetricExpressionParser
     {
-        readonly Queue<Token> _tokens = new Queue<Token>();
+        private readonly Queue<Token> _tokens = new Queue<Token>();
+        private readonly TokenType[] _parameterTokenTypes = new TokenType[]
+        {
+            TokenType.Number, 
+            TokenType.String
+        };
 
         private Token GetNextToken()
         {
@@ -106,7 +111,7 @@ namespace MetricsDefinition
                 {
                     return null;
                 }
-           }
+            }
 
             // parse the selection part, such as .DIF
             var fieldIndex = -1;
@@ -277,7 +282,7 @@ namespace MetricsDefinition
                     break;
                 }
 
-                if (!Expect(TokenType.Number, out token))
+                if (!Expect(_parameterTokenTypes, out token))
                 {
                     return null;
                 }
@@ -295,6 +300,31 @@ namespace MetricsDefinition
             } while (true);
 
             return parameters.ToArray();
+        }
+
+        private bool Expect(TokenType[] expectedTypes, out Token token)
+        {
+            token = PeekNextToken();
+
+            if (token == null)
+            {
+                LastErrorMessage = string.Format("Expect {0}, but there is no more token", string.Join("|", expectedTypes));
+                return false;
+            }
+
+            token = GetNextToken();
+            if (!expectedTypes.Contains(token.Type))
+            {
+                LastErrorMessage = string.Format(
+                    "Expect {0} at position {1}, but get {2}",
+                    string.Join("|", expectedTypes),
+                    token.StartPosition,
+                    token.Type.ToString());
+
+                return false;
+            }
+
+            return true;
         }
 
         private bool Expect(TokenType expectedType, out Token token)

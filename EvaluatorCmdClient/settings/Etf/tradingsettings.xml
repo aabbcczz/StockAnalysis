@@ -9,11 +9,17 @@
   </BuyingCommission>
   <SellingCommission>
     <Type>ByAmount</Type>
-    <Tariff>0.0015</Tariff>
+    <Tariff>0.0005</Tariff>
   </SellingCommission>
   <Spread>0</Spread>
   <OpenLongPricePeriod>NextPeriod</OpenLongPricePeriod>
   <OpenLongPriceOption>OpenPrice</OpenLongPriceOption>
   <CloseLongPricePeriod>CurrentPeriod</CloseLongPricePeriod>
   <CloseLongPriceOption>ClosePrice</CloseLongPriceOption>
+<!--  <DumpMetrics>B_BAR.CP, B_AMA[5], B_AMA[10], B_AMA[15], B_AMA[20], B_AMA[25], B_AMA[30]</DumpMetrics>
+-->
+  <DumpMetrics>
+    <string>B_DIFF[&quot;BAR.CP&quot;, &quot;FRAMA_EX[136, 12, 200]&quot;].PERCENT</string>
+	<string>B_DIFF[&quot;BAR.CP&quot;, &quot;AMA[22]&quot;].PERCENT</string>
+  </DumpMetrics>
 </TradingSettings>

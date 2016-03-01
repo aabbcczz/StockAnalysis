@@ -1,10 +1,10 @@
 CALL SetEnvironment.cmd
 
-COPY /Y %TDXROOT%\T0002\hq_cache\block_zs.dat %STOCKROOT%\
-COPY /Y %TDXROOT%\T0002\hq_cache\tdxzs.cfg %STOCKROOT%\
-COPY /Y %TDXROOT%\T0002\hq_cache\tdxhy.cfg %STOCKROOT%\
+COPY /Y %TDXROOT%\T0002\hq_cache\block_zs.dat %TEMPFOLDER%\
+COPY /Y %TDXROOT%\T0002\hq_cache\tdxzs.cfg %TEMPFOLDER%\
+COPY /Y %TDXROOT%\T0002\hq_cache\tdxhy.cfg %TEMPFOLDER%\
 
 
-%BINROOT%\ConvertTdxBlockData.exe -z %STOCKROOT%\block_zs.dat -b %STOCKROOT%\tdxzs.cfg -o %STOCKROOT%\StockBlock.csv
+%BINROOT%\ConvertTdxBlockData.exe -z %TEMPFOLDER%\block_zs.dat -b %TEMPFOLDER%\tdxzs.cfg -o %TEMPFOLDER%\StockBlock.csv
 
-%BINROOT%\ConvertTdxBlockData.exe -h %STOCKROOT%\tdxhy.cfg -b %STOCKROOT%\tdxzs.cfg -o %STOCKROOT%\StockBlock_HangYe.csv
+%BINROOT%\ConvertTdxBlockData.exe -h %TEMPFOLDER%\tdxhy.cfg -b %TEMPFOLDER%\tdxzs.cfg -o %TEMPFOLDER%\StockBlock_HangYe.csv

@@ -112,6 +112,8 @@
     <Compile Include="Strategy\AtrDevTraceStopLossMarketExiting.cs" />
     <Compile Include="Strategy\AtrDevStopLoss.cs" />
     <Compile Include="Strategy\BoardIndexBasedEquityUtilizationCalculator.cs" />
+    <Compile Include="Strategy\GapDownBounceOverMarketEntering.cs" />
+    <Compile Include="Strategy\BoardIndexMetricMarketEntering.cs" />
     <Compile Include="Strategy\SlowThanBoardIndexMarketExiting.cs" />
     <Compile Include="Strategy\ContinueTwoDayLossMarketExiting.cs" />
     <Compile Include="Strategy\RawMetricMarketEntering.cs" />
@@ -199,6 +201,7 @@
     <Compile Include="TradingPriceOption.cs" />
     <Compile Include="TradingPricePeriod.cs" />
     <Compile Include="Transaction.cs" />
+    <Compile Include="UnifiedMetricProxy.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\MetricsDefinition\MetricsDefinition.csproj">

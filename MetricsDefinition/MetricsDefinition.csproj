@@ -59,6 +59,10 @@
   <ItemGroup>
     <Compile Include="BarInputSerialMetric.cs" />
     <Compile Include="CirculatedArray.cs" />
+    <Compile Include="Metrics\Bias.cs" />
+    <Compile Include="Metrics\TestMetric.cs" />
+    <Compile Include="Metrics\FractalAdaptiveMovingAverageExtend.cs" />
+    <Compile Include="Metrics\FractalAdaptiveMovingAverage.cs" />
     <Compile Include="Metrics\AdaptiveMovingAverage.cs" />
     <Compile Include="Metrics\Growth.cs" />
     <Compile Include="Metrics\BarMetric.cs" />
@@ -105,7 +109,7 @@
     <Compile Include="MetricEvaluationContext.cs" />
     <Compile Include="MetricExpression.cs" />
     <Compile Include="MetricExpressionParser.cs" />
-    <Compile Include="Metrics\Bias.cs" />
+    <Compile Include="Metrics\Difference.cs" />
     <Compile Include="Metrics\CommodityChannelIndex.cs" />
     <Compile Include="Metrics\WilliamOverboughtOversoldIndex.cs" />
     <Compile Include="Metrics\QuickKDJ.cs" />

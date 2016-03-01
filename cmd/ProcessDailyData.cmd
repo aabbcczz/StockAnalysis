@@ -1,4 +1,6 @@
 CALL SetEnvironment.cmd
 
-dir /s /b %STOCKROOT%\RawLatestDailyData\IncludeRight\*.* > %STOCKROOT%\LatestDailyDataFileList.txt
-%BINROOT%\ProcessDailyStockData.exe -l %STOCKROOT%\LatestDailyDataFileList.txt -o %STOCKROOT%\ProcessedLatestDailyData\IncludeRight -n %STOCKROOT%\stockname.txt -c %STOCKROOT%\codefile.txt
+SET FILELIST=%TEMPFOLDER%\RawDailyDataFileList.txt
+
+dir /s /b %RAWDATAFOLDER%\Daily\IncludeRight\*.* > %FILELIST%
+%BINROOT%\ProcessDailyStockData.exe -l %FILELIST% -o %PROCESSEDDATAFOLDER%\Daily\IncludeRight -n %TEMPFOLDER%\name.txt -c %TEMPFOLDER%\code.txt

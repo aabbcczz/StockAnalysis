@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TradingSettings xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <AllowNegativeCapital>false</AllowNegativeCapital>
+  <PositionFrozenDays>1</PositionFrozenDays>  
+  <IsLowestPriceAchievable>true</IsLowestPriceAchievable>  
+  <BuyingCommission>
+    <Type>ByAmount</Type>
+    <Tariff>0.0005</Tariff>
+  </BuyingCommission>
+  <SellingCommission>
+    <Type>ByAmount</Type>
+    <Tariff>0.0015</Tariff>
+  </SellingCommission>
+  <Spread>0</Spread>
+  <OpenLongPricePeriod>NextPeriod</OpenLongPricePeriod>
+  <OpenLongPriceOption>OpenPrice</OpenLongPriceOption>
+  <CloseLongPricePeriod>CurrentPeriod</CloseLongPricePeriod>
+  <CloseLongPriceOption>ClosePrice</CloseLongPriceOption>
+<!--  <DumpMetrics>B_BAR.CP, B_AMA[5], B_AMA[10], B_AMA[15], B_AMA[20], B_AMA[25], B_AMA[30]</DumpMetrics>
+-->
+  <DumpMetrics>
+    <string>B_DIFF[&quot;BAR.CP&quot;, &quot;FRAMA_EX[136, 12, 200]&quot;].PERCENT</string>
+	<string>B_DIFF[&quot;BAR.CP&quot;, &quot;AMA[22]&quot;].PERCENT</string>
+  </DumpMetrics>
+</TradingSettings>

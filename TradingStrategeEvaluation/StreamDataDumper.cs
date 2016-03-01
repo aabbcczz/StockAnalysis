@@ -7,24 +7,22 @@ using System.Threading.Tasks;
 
 using StockAnalysis.Share;
 using TradingStrategy;
+using MetricsDefinition;
 
 namespace TradingStrategyEvaluation
 {
     public sealed class StreamDataDumper : IDataDumper
     {
-        private const string ForBoardIndexMetricHeader = "B_";
-
         private StreamWriter _writer;
         private readonly IEvaluationContext _context;
         private readonly ITradingDataProvider _provider;
 
         private readonly int _numberOfBarsToDump;
         private readonly int _numberOfBarsBacktrace;
-        private readonly RuntimeMetricProxy[] _metricProxies;
-        private readonly bool[] _forBoardIndex;
+        private readonly UnifiedMetricProxy[] _metricProxies;
         private readonly string[] _metricNames;
 
-        public StreamDataDumper(StreamWriter writer, int numberOfBarsToDump, int numberOfBarsBacktrace, string metrics, IEvaluationContext context, ITradingDataProvider provider)
+        public StreamDataDumper(StreamWriter writer, int numberOfBarsToDump, int numberOfBarsBacktrace, string[] metrics, IEvaluationContext context, ITradingDataProvider provider)
         {
             if (numberOfBarsBacktrace < 0 
                 || numberOfBarsBacktrace >= numberOfBarsToDump
@@ -40,41 +38,27 @@ namespace TradingStrategyEvaluation
             _provider = provider;
 
             // register metrics
-            if (string.IsNullOrEmpty(metrics))
+            if (metrics == null || metrics.Length == 0)
             {
-                _metricProxies = new RuntimeMetricProxy[0];
-                _forBoardIndex = new bool[0];
+                _metricProxies = new UnifiedMetricProxy[0];
             }
             else
             {
-                _metricNames = metrics.Split(',').Select(s => s.Trim()).Where(s => !string.IsNullOrEmpty(s)).ToArray();
+                _metricNames = metrics.Select(s => s.Trim()).Where(s => !string.IsNullOrEmpty(s)).ToArray();
 
                 if (_metricNames.Count() == 0)
                 {
-                    _metricProxies = new RuntimeMetricProxy[0];
-                    _forBoardIndex = new bool[0];
+                    _metricProxies = new UnifiedMetricProxy[0];
                 }
                 else
                 {
-                    _metricProxies = new RuntimeMetricProxy[_metricNames.Count()];
-                    _forBoardIndex = new bool[_metricNames.Count()];
+                    _metricProxies = new UnifiedMetricProxy[_metricNames.Count()];
 
                     for (int i = 0; i < _metricNames.Length; ++i)
                     {
                         string metricName = _metricNames[i];
 
-                        if (metricName.StartsWith(ForBoardIndexMetricHeader))
-                        {
-                            // for board
-                            _forBoardIndex[i] = true;
-                            metricName = metricName.Substring(ForBoardIndexMetricHeader.Length);
-                        }
-                        else
-                        {
-                            _forBoardIndex[i] = false;
-                        }
-
-                        _metricProxies[i] = new RuntimeMetricProxy(_context.MetricManager, metricName);
+                        _metricProxies[i] = new UnifiedMetricProxy(metricName, context);
                     }
                 }
             }
@@ -92,7 +76,7 @@ namespace TradingStrategyEvaluation
             {
                 for (int j = 0; j < _metricProxies.Length; ++j)
                 {
-                    _writer.Write("{0},", _metricNames[j]);
+                    _writer.Write("{0},", StringHelper.EscapeForCsv(_metricNames[j]));
                 }
             }
 
@@ -152,9 +136,12 @@ namespace TradingStrategyEvaluation
                 ++index;
             }
 
-            while (sequence.Count < _numberOfBarsToDump)
+            if (sequence.Count < _numberOfBarsToDump)
             {
-                sequence.Add(Bar.DefaultValue);
+                // skip
+                return;
+
+                // sequence.Add(Bar.DefaultValue);
             }
 
             foreach (var bar in sequence)
@@ -174,29 +161,8 @@ namespace TradingStrategyEvaluation
             {
                 for (int j = 0; j < _metricProxies.Length; ++j)
                 {
-                    ITradingObject trueObject = _forBoardIndex[j] ? _context.GetBoardIndexTradingObject(tradingObject) : tradingObject;
+                    double value = _metricProxies[j].GetValue(tradingObject);
 
-                    double value = 0.0;
-
-                    var values = _metricProxies[j].GetMetricValues(trueObject);
-                    if (values == null)
-                    {
-                        if (!object.ReferenceEquals(trueObject, tradingObject))
-                        {
-                            trueObject = _context.GetBoardIndexTradingObject(StockBoard.MainBoard);
-                            values = _metricProxies[j].GetMetricValues(trueObject);
-                        }
-                    }
-
-                    if (values == null)
-                    {
-                        value = 0.0;
-                    }
-                    else
-                    {
-                        value = values[0];
-                    }
-                    
                     _writer.Write("{0:0.0000},", value);
                 }
             }

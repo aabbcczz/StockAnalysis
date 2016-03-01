@@ -91,6 +91,7 @@ namespace TradingStrategy.Base
         private readonly IStopLossComponent _stopLoss;
         private readonly IPositionAdjustingComponent _positionAdjusting;
         private readonly GlobalSettingsComponent _globalSettings;
+        private readonly Position[] _emptyPositionArray = new Position[0];
 
         private readonly string _name;
         private readonly string _description;
@@ -322,7 +323,7 @@ namespace TradingStrategy.Base
                 }
                 else
                 {
-                    positions = new Position[0];
+                    positions = _emptyPositionArray;
                 }
 
                 // decide if we need to stop loss for some positions.
@@ -702,7 +703,7 @@ namespace TradingStrategy.Base
                     if (instruction.Action == TradingAction.OpenLong)
                     {
                         instruction.ObservedMetricValues = _globalSettings.ObservableMetricProxies
-                            .Select(p => p.GetMetricValues(instruction.TradingObject)[0])
+                            .Select(p => p.GetValue(instruction.TradingObject))
                             .ToArray();
                     }
                 }

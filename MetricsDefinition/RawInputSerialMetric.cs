@@ -4,7 +4,7 @@
     {
         private readonly CirculatedArray<double> _data;
 
-        internal CirculatedArray<double> Data
+        public virtual CirculatedArray<double> Data
         {
             get { return _data; }
         }

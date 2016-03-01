@@ -69,8 +69,8 @@ namespace TradingStrategy
                 Volume,
                 Commission,
                 Succeeded,
-                Error.Escape(),
-                Comments.Escape());
+                Error.EscapeForCsv(),
+                Comments.EscapeForCsv());
         }
 
         public Transaction()

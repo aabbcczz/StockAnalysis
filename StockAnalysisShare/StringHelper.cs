@@ -2,14 +2,16 @@
 {
     public static class StringHelper
     {
-        public static string Escape(this string s)
+        public static string EscapeForCsv(this string s)
         {
-            return s.Replace(",", "&comma;");
+            return s.Replace(",", "_comma_")
+                .Replace("\"", "_quote_");
         }
 
-        public static string Unescape(this string s)
+        public static string UnescapeForCsv(this string s)
         {
-            return s.Replace("&comma;", ",");
+            return s.Replace("_comma_", ",")
+                .Replace("_quote_", "\"");
         }
     }
 }

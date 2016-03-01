@@ -12,11 +12,11 @@ namespace TradingStrategy.Strategy
     {
         private readonly IEvaluationContext _context;
 
-        private readonly RuntimeMetricProxy _ma5;
-        private readonly RuntimeMetricProxy _ma10;
-        private readonly RuntimeMetricProxy _ma20;
-        private readonly RuntimeMetricProxy _ma60;
+        private readonly RuntimeMetricProxy _ma;
         private readonly RuntimeMetricProxy _close;
+
+        private static double _reciprocalSqrt2Pi = 1.0 / Math.Sqrt(2 * Math.PI);
+        private double _normalDistribution0 = NormalDistribution(0, 1.0, 0);
 
         public BoardIndexBasedEquityUtilizationCalculator(IEvaluationContext context)
         {
@@ -27,11 +27,15 @@ namespace TradingStrategy.Strategy
 
             _context = context;
 
-            _ma5 = new RuntimeMetricProxy(_context.MetricManager, "AMA[5]");
-            _ma10 = new RuntimeMetricProxy(_context.MetricManager, "AMA[10]");
-            _ma20 = new RuntimeMetricProxy(_context.MetricManager, "AMA[20]");
-            _ma60 = new RuntimeMetricProxy(_context.MetricManager, "AMA[60]");
+            _ma = new RuntimeMetricProxy(_context.MetricManager, "AMA[22]");
             _close = new RuntimeMetricProxy(_context.MetricManager, "BAR.CP");
+        }
+
+        private static double NormalDistribution(double mu, double sigma, double x)
+        {
+            double u = (x - mu) / sigma;
+
+            return _reciprocalSqrt2Pi * Math.Exp(-u * u / 2.0);
         }
 
         public double CalculateEquityUtilization(ITradingObject tradingObject)
@@ -42,53 +46,39 @@ namespace TradingStrategy.Strategy
                 return 1.0;
             }
 
-            var ma10values = _ma10.GetMetricValues(boardIndexTradingObject);
-            if (ma10values == null)
+            var maValues = _ma.GetMetricValues(boardIndexTradingObject);
+            if (maValues == null)
             {
                 // the board index value is not ready yet, back off to main board index
                 boardIndexTradingObject = _context.GetBoardIndexTradingObject(StockBoard.MainBoard);
             }
 
             var closeValue = _close.GetMetricValues(boardIndexTradingObject)[0];
-            var ma5Value = _ma5.GetMetricValues(boardIndexTradingObject)[0];
-            var ma10Value = _ma10.GetMetricValues(boardIndexTradingObject)[0];
-            var ma20Value = _ma20.GetMetricValues(boardIndexTradingObject)[0];
-            var ma60Value = _ma60.GetMetricValues(boardIndexTradingObject)[0];
+            var maValue = _ma.GetMetricValues(boardIndexTradingObject)[0];
 
-            if (ma5Value < ma20Value)
-            {
-                // descending trends
-                if (closeValue < ma5Value)
-                {
-                    return 0.0;
-                }
-                else if (closeValue >= ma5Value && closeValue < ma20Value)
-                {
-                    return 0.15;
-                }
-                else if (closeValue >= ma20Value)
-                {
-                    return 0.3;
-                }
-            }
-            else
-            {
-                // ascending trends
-                if (closeValue >= ma5Value)
-                {
-                    return 1.0;
-                }
-                else if (closeValue >= ma20Value && closeValue < ma5Value)
-                {
-                    return 0.7;
-                }
-                else if (closeValue < ma20Value)
-                {
-                    return 0.5;
-                }
-            }
+            var percentage = closeValue / maValue;
 
-            return 0.0;
+            double utilization;
+
+            //if (percentage > 1.1)
+            //{
+            //    utilization = 1.0 - (percentage - 1.1) * 2.0;
+            //}
+            //else if (percentage < 0.9)
+            //{
+            //    utilization = 1.0;
+            //}
+            //else
+            //{
+            //    utilization = 0.7;
+            //}
+
+            utilization = 1.0;
+            return Math.Max(Math.Min(utilization, 1.0), 0.1);
+
+            //var utilization = NormalDistribution(1.0, 0.1, percentage) / _normalDistribution0;
+
+            //return Math.Max(utilization, 0.1);
         }
     }
 }

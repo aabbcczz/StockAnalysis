@@ -1,10 +1,3 @@
 CALL SetEnvironment.cmd
 
-move /Y %TDXROOT%\T0002\export\*.txt %STOCKROOT%\RawLatestDailyData\IncludeRight\
-
-CALL .\ProcessDailyData.cmd
-
-CALL .\GenerateStockBlock.cmd
-
-CALL .\EvaluateStockAllYears.cmd
-
+%BINROOT%\EvaluatorCmdClient -t %SETTINGSROOT%\tradingsettings.xml -c %SETTINGSROOT%\strategysettings.xml -s %SETTINGSROOT%\stockdatasettings.xml -o .%TEMPFOLDER%\code.txt -v 2 -i 1000000.0 -a 2000-01-01 -b 2013-12-31 -w 300 -n evaluate -k %TEMPFOLDER%\stockblock.csv -y 3 %*

@@ -223,3 +223,6 @@ RealTrading/RefDlls/mfc120.dll
 RealTrading/RefDlls/msvcr120.dll
 RealTrading/RefDlls/msvcp120.dll
 RealTrading/RefDlls/trade.dll
+EvaluatorCmdClient/settings/Stock/gen.stockdatasettings.xml
+EvaluatorCmdClient/settings/Stock/gen.strategysettings.xml
+EvaluatorCmdClient/settings/Stock/gen.tradingsettings.xml

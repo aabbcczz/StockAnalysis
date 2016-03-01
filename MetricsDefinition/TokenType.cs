@@ -4,6 +4,7 @@
     {
         Identifier,
         Number,
+        String,
         LeftParenthese,
         RightParenthese,
         LeftBracket,

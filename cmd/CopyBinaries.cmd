@@ -1,4 +1,4 @@
-CALL SetEnvironment.cmd
+CALL SetGlobalEnvironment.cmd
 
 XCOPY /Y /D %BINARYSRCROOT%\CalcMarketValue\bin\release\*.* %BINROOT%\
 XCOPY /Y /D %BINARYSRCROOT%\CleanCsv\bin\release\*.* %BINROOT%\
