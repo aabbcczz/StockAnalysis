@@ -69,6 +69,8 @@
   <ItemGroup>
     <Compile Include="BiddingMethod.cs" />
     <Compile Include="BiddingTimeRange.cs" />
+    <Compile Include="BuyInstruction.cs" />
+    <Compile Include="BuyOrder.cs" />
     <Compile Include="CtpSimulator.cs" />
     <Compile Include="DispatchedOrder.cs" />
     <Compile Include="Exchange.cs" />
@@ -83,6 +85,7 @@
     <Compile Include="QuerySucceededOrderResult.cs" />
     <Compile Include="QuotePublisher.cs" />
     <Compile Include="StoplossOrder.cs" />
+    <Compile Include="Buyer.cs" />
     <Compile Include="StoplossOrderManager.cs" />
     <Compile Include="TradingHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -4,13 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using StockAnalysis.Share;
+
 namespace StockTrading.Utility
 {
     public static class TradingHelper
     {
-        public const float DefaultUpLimitPercentage = 10.0F;
-        public const float DefaultDownLimitPercentage = -10.0F;
-
         private static IDictionary<string, OrderStatus> statusMap 
             = new Dictionary<string, OrderStatus>()
                 {
@@ -64,39 +63,38 @@ namespace StockTrading.Utility
         }
 
 
-        public static float CalcLimit(float price, float limitPercentage)
+        public static float CalculatePrice(float price, float changePercentage, int roundPosition)
         {
             if (float.IsNaN(price))
             {
                 return float.NaN;
             }
 
-            decimal limitF = (decimal)price * 10.0m * (100.0m + (decimal)limitPercentage);
+            decimal changedPrice = (decimal)price * (100.0m + (decimal)changePercentage) / 100.0m;
 
-            Int64 limit = (Int64)limitF;
-            
-            int residential = (int)(limit % 10);
+            decimal roundedPrice = decimal.Round(changedPrice, roundPosition);          
 
-            if (residential < 5)
-            {
-                limit -= residential;
-            }
-            else
-            {
-                limit += 10 - residential;
-            }
-
-            return (float)((decimal)limit / 1000.0m);
+            return (float)roundedPrice;
         }
 
-        public static float CalcUpLimit(float price)
+        public static float CalculateUpLimit(float price, float upLimitPercentage, int roundPosition)
         {
-            return CalcLimit(price, DefaultUpLimitPercentage);
+            return CalculatePrice(price, upLimitPercentage, roundPosition);
         }
 
-        public static float CalcDownLimit(float price)
+        public static float CalculateUpLimit(string code, string name, float price, int roundPosition)
         {
-            return CalcLimit(price, DefaultDownLimitPercentage);
+            return CalculatePrice(price, ChinaStockHelper.GetUpLimitPercentage(code, name), roundPosition);
+        }
+
+        public static float CalculateDownLimit(float price, float downLimitPercentage, int roundPoisition)
+        {
+            return CalculatePrice(price, downLimitPercentage, roundPoisition);
+        }
+
+        public static float CalculateDownLimit(string code, string name, float price, int roundPosition)
+        {
+            return CalculatePrice(price, ChinaStockHelper.GetDownLimitPercentage(code, name), roundPosition);
         }
 
         public static OrderStatus ConvertStringToOrderStatus(string statusString)

@@ -22,9 +22,9 @@ namespace StockTrading.Utility
         private bool _isStopped = false;
 
         private object _publisherLockObj = new object();
-        private object _codeListLockObj = new object();
+        private object _codesLockObj = new object();
 
-        private List<string> _codeList = new List<string>();
+        private IDictionary<string, int> _subscribedCodes = new Dictionary<string, int>();
 
         private CtpSimulator.OnQuoteReadyDelegate _onQuoteReadyCallback = null;
 
@@ -72,44 +72,72 @@ namespace StockTrading.Utility
             }
         }
 
+        public void UnsafeSubscribe(string code)
+        {
+            if (!_subscribedCodes.ContainsKey(code))
+            {
+                _subscribedCodes.Add(code, 1);
+            }
+            else
+            {
+                _subscribedCodes[code]++;
+            }
+        }
+
+        public void UnsafeUnsubscribe(string code)
+        {
+
+            if (_subscribedCodes.ContainsKey(code))
+            {
+                int refCount = _subscribedCodes[code];
+
+                --refCount;
+
+                if (refCount > 0)
+                {
+                    _subscribedCodes[code] = refCount;
+                }
+                else
+                {
+                    _subscribedCodes.Remove(code);
+                }
+            }
+        }
+
         public void Subscribe(string code)
         {
-            lock (_codeListLockObj)
+            lock (_codesLockObj)
             {
-                _codeList.Add(code);
-
-                // remove duplicated quotes
-                _codeList = _codeList.GroupBy(s => s).Select(g => g.Key).ToList();
+                UnsafeSubscribe(code);
             }
-
         }
 
         public void Unsubscribe(string code)
         {
-            lock (_codeListLockObj)
+            lock (_codesLockObj)
             {
-                _codeList.Remove(code);
+                UnsafeUnsubscribe(code);
             }
         }
 
         public void Subscribe(IEnumerable<string> codes)
         {
-            lock (_codeListLockObj)
+            lock (_codesLockObj)
             {
-                _codeList.AddRange(codes.ToList());
-
-                // remove duplicated quotes
-                _codeList = _codeList.GroupBy(s => s).Select(g => g.Key).ToList();
+                foreach (var code in codes)
+                {
+                    UnsafeSubscribe(code);
+                }
             }
         }
 
         public void Unsubscribe(IEnumerable<string> codes)
         {
-            lock (_codeListLockObj)
+            lock (_codesLockObj)
             {
                 foreach (var code in codes)
                 {
-                    _codeList.Remove(code);
+                    UnsafeUnsubscribe(code);
                 }
             }
         }
@@ -137,14 +165,14 @@ namespace StockTrading.Utility
                 // get a duplicate quote list to avoid lock quote list too long
                 List<string> codes = null;
 
-                lock (_codeListLockObj)
+                lock (_codesLockObj)
                 {
-                    if (_codeList.Count == 0)
+                    if (_subscribedCodes.Count == 0)
                     {
                         return;
                     }
 
-                    codes = new List<string>(_codeList);
+                    codes = new List<string>(_subscribedCodes.Keys);
                 }
 
                 System.Diagnostics.Debug.Assert(codes.Count > 0);

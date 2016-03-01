@@ -14,7 +14,7 @@ namespace StockTrading.Utility
 
         public float StoplossPrice { get; private set; }
 
-        public int ExistingVolume { get; private set; }
+        public int RemainingVolume { get; private set; }
 
         public int OriginalVolume { get; private set; } 
 
@@ -35,7 +35,7 @@ namespace StockTrading.Utility
             SecurityCode = securityCode;
             StoplossPrice = stoplossPrice;
             OriginalVolume = volume;
-            ExistingVolume = volume;
+            RemainingVolume = volume;
 
             Exchange = StockTrading.Utility.Exchange.GetTradeableExchangeForSecurity(SecurityCode);
 
@@ -46,9 +46,9 @@ namespace StockTrading.Utility
         {
             lock (this)
             {
-                ExistingVolume -= soldVolume;
+                RemainingVolume -= soldVolume;
 
-                if (ExistingVolume < 0)
+                if (RemainingVolume < 0)
                 {
                     throw new InvalidOperationException("Existing volume is impossible to be smaller than 0");
                 }

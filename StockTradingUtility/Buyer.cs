@@ -12,9 +12,9 @@ using log4net;
 
 namespace StockTrading.Utility
 {
-    public sealed class StoplossOrderManager
+    public sealed class Buyer
     {
-        private static StoplossOrderManager _instance = null;
+        private static Buyer _instance = null;
 
         private object _orderLockObj = new object();
 
@@ -22,19 +22,19 @@ namespace StockTrading.Utility
 
         private HashSet<StoplossOrder> _sentOrders = new HashSet<StoplossOrder>();
 
-        public delegate void OnStoplossOrderExecutedDelegate(StoplossOrder order, int succeededVolume);
+        public delegate void OnOrderExecutedDelegate(StoplossOrder order, int succeededVolume);
 
-        public OnStoplossOrderExecutedDelegate OnStoplossOrderExecuted { get; set; }
+        public OnOrderExecutedDelegate OnStoplossOrderExecuted { get; set; }
 
-        public static StoplossOrderManager GetInstance()
+        public static Buyer GetInstance()
         {
             if (_instance == null)
             {
-                lock (typeof(StoplossOrderManager))
+                lock (typeof(Buyer))
                 {
                     if (_instance == null)
                     {
-                        _instance = new StoplossOrderManager();
+                        _instance = new Buyer();
                     }
                 }
             }
@@ -42,7 +42,7 @@ namespace StockTrading.Utility
             return _instance;
         }
 
-        private StoplossOrderManager()
+        private Buyer()
         {
             CtpSimulator.GetInstance().RegisterQuoteReadyCallback(OnQuoteReady);
             CtpSimulator.GetInstance().RegisterOrderStatusChangedCallback(OnOrderStatusChanged);
