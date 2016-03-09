@@ -66,5 +66,39 @@ namespace StockAnalysis.Share
                 return DefaultDownLimitPercentage;
             }
         }
+
+        public static float CalculatePrice(float price, float changePercentage, int roundPosition)
+        {
+            if (float.IsNaN(price))
+            {
+                return float.NaN;
+            }
+
+            decimal changedPrice = (decimal)price * (100.0m + (decimal)changePercentage) / 100.0m;
+
+            decimal roundedPrice = decimal.Round(changedPrice, roundPosition);
+
+            return (float)roundedPrice;
+        }
+
+        public static float CalculateUpLimit(float price, float upLimitPercentage, int roundPosition)
+        {
+            return CalculatePrice(price, upLimitPercentage, roundPosition);
+        }
+
+        public static float CalculateUpLimit(string code, string name, float price, int roundPosition)
+        {
+            return CalculatePrice(price, ChinaStockHelper.GetUpLimitPercentage(code, name), roundPosition);
+        }
+
+        public static float CalculateDownLimit(float price, float downLimitPercentage, int roundPoisition)
+        {
+            return CalculatePrice(price, downLimitPercentage, roundPoisition);
+        }
+
+        public static float CalculateDownLimit(string code, string name, float price, int roundPosition)
+        {
+            return CalculatePrice(price, ChinaStockHelper.GetDownLimitPercentage(code, name), roundPosition);
+        }
     }
 }
