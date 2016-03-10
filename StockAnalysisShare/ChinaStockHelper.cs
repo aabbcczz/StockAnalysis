@@ -9,10 +9,10 @@ namespace StockAnalysis.Share
     public static class ChinaStockHelper
     {
         public const int VolumePerHand = 100;
-        public const float DefaultUpLimitPercentage = 10.0F;
-        public const float DefaultDownLimitPercentage = -10.0F;
-        public const float SpecialTreatmentUpLimitPercentage = 5.0F;
-        public const float SpecialTreatmentDownLimitPercentage = -5.0F;
+        public const double DefaultUpLimitPercentage = 10.0F;
+        public const double DefaultDownLimitPercentage = -10.0F;
+        public const double SpecialTreatmentUpLimitPercentage = 5.0F;
+        public const double SpecialTreatmentDownLimitPercentage = -5.0F;
 
         public static bool IsSpecialTreatmentStock(string code, string name)
         {
@@ -44,7 +44,7 @@ namespace StockAnalysis.Share
             return volumeInHand * VolumePerHand;
         }
 
-        public static float GetUpLimitPercentage(string code, string name)
+        public static double GetUpLimitPercentage(string code, string name)
         {
             if (IsSpecialTreatmentStock(code, name))
             {
@@ -55,7 +55,7 @@ namespace StockAnalysis.Share
                 return DefaultUpLimitPercentage;
             }
         }
-        public static float GetDownLimitPercentage(string code, string name)
+        public static double GetDownLimitPercentage(string code, string name)
         {
             if (IsSpecialTreatmentStock(code, name))
             {
@@ -67,36 +67,36 @@ namespace StockAnalysis.Share
             }
         }
 
-        public static float CalculatePrice(float price, float changePercentage, int roundPosition)
+        public static double CalculatePrice(double price, double changePercentage, int roundPosition)
         {
-            if (float.IsNaN(price))
+            if (double.IsNaN(price))
             {
-                return float.NaN;
+                return double.NaN;
             }
 
             decimal changedPrice = (decimal)price * (100.0m + (decimal)changePercentage) / 100.0m;
 
             decimal roundedPrice = decimal.Round(changedPrice, roundPosition);
 
-            return (float)roundedPrice;
+            return (double)roundedPrice;
         }
 
-        public static float CalculateUpLimit(float price, float upLimitPercentage, int roundPosition)
+        public static double CalculateUpLimit(double price, double upLimitPercentage, int roundPosition)
         {
             return CalculatePrice(price, upLimitPercentage, roundPosition);
         }
 
-        public static float CalculateUpLimit(string code, string name, float price, int roundPosition)
+        public static double CalculateUpLimit(string code, string name, double price, int roundPosition)
         {
             return CalculatePrice(price, ChinaStockHelper.GetUpLimitPercentage(code, name), roundPosition);
         }
 
-        public static float CalculateDownLimit(float price, float downLimitPercentage, int roundPoisition)
+        public static double CalculateDownLimit(double price, double downLimitPercentage, int roundPoisition)
         {
             return CalculatePrice(price, downLimitPercentage, roundPoisition);
         }
 
-        public static float CalculateDownLimit(string code, string name, float price, int roundPosition)
+        public static double CalculateDownLimit(string code, string name, double price, int roundPosition)
         {
             return CalculatePrice(price, ChinaStockHelper.GetDownLimitPercentage(code, name), roundPosition);
         }

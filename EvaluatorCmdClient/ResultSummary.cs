@@ -193,7 +193,11 @@ namespace EvaluatorCmdClient
         public double AverageProfitPerTrading { get; set; } // 每交易平均盈利 = TotalProfit / ProfitTradingTimes;
         public double AverageLossPerTrading { get; set; } // 每交易平均亏损 = TotalLoss / LossTradingTimes;
         public double MaxDrawDown { get; set; } // 最大回撤 =（前期高点-低点）
-        public double MaxDrawDownRatio { get; set; } // 最大回测比率 =（前期高点-低点）/前期高点
+        public DateTime MaxDrawDownStartTime { get; set; } // 最大回撤发生的起始时间
+        public DateTime MaxDrawDownEndTime { get; set; } // 最大回撤发生的结束时间
+        public double MaxDrawDownRatio { get; set; } // 最大回撤比率 =（前期高点-低点）/前期高点
+        public DateTime MaxDrawDownRatioStartTime { get; set; } // 最大回撤比率发生的起始时间
+        public DateTime MaxDrawDownRatioEndTime { get; set; } // 最大回撤比率发生的结束时间
         public double Mar { get; set; } // = AnnualProfitRatio / MaxDrawDownRatio
         public double Expectation { get; set; } // = AverageProfitPerTrading * ProfitTimesRatio - (1 - ProfitTimesRatio) * AverageLossPerTrading;
         public double BestFactor { get; set; } // best factor according to Kelly formular: f = (bp-q)/b.
@@ -275,7 +279,11 @@ namespace EvaluatorCmdClient
             AverageProfitPerTrading = metric.AverageProfitPerTrading;
             AverageLossPerTrading = metric.AverageLossPerTrading;
             MaxDrawDown = metric.MaxDrawDown;
+            MaxDrawDownStartTime = metric.MaxDrawDownStartTime;
+            MaxDrawDownEndTime = metric.MaxDrawDownEndTime;
             MaxDrawDownRatio = metric.MaxDrawDownRatio;
+            MaxDrawDownRatioStartTime = metric.MaxDrawDownRatioStartTime;
+            MaxDrawDownRatioEndTime = metric.MaxDrawDownRatioEndTime;
             Mar = metric.Mar;
             Expectation = ProfitTimesRatio * AverageProfitPerTrading - (1.0 - ProfitTimesRatio) * AverageLossPerTrading;
 

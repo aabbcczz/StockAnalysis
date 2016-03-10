@@ -456,7 +456,7 @@ namespace TradingStrategyEvaluation
                 }
 
                 // adjust open long instruction to split it into 5 pieces
-                if (instruction.Action == TradingAction.OpenLong)
+                if (instruction.Action == TradingAction.OpenLong && _settings.SplitBuyOrder)
                 {
                     var tradingObjectIndex = instruction.TradingObject.Index;
                     var currentBarOfObject = currentPeriodTradingData[tradingObjectIndex];
@@ -466,7 +466,7 @@ namespace TradingStrategyEvaluation
                         var lastBarOfObject = lastPeriodTradingData[tradingObjectIndex];
                         if (lastBarOfObject.Time != Bar.InvalidTime)
                         {
-                            AdjustOpenLongInstructionPrice(
+                            SplitBuyOrder(
                                 (OpenInstruction)instruction, 
                                 ref price, 
                                 currentBarOfObject, 
@@ -494,74 +494,57 @@ namespace TradingStrategyEvaluation
             _currentPeriodInstructions.Clear();
         }
 
-        private void AdjustOpenLongInstructionPrice(
+        private void SplitBuyOrder(
             OpenInstruction instruction, 
             ref double price, 
             Bar currentBar,
             double previousClosePrice)
         {
-            // split to 5 grades of prices and volumes.
+            int splitOrderSize = _settings.SplitOrderSize;
+            if (splitOrderSize < 1)
+            {
+                throw new InvalidDataException("SplitOrderSize < 1");
+            }
 
-            double[] gradePrices = new double[5];
-            gradePrices[0] = previousClosePrice;
-            gradePrices[1] = previousClosePrice * 0.98;
-            gradePrices[2] = previousClosePrice * 0.96;
-            gradePrices[3] = previousClosePrice * 0.94;
-            gradePrices[4] = previousClosePrice * 0.92;
+            double originalPrice = price;
+            long originalVolume = instruction.Volume;
+
+            // split to several grades of prices and volumes.
+            double[] gradePrices = new double[splitOrderSize];
+            double limitDownPrice = ChinaStockHelper.CalculatePrice(previousClosePrice, (-instruction.TradingObject.LimitDownRatio * 100.0), 3);
+            double gradePriceLevel = (originalPrice - limitDownPrice) / splitOrderSize;
+
+            for (int i = 0; i < gradePrices.Length; ++i)
+            {
+                gradePrices[i] = originalPrice - (i * gradePriceLevel);
+            }
 
             long remainingVolume = instruction.Volume;
-            long[] gradeVolumes = new long[5] { 0, 0, 0, 0, 0 };
+            long[] gradeVolumes = new long[splitOrderSize];
             int volumeUnit = instruction.TradingObject.VolumePerBuyingUnit;
-            gradeVolumes[0] = ((remainingVolume / 5) / volumeUnit) * volumeUnit;
-            if (gradeVolumes[0] < volumeUnit)
-            {
-                gradeVolumes[0] = volumeUnit;
-            }
-            remainingVolume -= gradeVolumes[0];
 
-            if (remainingVolume > 0)
+            for (int i = 0; i < gradeVolumes.Length; ++i)
             {
-                gradeVolumes[1] = ((remainingVolume / 4) / volumeUnit) * volumeUnit;
-                if (gradeVolumes[1] < volumeUnit)
+                if (remainingVolume <= 0)
                 {
-                    gradeVolumes[1] = volumeUnit;
+                    gradeVolumes[i] = 0;
                 }
-
-                remainingVolume -= gradeVolumes[1];
-            }
-
-            if (remainingVolume > 0)
-            {
-                gradeVolumes[2] = ((remainingVolume / 3) / volumeUnit) * volumeUnit;
-                if (gradeVolumes[2] < volumeUnit)
+                else
                 {
-                    gradeVolumes[2] = volumeUnit;
+                    gradeVolumes[i] = (remainingVolume / (splitOrderSize - i) / volumeUnit) * volumeUnit;
+                    if (gradeVolumes[i] < volumeUnit)
+                    {
+                        gradeVolumes[i] = volumeUnit;
+                    }
+
+                    remainingVolume -= gradeVolumes[i];
                 }
-
-                remainingVolume -= gradeVolumes[2];
-            }
-
-            if (remainingVolume > 0)
-            {
-                gradeVolumes[3] = ((remainingVolume / 2) / volumeUnit) * volumeUnit;
-                if (gradeVolumes[3] < volumeUnit)
-                {
-                    gradeVolumes[3] = volumeUnit;
-                }
-
-                remainingVolume -= gradeVolumes[3];
-            }
-
-            if (remainingVolume > 0)
-            {
-                gradeVolumes[4] = remainingVolume;
             }
 
             // create orders
             List<Tuple<double, long>> orders = new List<Tuple<double, long>>();
-            double originalPrice = price;
             long firstOrderVolume = Enumerable
-                .Range(0, 5)
+                .Range(0, splitOrderSize)
                 .Sum(
                     (int i) =>
                     {
@@ -581,12 +564,12 @@ namespace TradingStrategyEvaluation
             }
             else
             {
-                orders.Add(Tuple.Create(originalPrice, gradeVolumes[1]));
+                orders.Add(Tuple.Create(originalPrice, gradeVolumes[0]));
             }
 
             double stoplossPrice = instruction.StopLossPriceForBuying;
 
-            for (int i = 1; i < 5; ++i)
+            for (int i = 1; i < splitOrderSize; ++i)
             {
                 if (gradePrices[i] < originalPrice 
                     && gradePrices[i] > stoplossPrice
@@ -606,6 +589,17 @@ namespace TradingStrategyEvaluation
             instruction.Volume = totalVolume;
             instruction.Price = new TradingPrice(instruction.Price.Period, TradingPriceOption.CustomPrice, weightedAveragePrice);
             instruction.StopLossGapForBuying = instruction.StopLossPriceForBuying - weightedAveragePrice;
+
+            _context.Log(
+                string.Format(
+                    "Adjust instruction {0}/{5}/{6}: price {1:0.000} -> {2:0.000}, volume {3} -> {4}",
+                    instruction.Id,
+                    originalPrice,
+                    price,
+                    originalVolume,
+                    totalVolume,
+                    instruction.TradingObject.Code,
+                    instruction.TradingObject.Name));
         }
 
         private bool ExecuteTransaction(Transaction transaction, bool notifyTransactionStatus, bool forcibly = false)

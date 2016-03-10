@@ -47,11 +47,16 @@ namespace TradingStrategyEvaluation
         public double AverageLossPerVolume { get; set; } // 每量平均亏损 = TotalLoss / LossVolume
 
         public double MaxDrawDown { get; set; } // 最大回撤 =（前期高点-低点）
-        public double MaxDrawDownRatio { get; set; } // 最大回测比率 =（前期高点-低点）/前期高点
         public DateTime MaxDrawDownStartTime { get; set; } // 最大回撤发生的起始时间
         public DateTime MaxDrawDownEndTime { get; set;  } // 最大回撤发生的结束时间
         public double MaxDrawDownStartEquity { get; set; } // 最大回撤发生的期初权益
         public double MaxDrawDownEndEquity { get; set; } // 最大回撤发生的期末权益
+        public double MaxDrawDownRatio { get; set; } // 最大回测比率 =（前期高点-低点）/前期高点
+        public DateTime MaxDrawDownRatioStartTime { get; set; } // 最大回撤比率发生的起始时间
+        public DateTime MaxDrawDownRatioEndTime { get; set; } // 最大回撤比率发生的结束时间
+        public double MaxDrawDownRatioStartEquity { get; set; } // 最大回撤比率发生的期初权益
+        public double MaxDrawDownRatioEndEquity { get; set; } // 最大回撤比率发生的期末权益
+
         public double Mar { get; set; } // = AnnualProfitRatio / MaxDrawDownRatio
 
         public double MaxProfitInOneTransaction { get; set; } // 单次最大盈利
@@ -144,7 +149,9 @@ namespace TradingStrategyEvaluation
             Name = name;
             StartDate = startDate;
             EndDate = endDate;
+            
             OrderedEquitySequence = orderedEquitySequence;
+
             OrderedCompletedTransactionSequence = orderedCompletedTransactionSequence;
             OrderedTransactionSequence = orderedTransactionSequence;
             ERatios = eRatios;
@@ -158,6 +165,18 @@ namespace TradingStrategyEvaluation
 
         private void Initialize()
         {
+            // calculate max drawdown for each equity point
+            double maxEquity = OrderedEquitySequence[0].Equity;
+            for (int i = 0; i < OrderedEquitySequence.Length; ++i)
+            {
+                EquityPoint ep = OrderedEquitySequence[i];
+                maxEquity = Math.Max(ep.Equity, maxEquity);
+
+                ep.MaxEquity = maxEquity;
+                ep.DrawDown = maxEquity - ep.Equity;
+                ep.DrawDownRatio = ep.DrawDown / maxEquity;
+            }
+
             // update trading days
             TotalTradingDays = (int)(EndDate.Subtract(StartDate).TotalDays + 1.0);
 
@@ -239,95 +258,38 @@ namespace TradingStrategyEvaluation
 
         private void CalcuateMaxDrawDownMetrics()
         {
-            var equityPoints = OrderedEquitySequence.ToArray();
-            
-            MaxDrawDownRatio = double.MinValue;
-            var foundMaxDrawDown = false;
+            MaxDrawDown = OrderedEquitySequence.Max(ep => ep.DrawDown);
+            int indexOfMaxDrawDown = Enumerable
+                .Range(0, OrderedEquitySequence.Length)
+                .First(i => OrderedEquitySequence[i].DrawDown == MaxDrawDown);
 
-            var i = 0;
-            while (i < equityPoints.Length)
-            {
-                // find the first local peak
-                var high = equityPoints[i].Equity;
-                var highIndex = i;
-                // find next high value
-                for (var j = i + 1; j < equityPoints.Length; ++j)
-                {
-                    if (equityPoints[j].Equity < equityPoints[j - 1].Equity)
-                    {
-                        break;
-                    }
-                    high = equityPoints[j].Equity;
-                    highIndex = j;
-                }
+            int indexOfMaxEquityOfMaxDrawDown = indexOfMaxDrawDown == 0
+                ? 0
+                : Enumerable
+                    .Range(0, indexOfMaxDrawDown)
+                    .First(i => OrderedEquitySequence[i].MaxEquity == OrderedEquitySequence[indexOfMaxDrawDown].MaxEquity);
 
-                // find next high and the lowest value in between
-                var foundNextHigh = false;
-                var foundLowest = false;
+            MaxDrawDownStartEquity = OrderedEquitySequence[indexOfMaxEquityOfMaxDrawDown].Equity;
+            MaxDrawDownStartTime = OrderedEquitySequence[indexOfMaxEquityOfMaxDrawDown].Time;
+            MaxDrawDownEndEquity = OrderedEquitySequence[indexOfMaxDrawDown].Equity;
+            MaxDrawDownEndTime = OrderedEquitySequence[indexOfMaxDrawDown].Time;
 
-                var nextHighIndex = highIndex;
-                var lowestIndex = highIndex;
-                var lowest = high;
-                for (var j = highIndex + 1; j < equityPoints.Length; ++j)
-                {
-                    if (equityPoints[j].Equity > high)
-                    {
-                        foundNextHigh = true;
-                        nextHighIndex = j;
-                        break;
-                    }
-                    if (equityPoints[j].Equity < lowest)
-                    {
-                        foundLowest = true;
-                        lowest = equityPoints[j].Equity;
-                        lowestIndex = j;
-                    }
-                }
+            MaxDrawDownRatio = OrderedEquitySequence.Max(ep => ep.DrawDownRatio);
+            int indexOfMaxDrawDownRatio = Enumerable
+                .Range(0, OrderedEquitySequence.Length)
+                .First(i => OrderedEquitySequence[i].DrawDownRatio == MaxDrawDownRatio);
 
-                if (foundLowest)
-                {
-                    var drawDownRatio = (high - lowest) / high;
-                    if (drawDownRatio > MaxDrawDownRatio)
-                    {
-                        MaxDrawDownRatio = drawDownRatio;
-                        MaxDrawDown = high - lowest;
-                        MaxDrawDownStartEquity = high;
-                        MaxDrawDownStartTime = equityPoints[highIndex].Time;
-                        MaxDrawDownEndEquity = lowest;
-                        MaxDrawDownEndTime = equityPoints[lowestIndex].Time;
+            int indexOfMaxEquityOfMaxDrawDownRatio = indexOfMaxDrawDownRatio == 0
+                ? 0
+                : Enumerable
+                    .Range(0, indexOfMaxDrawDownRatio)
+                    .First(i => OrderedEquitySequence[i].MaxEquity == OrderedEquitySequence[indexOfMaxDrawDownRatio].MaxEquity);
 
-                        foundMaxDrawDown = true;
-                    }
-                }
-                else
-                {
-                    if (foundNextHigh)
-                    {
-                        throw new InvalidOperationException("logic error");
-                    }
-                }
-
-                if (foundNextHigh)
-                {
-                    i = nextHighIndex;
-                }
-                else
-                {
-                    // meet end of sequence
-                    break;
-                }
-            }
-
-            if (!foundMaxDrawDown)
-            {
-                MaxDrawDown = 0.0;
-                MaxDrawDownRatio = 0.0;
-                MaxDrawDownStartTime = OrderedEquitySequence.First().Time;
-                MaxDrawDownStartEquity = InitialEquity;
-                MaxDrawDownEndTime = OrderedEquitySequence.Last().Time;
-                MaxDrawDownEndEquity = FinalEquity;
-            }
-
+            MaxDrawDownRatioStartEquity = OrderedEquitySequence[indexOfMaxEquityOfMaxDrawDownRatio].Equity;
+            MaxDrawDownRatioStartTime = OrderedEquitySequence[indexOfMaxEquityOfMaxDrawDownRatio].Time;
+            MaxDrawDownRatioEndEquity = OrderedEquitySequence[indexOfMaxDrawDownRatio].Equity;
+            MaxDrawDownRatioEndTime = OrderedEquitySequence[indexOfMaxDrawDownRatio].Time;
+                
             // update MAR
             Mar = Math.Abs(MaxDrawDownRatio) < 1e-6 ? 0.0 : AnnualProfitRatio / MaxDrawDownRatio;
         }
