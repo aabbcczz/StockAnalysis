@@ -180,12 +180,12 @@ namespace TradingStrategy.Base
             {
                 for (var i = 0; i < bars.Length; ++i)
                 {
-                    if (bars[i].Time == Bar.InvalidTime)
+                    if (!tradingObjects[i].IsTradable)
                     {
                         continue;
                     }
 
-                    if (UntradableObject.Untradable(tradingObjects[i].Code))
+                    if (bars[i].Time == Bar.InvalidTime)
                     {
                         continue;
                     }
@@ -307,6 +307,11 @@ namespace TradingStrategy.Base
             for (var i = 0; i < tradingObjects.Length; ++i)
             {
                 var tradingObject = tradingObjects[i];
+                if (!tradingObject.IsTradable)
+                {
+                    continue;
+                }
+
                 var bar = bars[i];
 
                 if (bar.Time == Bar.InvalidTime)

@@ -455,7 +455,7 @@ namespace TradingStrategyEvaluation
                     --maxNewPositionCount;
                 }
 
-                // adjust open long instruction to split it into 5 pieces
+                // split buy order
                 if (instruction.Action == TradingAction.OpenLong && _settings.SplitBuyOrder)
                 {
                     var tradingObjectIndex = instruction.TradingObject.Index;
@@ -512,11 +512,13 @@ namespace TradingStrategyEvaluation
             // split to several grades of prices and volumes.
             double[] gradePrices = new double[splitOrderSize];
             double limitDownPrice = ChinaStockHelper.CalculatePrice(previousClosePrice, (-instruction.TradingObject.LimitDownRatio * 100.0), 3);
-            double gradePriceLevel = (originalPrice - limitDownPrice) / splitOrderSize;
+            double limitUpPrice = ChinaStockHelper.CalculatePrice(previousClosePrice, instruction.TradingObject.LimitUpRatio * 100.0, 3);
+
+            double gradePriceLevel = (limitUpPrice - limitDownPrice) / splitOrderSize;
 
             for (int i = 0; i < gradePrices.Length; ++i)
             {
-                gradePrices[i] = originalPrice - (i * gradePriceLevel);
+                gradePrices[i] = limitDownPrice + ((i + 1) * gradePriceLevel);
             }
 
             long remainingVolume = instruction.Volume;
@@ -543,41 +545,59 @@ namespace TradingStrategyEvaluation
 
             // create orders
             List<Tuple<double, long>> orders = new List<Tuple<double, long>>();
-            long firstOrderVolume = Enumerable
+            int firstOrderIndex = Enumerable
                 .Range(0, splitOrderSize)
-                .Sum(
-                    (int i) =>
-                    {
-                        if (gradePrices[i] >= originalPrice)
-                        {
-                            return gradeVolumes[i];
-                        }
-                        else
-                        {
-                            return 0;
-                        }
-                    });
+                .First(i => gradePrices[i] >= originalPrice);
 
-            if (firstOrderVolume > 0)
+            if (firstOrderIndex >0 && gradePrices[firstOrderIndex] > originalPrice)
             {
-                orders.Add(Tuple.Create(originalPrice, firstOrderVolume));
-            }
-            else
-            {
-                orders.Add(Tuple.Create(originalPrice, gradeVolumes[0]));
+                --firstOrderIndex;
             }
 
-            double stoplossPrice = instruction.StopLossPriceForBuying;
-
-            for (int i = 1; i < splitOrderSize; ++i)
+            orders.Add(Tuple.Create(originalPrice, gradeVolumes[firstOrderIndex]));
+            for (int i = firstOrderIndex + 1; i < splitOrderSize; ++i)
             {
-                if (gradePrices[i] < originalPrice 
-                    && gradePrices[i] > stoplossPrice
-                    && gradePrices[i] >= currentBar.LowestPrice)
+                if (gradePrices[i] >= currentBar.LowestPrice && gradePrices[i] <= currentBar.HighestPrice)
                 {
                     orders.Add(Tuple.Create(gradePrices[i], gradeVolumes[i]));
                 }
             }
+
+            //long firstOrderVolume = Enumerable
+            //    .Range(0, splitOrderSize)
+            //    .Sum(
+            //        (int i) =>
+            //        {
+            //            if (gradePrices[i] <= originalPrice)
+            //            {
+            //                return gradeVolumes[i];
+            //            }
+            //            else
+            //            {
+            //                return 0;
+            //            }
+            //        });
+
+            //if (firstOrderVolume > 0)
+            //{
+            //    orders.Add(Tuple.Create(originalPrice, firstOrderVolume));
+            //}
+            //else
+            //{
+            //    orders.Add(Tuple.Create(originalPrice, gradeVolumes[0]));
+            //}
+
+            //double stoplossPrice = instruction.StopLossPriceForBuying;
+
+            //for (int i = 1; i < splitOrderSize; ++i)
+            //{
+            //    if (gradePrices[i] < originalPrice 
+            //        && gradePrices[i] > stoplossPrice
+            //        && gradePrices[i] >= currentBar.LowestPrice)
+            //    {
+            //        orders.Add(Tuple.Create(gradePrices[i], gradeVolumes[i]));
+            //    }
+            //}
 
             long totalVolume = orders.Sum(t => t.Item2);
             double weightedAveragePrice = orders.Sum(t => t.Item1 * t.Item2) / totalVolume;

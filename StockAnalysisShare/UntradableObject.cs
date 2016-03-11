@@ -29,7 +29,7 @@ namespace StockAnalysis.Share
             untradableObjects = untradableCodes.ToDictionary(s => StockName.NormalizeCode(s), s => new UntradableObject(s));
         }
 
-        public static bool Untradable(string code)
+        public static bool IsUntradable(string code)
         {
             return untradableObjects.ContainsKey(code);
         }

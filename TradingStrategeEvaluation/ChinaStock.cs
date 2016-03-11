@@ -12,6 +12,8 @@ namespace TradingStrategyEvaluation
 
         public string Name { get; private set; }
 
+        public bool IsTradable { get; private set; }
+
         public object Object { get; private set; }
 
         public int VolumePerHand { get; private set; }
@@ -39,6 +41,7 @@ namespace TradingStrategyEvaluation
             Index = index;
             Code = stockName.Code;
             Name = stockName.Names.Last();
+            IsTradable = !UntradableObject.IsUntradable(stockName.Code);
             Object = stockName;
             VolumePerHand = volumePerHand;
             VolumePerBuyingUnit = volumePerBuyingUnit;
