@@ -121,8 +121,8 @@ namespace TradingStrategyEvaluation
                 {
                     foreach (var ptbs in positionsToBeSold)
                     {
-                        var span = transaction.ExecutionTime.Date - positions[ptbs.Index].BuyTime.Date;
-                        if (span.Days < _positionFrozenDays)
+                        if (_positionFrozenDays > 0 
+                            && positions[ptbs.Index].LastedPeriodCount < _positionFrozenDays)
                         {
                             error = string.Format("position is still frozen");
                             return false;

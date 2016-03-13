@@ -400,6 +400,12 @@ namespace TradingStrategyEvaluation
                     lastBarOfObject,
                     instruction);
 
+                // adjust buy price
+                if (instruction.Action == TradingAction.OpenLong)
+                {
+                    price *= _context.GlobalSettings.TrueBuyPriceScale;
+                }
+
                 // Exclude unrealistic price.
                 if ((_settings.IsLowestPriceAchievable && price < currentBarOfObject.LowestPrice)
                     || (!_settings.IsLowestPriceAchievable && price <= currentBarOfObject.LowestPrice)
@@ -455,26 +461,6 @@ namespace TradingStrategyEvaluation
                     --maxNewPositionCount;
                 }
 
-                // split buy order
-                if (instruction.Action == TradingAction.OpenLong && _settings.SplitBuyOrder)
-                {
-                    var tradingObjectIndex = instruction.TradingObject.Index;
-                    var currentBarOfObject = currentPeriodTradingData[tradingObjectIndex];
-
-                    if (lastPeriodTradingData != null)
-                    {
-                        var lastBarOfObject = lastPeriodTradingData[tradingObjectIndex];
-                        if (lastBarOfObject.Time != Bar.InvalidTime)
-                        {
-                            SplitBuyOrder(
-                                (OpenInstruction)instruction, 
-                                ref price, 
-                                currentBarOfObject, 
-                                lastBarOfObject.ClosePrice);
-                        }
-                    }
-                }
-
                 var transaction = BuildTransactionFromInstruction(
                     instruction,
                     time,
@@ -492,134 +478,6 @@ namespace TradingStrategyEvaluation
 
             // compact pending instruction list
             _currentPeriodInstructions.Clear();
-        }
-
-        private void SplitBuyOrder(
-            OpenInstruction instruction, 
-            ref double price, 
-            Bar currentBar,
-            double previousClosePrice)
-        {
-            int splitOrderSize = _settings.SplitOrderSize;
-            if (splitOrderSize < 1)
-            {
-                throw new InvalidDataException("SplitOrderSize < 1");
-            }
-
-            double originalPrice = price;
-            long originalVolume = instruction.Volume;
-
-            // split to several grades of prices and volumes.
-            double[] gradePrices = new double[splitOrderSize];
-            double limitDownPrice = ChinaStockHelper.CalculatePrice(previousClosePrice, (-instruction.TradingObject.LimitDownRatio * 100.0), 3);
-            double limitUpPrice = ChinaStockHelper.CalculatePrice(previousClosePrice, instruction.TradingObject.LimitUpRatio * 100.0, 3);
-
-            double gradePriceLevel = (limitUpPrice - limitDownPrice) / splitOrderSize;
-
-            for (int i = 0; i < gradePrices.Length; ++i)
-            {
-                gradePrices[i] = limitDownPrice + ((i + 1) * gradePriceLevel);
-            }
-
-            long remainingVolume = instruction.Volume;
-            long[] gradeVolumes = new long[splitOrderSize];
-            int volumeUnit = instruction.TradingObject.VolumePerBuyingUnit;
-
-            for (int i = 0; i < gradeVolumes.Length; ++i)
-            {
-                if (remainingVolume <= 0)
-                {
-                    gradeVolumes[i] = 0;
-                }
-                else
-                {
-                    gradeVolumes[i] = (remainingVolume / (splitOrderSize - i) / volumeUnit) * volumeUnit;
-                    if (gradeVolumes[i] < volumeUnit)
-                    {
-                        gradeVolumes[i] = volumeUnit;
-                    }
-
-                    remainingVolume -= gradeVolumes[i];
-                }
-            }
-
-            // create orders
-            List<Tuple<double, long>> orders = new List<Tuple<double, long>>();
-            int firstOrderIndex = Enumerable
-                .Range(0, splitOrderSize)
-                .First(i => gradePrices[i] >= originalPrice);
-
-            if (firstOrderIndex >0 && gradePrices[firstOrderIndex] > originalPrice)
-            {
-                --firstOrderIndex;
-            }
-
-            orders.Add(Tuple.Create(originalPrice, gradeVolumes[firstOrderIndex]));
-            for (int i = firstOrderIndex + 1; i < splitOrderSize; ++i)
-            {
-                if (gradePrices[i] >= currentBar.LowestPrice && gradePrices[i] <= currentBar.HighestPrice)
-                {
-                    orders.Add(Tuple.Create(gradePrices[i], gradeVolumes[i]));
-                }
-            }
-
-            //long firstOrderVolume = Enumerable
-            //    .Range(0, splitOrderSize)
-            //    .Sum(
-            //        (int i) =>
-            //        {
-            //            if (gradePrices[i] <= originalPrice)
-            //            {
-            //                return gradeVolumes[i];
-            //            }
-            //            else
-            //            {
-            //                return 0;
-            //            }
-            //        });
-
-            //if (firstOrderVolume > 0)
-            //{
-            //    orders.Add(Tuple.Create(originalPrice, firstOrderVolume));
-            //}
-            //else
-            //{
-            //    orders.Add(Tuple.Create(originalPrice, gradeVolumes[0]));
-            //}
-
-            //double stoplossPrice = instruction.StopLossPriceForBuying;
-
-            //for (int i = 1; i < splitOrderSize; ++i)
-            //{
-            //    if (gradePrices[i] < originalPrice 
-            //        && gradePrices[i] > stoplossPrice
-            //        && gradePrices[i] >= currentBar.LowestPrice)
-            //    {
-            //        orders.Add(Tuple.Create(gradePrices[i], gradeVolumes[i]));
-            //    }
-            //}
-
-            long totalVolume = orders.Sum(t => t.Item2);
-            double weightedAveragePrice = orders.Sum(t => t.Item1 * t.Item2) / totalVolume;
-
-            // update real price
-            price = weightedAveragePrice;
-            
-            // update real volume
-            instruction.Volume = totalVolume;
-            instruction.Price = new TradingPrice(instruction.Price.Period, TradingPriceOption.CustomPrice, weightedAveragePrice);
-            instruction.StopLossGapForBuying = instruction.StopLossPriceForBuying - weightedAveragePrice;
-
-            _context.Log(
-                string.Format(
-                    "Adjust instruction {0}/{5}/{6}: price {1:0.000} -> {2:0.000}, volume {3} -> {4}",
-                    instruction.Id,
-                    originalPrice,
-                    price,
-                    originalVolume,
-                    totalVolume,
-                    instruction.TradingObject.Code,
-                    instruction.TradingObject.Name));
         }
 
         private bool ExecuteTransaction(Transaction transaction, bool notifyTransactionStatus, bool forcibly = false)

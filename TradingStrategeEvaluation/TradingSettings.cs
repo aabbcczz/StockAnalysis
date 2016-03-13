@@ -15,9 +15,6 @@ namespace TradingStrategyEvaluation
 
         public bool IsLowestPriceAchievable { get; set; }
 
-        public bool SplitBuyOrder { get; set; }
-        public int SplitOrderSize { get; set; }
-
         public CommissionSettings BuyingCommission { get; set; }
 
         public CommissionSettings SellingCommission { get; set; }
@@ -53,16 +50,6 @@ namespace TradingStrategyEvaluation
                 throw new InvalidDataException("Commission types of buying and selling are different");
             }
 
-            if (settings.SplitOrderSize <= 0)
-            {
-                throw new InvalidDataException("SplitOrderSize must be greater than 0");
-            }
-
-            if (settings.PositionFrozenDays < 0)
-            {
-                throw new InvalidDataException("PositionFrozenDays must not be negative");
-            }
-
             return settings;
         }
 
@@ -88,8 +75,6 @@ namespace TradingStrategyEvaluation
                 AllowNegativeCapital = false,
                 PositionFrozenDays = 1,
                 IsLowestPriceAchievable = false,
-                SplitBuyOrder = false,
-                SplitOrderSize = 1,
                 BuyingCommission = new CommissionSettings 
                 {
                     Type = CommissionSettings.CommissionType.ByAmount, 

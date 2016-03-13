@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 
 using StockAnalysis.Share;
+using TradingStrategy.Base;
 
 namespace TradingStrategy
 {
@@ -15,6 +16,8 @@ namespace TradingStrategy
         /// stock block relationship manager, could be null.
         /// </summary>
         StockBlockRelationshipManager RelationshipManager { get; }
+
+        GlobalSettingsComponent GlobalSettings { get; set; }
 
         double GetInitialEquity();
 

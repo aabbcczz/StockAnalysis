@@ -80,6 +80,9 @@ namespace TradingStrategy.Base
         [Parameter("", "观察用指标, 每个指标用|分隔")]
         public string ObservableMetrics { get; set; }
 
+        [Parameter(1.0, "真实买入价比例")]
+        public double TrueBuyPriceScale { get; set; }
+
         public RuntimeMetricProxy IncreasePositionSortMetricProxy { get; private set; }
         public RuntimeMetricProxy NewPositionSortMetricProxy { get; private set; }
 

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using TradingStrategy;
 using StockAnalysis.Share;
+using TradingStrategy.Base;
 
 namespace TradingStrategyEvaluation
 {
@@ -33,6 +34,8 @@ namespace TradingStrategyEvaluation
         {
             get { return _relationshipManager; }
         }
+
+        public GlobalSettingsComponent GlobalSettings { get; set; }
 
         public StandardEvaluationContext(
             ITradingDataProvider provider, 

@@ -109,7 +109,14 @@
           <ValueType>System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
           <DefaultValue xsi:type="xsd:string" />
           <Values>B_DIFF[&quot;BAR.CP&quot;, &quot;AMA[22]&quot;].PERCENT|B_DIFF[&quot;BAR.CP&quot;, &quot;FRAMA_EX[136, 12, 200]&quot;].PERCENT</Values>
-        </ParameterSettings>		
+        </ParameterSettings>
+        <ParameterSettings>
+          <Name>TrueBuyPriceScale</Name>
+          <Description>真实买入价比例</Description>
+          <ValueType>System.Double, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
+          <DefaultValue xsi:type="xsd:double">1</DefaultValue>
+          <Values>1.001</Values>
+        </ParameterSettings>
       </ComponentParameterSettings>
     </TradingStrategyComponentSettings>
     <TradingStrategyComponentSettings Enabled="false" Name="板块指数指标入市">
@@ -451,14 +458,14 @@
           <Description>上阈值</Description>
           <ValueType>System.Double, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
           <DefaultValue xsi:type="xsd:double">10</DefaultValue>
-          <Values>0.045</Values>
+          <Values>1</Values>
         </ParameterSettings>
         <ParameterSettings>
           <Name>LowThreshold</Name>
           <Description>下阈值</Description>
           <ValueType>System.Double, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
           <DefaultValue xsi:type="xsd:double">0</DefaultValue>
-          <Values>0.017</Values>
+          <Values>0.014</Values>
         </ParameterSettings>
         <ParameterSettings>
           <Name>TriggeringCondition</Name>
@@ -497,24 +504,24 @@
         </ParameterSettings>
       </ComponentParameterSettings>
     </TradingStrategyComponentSettings>
-    <TradingStrategyComponentSettings Enabled="false" Name="单移动平均板块指数入市">
+    <TradingStrategyComponentSettings Enabled="true" Name="单移动平均板块指数入市">
       <ClassType>TradingStrategy.Strategy.SingleMovingAverageBoardIndexMarketEntering, TradingStrategy, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</ClassType>
       <Description>当板块指数收盘价和移动平均值满足触发条件时允许入市</Description>
       <ImplementedInterfaces>ITradingStrategyComponent;IMarketEnteringComponent</ImplementedInterfaces>
       <ComponentParameterSettings>
-        <ParameterSettings>
+        <ParameterSettings> <!-- AMA 24, MA 60/61, EMA 14-->
           <Name>MovingAverageMetricName</Name>
           <Description>移动平均指标名</Description>
           <ValueType>System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
           <DefaultValue xsi:type="xsd:string">AMA</DefaultValue>
-          <Values>AMA</Values>
+          <Values>EMA</Values>
         </ParameterSettings>
         <ParameterSettings>
           <Name>MovingAveragePeriod</Name>
           <Description>移动平均周期</Description>
           <ValueType>System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
           <DefaultValue xsi:type="xsd:int">10</DefaultValue>
-          <Values>22</Values>
+          <Values>14</Values>
         </ParameterSettings>
         <ParameterSettings>
           <Name>Argument1</Name>
@@ -1190,7 +1197,7 @@
           <Description>权益被分割的块数，每份头寸将占有一份. 0表示自适应划分</Description>
           <ValueType>System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
           <DefaultValue xsi:type="xsd:int">10</DefaultValue>
-          <Values>1</Values>
+          <Values>0</Values>
         </ParameterSettings>
         <ParameterSettings>
           <Name>MaxPartsOfAdpativeAllocation</Name>
@@ -1218,21 +1225,21 @@
           <Description>权益计算方法。0：核心权益法，1：总权益法，2：抵减总权益法，3：初始权益法，4：控制损失初始权益法，5：控制损失总权益法，6：控制损失抵减总权益法</Description>
           <ValueType>TradingStrategy.EquityEvaluationMethod, TradingStrategy, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</ValueType>
           <DefaultValue xsi:type="xsd:int">3</DefaultValue>
-          <Values>3</Values>
+          <Values>1</Values>
         </ParameterSettings>
         <ParameterSettings>
           <Name>EquityUtilization</Name>
           <Description>权益利用率，[0.0..1.0], 0.0代表恒定权益利用率为1.0</Description>
           <ValueType>System.Double, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
           <DefaultValue xsi:type="xsd:double">1</DefaultValue>
-          <Values>0.0</Values>
+          <Values>1.0</Values>
         </ParameterSettings>
         <ParameterSettings>
           <Name>LimitNewPositionCountAsParts</Name>
           <Description>限制新头寸数目不超过划分数目</Description>
           <ValueType>System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
           <DefaultValue xsi:type="xsd:boolean">true</DefaultValue>
-          <Values>false</Values>
+          <Values>true</Values>
         </ParameterSettings>
         <ParameterSettings>
           <Name>LogarithmBase</Name>

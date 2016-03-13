@@ -135,6 +135,8 @@ namespace TradingStrategy.Base
             _random = new Random(_globalSettings.RandomSeeds);
 
             _context = context;
+
+            _context.GlobalSettings = _globalSettings;
         }
 
         public void WarmUp(ITradingObject tradingObject, Bar bar)
