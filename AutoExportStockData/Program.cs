@@ -271,28 +271,34 @@ namespace AutoExportStockData
 
             AutoItX.Sleep(2000);
 
+            AutoItX.WinActivate(hwnd);
             AutoItX.ControlClick(hwnd, buttonAddObject); 
 
             SelectData(1);
 
+            AutoItX.WinActivate(hwnd);
             AutoItX.ControlClick(hwnd, buttonAddObject);
 
             SelectData(2);
 
+            AutoItX.WinActivate(hwnd);
             AutoItX.ControlClick(hwnd, buttonAddObject);
 
             SelectData(3);
 
+            AutoItX.WinActivate(hwnd);
             AutoItX.ControlClick(hwnd, buttonAddObject);
 
             SelectData(4);
 
             // begin export
+            AutoItX.WinActivate(hwnd);
             AutoItX.ControlClick(hwnd, buttonBeginExport);
 
             int finishDialogHandle = AutoItX.WinWait("TdxW");
             AutoItX.WinClose("TdxW");
 
+            AutoItX.WinActivate(hwnd);
             AutoItX.ControlClick(hwnd, buttonClose);
         }
 
@@ -325,16 +331,19 @@ namespace AutoExportStockData
                     break;
                 case 2:
                     AutoItX.Send("399005");
+                    AutoItX.Sleep(1000);
                     AutoItX.Send("{ENTER}");
                     AutoItX.Sleep(1000);
                     break;
                 case 3:
                     AutoItX.Send("399006");
+                    AutoItX.Sleep(1000);
                     AutoItX.Send("{ENTER}");
                     AutoItX.Sleep(1000);
                     break;
                 case 4:
                     AutoItX.Send("399300");
+                    AutoItX.Sleep(1000);
                     AutoItX.Send("{ENTER}");
                     AutoItX.Sleep(1000);
                     break;

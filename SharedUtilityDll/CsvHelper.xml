@@ -4,6 +4,98 @@
         <name>CsvHelper</name>
     </assembly>
     <members>
+        <member name="T:CsvHelper.Configuration.CsvPropertyNameCollection">
+            <summary>
+            A collection that holds property names.
+            </summary>
+        </member>
+        <member name="M:CsvHelper.Configuration.CsvPropertyNameCollection.Add(System.String)">
+            <summary>
+            Adds the given name to the collection.
+            </summary>
+            <param name="name">The name to add.</param>
+        </member>
+        <member name="M:CsvHelper.Configuration.CsvPropertyNameCollection.Clear">
+            <summary>
+            Clears all names from the collection.
+            </summary>
+        </member>
+        <member name="M:CsvHelper.Configuration.CsvPropertyNameCollection.AddRange(System.Collections.Generic.IEnumerable{System.String})">
+            <summary>
+            Adds a range of names to the collection.
+            </summary>
+            <param name="names">The range to add.</param>
+        </member>
+        <member name="M:CsvHelper.Configuration.CsvPropertyNameCollection.GetEnumerator">
+            <summary>
+            Returns an enumerator that iterates through the collection.
+            </summary>
+            <returns>
+            A <see cref="T:System.Collections.Generic.IEnumerator`1"/> that can be used to iterate through the collection.
+            </returns>
+            <filterpriority>1</filterpriority>
+        </member>
+        <member name="M:CsvHelper.Configuration.CsvPropertyNameCollection.System#Collections#IEnumerable#GetEnumerator">
+            <summary>
+            Returns an enumerator that iterates through a collection.
+            </summary>
+            <returns>
+            An <see cref="T:System.Collections.IEnumerator"/> object that can be used to iterate through the collection.
+            </returns>
+            <filterpriority>2</filterpriority>
+        </member>
+        <member name="P:CsvHelper.Configuration.CsvPropertyNameCollection.Item(System.Int32)">
+            <summary>
+            Gets the name at the given index. If a prefix is set,
+            it will be prepended to the name.
+            </summary>
+            <param name="index"></param>
+            <returns></returns>
+        </member>
+        <member name="P:CsvHelper.Configuration.CsvPropertyNameCollection.Prefix">
+            <summary>
+            Gets the prefix to use for each name.
+            </summary>
+        </member>
+        <member name="P:CsvHelper.Configuration.CsvPropertyNameCollection.Names">
+            <summary>
+            Gets the raw list of names without
+            the prefix being prepended.
+            </summary>
+        </member>
+        <member name="P:CsvHelper.Configuration.CsvPropertyNameCollection.Count">
+            <summary>
+            Gets the count.
+            </summary>
+        </member>
+        <member name="T:CsvHelper.Configuration.CsvPropertyReferenceMapData">
+            <summary>
+            The configuration data for the reference map.
+            </summary>
+        </member>
+        <member name="M:CsvHelper.Configuration.CsvPropertyReferenceMapData.#ctor(System.Reflection.PropertyInfo,CsvHelper.Configuration.CsvClassMap)">
+            <summary>
+            Initializes a new instance of the <see cref="T:CsvHelper.Configuration.CsvPropertyReferenceMapData"/> class.
+            </summary>
+            <param name="property">The property.</param>
+            <param name="mapping">The mapping this is a reference for.</param>
+        </member>
+        <member name="P:CsvHelper.Configuration.CsvPropertyReferenceMapData.Prefix">
+            <summary>
+            Gets or sets the header prefix to use.
+            </summary>
+        </member>
+        <member name="P:CsvHelper.Configuration.CsvPropertyReferenceMapData.Property">
+            <summary>
+            Gets the <see cref="T:System.Reflection.PropertyInfo"/> that the data
+            is associated with.
+            </summary>
+        </member>
+        <member name="P:CsvHelper.Configuration.CsvPropertyReferenceMapData.Mapping">
+            <summary>
+            Gets the mapping this is a reference for.
+            </summary>
+        </member>
         <member name="T:CsvHelper.Configuration.DefaultCsvClassMap`1">
             <summary>
             A default <see cref="T:CsvHelper.Configuration.CsvClassMap`1"/> that can be used
@@ -37,8 +129,19 @@
             Gets the property map for the given property expression.
             </summary>
             <typeparam name="T">The type of the class the property belongs to.</typeparam>
-            <param name="propertyExpression">The property expression.</param>
+            <param name="expression">The property expression.</param>
             <returns>The CsvPropertyMap for the given expression.</returns>
+        </member>
+        <member name="M:CsvHelper.Configuration.CsvClassMap.AutoMap(System.Boolean,System.Boolean)">
+            <summary>
+            Auto maps all properties for the given type. If a property
+            is mapped again it will override the existing map.
+            </summary>
+            <param name="ignoreReferences">A value indicating if references should be ignored when auto mapping. 
+            True to ignore references, otherwise false.</param>
+            <param name="prefixReferenceHeaders">A value indicating if headers of reference properties should
+            get prefixed by the parent property name.
+            True to prefix, otherwise false.</param>
         </member>
         <member name="M:CsvHelper.Configuration.CsvClassMap.GetMaxIndex">
             <summary>
@@ -53,17 +156,6 @@
             </summary>
             <param name="indexStart">The index start.</param>
             <returns>The last index + 1.</returns>
-        </member>
-        <member name="M:CsvHelper.Configuration.CsvClassMap.AutoMap(System.Boolean,System.Boolean)">
-            <summary>
-            Auto maps all properties for the given type. If a property
-            is mapped again it will override the existing map.
-            </summary>
-            <param name="ignoreReferences">A value indicating if references should be ignored when auto mapping. 
-            True to ignore references, otherwise false.</param>
-            <param name="prefixReferenceHeaders">A value indicating if headers of reference properties should
-            get prefixed by the parent property name.
-            True to prefix, otherwise false.</param>
         </member>
         <member name="M:CsvHelper.Configuration.CsvClassMap.AutoMapInternal(CsvHelper.Configuration.CsvClassMap,System.Boolean,System.Boolean,System.Collections.Generic.LinkedList{System.Type},System.Int32)">
             <summary>
@@ -114,20 +206,22 @@
             <param name="expression">The property to map.</param>
             <returns>The property mapping.</returns>
         </member>
-        <member name="M:CsvHelper.Configuration.CsvClassMap`1.References``1(System.Linq.Expressions.Expression{System.Func{`0,System.Object}})">
+        <member name="M:CsvHelper.Configuration.CsvClassMap`1.References``1(System.Linq.Expressions.Expression{System.Func{`0,System.Object}},System.Object[])">
             <summary>
             Maps a property to another class map.
             </summary>
             <typeparam name="TClassMap">The type of the class map.</typeparam>
             <param name="expression">The expression.</param>
+            <param name="constructorArgs">Constructor arguments used to create the reference map.</param>
             <returns>The reference mapping for the property.</returns>
         </member>
-        <member name="M:CsvHelper.Configuration.CsvClassMap`1.References(System.Type,System.Linq.Expressions.Expression{System.Func{`0,System.Object}})">
+        <member name="M:CsvHelper.Configuration.CsvClassMap`1.References(System.Type,System.Linq.Expressions.Expression{System.Func{`0,System.Object}},System.Object[])">
             <summary>
             Maps a property to another class map.
             </summary>
             <param name="type">The type.</param>
             <param name="expression">The expression.</param>
+            <param name="constructorArgs">Constructor arguments used to create the reference map.</param>
             <returns>The reference mapping for the property</returns>
         </member>
         <member name="T:CsvHelper.Configuration.CsvConfigurationException">
@@ -323,7 +417,7 @@
         </member>
         <member name="P:CsvHelper.Configuration.CsvPropertyMap.Data">
             <summary>
-            Property map data.
+            Gets the property map data.
             </summary>
         </member>
         <member name="T:CsvHelper.Configuration.CsvPropertyMapData">
@@ -419,6 +513,13 @@
             <param name="property">The property.</param>
             <param name="mapping">The <see cref="T:CsvHelper.Configuration.CsvClassMap"/> to use for the reference map.</param>
         </member>
+        <member name="M:CsvHelper.Configuration.CsvPropertyReferenceMap.Prefix(System.String)">
+            <summary>
+            Appends a prefix to the header of each field of the reference property
+            </summary>
+            <param name="prefix">The prefix to be prepended to headers of each reference property</param>
+            <returns>The current <see cref="T:CsvHelper.Configuration.CsvPropertyReferenceMap"/></returns>
+        </member>
         <member name="M:CsvHelper.Configuration.CsvPropertyReferenceMap.GetMaxIndex">
             <summary>
             Get the largest index for the
@@ -434,6 +535,11 @@
         <member name="P:CsvHelper.Configuration.CsvPropertyReferenceMap.Mapping">
             <summary>
             Gets the mapping.
+            </summary>
+        </member>
+        <member name="P:CsvHelper.Configuration.CsvPropertyReferenceMap.Data">
+            <summary>
+            Gets the property reference map data.
             </summary>
         </member>
         <member name="T:CsvHelper.CsvBadDataException">
@@ -767,7 +873,7 @@
             </summary>
             <returns>The line separated into fields.</returns>
         </member>
-        <member name="M:CsvHelper.CsvParser.GetChar(System.Char@,System.Int32@,System.Int32@,System.String@,System.Boolean@,System.Boolean,System.Int32@,System.Int32@,System.Boolean,System.Boolean,System.Boolean)">
+        <member name="M:CsvHelper.CsvParser.GetChar(System.Char@,System.Int32@,System.Int32@,System.String@,System.Boolean@,System.Boolean,System.Int32@,System.Int32@,System.Boolean,System.Boolean,System.Boolean,System.Boolean)">
             <summary>
             Gets the current character from the buffer while
             advancing the buffer if it ran out.
@@ -812,6 +918,13 @@
         <member name="P:CsvHelper.CsvParser.Row">
             <summary>
             Gets the row of the CSV file that the parser is currently on.
+            This is the logical CSV row.
+            </summary>
+        </member>
+        <member name="P:CsvHelper.CsvParser.RawRow">
+            <summary>
+            Gets the row of the CSV file that the parser is currently on.
+            This is the actual file row.
             </summary>
         </member>
         <member name="P:CsvHelper.CsvParser.RawRecord">
@@ -1884,6 +1997,13 @@
               <c>true</c> if [is record empty]; otherwise, <c>false</c>.
             </returns>
         </member>
+        <member name="M:CsvHelper.CsvReader.GetEmtpyStringMethod">
+            <summary>
+            Gets a function to test for an empty string.
+            Will check <see cref="P:CsvHelper.Configuration.CsvConfiguration.TrimFields"/> when making its decision.
+            </summary>
+            <returns>The function to test for an empty string.</returns>
+        </member>
         <member name="M:CsvHelper.CsvReader.GetFieldIndex(System.String,System.Int32,System.Boolean)">
             <summary>
             Gets the index of the field at name if found.
@@ -1910,6 +2030,12 @@
             <summary>
             Parses the named indexes from the header record.
             </summary>
+        </member>
+        <member name="M:CsvHelper.CsvReader.ShouldSkipRecord">
+            <summary>
+            Checks if the current record should be skipped or not.
+            </summary>
+            <returns><c>true</c> if the current record should be skipped, <c>false</c> otherwise.</returns>
         </member>
         <member name="M:CsvHelper.CsvReader.CreateRecord``1">
             <summary>
@@ -2294,6 +2420,13 @@
               <c>true</c> if [skip empty rows]; otherwise, <c>false</c>.
             </value>
         </member>
+        <member name="P:CsvHelper.Configuration.CsvConfiguration.ShouldSkipRecord">
+            <summary>
+            Gets or sets the callback that will be called to
+            determine whether to skip the given record or not.
+            This overrides the <see cref="P:CsvHelper.Configuration.CsvConfiguration.SkipEmptyRecords"/> setting.
+            </summary>
+        </member>
         <member name="P:CsvHelper.Configuration.CsvConfiguration.IgnoreQuotes">
             <summary>
             Gets or sets a value indicating if quotes should be
@@ -2313,6 +2446,13 @@
             Gets or sets a value indicating if blank lines
             should be ignored when reading.
             True to ignore, otherwise false. Default is true.
+            </summary>
+        </member>
+        <member name="P:CsvHelper.Configuration.CsvConfiguration.UseExcelLeadingZerosFormatForNumerics">
+            <summary>
+            Gets or sets a value indicating if an Excel specific
+            format should be used when writing fields containing
+            numeric values. e.g. 00001 -> ="00001"
             </summary>
         </member>
         <member name="P:CsvHelper.Configuration.CsvConfiguration.PrefixReferenceHeaders">
@@ -2352,6 +2492,15 @@
             exception occurs. This will only happen when
             <see cref="P:CsvHelper.Configuration.CsvConfiguration.IgnoreReadingExceptions"/> is true, and when
             calling <see cref="M:CsvHelper.ICsvReaderRow.GetRecords``1"/>.
+            </summary>
+        </member>
+        <member name="P:CsvHelper.Configuration.CsvConfiguration.UseNewObjectForNullReferenceProperties">
+            <summary>
+            Gets or sets a value indicating that during writing if a new 
+            object should be created when a reference property is null.
+            True to create a new object and use it's defaults for the
+            fields, or false to leave the fields empty for all the
+            reference property's properties.
             </summary>
         </member>
         <member name="T:CsvHelper.CsvSerializer">
@@ -2485,6 +2634,27 @@
             <typeparam name="TConverter">The type of the converter.</typeparam>
             <param name="field">The field to write.</param>
         </member>
+        <member name="M:CsvHelper.ICsvWriter.WriteField(System.Type,System.Object)">
+            <summary>
+            Writes the field to the CSV file.
+            When all fields are written for a record,
+            <see cref="M:CsvHelper.ICsvWriter.NextRecord"/> must be called
+            to complete writing of the current record.
+            </summary>
+            <param name="type">The type of the field.</param>
+            <param name="field">The field to write.</param>
+        </member>
+        <member name="M:CsvHelper.ICsvWriter.WriteField(System.Type,System.Object,CsvHelper.TypeConversion.ITypeConverter)">
+            <summary>
+            Writes the field to the CSV file.
+            When all fields are written for a record,
+            <see cref="M:CsvHelper.ICsvWriter.NextRecord"/> must be called
+            to complete writing of the current record.
+            </summary>
+            <param name="type">The type of the field.</param>
+            <param name="field">The field to write.</param>
+            <param name="converter">The converter used to convert the field into a string.</param>
+        </member>
         <member name="M:CsvHelper.ICsvWriter.NextRecord">
             <summary>
             Ends writing of the current record
@@ -2514,6 +2684,13 @@
             Writes the record to the CSV file.
             </summary>
             <typeparam name="T">The type of the record.</typeparam>
+            <param name="record">The record to write.</param>
+        </member>
+        <member name="M:CsvHelper.ICsvWriter.WriteRecord(System.Type,System.Object)">
+            <summary>
+            Writes the record to the CSV file.
+            </summary>
+            <param name="type">The type of the record.</param>
             <param name="record">The record to write.</param>
         </member>
         <member name="M:CsvHelper.ICsvWriter.WriteRecords(System.Collections.IEnumerable)">
@@ -2636,6 +2813,27 @@
             <typeparam name="TConverter">The type of the converter.</typeparam>
             <param name="field">The field to write.</param>
         </member>
+        <member name="M:CsvHelper.CsvWriter.WriteField(System.Type,System.Object)">
+            <summary>
+            Writes the field to the CSV file.
+            When all fields are written for a record,
+            <see cref="M:CsvHelper.ICsvWriter.NextRecord"/> must be called
+            to complete writing of the current record.
+            </summary>
+            <param name="type">The type of the field.</param>
+            <param name="field">The field to write.</param>
+        </member>
+        <member name="M:CsvHelper.CsvWriter.WriteField(System.Type,System.Object,CsvHelper.TypeConversion.ITypeConverter)">
+            <summary>
+            Writes the field to the CSV file.
+            When all fields are written for a record,
+            <see cref="M:CsvHelper.ICsvWriter.NextRecord"/> must be called
+            to complete writing of the current record.
+            </summary>
+            <param name="type">The type of the field.</param>
+            <param name="field">The field to write.</param>
+            <param name="converter">The converter used to convert the field into a string.</param>
+        </member>
         <member name="M:CsvHelper.CsvWriter.NextRecord">
             <summary>
             Ends writing of the current record
@@ -2665,6 +2863,13 @@
             Writes the record to the CSV file.
             </summary>
             <typeparam name="T">The type of the record.</typeparam>
+            <param name="record">The record to write.</param>
+        </member>
+        <member name="M:CsvHelper.CsvWriter.WriteRecord(System.Type,System.Object)">
+            <summary>
+            Writes the record to the CSV file.
+            </summary>
+            <param name="type">The type of the record.</param>
             <param name="record">The record to write.</param>
         </member>
         <member name="M:CsvHelper.CsvWriter.WriteRecords(System.Collections.IEnumerable)">
@@ -2863,11 +3068,12 @@
             Common reflection tasks.
             </summary>
         </member>
-        <member name="M:CsvHelper.ReflectionHelper.CreateInstance``1">
+        <member name="M:CsvHelper.ReflectionHelper.CreateInstance``1(System.Object[])">
             <summary>
             Creates an instance of type T.
             </summary>
             <typeparam name="T">The type of instance to create.</typeparam>
+            <param name="args">The constructor arguments.</param>
             <returns>A new instance of type T.</returns>
         </member>
         <member name="M:CsvHelper.ReflectionHelper.CreateInstance(System.Type,System.Object[])">
@@ -2926,6 +3132,13 @@
             <summary>
             Collection that holds CsvClassMaps for record types.
             </summary>
+        </member>
+        <member name="M:CsvHelper.Configuration.CsvClassMapCollection.Find``1">
+            <summary>
+            Finds the <see cref="T:CsvHelper.Configuration.CsvClassMap"/> for the specified record type.
+            </summary>
+            <typeparam name="T">The record type.</typeparam>
+            <returns>The <see cref="T:CsvHelper.Configuration.CsvClassMap"/> for the specified record type.</returns>
         </member>
         <member name="M:CsvHelper.Configuration.CsvClassMapCollection.Add(CsvHelper.Configuration.CsvClassMap)">
             <summary>
@@ -3167,6 +3380,28 @@
             <returns>The object created from the string.</returns>
         </member>
         <member name="M:CsvHelper.TypeConversion.DateTimeConverter.CanConvertFrom(System.Type)">
+            <summary>
+            Determines whether this instance [can convert from] the specified type.
+            </summary>
+            <param name="type">The type.</param>
+            <returns>
+              <c>true</c> if this instance [can convert from] the specified type; otherwise, <c>false</c>.
+            </returns>
+        </member>
+        <member name="T:CsvHelper.TypeConversion.DateTimeOffsetConverter">
+            <summary>
+            Converts a DateTimeOffset to and from a string.
+            </summary>
+        </member>
+        <member name="M:CsvHelper.TypeConversion.DateTimeOffsetConverter.ConvertFromString(CsvHelper.TypeConversion.TypeConverterOptions,System.String)">
+            <summary>
+            Converts the string to an object.
+            </summary>
+            <param name="options">The options to use when converting.</param>
+            <param name="text">The string to convert to an object.</param>
+            <returns>The object created from the string.</returns>
+        </member>
+        <member name="M:CsvHelper.TypeConversion.DateTimeOffsetConverter.CanConvertFrom(System.Type)">
             <summary>
             Determines whether this instance [can convert from] the specified type.
             </summary>

@@ -116,87 +116,94 @@ namespace ProcessDailyStockData
                 throw new ArgumentNullException();
             }
 
-            var lines = File.ReadAllLines(file, Encoding.GetEncoding("GB2312"));
-
-            // in general the file contains at least 3 lines, 2 lines of header and at least 1 line of data.
-            if (lines.Length <= 2)
+            try
             {
-                Console.WriteLine("Input {0} contains less than 3 lines, ignore it", file);
+                var lines = File.ReadAllLines(file, Encoding.GetEncoding("GB2312"));
 
-                return null;
-            }
-
-            // first line contains the stock code, name and '日线'
-            var fields = lines[0].Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
-            if (fields.Length < 3)
-            {
-                Console.WriteLine("Invalid first line in file {0}", file);
-
-                return null;
-            }
-
-            var code = fields[0];
-            var name = string.Concat(fields.Skip(1).Take(fields.Length - 2).ToArray());
-
-            var stockName = new StockName(code, name);
-
-            var fullDataFile = Path.Combine(outputFileFolder, code + ".day.csv");
-            var deltaDataFile = Path.Combine(outputFileFolder, code + ".day.delta.csv");
-
-            var generateDeltaFile = File.Exists(fullDataFile);
-
-            var outputFile = generateDeltaFile ? deltaDataFile : fullDataFile;
-
-            using (var outputter = new StreamWriter(outputFile, false, Encoding.UTF8))
-            {
-                const string header = "code,date,open,highest,lowest,close,volume,amount";
-                const int indexOfVolume = 6;
-
-                outputter.WriteLine(header);
-
-                fields = header.Split(new[] { ',' });
-                var expectedFieldCount = fields.Length - 1; // remove the first column 'code' which does not exists in input file
-
-                for (var i = 2; i < lines.Length - 1; ++i)
+                // in general the file contains at least 3 lines, 2 lines of header and at least 1 line of data.
+                if (lines.Length <= 2)
                 {
-                    lines[i] = lines[i].Trim();
-                    fields = lines[i].Split(new[] { ',' });
-                    if (fields.Length == expectedFieldCount)
+                    Console.WriteLine("Input {0} contains less than 3 lines, ignore it", file);
+
+                    return null;
+                }
+
+                // first line contains the stock code, name and '日线'
+                var fields = lines[0].Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                if (fields.Length < 3)
+                {
+                    Console.WriteLine("Invalid first line in file {0}", file);
+
+                    return null;
+                }
+
+                var code = fields[0];
+                var name = string.Concat(fields.Skip(1).Take(fields.Length - 2).ToArray());
+
+                var stockName = new StockName(code, name);
+
+                var fullDataFile = Path.Combine(outputFileFolder, code + ".day.csv");
+                var deltaDataFile = Path.Combine(outputFileFolder, code + ".day.delta.csv");
+
+                var generateDeltaFile = File.Exists(fullDataFile);
+
+                var outputFile = generateDeltaFile ? deltaDataFile : fullDataFile;
+
+                using (var outputter = new StreamWriter(outputFile, false, Encoding.UTF8))
+                {
+                    const string header = "code,date,open,highest,lowest,close,volume,amount";
+                    const int indexOfVolume = 6;
+
+                    outputter.WriteLine(header);
+
+                    fields = header.Split(new[] { ',' });
+                    var expectedFieldCount = fields.Length - 1; // remove the first column 'code' which does not exists in input file
+
+                    for (var i = 2; i < lines.Length - 1; ++i)
                     {
-                        // the first field is date
-                        DateTime date;
-
-                        if (!DateTime.TryParse(fields[0], out date))
+                        lines[i] = lines[i].Trim();
+                        fields = lines[i].Split(new[] { ',' });
+                        if (fields.Length == expectedFieldCount)
                         {
-                            continue;
-                        }
+                            // the first field is date
+                            DateTime date;
 
-                        if (date < startDate || date > endDate)
-                        {
-                            continue;
-                        }
-
-                        int volume;
-
-                        if (int.TryParse(fields[indexOfVolume], out volume))
-                        {
-                            if (volume == 0)
+                            if (!DateTime.TryParse(fields[0], out date))
                             {
                                 continue;
                             }
-                        }
 
-                        outputter.WriteLine("{0},{1}", stockName.Code, lines[i]);
+                            if (date < startDate || date > endDate)
+                            {
+                                continue;
+                            }
+
+                            int volume;
+
+                            if (int.TryParse(fields[indexOfVolume], out volume))
+                            {
+                                if (volume == 0)
+                                {
+                                    continue;
+                                }
+                            }
+
+                            outputter.WriteLine("{0},{1}", stockName.Code, lines[i]);
+                        }
                     }
                 }
-            }
 
-            if (generateDeltaFile)
+                if (generateDeltaFile)
+                {
+                    MergeFile(fullDataFile, deltaDataFile);
+                }
+
+                return stockName;
+            }
+            catch (Exception ex)
             {
-                MergeFile(fullDataFile, deltaDataFile);
+                throw new AggregateException(string.Format("failed to process file [{0}]", file), ex);
             }
-
-            return stockName;
         }
 
         static void MergeFile(string fullDataFile, string deltaDataFile)
