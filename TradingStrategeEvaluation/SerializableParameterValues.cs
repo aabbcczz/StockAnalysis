@@ -17,7 +17,7 @@ namespace TradingStrategyEvaluation
 
         public NameValuePair[] Parameters { get; set; }
 
-        public void Initialize(IDictionary<ParameterAttribute, object> parameterValues)
+        public void Initialize(IDictionary<Tuple<int, ParameterAttribute>, object> parameterValues)
         {
             if (parameterValues == null)
             {
@@ -28,7 +28,7 @@ namespace TradingStrategyEvaluation
                 .Select(
                     kvp => new NameValuePair
                     {
-                        Name = kvp.Key.TargetObject.GetType().Name + "." + kvp.Key.Name,
+                        Name = kvp.Key.Item1.ToString() + "_" + kvp.Key.Item2.TargetObject.GetType().Name + "." + kvp.Key.Item2.Name,
                         Value = ConvertParameterValueToString(kvp.Value),
                     })
                 .OrderBy(nvp => nvp.Name)

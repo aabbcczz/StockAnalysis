@@ -299,9 +299,9 @@ namespace EvaluatorCmdClient
                         var combinedStrategyAssembler = new CombinedStrategyAssembler(combinedStrategySettings, true);
 
                         var strategyInstances
-                            = new List<Tuple<CombinedStrategy, IDictionary<ParameterAttribute, object>>>();
+                            = new List<Tuple<CombinedStrategy, IDictionary<Tuple<int, ParameterAttribute>, object>>>();
 
-                        IDictionary<ParameterAttribute, object> values;
+                        IDictionary<Tuple<int, ParameterAttribute>, object> values;
                         while ((values = combinedStrategyAssembler.GetNextSetOfParameterValues()) != null)
                         {
                             var strategy = combinedStrategyAssembler.NewStrategy();
@@ -415,7 +415,7 @@ namespace EvaluatorCmdClient
             int accountId,
             EvaluationResultContextManager contextManager, 
             ITradingStrategy strategy,
-            IDictionary<ParameterAttribute, object> parameterValues,
+            IDictionary<Tuple<int, ParameterAttribute>, object> parameterValues,
             DateTime startDate,
             DateTime endDate,
             ICapitalManager capitalManager,

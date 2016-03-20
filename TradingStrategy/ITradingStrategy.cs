@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using StockAnalysis.Share;
+using System;
 
 namespace TradingStrategy
 {
@@ -24,5 +25,7 @@ namespace TradingStrategy
         void NotifyTransactionStatus(Transaction transaction);
 
         IEnumerable<Instruction> RetrieveInstructions();
+
+        void Initialize(IEvaluationContext context, IDictionary<Tuple<int, ParameterAttribute>, object> parameterValues);
     }
 }

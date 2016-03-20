@@ -52,8 +52,6 @@ namespace TradingStrategy
 
         public object[] RelatedObjects { get; set; }
 
-        public double[] ObservedMetricValues { get; set; }
-
         public string Print()
         {
             return string.Format(
@@ -91,7 +89,6 @@ namespace TradingStrategy
             Volume = instruction.Volume;
             Comments = instruction.Comments;
             RelatedObjects = instruction.RelatedObjects;
-            ObservedMetricValues = instruction.ObservedMetricValues;
 
             CloseInstruction closeInstruction = instruction as CloseInstruction;
             if (closeInstruction != null)

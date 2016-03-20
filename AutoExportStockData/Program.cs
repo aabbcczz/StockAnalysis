@@ -168,11 +168,11 @@ namespace AutoExportStockData
 
             IntPtr hwnd = AutoItX.WinGetHandle(title, "");
 
-            // close 中信证券消息中心 window
-            AutoItX.WinClose("中信证券消息中心");
-
             // wait for the password/warning message box being closed automatically
             AutoItX.Sleep(15000);
+
+            // close 中信证券消息中心 window
+            AutoItX.WinClose("中信证券消息中心");
 
             DownloadQuote(hwnd);
 

@@ -60,6 +60,8 @@
     <Compile Include="BarInputSerialMetric.cs" />
     <Compile Include="CirculatedArray.cs" />
     <Compile Include="Metrics\Bias.cs" />
+    <Compile Include="Metrics\HighestPeriod.cs" />
+    <Compile Include="Metrics\LowestPeriod .cs" />
     <Compile Include="Metrics\TestMetric.cs" />
     <Compile Include="Metrics\FractalAdaptiveMovingAverageExtend.cs" />
     <Compile Include="Metrics\FractalAdaptiveMovingAverage.cs" />

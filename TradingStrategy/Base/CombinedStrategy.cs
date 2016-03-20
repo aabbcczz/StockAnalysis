@@ -125,11 +125,20 @@ namespace TradingStrategy.Base
             return _components.SelectMany(component => component.GetParameterDefinitions());
         }
 
-        public void Initialize(IEvaluationContext context, IDictionary<ParameterAttribute, object> parameterValues)
+        public void Initialize(IEvaluationContext context, IDictionary<Tuple<int, ParameterAttribute>, object> parameterValues)
         {
-            foreach (var component in _components)
+            if (context == null || parameterValues == null)
             {
-                component.Initialize(context, parameterValues);
+                throw new ArgumentNullException();
+            }
+
+            for (int i = 0; i < _components.Length; ++i)
+            {
+                var componentParameterValues = parameterValues
+                    .Where(kvp => kvp.Key.Item1 == i)
+                    .ToDictionary(kvp => kvp.Key.Item2, kvp => kvp.Value);
+
+                _components[i].Initialize(context, componentParameterValues);
             }
 
             _random = new Random(_globalSettings.RandomSeeds);
@@ -137,6 +146,11 @@ namespace TradingStrategy.Base
             _context = context;
 
             _context.GlobalSettings = _globalSettings;
+        }
+
+        public void Initialize(IEvaluationContext context, IDictionary<ParameterAttribute, object> parameterValues)
+        {
+            throw new NotImplementedException();
         }
 
         public void WarmUp(ITradingObject tradingObject, Bar bar)
@@ -700,19 +714,6 @@ namespace TradingStrategy.Base
                         .Where(instruction => instruction.Action == TradingAction.CloseLong)
                         .Union(openLongInstructions)
                         .ToList();
-                }
-            }
-
-            if (_globalSettings.ObservableMetricProxies != null && _globalSettings.ObservableMetricProxies.Length > 0)
-            {
-                foreach (var instruction in _instructionsInCurrentPeriod)
-                {
-                    if (instruction.Action == TradingAction.OpenLong)
-                    {
-                        instruction.ObservedMetricValues = _globalSettings.ObservableMetricProxies
-                            .Select(p => p.GetValue(instruction.TradingObject))
-                            .ToArray();
-                    }
                 }
             }
         }

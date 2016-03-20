@@ -190,9 +190,9 @@ namespace PredicatorCmdClient
             var combinedStrategyAssembler = new CombinedStrategyAssembler(combinedStrategySettings, false);
 
             var strategyInstances
-                = new List<Tuple<CombinedStrategy, IDictionary<ParameterAttribute, object>>>();
+                = new List<Tuple<CombinedStrategy, IDictionary<Tuple<int, ParameterAttribute>, object>>>();
 
-            IDictionary<ParameterAttribute, object> values;
+            IDictionary<Tuple<int, ParameterAttribute>, object> values;
             while ((values = combinedStrategyAssembler.GetNextSetOfParameterValues()) != null)
             {
                 var strategy = combinedStrategyAssembler.NewStrategy();
@@ -233,7 +233,7 @@ namespace PredicatorCmdClient
         private static void PredicateStrategy(
             PredicationContext context,
             ITradingStrategy strategy,
-            IDictionary<ParameterAttribute, object> parameterValues,
+            IDictionary<Tuple<int, ParameterAttribute>, object> parameterValues,
             DateTime startDate,
             double initialCapital,
             double currentCapital,

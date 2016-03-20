@@ -169,7 +169,6 @@ namespace TradingStrategyEvaluation
                             Error = transaction.Error,
                             ExecutionTime = transaction.ExecutionTime,
                             InstructionId = transaction.InstructionId,
-                            ObservedMetricValues = transaction.ObservedMetricValues,
                             Price = transaction.Price,
                             RelatedObjects = transaction.RelatedObjects,
                             SubmissionTime = transaction.SubmissionTime,

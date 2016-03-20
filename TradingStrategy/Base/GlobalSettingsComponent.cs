@@ -77,16 +77,11 @@ namespace TradingStrategy.Base
         [Parameter(false, "用收盘价判断止损")]
         public bool StopLossByClosePrice { get; set; }
 
-        [Parameter("", "观察用指标, 每个指标用|分隔")]
-        public string ObservableMetrics { get; set; }
-
         [Parameter(1.0, "真实买入价比例")]
         public double TrueBuyPriceScale { get; set; }
 
         public RuntimeMetricProxy IncreasePositionSortMetricProxy { get; private set; }
         public RuntimeMetricProxy NewPositionSortMetricProxy { get; private set; }
-
-        public UnifiedMetricProxy[] ObservableMetricProxies { get; private set; }
 
         protected override void RegisterMetric()
         {
@@ -104,14 +99,6 @@ namespace TradingStrategy.Base
             if (!string.IsNullOrWhiteSpace(NewPositionSortMetric))
             {
                 NewPositionSortMetricProxy = new RuntimeMetricProxy(Context.MetricManager, NewPositionSortMetric);
-            }
-
-            if (!string.IsNullOrWhiteSpace(ObservableMetrics))
-            {
-                ObservableMetricProxies = ObservableMetrics.Split('|')
-                    .Where(s => !string.IsNullOrWhiteSpace(s))
-                    .Select(s => new UnifiedMetricProxy(s, Context))
-                    .ToArray();
             }
         }
     }

@@ -204,7 +204,7 @@ namespace EvaluatorCmdClient
         public int ContextId { get; set; }
         public string ContextDirectory { get; set; }
 
-        public static void Initialize(IDictionary<ParameterAttribute, object> parameterValues, bool shouldOutputERatio)
+        public static void Initialize(IDictionary<Tuple<int, ParameterAttribute>, object> parameterValues, bool shouldOutputERatio)
         {
             if (parameterValues == null)
             {
@@ -244,7 +244,7 @@ namespace EvaluatorCmdClient
 
         public void Initialize(
             EvaluationResultContext context,
-            IDictionary<ParameterAttribute, object> parameterValues, 
+            IDictionary<Tuple<int, ParameterAttribute>, object> parameterValues, 
             DateTime startDate,
             DateTime endDate,
             TradeMetric metric)

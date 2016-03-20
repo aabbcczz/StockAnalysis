@@ -41,7 +41,7 @@ namespace PredicatorCmdClient
 
         public void SaveResults(
             ITradingDataProvider dataProvider,
-            IDictionary<ParameterAttribute, object> parameterValues,
+            IDictionary<Tuple<int, ParameterAttribute>, object> parameterValues,
             IEnumerable<Position> activePositions,
             IEnumerable<Transaction> transactions,
             IEnumerable<AuxiliaryData> auxiliaryData)

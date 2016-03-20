@@ -42,11 +42,6 @@ namespace TradingStrategy
 
         public string Comments { get; set; }
 
-        public double MetricValue1 { get; set; }
-        public double MetricValue2 { get; set; }
-        public double MetricValue3 { get; set; }
-        public double MetricValue4 { get; set; }
-
         public int LastedPeriodCount { get; private set; }
 
         public Position()
@@ -79,27 +74,6 @@ namespace TradingStrategy
                     BuyCommission = transaction.Commission;
                     IsInitialized = true;
                     Comments = transaction.Comments;
-
-                    if (transaction.ObservedMetricValues != null && transaction.ObservedMetricValues.Length > 0)
-                    {
-                        MetricValue1 = transaction.ObservedMetricValues[0];
-
-                        int length = transaction.ObservedMetricValues.Length;
-                        if (length > 1)
-                        {
-                            MetricValue2 = transaction.ObservedMetricValues[1];
-                        }
-
-                        if (length > 2)
-                        {
-                            MetricValue3 = transaction.ObservedMetricValues[2];
-                        }
-
-                        if (length > 3)
-                        {
-                            MetricValue4 = transaction.ObservedMetricValues[3];
-                        }
-                    }
                     break;
                 default:
                     throw new ArgumentException(string.Format("unsupported action {0}", transaction.Action));
@@ -149,10 +123,6 @@ namespace TradingStrategy
                 InitialRisk = IsStopLossPriceInitialized() ? this.InitialRisk * newPositionPercentage : 0.0,
                 StopLossPrice = this.StopLossPrice,
                 Comments = this.Comments,
-                MetricValue1 = this.MetricValue1,
-                MetricValue2 = this.MetricValue2,
-                MetricValue3 = this.MetricValue3,
-                MetricValue4 = this.MetricValue4,
                 LastedPeriodCount = this.LastedPeriodCount,
             };
 

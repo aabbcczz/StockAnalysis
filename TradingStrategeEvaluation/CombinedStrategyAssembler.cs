@@ -12,6 +12,7 @@ namespace TradingStrategyEvaluation
     {
         private class ParameterValueSelector
         {
+            public int ComponentIndex { get; set; }
             public ParameterAttribute Attribute { get; set; }
             public object[] Values { get; set; }
             public int ValueIndex { get; set; }
@@ -138,7 +139,8 @@ namespace TradingStrategyEvaluation
                     {
                         _parameterValueSelectors.Add(
                             new ParameterValueSelector
-                            { 
+                            {
+                                ComponentIndex = i,
                                 Attribute = attribute.First(),
                                 Values = values,
                                 ValueIndex = 0
@@ -202,7 +204,7 @@ namespace TradingStrategyEvaluation
         /// empty dictionary: all default values
         /// non-empty dictionary: new set of values
         /// </returns>
-        public IDictionary<ParameterAttribute, object> GetNextSetOfParameterValues()
+        public IDictionary<Tuple<int, ParameterAttribute>, object> GetNextSetOfParameterValues()
         {
             if (_endPermutation)
             {
@@ -213,11 +215,12 @@ namespace TradingStrategyEvaluation
             if (_parameterValueSelectors.Count == 0)
             {
                 _endPermutation = true;
-                return new Dictionary<ParameterAttribute, object>();
+                return new Dictionary<Tuple<int, ParameterAttribute>, object>();
             }
 
             // get current set of value firstly.
-            var result = _parameterValueSelectors.ToDictionary(s => s.Attribute, s => s.Values[s.ValueIndex]);
+            var result = _parameterValueSelectors
+                .ToDictionary(s => Tuple.Create(s.ComponentIndex, s.Attribute), s => s.Values[s.ValueIndex]);
 
             // move to next set of value
             var index = 0;

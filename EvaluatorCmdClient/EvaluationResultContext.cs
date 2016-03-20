@@ -60,7 +60,7 @@ namespace EvaluatorCmdClient
         }
 
         public void SaveResults(
-            IDictionary<ParameterAttribute, object> parameterValues,
+            IDictionary<Tuple<int, ParameterAttribute>, object> parameterValues,
             IEnumerable<TradeMetric> metrics, 
             IEnumerable<Position> closePositions,
             IEnumerable<BlockTradingDetailSummarizer.BlockTradingDetail> details)

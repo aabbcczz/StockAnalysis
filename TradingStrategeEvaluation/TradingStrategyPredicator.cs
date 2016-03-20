@@ -12,7 +12,7 @@ namespace TradingStrategyEvaluation
     public sealed class TradingStrategyPredicator
     {
         private readonly ITradingStrategy _strategy;
-        private readonly IDictionary<ParameterAttribute, object> _strategyParameterValues;
+        private readonly IDictionary<Tuple<int, ParameterAttribute>, object> _strategyParameterValues;
         private readonly ITradingDataProvider _provider;
         private readonly EquityManager _equityManager;
         private readonly StandardEvaluationContext _context;
@@ -42,7 +42,7 @@ namespace TradingStrategyEvaluation
             double initialCapital,
             double currentCapital,
             ITradingStrategy strategy, 
-            IDictionary<ParameterAttribute, object> strategyParameters, 
+            IDictionary<Tuple<int, ParameterAttribute>, object> strategyParameters, 
             ITradingDataProvider provider, 
             StockBlockRelationshipManager relationshipManager,
             int positionFrozenDays,

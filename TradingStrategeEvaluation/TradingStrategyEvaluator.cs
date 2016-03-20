@@ -12,7 +12,7 @@ namespace TradingStrategyEvaluation
         private readonly int _numberOfAccounts;
         private readonly int _accountId;
         private readonly ITradingStrategy _strategy;
-        private readonly IDictionary<ParameterAttribute, object> _strategyParameterValues;
+        private readonly IDictionary<Tuple<int, ParameterAttribute>, object> _strategyParameterValues;
         private readonly ITradingDataProvider _provider;
         private readonly EquityManager _equityManager;
         private readonly StandardEvaluationContext _context;
@@ -43,8 +43,8 @@ namespace TradingStrategyEvaluation
             int numberOfAccounts,
             int accountId,
             ICapitalManager capitalManager,
-            ITradingStrategy strategy, 
-            IDictionary<ParameterAttribute, object> strategyParameters, 
+            ITradingStrategy strategy,
+            IDictionary<Tuple<int, ParameterAttribute>, object> strategyParameters, 
             ITradingDataProvider provider, 
             StockBlockRelationshipManager relationshipManager,
             TradingSettings settings,
