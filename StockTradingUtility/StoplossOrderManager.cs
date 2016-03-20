@@ -22,7 +22,7 @@ namespace StockTrading.Utility
 
         private HashSet<StoplossOrder> _sentOrders = new HashSet<StoplossOrder>();
 
-        public delegate void OnStoplossOrderExecutedDelegate(StoplossOrder order, int succeededVolume);
+        public delegate void OnStoplossOrderExecutedDelegate(StoplossOrder order, float dealPrice, int dealVolume);
 
         public OnStoplossOrderExecutedDelegate OnStoplossOrderExecuted { get; set; }
 
@@ -133,7 +133,7 @@ namespace StockTrading.Utility
                 }
 
                 float maxBuyPrice = quote.BuyPrices.Max();
-                float minBuyPrice = quote.BuyPrices.Min(v => v == 0.0f ? float.MaxValue : v);
+                float minBuyPrice = quote.BuyPrices.Min();
                 int totalBuyVolume = ChinaStockHelper.ConvertHandToVolume(quote.BuyVolumesInHand.Sum());
 
                 lock (_orderLockObj)
@@ -174,7 +174,7 @@ namespace StockTrading.Utility
             {
                 Category = OrderCategory.Sell,
                 Price = order.StoplossPrice,
-                PricingType = OrderPricingType.MakertPriceMakeDealInFiveGradesThenCancel,
+                PricingType = OrderPricingType.MarketPriceMakeDealInFiveGradesThenCancel,
                 Volume = order.RemainingVolume,
                 SecurityCode = order.SecurityCode,
             };
@@ -249,27 +249,28 @@ namespace StockTrading.Utility
                         if (logger != null)
                         {
                             logger.InfoFormat(
-                                "Stoploss order executed:  id {0} code {1} status {2} succeeded volume {3}.",
+                                "Stoploss order executed:  id {0} code {1} status {2} succeeded volume {3} deal price {4}.",
                                 order.OrderId,
                                 order.SecurityCode,
                                 dispatchedOrder.LastStatus,
-                                dispatchedOrder.SucceededVolume);
+                                dispatchedOrder.LastDealVolume,
+                                dispatchedOrder.LastDealPrice);
                         }
 
-                        if (dispatchedOrder.SucceededVolume > 0)
+                        if (dispatchedOrder.LastDealVolume > 0)
                         {
-                            order.UpdateExistingVolume(dispatchedOrder.SucceededVolume);
+                            order.Fulfill(dispatchedOrder.LastDealPrice, dispatchedOrder.LastDealVolume);
 
                             // callback to client to notify partial or full success
                             if (OnStoplossOrderExecuted != null)
                             {
-                                OnStoplossOrderExecuted(order, dispatchedOrder.SucceededVolume);
+                                OnStoplossOrderExecuted(order, dispatchedOrder.LastDealPrice, dispatchedOrder.LastDealVolume);
                             }
                         }
 
                         RemoveSentOrder(order);
 
-                        if (order.RemainingVolume > 0)
+                        if (!order.IsCompleted())
                         {
                             // the order has not been finished yet, put it back into active order
                             AddActiveStoplossOrder(order);

@@ -42,16 +42,24 @@ namespace StockTrading.Utility
             OrderId = Guid.NewGuid();
         }
 
-        public void UpdateExistingVolume(int soldVolume)
+        public void Fulfill(float dealPrice, int dealVolume)
         {
             lock (this)
             {
-                RemainingVolume -= soldVolume;
+                RemainingVolume -= dealVolume;
 
                 if (RemainingVolume < 0)
                 {
                     throw new InvalidOperationException("Existing volume is impossible to be smaller than 0");
                 }
+            }
+        }
+
+        public bool IsCompleted()
+        {
+            lock (this)
+            {
+                return RemainingVolume == 0;
             }
         }
     }

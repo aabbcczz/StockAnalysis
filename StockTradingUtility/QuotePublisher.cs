@@ -17,6 +17,7 @@ namespace StockTrading.Utility
 
         private TradingClient _client;
         private readonly int _refreshingIntervalInMillisecond;
+        private readonly bool _enableSinaQuote;
 
         private Timer _timer;
         private bool _isStopped = false;
@@ -28,7 +29,7 @@ namespace StockTrading.Utility
 
         private CtpSimulator.OnQuoteReadyDelegate _onQuoteReadyCallback = null;
 
-        public QuotePublisher(TradingClient client, int refreshingIntervalInMillisecond)
+        public QuotePublisher(TradingClient client, int refreshingIntervalInMillisecond, bool enableSinaQuote)
         {
             if (client == null)
             {
@@ -42,6 +43,7 @@ namespace StockTrading.Utility
 
             _client = client;
             _refreshingIntervalInMillisecond = refreshingIntervalInMillisecond;
+            _enableSinaQuote = enableSinaQuote;
 
             _timer = new Timer(GetQuote, null, 0, refreshingIntervalInMillisecond);
         }
@@ -195,22 +197,29 @@ namespace StockTrading.Utility
                     subsets,
                     async subset => 
                         {
-                            List<SinaStockQuote> sinaQuotes = await SinaStockQuoteInterface.GetQuote(subset);
+                            List<SinaStockQuote> sinaQuotes = null;
+                            if (_enableSinaQuote)
+                            {
+                                sinaQuotes = await SinaStockQuoteInterface.GetQuote(subset);
+                            }
 
                             string[] errors;
                             FiveLevelQuote[] quotes = _client.GetQuote(subset, out errors);
 
-                            if (quotes.Length != sinaQuotes.Count)
+                            if (_enableSinaQuote)
                             {
-                                throw new InvalidOperationException("The count of sina quote does not match tdx quote");
-                            }
-
-                            for (int i = 0; i < quotes.Length; ++i)
-                            {
-                                if (quotes[i] != null)
+                                if (quotes.Length != sinaQuotes.Count)
                                 {
-                                    quotes[i].DealAmount = sinaQuotes[i].DealAmount;
-                                    quotes[i].DealVolumeInHand = sinaQuotes[i].DealVolumeInHand;
+                                    throw new InvalidOperationException("The count of sina quote does not match tdx quote");
+                                }
+
+                                for (int i = 0; i < quotes.Length; ++i)
+                                {
+                                    if (quotes[i] != null)
+                                    {
+                                        quotes[i].DealAmount = sinaQuotes[i].DealAmount;
+                                        quotes[i].DealVolumeInHand = sinaQuotes[i].DealVolumeInHand;
+                                    }
                                 }
                             }
                             

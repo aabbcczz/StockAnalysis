@@ -113,9 +113,9 @@ namespace StockTrading.Utility
                 result.StatusString = row[index++];
                 result.Status = TradingHelper.ConvertStringToOrderStatus(result.StatusString);
 
-                result.SubmissionPrice = TradingHelper.SafeParseFloat(row[index++]);
+                result.SubmissionPrice = TradingHelper.SafeParseFloat(row[index++], 0.0f);
                 result.SubmissionVolume = TradingHelper.SafeParseInt(row[index++]);
-                result.DealPrice = TradingHelper.SafeParseFloat(row[index++]);
+                result.DealPrice = TradingHelper.SafeParseFloat(row[index++], 0.0f);
                 result.DealVolume = TradingHelper.SafeParseInt(row[index++]);
                 result.SubmissionType = row[index++];
                 result.PricingType = row[index++];

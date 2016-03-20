@@ -77,7 +77,8 @@ namespace StockTrading.Utility
             {
                 OrderNo = result.OrderNo,
                 Request = request,
-                SucceededVolume = 0,
+                LastDealPrice = 0.0f,
+                LastDealVolume = 0,
                 LastStatus = OrderStatus.NotSubmitted,
             };
 
@@ -105,7 +106,8 @@ namespace StockTrading.Utility
                         {
                             OrderNo = results[i].OrderNo,
                             Request = requests[i],
-                            SucceededVolume = 0,
+                            LastDealPrice = 0.0f,
+                            LastDealVolume = 0,
                             LastStatus = OrderStatus.NotSubmitted,
                         };
 
@@ -231,23 +233,24 @@ namespace StockTrading.Utility
             }
         }
 
-        private bool CheckOrderStatusChangeAndNotify(ref DispatchedOrder dispatchedOrder, QueryGeneralOrderResult order)
+        private bool CheckOrderStatusChangeAndNotify(ref DispatchedOrder dispatchedOrder, QueryGeneralOrderResult orderResult)
         {
             bool isStatusChanged = false;
 
-            if (order.Status != dispatchedOrder.LastStatus)
+            if (orderResult.Status != dispatchedOrder.LastStatus)
             {
                 isStatusChanged = true;
             }
-            else if (order.Status == OrderStatus.PartiallySucceeded 
-                && dispatchedOrder.LastStatus == order.Status
-                && order.DealVolume != dispatchedOrder.SucceededVolume)
+            else if (orderResult.Status == OrderStatus.PartiallySucceeded 
+                && dispatchedOrder.LastStatus == orderResult.Status
+                && orderResult.DealVolume != dispatchedOrder.LastDealVolume)
             {
                 isStatusChanged = true;
             }
 
-            dispatchedOrder.LastStatus = order.Status;
-            dispatchedOrder.SucceededVolume = order.DealVolume;
+            dispatchedOrder.LastStatus = orderResult.Status;
+            dispatchedOrder.LastDealVolume = orderResult.DealVolume;
+            dispatchedOrder.LastDealPrice = orderResult.DealPrice;
 
             if (isStatusChanged)
             {

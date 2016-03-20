@@ -65,12 +65,12 @@ namespace StockTrading.Utility
                 QueryCapitalResult result = new QueryCapitalResult();
 
                 int index = 0;
-                result.RemainingCapital = TradingHelper.SafeParseFloat(row[index++]);
-                result.UsableCapital = TradingHelper.SafeParseFloat(row[index++]);
-                result.FrozenCapital = TradingHelper.SafeParseFloat(row[index++]);
-                result.CashableCapital = TradingHelper.SafeParseFloat(row[index++]);
-                result.TotalEquity = TradingHelper.SafeParseFloat(row[index++]);
-                result.LatestMarketValue = TradingHelper.SafeParseFloat(row[index++]); 
+                result.RemainingCapital = TradingHelper.SafeParseFloat(row[index++], 0.0f);
+                result.UsableCapital = TradingHelper.SafeParseFloat(row[index++], 0.0f);
+                result.FrozenCapital = TradingHelper.SafeParseFloat(row[index++], 0.0f);
+                result.CashableCapital = TradingHelper.SafeParseFloat(row[index++], 0.0f);
+                result.TotalEquity = TradingHelper.SafeParseFloat(row[index++], 0.0f);
+                result.LatestMarketValue = TradingHelper.SafeParseFloat(row[index++], 0.0f); 
 
                 yield return result;
             }

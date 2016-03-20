@@ -9,15 +9,7 @@ namespace StockTrading.Utility
 {
     public sealed class BuyOrder
     {
-        /// <summary>
-        /// 期待的购买价格
-        /// </summary>
-        public float ExpectedMaxPrice { get; private set; }
-
-        /// <summary>
-        /// 允许的最高报价
-        /// </summary>
-        public float MaxBidPrice { get; private set; }
+        public Guid OrderId { get; private set; }
 
         /// <summary>
         /// 证券代码
@@ -33,6 +25,16 @@ namespace StockTrading.Utility
         /// 所属交易所
         /// </summary>
         public Exchange Exchange { get; private set; }
+
+        /// <summary>
+        /// 期待的购买价格
+        /// </summary>
+        public float ExpectedPrice { get; private set; }
+
+        /// <summary>
+        /// 允许的最高报价
+        /// </summary>
+        public float MaxBidPrice { get; private set; }
 
         /// <summary>
         /// 已购买数量
@@ -51,7 +53,9 @@ namespace StockTrading.Utility
 
         public BuyOrder(BuyInstruction instruction)
         {
-            ExpectedMaxPrice = instruction.ExpectedMaxPrice;
+            OrderId = Guid.NewGuid();
+
+            ExpectedPrice = instruction.ExpectedPrice;
             MaxBidPrice = instruction.MaxBidPrice;
             SecurityName = instruction.SecurityName;
             SecurityCode = instruction.SecurityCode;
@@ -61,13 +65,13 @@ namespace StockTrading.Utility
             RemainingVolumeCanBeBought = instruction.MaxVolumeCanBeBought;
         }
 
-        public void Fulfill(float averagePrice, int volume)
+        public void Fulfill(float dealPrice, int dealVolume)
         {
             lock (this)
             {
-                BoughtVolume += volume;
-                RemainingVolumeCanBeBought -= volume;
-                RemainingCapitalCanBeUsed -= averagePrice * volume;
+                BoughtVolume += dealVolume;
+                RemainingVolumeCanBeBought -= dealVolume;
+                RemainingCapitalCanBeUsed -= dealPrice * dealVolume;
             }
         }
 
@@ -76,18 +80,18 @@ namespace StockTrading.Utility
         /// </summary>
         /// <param name="?"></param>
         /// <returns></returns>
-        public int GetMaxVolumeInHandToBuy(float estimatePrice)
+        public int GetMaxVolumeInHandToBuy(float estimatedPrice)
         {
             int minVolume = Math.Max(
                 0, 
                 (int)Math.Min(
-                    RemainingCapitalCanBeUsed / estimatePrice, 
+                    RemainingCapitalCanBeUsed / estimatedPrice, 
                     (float)RemainingVolumeCanBeBought));
 
             return minVolume / ChinaStockHelper.VolumePerHand;
         }
 
-        public bool IsFinished(float minPrice)
+        public bool IsCompleted(float minPrice)
         {
             if (minPrice <= 0.0)
             {

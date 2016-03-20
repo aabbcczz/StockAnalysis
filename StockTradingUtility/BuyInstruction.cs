@@ -13,7 +13,7 @@ namespace StockTrading.Utility
         /// <summary>
         /// 期待的购买价格
         /// </summary>
-        public float ExpectedMaxPrice { get; private set; }
+        public float ExpectedPrice { get; private set; }
 
         /// <summary>
         /// 允许的最高报价
@@ -40,15 +40,15 @@ namespace StockTrading.Utility
         /// </summary>
         public string SecurityName { get; private set; }
 
-        public BuyInstruction(string code, string name, float expectedMaxPrice, float maxBidPrice, float maxCapital, int maxVolume)
+        public BuyInstruction(string code, string name, float expectedPrice, float maxBidPrice, float maxCapital, int maxVolume)
         {
             if (string.IsNullOrEmpty(code) || string.IsNullOrEmpty(name))
             {
                 throw new ArgumentNullException();
             }
 
-            if (expectedMaxPrice <= 0.0
-                || maxBidPrice < expectedMaxPrice
+            if (expectedPrice <= 0.0
+                || maxBidPrice < expectedPrice
                 || maxCapital <= 0.0
                 || maxVolume < 1 * ChinaStockHelper.VolumePerHand)
             {
@@ -57,7 +57,7 @@ namespace StockTrading.Utility
 
             SecurityCode = code;
             SecurityName = name;
-            ExpectedMaxPrice = expectedMaxPrice;
+            ExpectedPrice = expectedPrice;
             MaxBidPrice = maxBidPrice;
             MaxCapitalCanBeUsed = maxCapital;
             MaxVolumeCanBeBought = maxVolume;

@@ -54,6 +54,7 @@ namespace StockTrading.Utility
         }
 
         public bool Initialize(
+            bool enableSinaQuote,
             string address, 
             short port, 
             string protocolVersion, 
@@ -83,7 +84,7 @@ namespace StockTrading.Utility
                             return false;
                         }
 
-                        _quotePublisher = new QuotePublisher(_client, QuoteRefreshingInterval);
+                        _quotePublisher = new QuotePublisher(_client, QuoteRefreshingInterval, enableSinaQuote);
                         _orderDispatcher = new OrderDispatcher(_client, OrderRefreshingInterval);
 
                         _initialized = true;

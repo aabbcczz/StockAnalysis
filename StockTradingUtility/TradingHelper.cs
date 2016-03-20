@@ -34,7 +34,7 @@ namespace StockTrading.Utility
             return !float.IsNaN(price);
         }
 
-        public static float SafeParseFloat(string s)
+        public static float SafeParseFloat(string s, float defaultValue)
         {
             float price;
 
@@ -44,7 +44,7 @@ namespace StockTrading.Utility
             }
             else
             {
-                return float.NaN;
+                return defaultValue;
             }
         }
 

@@ -105,8 +105,8 @@ namespace StockTrading.Utility
                 SupportedOrderPriceType = new OrderPricingType[] 
                     {
                         OrderPricingType.LimitPrice,
-                        OrderPricingType.MakertPriceMakeDealInFiveGradesThenCancel,
-                        OrderPricingType.SHMakertPriceMakeDealInFiveGradesThenTurnToLimitPrice
+                        OrderPricingType.MarketPriceMakeDealInFiveGradesThenCancel,
+                        OrderPricingType.SHMarketPriceMakeDealInFiveGradesThenTurnToLimitPrice
                     },
 
                 _orderedBiddingTimeRanges = new List<BiddingTimeRange>() 
@@ -128,8 +128,8 @@ namespace StockTrading.Utility
                 SupportedOrderPriceType = new OrderPricingType[] 
                     {
                         OrderPricingType.LimitPrice,
-                        OrderPricingType.MakertPriceMakeDealInFiveGradesThenCancel,
-                        OrderPricingType.SZMakertPriceFullOrCancel,
+                        OrderPricingType.MarketPriceMakeDealInFiveGradesThenCancel,
+                        OrderPricingType.SZMarketPriceFullOrCancel,
                         OrderPricingType.SZMarketPriceBestForCounterparty,
                         OrderPricingType.SZMarketPriceBestForSelf,
                         OrderPricingType.SZMarketPriceMakeDealImmediatelyThenCancel

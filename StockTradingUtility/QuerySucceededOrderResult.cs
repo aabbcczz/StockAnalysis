@@ -89,9 +89,9 @@ namespace StockTrading.Utility
                 result.SecurityCode = row[index++];
                 result.SecurityName = row[index++];
                 result.BuySellFlag = row[index++];
-                result.DealPrice = TradingHelper.SafeParseFloat(row[index++]);
-                result.DealVolume = TradingHelper.SafeParseFloat(row[index++]);
-                result.DealAmount = TradingHelper.SafeParseFloat(row[index++]);
+                result.DealPrice = TradingHelper.SafeParseFloat(row[index++], 0.0f);
+                result.DealVolume = TradingHelper.SafeParseFloat(row[index++], 0.0f);
+                result.DealAmount = TradingHelper.SafeParseFloat(row[index++], 0.0f);
 
                 yield return result;
             }

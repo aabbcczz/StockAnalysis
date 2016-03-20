@@ -79,12 +79,12 @@ namespace StockTrading.Utility
 
                 result.SecurityCode = row[index++];
                 result.SecurityName = row[index++];
-                result.Volume = TradingHelper.SafeParseFloat(row[index++]);
-                result.SellableVolume = TradingHelper.SafeParseFloat(row[index++]);
-                result.ReferenceCost = TradingHelper.SafeParseFloat(row[index++]);
-                result.CurrentPrice = TradingHelper.SafeParseFloat(row[index++]);
-                result.LatestMarketValue = TradingHelper.SafeParseFloat(row[index++]);
-                result.ProfitPercentage = TradingHelper.SafeParseFloat(row[index++]);
+                result.Volume = TradingHelper.SafeParseFloat(row[index++], 0.0f);
+                result.SellableVolume = TradingHelper.SafeParseFloat(row[index++], 0.0f);
+                result.ReferenceCost = TradingHelper.SafeParseFloat(row[index++], 0.0f);
+                result.CurrentPrice = TradingHelper.SafeParseFloat(row[index++], 0.0f);
+                result.LatestMarketValue = TradingHelper.SafeParseFloat(row[index++], 0.0f);
+                result.ProfitPercentage = TradingHelper.SafeParseFloat(row[index++], 0.0f);
 
                 yield return result;
             }

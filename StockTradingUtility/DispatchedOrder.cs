@@ -10,7 +10,9 @@ namespace StockTrading.Utility
     {
         public int OrderNo { get; set; }
 
-        public int SucceededVolume { get; set; }
+        public int LastDealVolume { get; set; }
+
+        public float LastDealPrice { get; set; }
 
         public OrderStatus LastStatus { get; set; }
 

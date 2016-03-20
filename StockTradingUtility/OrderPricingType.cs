@@ -31,16 +31,16 @@ namespace StockTrading.Utility
         /// <summary>
         /// 五档即成剩余撤销市价委托
         /// </summary>
-        MakertPriceMakeDealInFiveGradesThenCancel = 4, 
+        MarketPriceMakeDealInFiveGradesThenCancel = 4, 
  
         /// <summary>
         /// 深圳 全额成交或撤销市价委托
         /// </summary>
-        SZMakertPriceFullOrCancel = 5,
+        SZMarketPriceFullOrCancel = 5,
 
         /// <summary>
         /// 上海 五档即成转限价市价委托
         /// </summary>
-        SHMakertPriceMakeDealInFiveGradesThenTurnToLimitPrice = 6,
+        SHMarketPriceMakeDealInFiveGradesThenTurnToLimitPrice = 6,
     }
 }
