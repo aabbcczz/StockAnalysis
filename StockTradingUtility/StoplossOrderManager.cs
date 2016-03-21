@@ -184,7 +184,7 @@ namespace StockTrading.Utility
             if (dispatchedOrder == null)
             {
 
-                Logger.ErrorLogger.ErrorFormat(
+                AppLogger.Default.ErrorFormat(
                     "Exception in dispatching stop loss order: id {0} code {1} stoploss price {2}, volume {3}. Error: {4}",
                     order.OrderId,
                     order.SecurityCode,
@@ -196,7 +196,7 @@ namespace StockTrading.Utility
             else
             {
 
-                Logger.InfoLogger.InfoFormat(
+                AppLogger.Default.InfoFormat(
                     "Dispatched stop loss order: id {0} code {1} stoploss price {2}, volume {3}.",
                     order.OrderId,
                     order.SecurityCode,
@@ -242,7 +242,7 @@ namespace StockTrading.Utility
                 {
                     lock (_orderLockObj)
                     {
-                        Logger.InfoLogger.InfoFormat(
+                        AppLogger.Default.InfoFormat(
                             "Stoploss order executed:  id {0} code {1} status {2} succeeded volume {3} deal price {4}.",
                             order.OrderId,
                             order.SecurityCode,

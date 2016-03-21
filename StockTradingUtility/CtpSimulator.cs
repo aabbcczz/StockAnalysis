@@ -81,6 +81,8 @@ namespace StockTrading.Utility
                             _client.Dispose();
                             _client = null;
 
+                            TradingEnvironment.UnInitialize();
+
                             return false;
                         }
 

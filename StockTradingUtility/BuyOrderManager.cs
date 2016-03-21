@@ -94,7 +94,7 @@ namespace StockTrading.Utility
                             {
                                 BuyOrder order = (BuyOrder)dispatchedOrder.Request.AssociatedObject;
 
-                                Logger.ErrorLogger.ErrorFormat(
+                                AppLogger.Default.ErrorFormat(
                                     "fail to cancel buy order: order no {0} id {1} code {2} expected price {3}, volume {4}. Error: {5}",
                                     dispatchedOrder.OrderNo,
                                     order.OrderId,
@@ -109,7 +109,7 @@ namespace StockTrading.Utility
                     {
                         BuyOrder order = (BuyOrder)dispatchedOrder.Request.AssociatedObject;
 
-                        Logger.ErrorLogger.ErrorFormat(
+                        AppLogger.Default.ErrorFormat(
                             "Exception in cancelling buy order: order no {0} id {1} code {2} expected price {3}, volume {4}. Error: {5}",
                             dispatchedOrder.OrderNo,
                             order.OrderId,
@@ -213,7 +213,7 @@ namespace StockTrading.Utility
 
             if (dispatchedOrder == null)
             {
-                Logger.ErrorLogger.ErrorFormat(
+                AppLogger.Default.ErrorFormat(
                     "Exception in dispatching buy order: id {0} code {1} expected price {2}, volume {3}. Error: {4}",
                     order.OrderId,
                     order.SecurityCode,
@@ -223,7 +223,7 @@ namespace StockTrading.Utility
             }
             else
             {
-                Logger.InfoLogger.InfoFormat(
+                AppLogger.Default.InfoFormat(
                     "Dispatched buy order: id {0} code {1} expected price {2}, volume {3}.",
                     order.OrderId,
                     order.SecurityCode,
@@ -267,7 +267,7 @@ namespace StockTrading.Utility
 
                 if (TradingHelper.IsFinalStatus(dispatchedOrder.LastStatus))
                 {
-                    Logger.InfoLogger.InfoFormat(
+                    AppLogger.Default.InfoFormat(
                         "Buy order executed:  id {0} code {1} status {2} succeeded volume {3} deal price {4}.",
                         order.OrderId,
                         order.SecurityCode,

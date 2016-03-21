@@ -186,7 +186,7 @@ namespace StockTrading.Utility
                 {
                     if (!string.IsNullOrEmpty(error))
                     {
-                        Logger.WarningLogger.WarnFormat("Failed to query submitted order. error: {0}", error);
+                        AppLogger.Default.WarnFormat("Failed to query submitted order. error: {0}", error);
                     }
                 }
                 else
@@ -220,7 +220,7 @@ namespace StockTrading.Utility
             }
             catch (Exception ex)
             {
-                Logger.ErrorLogger.ErrorFormat("Exception in querying order status: {0}", ex);
+                AppLogger.Default.ErrorFormat("Exception in querying order status: {0}", ex);
             }
             finally
             {
@@ -233,7 +233,7 @@ namespace StockTrading.Utility
             if (orderResult.Status == OrderStatus.Unknown)
             {
                 // log it for debugging and enrich status string
-                Logger.ErrorLogger.ErrorFormat("Find unknown order status: {0}", orderResult.StatusString);
+                AppLogger.Default.ErrorFormat("Find unknown order status: {0}", orderResult.StatusString);
             }
 
             bool isStatusChanged = false;

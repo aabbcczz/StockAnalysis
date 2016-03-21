@@ -228,7 +228,7 @@ namespace StockTrading.Utility
             }
             catch (Exception ex)
             {
-                Logger.ErrorLogger.ErrorFormat("Exception in getting quote: {0}", ex);
+                AppLogger.Default.ErrorFormat("Exception in getting quote: {0}", ex);
             }
             finally
             {

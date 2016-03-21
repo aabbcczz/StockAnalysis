@@ -5,6 +5,8 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
+using StockAnalysis.Share;
+
 namespace StockTrading.Utility
 {
     public static class TradingEnvironment
@@ -27,6 +29,8 @@ namespace StockTrading.Utility
                 }
 
                 ++InitializationCount;
+
+                AppLogger.Default.Debug("Initialized TradingEnvironment");
             }
         }
 
@@ -44,6 +48,8 @@ namespace StockTrading.Utility
                 {
                     TdxWrapper.CloseTdx();
                 }
+
+                AppLogger.Default.Debug("UnInitialized TradingEnvironment");
             }
         }
     }

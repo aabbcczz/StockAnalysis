@@ -154,7 +154,7 @@ namespace StockTrading.Utility
 
             if (dispatchedOrder == null)
             {
-                Logger.ErrorLogger.ErrorFormat(
+                AppLogger.Default.ErrorFormat(
                     "Exception in dispatching sell order: id {0} code {1} sell price {2}, volume {3}. Error: {4}",
                     order.OrderId,
                     order.SecurityCode,
@@ -164,7 +164,7 @@ namespace StockTrading.Utility
             }
             else
             {
-                Logger.InfoLogger.InfoFormat(
+                AppLogger.Default.InfoFormat(
                     "Dispatched sell order: id {0} code {1} sell price {2}, volume {3}.",
                     order.OrderId,
                     order.SecurityCode,
@@ -210,7 +210,7 @@ namespace StockTrading.Utility
                 {
                     lock (_orderLockObj)
                     {
-                        Logger.InfoLogger.InfoFormat(
+                        AppLogger.Default.InfoFormat(
                              "Sell order executed:  id {0} code {1} status {2} succeeded volume {3} deal price {4}.",
                              order.OrderId,
                              order.SecurityCode,

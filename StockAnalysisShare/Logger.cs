@@ -8,21 +8,30 @@ using log4net;
 
 namespace StockAnalysis.Share
 {
-    public static class Logger
+    public static class AppLogger
     {
-        public static ILog DebugLogger { get; private set; }
-        public static ILog InfoLogger { get; private set; }
-        public static ILog WarningLogger { get; private set; }
-        public static ILog ErrorLogger { get; private set; }
-        public static ILog FatalLogger { get; private set; }
+        public static string DefaultLoggerName = "Default";
 
-        static Logger()
-        {
-            DebugLogger = LogManager.GetLogger("Debug");
-            InfoLogger = LogManager.GetLogger("Info");
-            WarningLogger = LogManager.GetLogger("Warning");
-            ErrorLogger = LogManager.GetLogger("Error");
-            FatalLogger = LogManager.GetLogger("Fatal");
+        private static object _syncObj = new object();
+        private static ILog _log = null;
+
+        public static ILog Default 
+        { 
+            get
+            {
+                if (_log == null)
+                {
+                    lock (_syncObj)
+                    {
+                        if (_log == null)
+                        {
+                            _log = LogManager.GetLogger(DefaultLoggerName);
+                        }
+                    }
+                }
+
+                return _log;
+            }
         }
     }
 }
