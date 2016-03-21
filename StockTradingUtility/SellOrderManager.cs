@@ -12,29 +12,29 @@ using log4net;
 
 namespace StockTrading.Utility
 {
-    public sealed class StoplossOrderManager
+    public sealed class SellOrderManager
     {
-        private static StoplossOrderManager _instance = null;
+        private static SellOrderManager _instance = null;
 
         private object _orderLockObj = new object();
 
-        private IDictionary<string, List<StoplossOrder>> _activeOrders = new Dictionary<string, List<StoplossOrder>>();
+        private IDictionary<string, List<SellOrder>> _activeOrders = new Dictionary<string, List<SellOrder>>();
 
         private HashSet<DispatchedOrder> _dispatchedOrders = new HashSet<DispatchedOrder>();
 
-        public delegate void OnStoplossOrderExecutedDelegate(StoplossOrder order, float dealPrice, int dealVolume);
+        public delegate void OnSellOrderExecutedDelegate(SellOrder order, float dealPrice, int dealVolume);
 
-        public OnStoplossOrderExecutedDelegate OnStoplossOrderExecuted { get; set; }
+        public OnSellOrderExecutedDelegate OnSellOrderExecuted { get; set; }
 
-        public static StoplossOrderManager GetInstance()
+        public static SellOrderManager GetInstance()
         {
             if (_instance == null)
             {
-                lock (typeof(StoplossOrderManager))
+                lock (typeof(SellOrderManager))
                 {
                     if (_instance == null)
                     {
-                        _instance = new StoplossOrderManager();
+                        _instance = new SellOrderManager();
                     }
                 }
             }
@@ -42,70 +42,41 @@ namespace StockTrading.Utility
             return _instance;
         }
 
-        private StoplossOrderManager()
+        private SellOrderManager()
         {
             CtpSimulator.GetInstance().RegisterQuoteReadyCallback(OnQuoteReady);
             CtpSimulator.GetInstance().RegisterOrderStatusChangedCallback(OnOrderStatusChanged);
         }
 
-        private bool ShouldStoploss(FiveLevelQuote quote, float maxBuyPrice, float minBuyPrice, int totalBuyVolume, StoplossOrder order)
+        private bool ShouldSell(FiveLevelQuote quote, float maxBuyPrice, float minBuyPrice, int totalBuyVolume, SellOrder order)
         {
-            bool shouldStoploss = false;
+            bool shouldSell = false;
 
-            if (order.StoplossPrice < minBuyPrice)
+            if (order.SellPrice < minBuyPrice)
             {
-                if (totalBuyVolume > order.RemainingVolume)
-                {
-                    // don't worry
-                }
-                else
-                {
-                    if (maxBuyPrice <= minBuyPrice)
-                    {
-                        // limit down. do nothing.
-                    }
-                    else
-                    {
-                        // predicate volume by using linear extrapolation
-                        int predicateVolume = (int)((double)totalBuyVolume * (maxBuyPrice - order.StoplossPrice) / (maxBuyPrice - minBuyPrice));
-
-                        if (predicateVolume <= order.RemainingVolume * 2)
-                        {
-                            shouldStoploss = true;
-                        }
-                    }
-                }
+                shouldSell = true;
             }
             else
             {
-                if (order.StoplossPrice >= maxBuyPrice)
+                if (order.SellPrice <= maxBuyPrice)
                 {
-                    // need to stop loss immediately.
-                    shouldStoploss = true;
-                }
-                else
-                {
-                    // order stop loss price is between minBuyPrice and maxBuyPrice
-                    // we count the buy volume above stop loss price.
-                    int aboveStoplossBuyVolume =
+                    // order sell price is between minBuyPrice and maxBuyPrice
+                    // we count the buy volume above sell price.
+                    int aboveSellPriceBuyVolume =
                         ChinaStockHelper.ConvertHandToVolume(
                             Enumerable
                                 .Range(0, quote.BuyPrices.Length)
-                                .Where(index => quote.BuyPrices[index] >= order.StoplossPrice)
+                                .Where(index => quote.BuyPrices[index] >= order.SellPrice)
                                 .Sum(index => quote.BuyVolumesInHand[index]));
 
-                    if (aboveStoplossBuyVolume <= order.RemainingVolume * 3)
+                    if (aboveSellPriceBuyVolume >= order.RemainingVolume)
                     {
-                        shouldStoploss = true;
-                    }
-                    else
-                    {
-                        // there is enough buy volume now, so don't need to be rush.
+                        shouldSell = true;
                     }
                 }
             }
 
-            return shouldStoploss;
+            return shouldSell;
         }
 
         private void OnQuoteReady(FiveLevelQuote[] quotes, string[] errors)
@@ -134,7 +105,7 @@ namespace StockTrading.Utility
 
                 lock (_orderLockObj)
                 {
-                    List<StoplossOrder> orders;
+                    List<SellOrder> orders;
                     if (!_activeOrders.TryGetValue(quote.SecurityCode, out orders))
                     {
                         continue;
@@ -149,30 +120,30 @@ namespace StockTrading.Utility
 
                     foreach (var order in OrderCopies)
                     {
-                        if (ShouldStoploss(quote, maxBuyPrice, minBuyPrice, totalBuyVolume, order))
+                        if (ShouldSell(quote, maxBuyPrice, minBuyPrice, totalBuyVolume, order))
                         {
-                            SendStoplossOrder(order);
+                            SendSellOrder(order);
                         }
                     }
                 }
             }
         }
 
-        private void SendStoplossOrder(StoplossOrder order)
+        private void SendSellOrder(SellOrder order)
         {
             // put it into thread pool to avoid recursively call QueryOrderStatusForcibly and 
-            // then call OnOrderStatusChanged() and then call SendStoplossOrder recursively.
-            ThreadPool.QueueUserWorkItem(SendStoplossOrderWorkItem, order);
+            // then call OnOrderStatusChanged() and then call SendSellOrder recursively.
+            ThreadPool.QueueUserWorkItem(SendSellOrderWorkItem, order);
         }
 
-        private void SendStoplossOrderWorkItem(object state)
+        private void SendSellOrderWorkItem(object state)
         {
-            StoplossOrder order = (StoplossOrder)state;
+            SellOrder order = (SellOrder)state;
 
             OrderRequest request = new OrderRequest(order)
             {
                 Category = OrderCategory.Sell,
-                Price = order.StoplossPrice,
+                Price = order.SellPrice,
                 PricingType = OrderPricingType.MarketPriceMakeDealInFiveGradesThenCancel,
                 Volume = order.RemainingVolume,
                 SecurityCode = order.SecurityCode,
@@ -187,10 +158,10 @@ namespace StockTrading.Utility
                 if (logger != null)
                 {
                     logger.ErrorFormat(
-                        "Exception in dispatching stop loss order: id {0} code {1} stoploss price {2}, volume {3}. Error: {4}",
+                        "Exception in dispatching sell order: id {0} code {1} sell price {2}, volume {3}. Error: {4}",
                         order.OrderId,
                         order.SecurityCode,
-                        order.StoplossPrice,
+                        order.SellPrice,
                         order.RemainingVolume,
                         error);
                 }
@@ -201,10 +172,10 @@ namespace StockTrading.Utility
                 if (logger != null)
                 {
                     logger.InfoFormat(
-                        "Dispatched stop loss order: id {0} code {1} stoploss price {2}, volume {3}.",
+                        "Dispatched sell order: id {0} code {1} sell price {2}, volume {3}.",
                         order.OrderId,
                         order.SecurityCode,
-                        order.StoplossPrice,
+                        order.SellPrice,
                         order.RemainingVolume);
                 }
 
@@ -236,7 +207,7 @@ namespace StockTrading.Utility
 
             if (dispatchedOrder.Request.AssociatedObject != null)
             {
-                StoplossOrder order = dispatchedOrder.Request.AssociatedObject as StoplossOrder;
+                SellOrder order = dispatchedOrder.Request.AssociatedObject as SellOrder;
 
                 if (order == null)
                 {
@@ -251,7 +222,7 @@ namespace StockTrading.Utility
                         if (logger != null)
                         {
                             logger.InfoFormat(
-                                "Stoploss order executed:  id {0} code {1} status {2} succeeded volume {3} deal price {4}.",
+                                "Sell order executed:  id {0} code {1} status {2} succeeded volume {3} deal price {4}.",
                                 order.OrderId,
                                 order.SecurityCode,
                                 dispatchedOrder.LastStatus,
@@ -264,9 +235,9 @@ namespace StockTrading.Utility
                             order.Fulfill(dispatchedOrder.LastDealPrice, dispatchedOrder.LastDealVolume);
 
                             // callback to client to notify partial or full success
-                            if (OnStoplossOrderExecuted != null)
+                            if (OnSellOrderExecuted != null)
                             {
-                                OnStoplossOrderExecuted(order, dispatchedOrder.LastDealPrice, dispatchedOrder.LastDealVolume);
+                                OnSellOrderExecuted(order, dispatchedOrder.LastDealPrice, dispatchedOrder.LastDealVolume);
                             }
                         }
 
@@ -276,19 +247,13 @@ namespace StockTrading.Utility
                         {
                             // the order has not been finished yet, put it back into active order
                             AddActiveStoplossOrder(order);
-
-                            if (TradingHelper.IsSucceededFinalStatus(dispatchedOrder.LastStatus))
-                            {
-                                // send out order again
-                                SendStoplossOrder(order);
-                            }
                         }
                     }
                 }
             }
         }
 
-        public void RegisterStoplossOrder(StoplossOrder order)
+        public void RegisterStoplossOrder(SellOrder order)
         {
             if (order == null)
             {
@@ -301,7 +266,7 @@ namespace StockTrading.Utility
             }
         }
 
-        public bool UnregisterStoplossOrder(StoplossOrder order)
+        public bool UnregisterStoplossOrder(SellOrder order)
         {
             if (order == null)
             {
@@ -314,11 +279,11 @@ namespace StockTrading.Utility
             }
         }
 
-        private void AddActiveStoplossOrder(StoplossOrder order)
+        private void AddActiveStoplossOrder(SellOrder order)
         {
             if (!_activeOrders.ContainsKey(order.SecurityCode))
             {
-                _activeOrders.Add(order.SecurityCode, new List<StoplossOrder>());
+                _activeOrders.Add(order.SecurityCode, new List<SellOrder>());
 
                 CtpSimulator.GetInstance().SubscribeQuote(order.SecurityCode);
             }
@@ -326,9 +291,9 @@ namespace StockTrading.Utility
             _activeOrders[order.SecurityCode].Add(order);
         }
 
-        private bool RemoveActiveStoplossOrder(StoplossOrder order)
+        private bool RemoveActiveStoplossOrder(SellOrder order)
         {
-            List<StoplossOrder> orders;
+            List<SellOrder> orders;
             if (!_activeOrders.TryGetValue(order.SecurityCode, out orders))
             {
                 return false;

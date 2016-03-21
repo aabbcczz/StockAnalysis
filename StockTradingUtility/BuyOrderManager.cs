@@ -14,17 +14,38 @@ namespace StockTrading.Utility
 {
     public sealed class BuyOrderManager
     {
+        public const int MinCancellationIntervalInMillisecond = 1000;
+
         private static BuyOrderManager _instance = null;
 
         private object _orderLockObj = new object();
 
         private IDictionary<string, List<BuyOrder>> _activeOrders = new Dictionary<string, List<BuyOrder>>();
 
-        private HashSet<BuyOrder> _sentOrders = new HashSet<BuyOrder>();
+        private HashSet<DispatchedOrder> _dispatchedOrders = new HashSet<DispatchedOrder>();
 
         public delegate void OnOrderExecutedDelegate(BuyOrder order, float dealPrice, int dealVolume);
 
         public OnOrderExecutedDelegate OnBuyOrderExecuted { get; set; }
+
+        private Timer _cancelOrderTimer = null;
+
+        private int _cancellationIntervalInMillisecond = MinCancellationIntervalInMillisecond;
+
+        public int CancallationIntervalInMillisecond
+        {
+            get { return _cancellationIntervalInMillisecond;  }
+            set
+            {
+                if (value <= 0)
+                {
+                    throw new ArgumentOutOfRangeException("Cancellation interval must be greater than 0");
+                }
+
+                _cancelOrderTimer.Change(value, value);
+                _cancellationIntervalInMillisecond = value;
+            }
+        }
 
         public static BuyOrderManager GetInstance()
         {
@@ -46,6 +67,71 @@ namespace StockTrading.Utility
         {
             CtpSimulator.GetInstance().RegisterQuoteReadyCallback(OnQuoteReady);
             CtpSimulator.GetInstance().RegisterOrderStatusChangedCallback(OnOrderStatusChanged);
+
+            _cancelOrderTimer = new Timer(CancelOrderTimerCallback, null, _cancellationIntervalInMillisecond, _cancellationIntervalInMillisecond);
+        }
+
+        private void CancelOrderTimerCallback(object obj)
+        {
+            if (!Monitor.TryEnter(_orderLockObj))
+            {
+                return;
+            }
+
+            try
+            {
+                DateTime now = DateTime.Now;
+
+                foreach (var dispatchedOrder in _dispatchedOrders)
+                {
+                    try
+                    {
+                        if ((now - dispatchedOrder.DispatchTime).TotalMilliseconds >= _cancellationIntervalInMillisecond)
+                        {
+                            string error;
+
+                            if (!CtpSimulator.GetInstance().CancelOrder(dispatchedOrder, out error))
+                            {
+                                ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+                                if (logger != null)
+                                {
+                                    BuyOrder order = (BuyOrder)dispatchedOrder.Request.AssociatedObject;
+
+                                    logger.ErrorFormat(
+                                        "fail to cancel buy order: order no {0} id {1} code {2} expected price {3}, volume {4}. Error: {5}",
+                                        dispatchedOrder.OrderNo,
+                                        order.OrderId,
+                                        order.SecurityCode,
+                                        order.ExpectedPrice,
+                                        order.RemainingVolumeCanBeBought,
+                                        error);
+                                }
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+                        if (logger != null)
+                        {
+                            BuyOrder order = (BuyOrder)dispatchedOrder.Request.AssociatedObject;
+
+                            logger.ErrorFormat(
+                                "Exception in cancelling buy order: order no {0} id {1} code {2} expected price {3}, volume {4}. Error: {5}",
+                                dispatchedOrder.OrderNo,
+                                order.OrderId,
+                                order.SecurityCode,
+                                order.ExpectedPrice,
+                                order.RemainingVolumeCanBeBought,
+                                ex.ToString());
+                        }
+                    }
+                }
+            }
+            finally
+            {
+                Monitor.Exit(_orderLockObj);
+            }
         }
 
         private bool ShouldBuy(FiveLevelQuote quote, float maxSellPrice, float minSellPrice, int totalSellVolume, BuyOrder order)
@@ -84,10 +170,6 @@ namespace StockTrading.Utility
                     continue;
                 }
 
-                float maxSellPrice = quote.SellPrices.Max();
-                float minSellPrice = quote.SellPrices.Min();
-                int totalSellVolume = ChinaStockHelper.ConvertHandToVolume(quote.SellVolumesInHand.Sum());
-
                 lock (_orderLockObj)
                 {
                     List<BuyOrder> orders;
@@ -96,9 +178,12 @@ namespace StockTrading.Utility
                         continue;
                     }
                     
-                    // copy orders to avoid the "orders" object being updated in 
-                    // SendStoplossOrder function.
+                    // copy orders to avoid the "orders" object being updated in SendBuyOrder function.
                     var OrderCopies = orders.ToArray();
+
+                    float maxSellPrice = quote.SellPrices.Max();
+                    float minSellPrice = quote.SellPrices.Min();
+                    int totalSellVolume = ChinaStockHelper.ConvertHandToVolume(quote.SellVolumesInHand.Sum());
 
                     foreach (var order in OrderCopies)
                     {
@@ -126,7 +211,7 @@ namespace StockTrading.Utility
             {
                 Category = OrderCategory.Buy,
                 Price = order.MaxBidPrice,
-                PricingType = OrderPricingType.MarketPriceMakeDealInFiveGradesThenCancel,
+                PricingType = OrderPricingType.LimitPrice,
                 Volume = order.GetMaxVolumeInHandToBuy(order.MaxBidPrice),
                 SecurityCode = order.SecurityCode,
             };
@@ -140,7 +225,7 @@ namespace StockTrading.Utility
                 if (logger != null)
                 {
                     logger.ErrorFormat(
-                        "Exception in dispatching buy order: id {0} code {1} expected max price {2}, volume {3}. Error: {4}",
+                        "Exception in dispatching buy order: id {0} code {1} expected price {2}, volume {3}. Error: {4}",
                         order.OrderId,
                         order.SecurityCode,
                         order.ExpectedPrice,
@@ -154,7 +239,7 @@ namespace StockTrading.Utility
                 if (logger != null)
                 {
                     logger.InfoFormat(
-                        "Dispatched buy order: id {0} code {1} expected max price {2}, volume {3}.",
+                        "Dispatched buy order: id {0} code {1} expected price {2}, volume {3}.",
                         order.OrderId,
                         order.SecurityCode,
                         order.ExpectedPrice,
@@ -164,7 +249,7 @@ namespace StockTrading.Utility
                 lock (_orderLockObj)
                 {
                     RemoveActiveBuyOrder(order);
-                    AddSentOrder(order);
+                    AddDispatchedOrder(dispatchedOrder);
                 }
 
                 // force query order status.
@@ -179,6 +264,14 @@ namespace StockTrading.Utility
                 return;
             }
 
+            lock (_orderLockObj)
+            {
+                if (!IsDispatchedOrder(dispatchedOrder))
+                {
+                    return;
+                }
+            }
+
             if (dispatchedOrder.Request.AssociatedObject != null)
             {
                 BuyOrder order = dispatchedOrder.Request.AssociatedObject as BuyOrder;
@@ -190,49 +283,35 @@ namespace StockTrading.Utility
 
                 if (TradingHelper.IsFinalStatus(dispatchedOrder.LastStatus))
                 {
-                    lock (_orderLockObj)
+                    ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+                    if (logger != null)
                     {
-                        if (!IsSentOrder(order))
+                        logger.InfoFormat(
+                            "Buy order executed:  id {0} code {1} status {2} succeeded volume {3} deal price {4}.",
+                            order.OrderId,
+                            order.SecurityCode,
+                            dispatchedOrder.LastStatus,
+                            dispatchedOrder.LastDealVolume,
+                            dispatchedOrder.LastDealPrice);
+                    }
+
+                    if (dispatchedOrder.LastDealVolume > 0)
+                    {
+                        order.Fulfill(dispatchedOrder.LastDealPrice, dispatchedOrder.LastDealVolume);
+
+                        // callback to client to notify partial or full success
+                        if (OnBuyOrderExecuted != null)
                         {
-                            return;
+                            OnBuyOrderExecuted(order, dispatchedOrder.LastDealPrice, dispatchedOrder.LastDealVolume);
                         }
+                    }
 
-                        ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-                        if (logger != null)
-                        {
-                            logger.InfoFormat(
-                                "Buy order executed:  id {0} code {1} status {2} succeeded volume {3} deal price {4}.",
-                                order.OrderId,
-                                order.SecurityCode,
-                                dispatchedOrder.LastStatus,
-                                dispatchedOrder.LastDealVolume,
-                                dispatchedOrder.LastDealPrice);
-                        }
+                    RemoveDispatchedOrder(dispatchedOrder);
 
-                        if (dispatchedOrder.LastDealVolume > 0)
-                        {
-                            order.Fulfill(dispatchedOrder.LastDealPrice, dispatchedOrder.LastDealVolume);
-
-                            // callback to client to notify partial or full success
-                            if (OnBuyOrderExecuted != null)
-                            {
-                                OnBuyOrderExecuted(order, dispatchedOrder.LastDealPrice, dispatchedOrder.LastDealVolume);
-                            }
-                        }
-
-                        RemoveSentOrder(order);
-
-                        if (!order.IsCompleted(order.ExpectedPrice))
-                        {
-                            // the order has not been finished yet, put it back into active order
-                            AddActiveBuyOrder(order);
-
-                            if (TradingHelper.IsSucceededFinalStatus(dispatchedOrder.LastStatus))
-                            {
-                                // send out order again
-                                SendBuyOrder(order);
-                            }
-                        }
+                    if (!order.IsCompleted(order.ExpectedPrice))
+                    {
+                        // the order has not been finished yet, put it back into active order
+                        AddActiveBuyOrder(order);
                     }
                 }
             }
@@ -251,7 +330,7 @@ namespace StockTrading.Utility
             }
         }
 
-        public bool UnregisterStoplossOrder(BuyOrder order)
+        public bool UnregisterBuyOrder(BuyOrder order)
         {
             if (order == null)
             {
@@ -296,19 +375,19 @@ namespace StockTrading.Utility
             return removeSucceeded;
         }
 
-        private void AddSentOrder(BuyOrder order)
+        private void AddDispatchedOrder(DispatchedOrder order)
         {
-            _sentOrders.Add(order);
+            _dispatchedOrders.Add(order);
         }
 
-        private bool RemoveSentOrder(BuyOrder order)
+        private bool RemoveDispatchedOrder(DispatchedOrder order)
         {
-            return _sentOrders.Remove(order);
+            return _dispatchedOrders.Remove(order);
         }
 
-        private bool IsSentOrder(BuyOrder order)
+        private bool IsDispatchedOrder(DispatchedOrder order)
         {
-            return _sentOrders.Contains(order);
+            return _dispatchedOrders.Contains(order);
         }
     }
 }

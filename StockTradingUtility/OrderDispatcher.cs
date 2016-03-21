@@ -75,6 +75,7 @@ namespace StockTrading.Utility
 
             DispatchedOrder dispatchedOrder = new DispatchedOrder()
             {
+                DispatchTime = DateTime.Now,
                 OrderNo = result.OrderNo,
                 Request = request,
                 LastDealPrice = 0.0f,
@@ -104,6 +105,7 @@ namespace StockTrading.Utility
                     {
                         DispatchedOrder dispatchedOrder = new DispatchedOrder()
                         {
+                            DispatchTime = DateTime.Now,
                             OrderNo = results[i].OrderNo,
                             Request = requests[i],
                             LastDealPrice = 0.0f,
@@ -153,19 +155,19 @@ namespace StockTrading.Utility
                 return;
             }
 
-            if (_isStopped)
-            {
-                return;
-            }
-
-            if (_client == null || !_client.IsLoggedOn())
-            {
-                return;
-            }
-
             try
             {
-                bool hasActiveOrder = false;
+                if (_isStopped)
+                {
+                    return;
+                }
+
+                if (_client == null || !_client.IsLoggedOn())
+                {
+                    return;
+                }
+
+               bool hasActiveOrder = false;
                 lock (_orderLockObj)
                 {
                     hasActiveOrder = _allActiveOrders.Count > 0;
@@ -186,7 +188,7 @@ namespace StockTrading.Utility
                         ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
                         if (logger != null)
                         {
-                            logger.WarnFormat("Failed to query cancellable order. error: {0}", error);
+                            logger.WarnFormat("Failed to query submitted order. error: {0}", error);
                         }
                     }
                 }
@@ -235,6 +237,16 @@ namespace StockTrading.Utility
 
         private bool CheckOrderStatusChangeAndNotify(ref DispatchedOrder dispatchedOrder, QueryGeneralOrderResult orderResult)
         {
+            if (orderResult.Status == OrderStatus.Unknown)
+            {
+                // log it for debugging and enrich status string
+                ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+                if (logger != null)
+                {
+                    logger.ErrorFormat("Find unknown order status: {0}", orderResult.StatusString);
+                }
+            }
+
             bool isStatusChanged = false;
 
             if (orderResult.Status != dispatchedOrder.LastStatus)

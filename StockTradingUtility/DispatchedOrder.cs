@@ -8,6 +8,8 @@ namespace StockTrading.Utility
 {
     public sealed class DispatchedOrder
     {
+        public DateTime DispatchTime { get; set; }
+
         public int OrderNo { get; set; }
 
         public int LastDealVolume { get; set; }
