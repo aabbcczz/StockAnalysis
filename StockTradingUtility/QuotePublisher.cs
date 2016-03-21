@@ -228,11 +228,7 @@ namespace StockTrading.Utility
             }
             catch (Exception ex)
             {
-                ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-                if (logger != null)
-                {
-                    logger.ErrorFormat("Exception in getting quote: {0}", ex);
-                }
+                Logger.ErrorLogger.ErrorFormat("Exception in getting quote: {0}", ex);
             }
             finally
             {

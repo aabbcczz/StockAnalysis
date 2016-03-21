@@ -92,39 +92,31 @@ namespace StockTrading.Utility
 
                             if (!CtpSimulator.GetInstance().CancelOrder(dispatchedOrder, out error))
                             {
-                                ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-                                if (logger != null)
-                                {
-                                    BuyOrder order = (BuyOrder)dispatchedOrder.Request.AssociatedObject;
+                                BuyOrder order = (BuyOrder)dispatchedOrder.Request.AssociatedObject;
 
-                                    logger.ErrorFormat(
-                                        "fail to cancel buy order: order no {0} id {1} code {2} expected price {3}, volume {4}. Error: {5}",
-                                        dispatchedOrder.OrderNo,
-                                        order.OrderId,
-                                        order.SecurityCode,
-                                        order.ExpectedPrice,
-                                        order.RemainingVolumeCanBeBought,
-                                        error);
-                                }
+                                Logger.ErrorLogger.ErrorFormat(
+                                    "fail to cancel buy order: order no {0} id {1} code {2} expected price {3}, volume {4}. Error: {5}",
+                                    dispatchedOrder.OrderNo,
+                                    order.OrderId,
+                                    order.SecurityCode,
+                                    order.ExpectedPrice,
+                                    order.RemainingVolumeCanBeBought,
+                                    error);
                             }
                         }
                     }
                     catch (Exception ex)
                     {
-                        ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-                        if (logger != null)
-                        {
-                            BuyOrder order = (BuyOrder)dispatchedOrder.Request.AssociatedObject;
+                        BuyOrder order = (BuyOrder)dispatchedOrder.Request.AssociatedObject;
 
-                            logger.ErrorFormat(
-                                "Exception in cancelling buy order: order no {0} id {1} code {2} expected price {3}, volume {4}. Error: {5}",
-                                dispatchedOrder.OrderNo,
-                                order.OrderId,
-                                order.SecurityCode,
-                                order.ExpectedPrice,
-                                order.RemainingVolumeCanBeBought,
-                                ex.ToString());
-                        }
+                        Logger.ErrorLogger.ErrorFormat(
+                            "Exception in cancelling buy order: order no {0} id {1} code {2} expected price {3}, volume {4}. Error: {5}",
+                            dispatchedOrder.OrderNo,
+                            order.OrderId,
+                            order.SecurityCode,
+                            order.ExpectedPrice,
+                            order.RemainingVolumeCanBeBought,
+                            ex.ToString());
                     }
                 }
             }
@@ -221,30 +213,22 @@ namespace StockTrading.Utility
 
             if (dispatchedOrder == null)
             {
-                ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-                if (logger != null)
-                {
-                    logger.ErrorFormat(
-                        "Exception in dispatching buy order: id {0} code {1} expected price {2}, volume {3}. Error: {4}",
-                        order.OrderId,
-                        order.SecurityCode,
-                        order.ExpectedPrice,
-                        order.RemainingVolumeCanBeBought,
-                        error);
-                }
+                Logger.ErrorLogger.ErrorFormat(
+                    "Exception in dispatching buy order: id {0} code {1} expected price {2}, volume {3}. Error: {4}",
+                    order.OrderId,
+                    order.SecurityCode,
+                    order.ExpectedPrice,
+                    order.RemainingVolumeCanBeBought,
+                    error);
             }
             else
             {
-                ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-                if (logger != null)
-                {
-                    logger.InfoFormat(
-                        "Dispatched buy order: id {0} code {1} expected price {2}, volume {3}.",
-                        order.OrderId,
-                        order.SecurityCode,
-                        order.ExpectedPrice,
-                        order.RemainingVolumeCanBeBought);
-                }
+                Logger.InfoLogger.InfoFormat(
+                    "Dispatched buy order: id {0} code {1} expected price {2}, volume {3}.",
+                    order.OrderId,
+                    order.SecurityCode,
+                    order.ExpectedPrice,
+                    order.RemainingVolumeCanBeBought);
 
                 lock (_orderLockObj)
                 {
@@ -283,17 +267,13 @@ namespace StockTrading.Utility
 
                 if (TradingHelper.IsFinalStatus(dispatchedOrder.LastStatus))
                 {
-                    ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-                    if (logger != null)
-                    {
-                        logger.InfoFormat(
-                            "Buy order executed:  id {0} code {1} status {2} succeeded volume {3} deal price {4}.",
-                            order.OrderId,
-                            order.SecurityCode,
-                            dispatchedOrder.LastStatus,
-                            dispatchedOrder.LastDealVolume,
-                            dispatchedOrder.LastDealPrice);
-                    }
+                    Logger.InfoLogger.InfoFormat(
+                        "Buy order executed:  id {0} code {1} status {2} succeeded volume {3} deal price {4}.",
+                        order.OrderId,
+                        order.SecurityCode,
+                        dispatchedOrder.LastStatus,
+                        dispatchedOrder.LastDealVolume,
+                        dispatchedOrder.LastDealPrice);
 
                     if (dispatchedOrder.LastDealVolume > 0)
                     {

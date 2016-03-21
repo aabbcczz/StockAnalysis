@@ -146,8 +146,6 @@ namespace TradingClient
             // TestAccountEncryptionDecryption();
             // TestCalcLimit();
 
-            TradingEnvironment.Initialize();
-
             try
             {
                 var sinaQuote = await SinaStockQuoteInterface.GetQuote("000001");
@@ -389,6 +387,52 @@ namespace TradingClient
             {
                 TradingEnvironment.UnInitialize();
             }
+        }
+
+        private void MainForm_Load(object sender, EventArgs e)
+        {
+            bool enableSinaQuote = false;
+
+            string error;
+
+            TradingEnvironment.Initialize();
+
+            int retryCount = 3;
+            bool initializeSucceeded = false;
+
+            while (retryCount > 0)
+            {
+                if (!CtpSimulator.GetInstance().Initialize(enableSinaQuote, "wt5.foundersc.com", 7708, "6.19", 1, "13003470", 9, "13003470", "789012", string.Empty, out error))
+                {
+                    string errorLog = string.Format("Initialize CtpSimulator failed, error: {0}", error);
+                    Logger.FatalLogger.FatalFormat(errorLog);
+
+                    MessageBox.Show(errorLog, "Fatal error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+
+                    --retryCount;
+
+                    Thread.Sleep(1000);
+
+                    continue;
+                }
+                else
+                {
+                    initializeSucceeded = true;
+                    break;
+                }
+            }
+
+            if (!initializeSucceeded)
+            {
+                Close();
+            }
+        }
+
+        private void MainForm_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            CtpSimulator.GetInstance().UnInitialize();
+
+            TradingEnvironment.UnInitialize();
         }
     }
 }

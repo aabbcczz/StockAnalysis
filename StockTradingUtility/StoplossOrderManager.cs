@@ -183,30 +183,25 @@ namespace StockTrading.Utility
 
             if (dispatchedOrder == null)
             {
-                ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-                if (logger != null)
-                {
-                    logger.ErrorFormat(
-                        "Exception in dispatching stop loss order: id {0} code {1} stoploss price {2}, volume {3}. Error: {4}",
-                        order.OrderId,
-                        order.SecurityCode,
-                        order.StoplossPrice,
-                        order.RemainingVolume,
-                        error);
-                }
+
+                Logger.ErrorLogger.ErrorFormat(
+                    "Exception in dispatching stop loss order: id {0} code {1} stoploss price {2}, volume {3}. Error: {4}",
+                    order.OrderId,
+                    order.SecurityCode,
+                    order.StoplossPrice,
+                    order.RemainingVolume,
+                    error);
+
             }
             else
             {
-                ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-                if (logger != null)
-                {
-                    logger.InfoFormat(
-                        "Dispatched stop loss order: id {0} code {1} stoploss price {2}, volume {3}.",
-                        order.OrderId,
-                        order.SecurityCode,
-                        order.StoplossPrice,
-                        order.RemainingVolume);
-                }
+
+                Logger.InfoLogger.InfoFormat(
+                    "Dispatched stop loss order: id {0} code {1} stoploss price {2}, volume {3}.",
+                    order.OrderId,
+                    order.SecurityCode,
+                    order.StoplossPrice,
+                    order.RemainingVolume);
 
                 lock (_orderLockObj)
                 {
@@ -247,17 +242,13 @@ namespace StockTrading.Utility
                 {
                     lock (_orderLockObj)
                     {
-                        ILog logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-                        if (logger != null)
-                        {
-                            logger.InfoFormat(
-                                "Stoploss order executed:  id {0} code {1} status {2} succeeded volume {3} deal price {4}.",
-                                order.OrderId,
-                                order.SecurityCode,
-                                dispatchedOrder.LastStatus,
-                                dispatchedOrder.LastDealVolume,
-                                dispatchedOrder.LastDealPrice);
-                        }
+                        Logger.InfoLogger.InfoFormat(
+                            "Stoploss order executed:  id {0} code {1} status {2} succeeded volume {3} deal price {4}.",
+                            order.OrderId,
+                            order.SecurityCode,
+                            dispatchedOrder.LastStatus,
+                            dispatchedOrder.LastDealVolume,
+                            dispatchedOrder.LastDealPrice);
 
                         if (dispatchedOrder.LastDealVolume > 0)
                         {

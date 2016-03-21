@@ -51,6 +51,9 @@
     <Reference Include="CsvHelper">
       <HintPath>..\SharedUtilityDll\CsvHelper.dll</HintPath>
     </Reference>
+    <Reference Include="log4net">
+      <HintPath>..\SharedUtilityDll\log4net.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Net.Http" />
@@ -72,6 +75,7 @@
     <Compile Include="FinanceReportRow.cs" />
     <Compile Include="FinanceReportTable.cs" />
     <Compile Include="LinearRegression.cs" />
+    <Compile Include="Logger.cs" />
     <Compile Include="MetricHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="PropertyComparer.cs" />
