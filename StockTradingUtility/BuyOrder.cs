@@ -37,6 +37,11 @@ namespace StockTrading.Utility
         public float MaxBidPrice { get; private set; }
 
         /// <summary>
+        /// 初始数量
+        /// </summary>
+        public int OriginalVolume { get; private set; }
+
+        /// <summary>
         /// 已购买数量
         /// </summary>
         public int BoughtVolume { get; private set; }
@@ -61,6 +66,7 @@ namespace StockTrading.Utility
             SecurityCode = instruction.SecurityCode;
             Exchange = StockTrading.Utility.Exchange.GetTradeableExchangeForSecurity(SecurityCode);
             BoughtVolume = 0;
+            OriginalVolume = instruction.MaxVolumeCanBeBought;
             RemainingCapitalCanBeUsed = instruction.MaxCapitalCanBeUsed;
             RemainingVolumeCanBeBought = instruction.MaxVolumeCanBeBought;
         }
