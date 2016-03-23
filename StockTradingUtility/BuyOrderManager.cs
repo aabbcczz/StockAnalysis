@@ -24,9 +24,9 @@ namespace StockTrading.Utility
 
         private HashSet<DispatchedOrder> _dispatchedOrders = new HashSet<DispatchedOrder>();
 
-        public delegate void OnOrderExecutedDelegate(BuyOrder order, float dealPrice, int dealVolume);
+        public delegate void OnBuyOrderExecutedDelegate(BuyOrder order, float dealPrice, int dealVolume);
 
-        public OnOrderExecutedDelegate OnBuyOrderExecuted { get; set; }
+        public OnBuyOrderExecutedDelegate OnBuyOrderExecuted { get; set; }
 
         private Timer _cancelOrderTimer = null;
 

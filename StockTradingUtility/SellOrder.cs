@@ -12,6 +12,8 @@ namespace StockTrading.Utility
 
         public string SecurityCode { get; private set; }
 
+        public string SecurityName { get; private set; }
+
         public float SellPrice { get; private set; }
 
         public int RemainingVolume { get; private set; }
@@ -20,7 +22,7 @@ namespace StockTrading.Utility
 
         public Exchange Exchange { get; private set; }
 
-        public SellOrder(string securityCode, float sellPrice, int volume)
+        public SellOrder(string securityCode, string securityName, float sellPrice, int volume)
         {
             if (string.IsNullOrWhiteSpace(securityCode))
             {
@@ -33,6 +35,7 @@ namespace StockTrading.Utility
             }
 
             SecurityCode = securityCode;
+            SecurityName = securityName;
             SellPrice = sellPrice;
             OriginalVolume = volume;
             RemainingVolume = volume;

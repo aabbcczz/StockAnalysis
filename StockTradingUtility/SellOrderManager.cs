@@ -173,7 +173,7 @@ namespace StockTrading.Utility
 
                 lock (_orderLockObj)
                 {
-                    RemoveActiveStoplossOrder(order);
+                    RemoveActiveSellOrder(order);
                     AddDispatchedOrder(dispatchedOrder);
                 }
 
@@ -235,14 +235,14 @@ namespace StockTrading.Utility
                         if (!order.IsCompleted())
                         {
                             // the order has not been finished yet, put it back into active order
-                            AddActiveStoplossOrder(order);
+                            AddActiveSellOrder(order);
                         }
                     }
                 }
             }
         }
 
-        public void RegisterStoplossOrder(SellOrder order)
+        public void RegisterSellOrder(SellOrder order)
         {
             if (order == null)
             {
@@ -251,11 +251,11 @@ namespace StockTrading.Utility
 
             lock (_orderLockObj)
             {
-                AddActiveStoplossOrder(order);
+                AddActiveSellOrder(order);
             }
         }
 
-        public bool UnregisterStoplossOrder(SellOrder order)
+        public bool UnregisterSellOrder(SellOrder order)
         {
             if (order == null)
             {
@@ -264,11 +264,11 @@ namespace StockTrading.Utility
 
             lock (_orderLockObj)
             {
-                return RemoveActiveStoplossOrder(order);
+                return RemoveActiveSellOrder(order);
             }
         }
 
-        private void AddActiveStoplossOrder(SellOrder order)
+        private void AddActiveSellOrder(SellOrder order)
         {
             if (!_activeOrders.ContainsKey(order.SecurityCode))
             {
@@ -280,7 +280,7 @@ namespace StockTrading.Utility
             _activeOrders[order.SecurityCode].Add(order);
         }
 
-        private bool RemoveActiveStoplossOrder(SellOrder order)
+        private bool RemoveActiveSellOrder(SellOrder order)
         {
             List<SellOrder> orders;
             if (!_activeOrders.TryGetValue(order.SecurityCode, out orders))

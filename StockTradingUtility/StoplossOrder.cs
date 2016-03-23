@@ -11,7 +11,7 @@ namespace StockTrading.Utility
         public Guid OrderId { get; private set; }
 
         public string SecurityCode { get; private set; }
-
+        public string SecurityName { get; private set; }
         public float StoplossPrice { get; private set; }
 
         public int RemainingVolume { get; private set; }
@@ -20,7 +20,7 @@ namespace StockTrading.Utility
 
         public Exchange Exchange { get; private set; }
 
-        public StoplossOrder(string securityCode, float stoplossPrice, int volume)
+        public StoplossOrder(string securityCode, string securityName, float stoplossPrice, int volume)
         {
             if (string.IsNullOrWhiteSpace(securityCode))
             {
@@ -33,6 +33,7 @@ namespace StockTrading.Utility
             }
 
             SecurityCode = securityCode;
+            SecurityName = securityName;
             StoplossPrice = stoplossPrice;
             OriginalVolume = volume;
             RemainingVolume = volume;

@@ -193,6 +193,8 @@ namespace StockTrading.Utility
                     subsets.Add(subset);
                 }
 
+                System.Diagnostics.Debug.Assert(subsets.Count > 0);
+
                 Parallel.ForEach(
                     subsets,
                     async subset => 
@@ -219,6 +221,17 @@ namespace StockTrading.Utility
                                     {
                                         quotes[i].DealAmount = sinaQuotes[i].DealAmount;
                                         quotes[i].DealVolumeInHand = sinaQuotes[i].DealVolumeInHand;
+                                    }
+                                }
+                            }
+
+                            if (AppLogger.Default.IsDebugEnabled)
+                            {
+                                for (int i = 0; i < quotes.Length; ++i)
+                                {
+                                    if (!string.IsNullOrEmpty(errors[i]))
+                                    {
+                                        AppLogger.Default.DebugFormat("Fail to get quote for {0}: {1}", subset[i], errors[i]);
                                     }
                                 }
                             }

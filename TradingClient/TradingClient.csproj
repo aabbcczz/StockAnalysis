@@ -52,6 +52,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="StrategyGDBExecuter.cs" />
     <Compile Include="StrategyGDB\ExistingStockToMaintain.cs" />
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
@@ -59,7 +60,7 @@
     <Compile Include="MainForm.Designer.cs">
       <DependentUpon>MainForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="StrategyGDB\InputReader.cs" />
+    <Compile Include="StrategyGDB\DataFileReaderWriter.cs" />
     <Compile Include="StrategyGDB\NewStockToBuy.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
