@@ -39,24 +39,43 @@ namespace TradingClient
 
         public IEnumerable<BuyOrder> ActiveBuyOrders
         {
-            get { return new List<BuyOrder>(_buyOrders); }
+            get 
+            {
+                lock (_lockObj)
+                {
+                    return new List<BuyOrder>(_buyOrders);
+                }
+            }
         }
 
         public IEnumerable<StoplossOrder> ActiveStoplossOrders
         {
-            get { return new List<StoplossOrder>(_stoplossOrders); }
+            get 
+            {
+                lock (_lockObj)
+                {
+                    return new List<StoplossOrder>(_stoplossOrders);
+                }
+            }
         }
 
         public IEnumerable<SellOrder> ActiveSellOrders
         {
-            get { return new List<SellOrder>(_sellOrders); }
+            get 
+            {
+                lock (_lockObj)
+                {
+                    return new List<SellOrder>(_sellOrders);
+                }
+            }
         }
 
         public StrategyGdbExecuter()
         {
+            Initialize();
         }
 
-        public void Initialize()
+        private void Initialize()
         {
             StrategyGDB.DataFileReaderWriter rw = new StrategyGDB.DataFileReaderWriter(DataFileFolder);
 
@@ -160,6 +179,15 @@ namespace TradingClient
 
                 foreach (var order in _stoplossOrders)
                 {
+                    // remove sell order if have
+                    var sellOrder = _sellOrders.FirstOrDefault(s => s.SecurityCode == order.SecurityCode);
+                    if (sellOrder != default(SellOrder))
+                    {
+                        _sellOrders.Remove(sellOrder);
+                        SellOrderManager.GetInstance().UnregisterSellOrder(sellOrder);
+
+                    }
+
                     StoplossOrderManager.GetInstance().RegisterStoplossOrder(order);
                 }
             }
@@ -174,15 +202,7 @@ namespace TradingClient
                     return;
                 }
 
-                // remove sell order if have
-                var sellOrder = _sellOrders.FirstOrDefault(s => s.SecurityCode == order.SecurityCode);
-                if (sellOrder != default(SellOrder))
-                {
-                    _sellOrders.Remove(sellOrder);
-                    SellOrderManager.GetInstance().UnregisterSellOrder(sellOrder);
-
-                }
-
+                // remove from existing stock index, so that no any sell order can be created for this stock
                 _activeExistingStockIndex.Remove(order.SecurityCode);
             }
 
@@ -227,15 +247,7 @@ namespace TradingClient
                     return;
                 }
 
-                // remove stop loss order if have
-                var stoplossOrder = _stoplossOrders.FirstOrDefault(s => s.SecurityCode == order.SecurityCode);
-                if (stoplossOrder != default(StoplossOrder))
-                {
-                    _stoplossOrders.Remove(stoplossOrder);
-
-                    StoplossOrderManager.GetInstance().UnregisterStoplossOrder(stoplossOrder);
-                }
-
+                // remove from existing stock index, so that no any stop loss order can be created for this stock
                 _activeExistingStockIndex.Remove(order.SecurityCode);
             }
 
@@ -303,6 +315,21 @@ namespace TradingClient
                 && Math.Abs(quote.TodayOpenPrice - upLimitPrice) > 0.001 // not 一字板
                 && stock.HoldDays > 1)
             {
+                // remove stop loss order if have
+                var stoplossOrder = _stoplossOrders.FirstOrDefault(s => s.SecurityCode == stock.SecurityCode);
+                if (stoplossOrder != default(StoplossOrder))
+                {
+                    _stoplossOrders.Remove(stoplossOrder);
+
+                    StoplossOrderManager.GetInstance().UnregisterStoplossOrder(stoplossOrder);
+
+                    // need to add back to existing stock index
+                    // TODO
+                    // TODO
+                    // TODO
+                    // TODO
+                }
+
                 SellOrder order = new SellOrder(stock.SecurityCode, stock.SecurityName, upLimitPrice, stock.Volume);
 
                 _sellOrders.Add(order);
@@ -337,6 +364,20 @@ namespace TradingClient
 
             var stock = _activeNewStockIndex[quote.SecurityCode];
             
+            if (stock.DateToBuy.Date != DateTime.Today)
+            {
+                // remove from active new stock
+                _activeNewStockIndex.Remove(quote.SecurityCode);
+
+                AppLogger.Default.WarnFormat(
+                    "The buy date of stock {0:yyyy-MM-dd} is not today. {1}/{2}",
+                    stock.DateToBuy,
+                    stock.SecurityCode,
+                    stock.SecurityName);
+
+                return;
+            }
+
             // judge if open price is in valid range
             if (float.IsNaN(stock.ActualOpenPrice))
             {
@@ -350,7 +391,9 @@ namespace TradingClient
                     stock.OpenPriceDownLimitPercentage - 100.0f, 
                     2);
 
-                if (quote.TodayOpenPrice < downLimitPrice || quote.TodayOpenPrice > upLimitPrice)
+                if (quote.TodayOpenPrice < downLimitPrice 
+                    || quote.TodayOpenPrice > upLimitPrice 
+                    || quote.TodayOpenPrice < stock.StoplossPrice)
                 {
                     // remove from active new stock
                     _activeNewStockIndex.Remove(quote.SecurityCode);

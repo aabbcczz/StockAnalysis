@@ -11,6 +11,7 @@ namespace TradingClient.StrategyGDB
         public DateTime DateToBuy { get; set; }
         public string SecurityCode { get; set; }
         public string SecurityName { get; set; }
+        public float StoplossPrice { get; set; }
         public float ActualOpenPrice { get; set; }
         public float OpenPriceUpLimitPercentage { get; set; }
         public float OpenPriceDownLimitPercentage { get; set; }

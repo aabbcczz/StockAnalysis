@@ -268,30 +268,33 @@ namespace StockTrading.Utility
                 if (TradingHelper.IsFinalStatus(dispatchedOrder.LastStatus))
                 {
                     AppLogger.Default.InfoFormat(
-                        "Buy order executed:  id {0} code {1} status {2} succeeded volume {3} deal price {4}.",
-                        order.OrderId,
-                        order.SecurityCode,
-                        dispatchedOrder.LastStatus,
-                        dispatchedOrder.LastDealVolume,
-                        dispatchedOrder.LastDealPrice);
+                         "Buy order executed:  id {0} code {1} status {2} succeeded volume {3} deal price {4}.",
+                         order.OrderId,
+                         order.SecurityCode,
+                         dispatchedOrder.LastStatus,
+                         dispatchedOrder.LastDealVolume,
+                         dispatchedOrder.LastDealPrice);
 
-                    if (dispatchedOrder.LastDealVolume > 0)
+                    lock (_orderLockObj)
                     {
-                        order.Fulfill(dispatchedOrder.LastDealPrice, dispatchedOrder.LastDealVolume);
-
-                        // callback to client to notify partial or full success
-                        if (OnBuyOrderExecuted != null)
+                        if (dispatchedOrder.LastDealVolume > 0)
                         {
-                            OnBuyOrderExecuted(order, dispatchedOrder.LastDealPrice, dispatchedOrder.LastDealVolume);
+                            order.Fulfill(dispatchedOrder.LastDealPrice, dispatchedOrder.LastDealVolume);
+
+                            // callback to client to notify partial or full success
+                            if (OnBuyOrderExecuted != null)
+                            {
+                                OnBuyOrderExecuted(order, dispatchedOrder.LastDealPrice, dispatchedOrder.LastDealVolume);
+                            }
                         }
-                    }
 
-                    RemoveDispatchedOrder(dispatchedOrder);
+                        RemoveDispatchedOrder(dispatchedOrder);
 
-                    if (!order.IsCompleted(order.ExpectedPrice))
-                    {
-                        // the order has not been finished yet, put it back into active order
-                        AddActiveBuyOrder(order);
+                        if (!order.IsCompleted(order.ExpectedPrice))
+                        {
+                            // the order has not been finished yet, put it back into active order
+                            AddActiveBuyOrder(order);
+                        }
                     }
                 }
             }
@@ -338,18 +341,51 @@ namespace StockTrading.Utility
         private bool RemoveActiveBuyOrder(BuyOrder order)
         {
             List<BuyOrder> orders;
-            if (!_activeOrders.TryGetValue(order.SecurityCode, out orders))
+            bool removeSucceeded = false;
+            if (_activeOrders.TryGetValue(order.SecurityCode, out orders))
             {
-                return false;
+                removeSucceeded = orders.Remove(order);
+
+                if (orders.Count == 0)
+                {
+                    _activeOrders.Remove(order.SecurityCode);
+
+                    CtpSimulator.GetInstance().UnsubscribeQuote(order.SecurityCode);
+                }
             }
 
-            bool removeSucceeded = orders.Remove(order);
-
-            if (orders.Count == 0)
+            if (!removeSucceeded)
             {
-                _activeOrders.Remove(order.SecurityCode);
+                // maybe the order has been dispatched, we need to cancel it
+                var dispatchedOrder = _dispatchedOrders.FirstOrDefault(o => object.ReferenceEquals(o.Request.AssociatedObject, order));
 
-                CtpSimulator.GetInstance().UnsubscribeQuote(order.SecurityCode);
+                if (dispatchedOrder != null)
+                {
+                    // Here we can't remove the dispatched order from _dispatchedOrders because cancel operation will trigger
+                    // onOrderStatusChanged callback and the dispatched order must be kept in _dispatchedOrders.
+                    string error;
+                    CtpSimulator.GetInstance().CancelOrder(dispatchedOrder, out error);
+
+                    if (!string.IsNullOrEmpty(error))
+                    {
+                        AppLogger.Default.ErrorFormat(
+                            "Cancel dispatched stoploss order failed. Error: {0}. Order: {1}, {2}/{3}",
+                            error,
+                            order.OrderId,
+                            order.SecurityCode,
+                            order.SecurityName);
+
+                        removeSucceeded = false;
+                    }
+                    else
+                    {
+                        removeSucceeded = true;
+                    }
+                }
+                else
+                {
+                    removeSucceeded = true;
+                }
             }
 
             return removeSucceeded;

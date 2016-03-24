@@ -52,6 +52,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="StockRuntime.cs" />
     <Compile Include="StrategyGDBExecuter.cs" />
     <Compile Include="StrategyGDB\ExistingStockToMaintain.cs" />
     <Compile Include="MainForm.cs">

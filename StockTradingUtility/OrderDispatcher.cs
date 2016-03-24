@@ -131,7 +131,40 @@ namespace StockTrading.Utility
 
         public bool CancelOrder(DispatchedOrder order, out string error)
         {
-            return _client.CancelOrder(order.Request.SecurityCode, order.OrderNo, out error);
+            bool cancelSucceeded = _client.CancelOrder(order.Request.SecurityCode, order.OrderNo, out error);
+
+            if (cancelSucceeded)
+            {
+                do
+                {
+                    var submittedOrders = _client.QuerySubmittedOrderToday(out error).ToList();
+
+                    if (submittedOrders.Count() == 0)
+                    {
+                        if (!string.IsNullOrEmpty(error))
+                        {
+                            AppLogger.Default.WarnFormat("Failed to query submitted order. error: {0}", error);
+                            return false;
+                        }
+                        else
+                        {
+                            return true;
+                        }
+                    }
+
+                    foreach (var submitedOrder in submittedOrders)
+                    {
+                        if (submitedOrder.OrderNo == order.OrderNo && TradingHelper.IsFinalStatus(submitedOrder.Status))
+                        {
+                            return true;
+                        }
+                    }
+
+                    Thread.Sleep(1000);
+                } while (true);
+            }
+
+            return false;
         }
 
         public bool[] CancelOrder(DispatchedOrder[] orders, out string[] errors)
@@ -139,7 +172,64 @@ namespace StockTrading.Utility
             var codes = orders.Select(o => o.Request.SecurityCode).ToArray();
             var orderNos = orders.Select(o => o.OrderNo).ToArray();
 
-            return _client.CancelOrder(codes, orderNos, out errors);
+            bool[] succeededFlags = _client.CancelOrder(codes, orderNos, out errors);
+
+            bool[] finalSucceededFlags = new bool[succeededFlags.Length];
+            Array.Clear(finalSucceededFlags, 0, finalSucceededFlags.Length);
+
+            do
+            {
+                string error;
+                var submittedOrders = _client.QuerySubmittedOrderToday(out error).ToList();
+
+                if (submittedOrders.Count() == 0)
+                {
+                    if (!string.IsNullOrEmpty(error))
+                    {
+                        AppLogger.Default.WarnFormat("Failed to query submitted order. error: {0}", error);
+                        
+                        for (int i = 0; i < succeededFlags.Length; ++i)
+                        {
+                            if (succeededFlags[i] && !finalSucceededFlags[i])
+                            {
+                                succeededFlags[i] = false;
+                                finalSucceededFlags[i] = false;
+                                errors[i] = error;
+                            }
+                        }
+                    }
+
+                    return finalSucceededFlags;
+                }
+
+                foreach (var submitedOrder in submittedOrders)
+                {
+                    for (int i = 0; i < succeededFlags.Length; ++i)
+                    {
+                        if (succeededFlags[i] && !finalSucceededFlags[i])
+                        {
+                            if (submitedOrder.OrderNo == orders[i].OrderNo && TradingHelper.IsFinalStatus(submitedOrder.Status))
+                            {
+                                finalSucceededFlags[i] = true;
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                int pendingOrderCount = Enumerable
+                    .Range(0, succeededFlags.Length)
+                    .Count(i => succeededFlags[i] && !finalSucceededFlags[i]);
+
+                if (pendingOrderCount == 0)
+                {
+                    break;
+                }
+
+                Thread.Sleep(1000);
+            } while (true);
+
+            return finalSucceededFlags;
         }
 
         public void QueryOrderStatusForcibly()
