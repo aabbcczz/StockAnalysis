@@ -421,15 +421,19 @@ namespace TradingClient
             // only buy those stock which has been raised over open price
             if (quote.CurrentPrice > quote.TodayOpenPrice)
             {
-                BuyInstruction ins = new BuyInstruction(
+                float downLimitPrice = (float)ChinaStockHelper.CalculateDownLimit(stock.SecurityCode, stock.SecurityName, quote.YesterdayClosePrice, 2);
+                float minBuyPrice = Math.Max(stock.StoplossPrice, downLimitPrice);
+
+                BuyInstruction instruction = new BuyInstruction(
                     stock.SecurityCode, 
                     stock.SecurityName,
+                    minBuyPrice,
                     stock.ActualMaxBuyPrice,
                     stock.ActualMaxBuyPrice,
                     stock.TotalCapital,
                     (int)(stock.TotalCapital / stock.ActualMaxBuyPrice));
 
-                BuyOrder order = new BuyOrder(ins);
+                BuyOrder order = new BuyOrder(instruction);
 
                 _buyOrders.Add(order);
 

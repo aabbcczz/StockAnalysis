@@ -7,24 +7,12 @@ using System.Threading.Tasks;
 using StockAnalysis.Share;
 namespace StockTrading.Utility
 {
-    public sealed class BuyOrder
+    public sealed class BuyOrder : OrderBase
     {
-        public Guid OrderId { get; private set; }
-
         /// <summary>
-        /// 证券代码
+        /// 最小的购买价格, 通常是跌停价
         /// </summary>
-        public string SecurityCode { get; private set; }
-
-        /// <summary>
-        /// 证券名称
-        /// </summary>
-        public string SecurityName { get; private set; }
-
-        /// <summary>
-        /// 所属交易所
-        /// </summary>
-        public Exchange Exchange { get; private set; }
+        public float MinBuyPrice { get; private set; }
 
         /// <summary>
         /// 期待的购买价格
@@ -37,16 +25,6 @@ namespace StockTrading.Utility
         public float MaxBidPrice { get; private set; }
 
         /// <summary>
-        /// 初始数量
-        /// </summary>
-        public int OriginalVolume { get; private set; }
-
-        /// <summary>
-        /// 已购买数量
-        /// </summary>
-        public int BoughtVolume { get; private set; }
-
-        /// <summary>
         /// 还可以用于购买的资金量
         /// </summary>
         public float RemainingCapitalCanBeUsed { get; private set; }
@@ -57,25 +35,20 @@ namespace StockTrading.Utility
         public int RemainingVolumeCanBeBought { get; private set; }
 
         public BuyOrder(BuyInstruction instruction)
+            : base(instruction.SecurityCode, instruction.SecurityName, instruction.MaxVolumeCanBeBought)
         {
-            OrderId = Guid.NewGuid();
-
+            MinBuyPrice = instruction.MinBuyPrice;
             ExpectedPrice = instruction.ExpectedPrice;
             MaxBidPrice = instruction.MaxBidPrice;
-            SecurityName = instruction.SecurityName;
-            SecurityCode = instruction.SecurityCode;
-            Exchange = StockTrading.Utility.Exchange.GetTradeableExchangeForSecurity(SecurityCode);
-            BoughtVolume = 0;
-            OriginalVolume = instruction.MaxVolumeCanBeBought;
             RemainingCapitalCanBeUsed = instruction.MaxCapitalCanBeUsed;
             RemainingVolumeCanBeBought = instruction.MaxVolumeCanBeBought;
         }
 
-        public void Fulfill(float dealPrice, int dealVolume)
+        public override void Fulfill(float dealPrice, int dealVolume)
         {
             lock (this)
             {
-                BoughtVolume += dealVolume;
+                ExecutedVolume += dealVolume;
                 RemainingVolumeCanBeBought -= dealVolume;
                 RemainingCapitalCanBeUsed -= dealPrice * dealVolume;
             }
@@ -88,29 +61,40 @@ namespace StockTrading.Utility
         /// <returns></returns>
         public int GetMaxVolumeInHandToBuy(float estimatedPrice)
         {
-            int minVolume = Math.Max(
-                0, 
-                (int)Math.Min(
-                    RemainingCapitalCanBeUsed / estimatedPrice, 
-                    (float)RemainingVolumeCanBeBought));
+            lock (this)
+            {
+                int minVolume = Math.Max(
+                    0,
+                    (int)Math.Min(
+                        RemainingCapitalCanBeUsed / estimatedPrice,
+                        (float)RemainingVolumeCanBeBought));
 
-            return minVolume / ChinaStockHelper.VolumePerHand;
+                return minVolume / ChinaStockHelper.VolumePerHand;
+            }
         }
 
-        public bool IsCompleted(float minPrice)
+        public override bool IsCompleted()
         {
-            if (minPrice <= 0.0)
+            lock (this)
             {
-                throw new ArgumentOutOfRangeException();
-            }
+                if (RemainingCapitalCanBeUsed < MinBuyPrice * ChinaStockHelper.VolumePerHand
+                    || RemainingVolumeCanBeBought < ChinaStockHelper.VolumePerHand)
+                {
+                    return true;
+                }
 
-            if (RemainingCapitalCanBeUsed < minPrice * ChinaStockHelper.VolumePerHand
-                || RemainingVolumeCanBeBought < ChinaStockHelper.VolumePerHand)
-            {
-                return true;
+                return false;
             }
+        }
 
-            return false;
+        public override OrderRequest BuildRequest(FiveLevelQuote quote)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override bool ShouldExecute(FiveLevelQuote quote)
+        {
+            throw new NotImplementedException();
         }
     }
 }

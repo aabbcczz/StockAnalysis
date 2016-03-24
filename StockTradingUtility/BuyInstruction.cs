@@ -11,6 +11,11 @@ namespace StockTrading.Utility
     public sealed class BuyInstruction
     {
         /// <summary>
+        /// 最小的购买价格, 通常是跌停价
+        /// </summary>
+        public float MinBuyPrice { get; private set; }
+
+        /// <summary>
         /// 期待的购买价格
         /// </summary>
         public float ExpectedPrice { get; private set; }
@@ -40,7 +45,7 @@ namespace StockTrading.Utility
         /// </summary>
         public string SecurityName { get; private set; }
 
-        public BuyInstruction(string code, string name, float expectedPrice, float maxBidPrice, float maxCapital, int maxVolume)
+        public BuyInstruction(string code, string name, float minBuyPrice, float expectedPrice, float maxBidPrice, float maxCapital, int maxVolume)
         {
             if (string.IsNullOrEmpty(code) || string.IsNullOrEmpty(name))
             {
@@ -49,6 +54,7 @@ namespace StockTrading.Utility
 
             if (expectedPrice <= 0.0
                 || maxBidPrice < expectedPrice
+                || MinBuyPrice > expectedPrice
                 || maxCapital <= 0.0
                 || maxVolume < 1 * ChinaStockHelper.VolumePerHand)
             {
@@ -57,6 +63,7 @@ namespace StockTrading.Utility
 
             SecurityCode = code;
             SecurityName = name;
+            MinBuyPrice = minBuyPrice;
             ExpectedPrice = expectedPrice;
             MaxBidPrice = maxBidPrice;
             MaxCapitalCanBeUsed = maxCapital;

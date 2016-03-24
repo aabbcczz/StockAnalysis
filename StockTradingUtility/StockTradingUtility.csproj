@@ -75,6 +75,7 @@
     <Compile Include="DispatchedOrder.cs" />
     <Compile Include="Exchange.cs" />
     <Compile Include="HistoryDataCategory.cs" />
+    <Compile Include="OrderBase.cs" />
     <Compile Include="OrderCategory.cs" />
     <Compile Include="OrderDispatcher.cs" />
     <Compile Include="OrderPricingType.cs" />

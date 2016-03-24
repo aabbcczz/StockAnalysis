@@ -290,7 +290,7 @@ namespace StockTrading.Utility
 
                         RemoveDispatchedOrder(dispatchedOrder);
 
-                        if (!order.IsCompleted(order.ExpectedPrice))
+                        if (!order.IsCompleted())
                         {
                             // the order has not been finished yet, put it back into active order
                             AddActiveBuyOrder(order);
