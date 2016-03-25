@@ -103,5 +103,33 @@ namespace StockTrading.Utility
                     return false;
             }
         }
+
+        public static double GetUpLimitPrice(this FiveLevelQuote quote)
+        {
+            return ChinaStockHelper.CalculateUpLimit(quote.SecurityCode, quote.SecurityName, quote.YesterdayClosePrice, 2);
+        }
+
+        public static double GetDownLimitPrice(this FiveLevelQuote quote)
+        {
+            return ChinaStockHelper.CalculateDownLimit(quote.SecurityCode, quote.SecurityName, quote.YesterdayClosePrice, 2);
+        }
+
+        public static bool IsTradingStopped(this FiveLevelQuote quote)
+        {
+            return quote.BuyVolumesInHand.Sum() == 0 && quote.SellVolumesInHand.Sum() == 0;
+        }
+
+        public static bool IsUpLimited(this FiveLevelQuote quote)
+        {
+            float upLimitPrice = (float)quote.GetUpLimitPrice();
+
+            return quote.CurrentPrice == upLimitPrice && quote.SellVolumesInHand.Sum() == 0;
+        }
+
+        public static bool IsDownLimited(this FiveLevelQuote quote)
+        {
+            float downLimitPrice = (float)quote.GetDownLimitPrice();
+            return quote.CurrentPrice == downLimitPrice && quote.BuyVolumesInHand.Sum() == 0;
+        }
     }
 }

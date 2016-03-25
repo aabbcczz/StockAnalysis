@@ -42,11 +42,14 @@ namespace StockTrading.Utility
             MaxBidPrice = instruction.MaxBidPrice;
             RemainingCapitalCanBeUsed = instruction.MaxCapitalCanBeUsed;
             RemainingVolumeCanBeBought = instruction.MaxVolumeCanBeBought;
+
+            ShouldCancelIfNotSucceeded = true;
         }
 
-        public override void Fulfill(float dealPrice, int dealVolume)
+        public override void Deal(float dealPrice, int dealVolume)
         {
-            ExecutedVolume += dealVolume;
+            base.Deal(dealPrice, dealVolume);
+
             RemainingVolumeCanBeBought -= dealVolume;
             RemainingCapitalCanBeUsed -= dealPrice * dealVolume;
         }
@@ -80,12 +83,28 @@ namespace StockTrading.Utility
 
         public override OrderRequest BuildRequest(FiveLevelQuote quote)
         {
-            throw new NotImplementedException();
+            OrderRequest request = new OrderRequest(this);
+
+            request.SecurityCode = SecurityCode;
+            request.SecurityName = SecurityName;
+            request.Category = OrderCategory.Buy;
+            request.Price = MaxBidPrice;
+            request.PricingType = OrderPricingType.LimitPrice;
+            request.Volume = GetMaxVolumeInHandToBuy(MaxBidPrice);
+
+            return request;
         }
 
         public override bool ShouldExecute(FiveLevelQuote quote)
         {
-            throw new NotImplementedException();
+            bool shouldBuy = false;
+
+            if (ExpectedPrice >= quote.SellPrices.Min())
+            {
+                shouldBuy = true;
+            }
+
+            return shouldBuy; 
         }
 
         public override string ToString()

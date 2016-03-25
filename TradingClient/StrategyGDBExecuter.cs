@@ -18,18 +18,16 @@ namespace TradingClient
         private readonly TimeSpan _startPublishStoplossOrderTime = new TimeSpan(9, 30, 0);
         private readonly TimeSpan _endPublishStoplossOrderTime = new TimeSpan(14, 56, 0);
         private readonly TimeSpan _startPublishBuyOrderTime = new TimeSpan(9, 30, 0);
-        private readonly TimeSpan _endPublishBuyOrderTime = new TimeSpan(14, 56, 0);
-        private readonly TimeSpan _startPublishSellOrderTime = new TimeSpan(14, 56, 0);
+        private readonly TimeSpan _endPublishBuyOrderTime = new TimeSpan(14, 55, 0);
+        private readonly TimeSpan _startPublishSellOrderTime = new TimeSpan(14, 55, 0);
         private readonly TimeSpan _endPublishSellOrderTime = new TimeSpan(14, 57, 0);
         
-        private List<StrategyGDB.NewStockToBuy> _newStocks = null;
-        private List<StrategyGDB.ExistingStockToMaintain> _existingStocks = null;
+        private List<StrategyGDB.NewStock> _newStocks = null;
+        private List<StrategyGDB.ExistingStock> _existingStocks = null;
         
         private HashSet<string> _allCodes = null;
-        private Dictionary<string, StrategyGDB.NewStockToBuy> _activeNewStockIndex = null;
-        private Dictionary<string, StrategyGDB.ExistingStockToMaintain> _activeExistingStockIndex = null;
-        private Dictionary<string, StrategyGDB.ExistingStockToMaintain> _stoplossStockIndex = null;
-        private Dictionary<string, StrategyGDB.ExistingStockToMaintain> _sellStockIndex = null;
+        private Dictionary<string, StrategyGDB.NewStock> _activeNewStockIndex = null;
+        private Dictionary<string, StrategyGDB.ExistingStock> _activeExistingStockIndex = null;
 
         private HashSet<StoplossOrder> _stoplossOrders = new HashSet<StoplossOrder>();
         private HashSet<BuyOrder> _buyOrders = new HashSet<BuyOrder>();
@@ -100,12 +98,6 @@ namespace TradingClient
 
             _activeNewStockIndex = _newStocks.ToDictionary(s => s.SecurityCode, s => s);
             _activeExistingStockIndex = _existingStocks.ToDictionary(s => s.SecurityCode, s => s);
-
-            // all existing stocks should have stop loss order
-            _stoplossStockIndex = _existingStocks.ToDictionary(s => s.SecurityCode, s => s);
-
-            // all existing stocks might be sold
-            _sellStockIndex = _existingStocks.ToDictionary(s => s.SecurityCode, s => s);
         }
 
         public void Run()
@@ -124,9 +116,7 @@ namespace TradingClient
             CtpSimulator.GetInstance().RegisterQuoteReadyCallback(OnQuoteReadyCallback);
             CtpSimulator.GetInstance().SubscribeQuote(_allCodes);
 
-            StoplossOrderManager.GetInstance().OnStoplossOrderExecuted += OnStoplossOrderExecutedCallback;
-            BuyOrderManager.GetInstance().OnBuyOrderExecuted += OnBuyOrderExecutedCallback;
-            SellOrderManager.GetInstance().OnSellOrderExecuted += OnSellOrderExecutedCallback;
+            OrderManager.GetInstance().OnOrderExecuted += OnOrderExecutedCallback;
 
             PublishStopLossOrders();
         }
@@ -153,7 +143,7 @@ namespace TradingClient
 
         private void PublishStopLossOrders()
         {
-            if (_stoplossStockIndex.Count == 0)
+            if (_activeExistingStockIndex.Count == 0)
             {
                 return;
             }
@@ -166,7 +156,7 @@ namespace TradingClient
 
             lock (_lockObj)
             {
-                foreach (var kvp in _stoplossStockIndex)
+                foreach (var kvp in _activeExistingStockIndex)
                 {
                     StoplossOrder order = new StoplossOrder(
                         kvp.Value.SecurityCode,
@@ -184,16 +174,16 @@ namespace TradingClient
                     if (sellOrder != default(SellOrder))
                     {
                         _sellOrders.Remove(sellOrder);
-                        SellOrderManager.GetInstance().UnregisterSellOrder(sellOrder);
+                        OrderManager.GetInstance().UnregisterOrder(sellOrder);
 
                     }
 
-                    StoplossOrderManager.GetInstance().RegisterStoplossOrder(order);
+                    OrderManager.GetInstance().RegisterOrder(order);
                 }
             }
         }
 
-        private void OnStoplossOrderExecutedCallback(StoplossOrder order, float dealPrice, int dealVolume)
+        private void OnOrderExecutedCallback(IOrder order, float dealPrice, int dealVolume)
         {
             lock (_lockObj)
             {
@@ -206,14 +196,7 @@ namespace TradingClient
                 _activeExistingStockIndex.Remove(order.SecurityCode);
             }
 
-            AppLogger.Default.InfoFormat(
-                "Stop loss order executed. Id: {0}, {1}/{2}, price {3:0.000}, volume {4}, remaining volume {5}",
-                order.OrderId,
-                order.SecurityCode,
-                order.SecurityName,
-                dealPrice,
-                dealVolume,
-                order.RemainingVolume);
+            AppLogger.Default.InfoFormat("Order executed. order details: {0}", order);
         }
 
         private void OnBuyOrderExecutedCallback(BuyOrder order, float dealPrice, int dealVolume)
@@ -321,7 +304,7 @@ namespace TradingClient
                 {
                     _stoplossOrders.Remove(stoplossOrder);
 
-                    StoplossOrderManager.GetInstance().UnregisterStoplossOrder(stoplossOrder);
+                    OrderManager.GetInstance().UnregisterOrder(stoplossOrder);
 
                     // need to add back to existing stock index
                     // TODO
@@ -334,7 +317,7 @@ namespace TradingClient
 
                 _sellOrders.Add(order);
 
-                SellOrderManager.GetInstance().RegisterSellOrder(order);
+                OrderManager.GetInstance().RegisterOrder(order);
 
                 _activeExistingStockIndex.Remove(stock.SecurityCode);
 
@@ -437,7 +420,7 @@ namespace TradingClient
 
                 _buyOrders.Add(order);
 
-                BuyOrderManager.GetInstance().RegisterBuyOrder(order);
+                OrderManager.GetInstance().RegisterOrder(order);
 
                 // remove active new stock after issued buy order.
                 _activeNewStockIndex.Remove(stock.SecurityCode);

@@ -15,21 +15,21 @@ namespace TradingClient.StrategyGDB
         public const string NewStockFileName = "newstocks.csv";
         public const string ExistingStockFileName = "existingstocks.csv";
 
-        private List<NewStockToBuy> _newStocks = new List<NewStockToBuy>();
-        private List<ExistingStockToMaintain> _existingStocks = new List<ExistingStockToMaintain>();
+        private List<NewStock> _newStocks = new List<NewStock>();
+        private List<ExistingStock> _existingStocks = new List<ExistingStock>();
         private readonly string _newStockFileName;
         private readonly string _existingStockFileName;
 
-        public IEnumerable<NewStockToBuy> NewStocks
+        public IEnumerable<NewStock> NewStocks
         {
             get { return _newStocks; }
-            set { _newStocks = new List<NewStockToBuy>(value);  }
+            set { _newStocks = new List<NewStock>(value);  }
         }
 
-        public IEnumerable<ExistingStockToMaintain> ExistingStocks
+        public IEnumerable<ExistingStock> ExistingStocks
         {
             get { return _existingStocks;  }
-            set { _existingStocks = new List<ExistingStockToMaintain>(value); }
+            set { _existingStocks = new List<ExistingStock>(value); }
         }
 
         public DataFileReaderWriter(string rootPathForDataFolder)
@@ -45,8 +45,8 @@ namespace TradingClient.StrategyGDB
 
         public void Read()
         {
-            List<NewStockToBuy> newStocks = ReadNewStocks();
-            List<ExistingStockToMaintain> existingStocks = ReadExistingStocks();
+            List<NewStock> newStocks = ReadNewStocks();
+            List<ExistingStock> existingStocks = ReadExistingStocks();
 
             if (newStocks.Select(s => s.SecurityCode)
                 .Intersect(existingStocks.Select(s => s.SecurityCode))
@@ -65,19 +65,19 @@ namespace TradingClient.StrategyGDB
             WriteExistingStocks();
         }
 
-        private List<NewStockToBuy> ReadNewStocks()
+        private List<NewStock> ReadNewStocks()
         {
             if (!File.Exists(_newStockFileName))
             {
                 AppLogger.Default.WarnFormat("NewStock file {0} does not exist");
-                return new List<NewStockToBuy>();
+                return new List<NewStock>();
             }
 
             using (StreamReader reader = new StreamReader(_newStockFileName, Encoding.UTF8))
             {
                 using (CsvReader csvReader = new CsvReader(reader))
                 {
-                    List<NewStockToBuy> stocks = csvReader.GetRecords<NewStockToBuy>().ToList();
+                    List<NewStock> stocks = csvReader.GetRecords<NewStock>().ToList();
 
                     foreach (var stock in stocks)
                     {
@@ -98,19 +98,19 @@ namespace TradingClient.StrategyGDB
             }
         }
 
-        private List<ExistingStockToMaintain> ReadExistingStocks()
+        private List<ExistingStock> ReadExistingStocks()
         {
             if (!File.Exists(_existingStockFileName))
             {
                 AppLogger.Default.WarnFormat("ExistingStock file {0} does not exist");
-                return new List<ExistingStockToMaintain>();
+                return new List<ExistingStock>();
             }
 
             using (StreamReader reader = new StreamReader(_existingStockFileName, Encoding.UTF8))
             {
                 using (CsvReader csvReader = new CsvReader(reader))
                 {
-                    List<ExistingStockToMaintain> stocks = csvReader.GetRecords<ExistingStockToMaintain>().ToList();
+                    List<ExistingStock> stocks = csvReader.GetRecords<ExistingStock>().ToList();
 
                     foreach (var stock in stocks)
                     {
@@ -133,7 +133,7 @@ namespace TradingClient.StrategyGDB
             {
                 using (CsvWriter csvWriter = new CsvWriter(writer))
                 {
-                    List<NewStockToBuy> newStocks = new List<NewStockToBuy>(_newStocks);
+                    List<NewStock> newStocks = new List<NewStock>(_newStocks);
                     foreach (var s in newStocks)
                     {
                         s.SecurityCode = StockName.NormalizeCode(s.SecurityCode);
@@ -150,7 +150,7 @@ namespace TradingClient.StrategyGDB
             {
                 using (CsvWriter csvWriter = new CsvWriter(writer))
                 {
-                    List<ExistingStockToMaintain> existingStocks = new List<ExistingStockToMaintain>(_existingStocks);
+                    List<ExistingStock> existingStocks = new List<ExistingStock>(_existingStocks);
                     foreach (var s in existingStocks)
                     {
                         s.SecurityCode = StockName.NormalizeCode(s.SecurityCode);

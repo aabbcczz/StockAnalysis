@@ -54,7 +54,7 @@
   <ItemGroup>
     <Compile Include="StockRuntime.cs" />
     <Compile Include="StrategyGDBExecuter.cs" />
-    <Compile Include="StrategyGDB\ExistingStockToMaintain.cs" />
+    <Compile Include="StrategyGDB\ExistingStock.cs" />
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -62,7 +62,7 @@
       <DependentUpon>MainForm.cs</DependentUpon>
     </Compile>
     <Compile Include="StrategyGDB\DataFileReaderWriter.cs" />
-    <Compile Include="StrategyGDB\NewStockToBuy.cs" />
+    <Compile Include="StrategyGDB\NewStock.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TextBoxAppender.cs" />

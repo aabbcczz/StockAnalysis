@@ -150,9 +150,9 @@ namespace StockTrading.Utility
             return _orderDispatcher.DispatchOrder(request, out error);
         }
 
-        public bool CancelOrder(DispatchedOrder order, out string error)
+        public bool CancelOrder(DispatchedOrder order, out string error, bool waitForResult)
         {
-            return _orderDispatcher.CancelOrder(order, out error);
+            return _orderDispatcher.CancelOrder(order, out error, waitForResult);
         }
 
         public void QueryOrderStatusForcibly()

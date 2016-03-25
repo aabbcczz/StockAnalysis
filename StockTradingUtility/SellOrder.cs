@@ -4,66 +4,92 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using StockAnalysis.Share;
+
 namespace StockTrading.Utility
 {
-    public sealed class SellOrder
+    public sealed class SellOrder : OrderBase
     {
-        public Guid OrderId { get; private set; }
-
-        public string SecurityCode { get; private set; }
-
-        public string SecurityName { get; private set; }
-
         public float SellPrice { get; private set; }
 
         public int RemainingVolume { get; private set; }
 
-        public int OriginalVolume { get; private set; } 
-
-        public Exchange Exchange { get; private set; }
 
         public SellOrder(string securityCode, string securityName, float sellPrice, int volume)
+            : base(securityCode, securityName, volume)
         {
-            if (string.IsNullOrWhiteSpace(securityCode))
-            {
-                throw new ArgumentNullException();
-            }
-
-            if (sellPrice < 0.0 || volume <= 0)
+            if (sellPrice < 0.0)
             {
                 throw new ArgumentException();
             }
 
-            SecurityCode = securityCode;
-            SecurityName = securityName;
             SellPrice = sellPrice;
-            OriginalVolume = volume;
             RemainingVolume = volume;
-
-            Exchange = StockTrading.Utility.Exchange.GetTradeableExchangeForSecurity(SecurityCode);
-
-            OrderId = Guid.NewGuid();
         }
 
-        public void Fulfill(float dealPrice, int dealVolume)
+        public override void Deal(float dealPrice, int dealVolume)
         {
-            lock (this)
-            {
-                RemainingVolume -= dealVolume;
+            base.Deal(dealPrice, dealVolume);
 
-                if (RemainingVolume < 0)
+            RemainingVolume -= dealVolume;
+        }
+
+        public override bool IsCompleted()
+        {
+            return RemainingVolume == 0;
+        }
+
+        public override OrderRequest BuildRequest(FiveLevelQuote quote)
+        {
+            OrderRequest request = new OrderRequest(this);
+
+            request.SecurityCode = SecurityCode;
+            request.SecurityName = SecurityName;
+            request.Category = OrderCategory.Sell;
+            request.Price = SellPrice;
+            request.PricingType = OrderPricingType.MarketPriceMakeDealInFiveGradesThenCancel;
+            request.Volume = RemainingVolume;
+
+            return request;
+        }
+
+        public override bool ShouldExecute(FiveLevelQuote quote)
+        {
+            bool shouldSell = false;
+
+            if (SellPrice < quote.BuyPrices.Min())
+            {
+                shouldSell = true;
+            }
+            else
+            {
+                if (SellPrice <= quote.BuyPrices.Max())
                 {
-                    throw new InvalidOperationException("Existing volume is impossible to be smaller than 0");
+                    // order sell price is between minBuyPrice and maxBuyPrice
+                    // we count the buy volume above sell price.
+                    int aboveSellPriceBuyVolume =
+                        ChinaStockHelper.ConvertHandToVolume(
+                            Enumerable
+                                .Range(0, quote.BuyPrices.Length)
+                                .Where(index => quote.BuyPrices[index] >= SellPrice)
+                                .Sum(index => quote.BuyVolumesInHand[index]));
+
+                    if (aboveSellPriceBuyVolume >= RemainingVolume)
+                    {
+                        shouldSell = true;
+                    }
                 }
             }
+
+            return shouldSell;
         }
 
-        public bool IsCompleted()
+        public override string ToString()
         {
-            lock (this)
-            {
-                return RemainingVolume == 0;
-            }
+            return string.Format("{0}, sell price: {1:0.000} remaining volume {2}",
+                base.ToString(),
+                SellPrice,
+                RemainingVolume);
         }
     }
 }

@@ -42,6 +42,17 @@ namespace StockTrading.Utility
         public int ExecutedVolume { get; protected set; }
 
         /// <summary>
+        /// 平均执行价格
+        /// </summary>
+        public float AverageExecutedPrice { get; protected set; }
+
+        /// <summary>
+        /// 是否需要取消交易订单如果交易订单没有及时成功
+        /// </summary>
+        public bool ShouldCancelIfNotSucceeded { get; protected set; }
+
+
+        /// <summary>
         /// Decide if this order should be executed based on given quote
         /// </summary>
         /// <param name="quote">quote of stock</param>
@@ -56,11 +67,31 @@ namespace StockTrading.Utility
         public abstract OrderRequest BuildRequest(FiveLevelQuote quote);
 
         /// <summary>
-        /// Fulfill deal
+        /// deal the order fully or partially
         /// </summary>
         /// <param name="dealPrice">price of deal</param>
         /// <param name="dealVolume">volume of deal</param>
-        public abstract void Fulfill(float dealPrice, int dealVolume);
+        public virtual void Deal(float dealPrice, int dealVolume)
+        {
+            if (dealVolume < 0 || dealPrice < 0.0)
+            {
+                throw new ArgumentOutOfRangeException();
+            }
+
+            if (dealVolume + ExecutedVolume > ExpectedVolume)
+            {
+                throw new InvalidOperationException(
+                    string.Format(
+                        "deal volume({0}) + executed volume({1}) > expected volume({2}",
+                        dealVolume,
+                        ExecutedVolume,
+                        ExpectedVolume));
+            }
+
+            AverageExecutedPrice = (dealPrice * dealVolume + AverageExecutedPrice * ExecutedVolume) / (dealVolume + ExecutedVolume);
+
+            ExecutedVolume += dealVolume;
+        }
 
         /// <summary>
         /// Determine if this order is fully completed and no additional process required.
@@ -75,23 +106,30 @@ namespace StockTrading.Utility
                 throw new ArgumentNullException();
             }
 
+            if (volume <= 0)
+            {
+                throw new ArgumentException();
+            }
+
             OrderId = Guid.NewGuid();
             SecurityCode = securityCode;
             SecurityName = securityName;
             Exchange = StockTrading.Utility.Exchange.GetTradeableExchangeForSecurity(SecurityCode);
             ExpectedVolume = volume;
             ExecutedVolume = 0;
+            ShouldCancelIfNotSucceeded = false;
         }
 
         public override string ToString()
         {
             return string.Format(
-                "Id {0}, {1}/{2} expected volume: {3}, executed volume: {4}",
+                "Id: {0}, {1}/{2} expected volume: {3}, executed volume: {4}, average executed price: {5:0.000}",
                 OrderId,
                 SecurityCode,
                 SecurityName,
                 ExpectedVolume,
-                ExecutedVolume);
+                ExecutedVolume,
+                AverageExecutedPrice);
         }
     }
 }

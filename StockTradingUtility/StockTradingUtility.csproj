@@ -89,9 +89,6 @@
     <Compile Include="QuotePublisher.cs" />
     <Compile Include="SellOrder.cs" />
     <Compile Include="StoplossOrder.cs" />
-    <Compile Include="BuyOrderManager.cs" />
-    <Compile Include="SellOrderManager.cs" />
-    <Compile Include="StoplossOrderManager.cs" />
     <Compile Include="TradingHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="DataCategory.cs" />

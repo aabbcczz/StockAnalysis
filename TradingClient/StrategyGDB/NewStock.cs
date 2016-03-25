@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace TradingClient.StrategyGDB
 {
-    public sealed class NewStockToBuy
+    public sealed class NewStock
     {
         public DateTime DateToBuy { get; set; }
         public string SecurityCode { get; set; }

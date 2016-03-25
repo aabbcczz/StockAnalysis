@@ -42,6 +42,16 @@ namespace StockTrading.Utility
         int ExecutedVolume { get; }
 
         /// <summary>
+        /// 平均执行价格
+        /// </summary>
+        float AverageExecutedPrice { get; }
+
+        /// <summary>
+        /// 是否需要取消交易订单如果交易订单没有及时成功
+        /// </summary>
+        bool ShouldCancelIfNotSucceeded { get; }
+
+        /// <summary>
         /// Decide if this order should be executed based on given quote
         /// </summary>
         /// <param name="quote">quote of stock</param>
@@ -56,11 +66,11 @@ namespace StockTrading.Utility
         OrderRequest BuildRequest(FiveLevelQuote quote);
 
         /// <summary>
-        /// Fulfill deal
+        /// deal the order fully or partially
         /// </summary>
         /// <param name="dealPrice">price of deal</param>
         /// <param name="dealVolume">volume of deal</param>
-        void Fulfill(float dealPrice, int dealVolume);
+        void Deal(float dealPrice, int dealVolume);
 
         /// <summary>
         /// Determine if this order is fully completed and no additional process required.

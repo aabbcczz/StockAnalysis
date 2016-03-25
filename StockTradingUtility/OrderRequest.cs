@@ -29,6 +29,11 @@ namespace StockTrading.Utility
         public string SecurityCode { get; set; }
 
         /// <summary>
+        /// 证券名称
+        /// </summary>
+        public string SecurityName { get; set; }
+
+        /// <summary>
         /// 委托价格
         /// </summary>
         public float Price { get; set; }

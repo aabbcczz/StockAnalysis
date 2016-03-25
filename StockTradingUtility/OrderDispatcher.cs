@@ -129,9 +129,14 @@ namespace StockTrading.Utility
             }
         }
 
-        public bool CancelOrder(DispatchedOrder order, out string error)
+        public bool CancelOrder(DispatchedOrder order, out string error, bool waitForResult)
         {
             bool cancelSucceeded = _client.CancelOrder(order.Request.SecurityCode, order.OrderNo, out error);
+
+            if (!waitForResult)
+            {
+                return cancelSucceeded;
+            }
 
             if (cancelSucceeded)
             {
@@ -167,12 +172,17 @@ namespace StockTrading.Utility
             return false;
         }
 
-        public bool[] CancelOrder(DispatchedOrder[] orders, out string[] errors)
+        public bool[] CancelOrder(DispatchedOrder[] orders, out string[] errors, bool waitForResult)
         {
             var codes = orders.Select(o => o.Request.SecurityCode).ToArray();
             var orderNos = orders.Select(o => o.OrderNo).ToArray();
 
             bool[] succeededFlags = _client.CancelOrder(codes, orderNos, out errors);
+
+            if (!waitForResult)
+            {
+                return succeededFlags;
+            }
 
             bool[] finalSucceededFlags = new bool[succeededFlags.Length];
             Array.Clear(finalSucceededFlags, 0, finalSucceededFlags.Length);

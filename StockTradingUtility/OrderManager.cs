@@ -84,16 +84,21 @@ namespace StockTrading.Utility
 
                 foreach (var dispatchedOrder in _dispatchedOrders)
                 {
+                    IOrder order = (IOrder)dispatchedOrder.Request.AssociatedObject;
+
+                    if (!order.ShouldCancelIfNotSucceeded)
+                    {
+                        continue;
+                    }
+
                     try
                     {
                         if ((now - dispatchedOrder.DispatchTime).TotalMilliseconds >= _cancellationIntervalInMillisecond)
                         {
                             string error;
 
-                            if (!CtpSimulator.GetInstance().CancelOrder(dispatchedOrder, out error))
+                            if (!CtpSimulator.GetInstance().CancelOrder(dispatchedOrder, out error, false))
                             {
-                                IOrder order = (IOrder)dispatchedOrder.Request.AssociatedObject;
-
                                 AppLogger.Default.ErrorFormat(
                                     "fail to cancel order: order no {0}. order details: {1}, Error: {2}",
                                     dispatchedOrder.OrderNo,
@@ -104,8 +109,6 @@ namespace StockTrading.Utility
                     }
                     catch (Exception ex)
                     {
-                        IOrder order = (IOrder)dispatchedOrder.Request.AssociatedObject;
-
                         AppLogger.Default.ErrorFormat(
                             "Exception in cancelling buy order: order no {0}. order details: {1}. Error: {2}",
                             dispatchedOrder.OrderNo,
@@ -152,7 +155,7 @@ namespace StockTrading.Utility
                         continue;
                     }
                     
-                    // copy orders to avoid the "orders" object being updated in SendIOrder function.
+                    // copy orders to avoid the "orders" object being updated in SendOrder function.
                     var OrderCopies = orders.ToArray();
 
                     foreach (var order in OrderCopies)
@@ -169,7 +172,7 @@ namespace StockTrading.Utility
         private void SendOrder(IOrder order, FiveLevelQuote quote)
         {
             // put it into thread pool to avoid recursively call QueryOrderStatusForcibly and 
-            // then call OnOrderStatusChanged() and then call SendIOrder recursively.
+            // then call OnOrderStatusChanged() and then call SendOrder recursively.
             ThreadPool.QueueUserWorkItem(SendOrderWorkItem, Tuple.Create(order, quote));
         }
 
@@ -199,10 +202,14 @@ namespace StockTrading.Utility
                 lock (_orderLockObj)
                 {
                     RemoveActiveOrder(order);
-                    AddDispatchedOrder(dispatchedOrder);
+                    if (!AddDispatchedOrder(dispatchedOrder))
+                    {
+                        throw new InvalidOperationException(
+                            string.Format("Failed to add dispatched order. Order details: {0}", order));
+                    }
                 }
 
-                // force query order status.
+                // force query order status and then may trigger OnOrderStatusChanged event
                 CtpSimulator.GetInstance().QueryOrderStatusForcibly();
             }
         }
@@ -224,17 +231,12 @@ namespace StockTrading.Utility
 
             if (dispatchedOrder.Request.AssociatedObject != null)
             {
-                IOrder order = dispatchedOrder.Request.AssociatedObject as IOrder;
-
-                if (order == null)
-                {
-                    return;
-                }
+                IOrder order = (IOrder)dispatchedOrder.Request.AssociatedObject;
 
                 if (TradingHelper.IsFinalStatus(dispatchedOrder.LastStatus))
                 {
                     AppLogger.Default.InfoFormat(
-                         "Buy order executed:  id {0} code {1} status {2} succeeded volume {3} deal price {4}.",
+                         "Order executed:  id {0} code {1} status {2} succeeded volume {3} deal price {4}.",
                          order.OrderId,
                          order.SecurityCode,
                          dispatchedOrder.LastStatus,
@@ -245,7 +247,7 @@ namespace StockTrading.Utility
                     {
                         if (dispatchedOrder.LastDealVolume > 0)
                         {
-                            order.Fulfill(dispatchedOrder.LastDealPrice, dispatchedOrder.LastDealVolume);
+                            order.Deal(dispatchedOrder.LastDealPrice, dispatchedOrder.LastDealVolume);
 
                             // callback to client to notify partial or full success
                             if (OnOrderExecuted != null)
@@ -254,19 +256,22 @@ namespace StockTrading.Utility
                             }
                         }
 
-                        RemoveDispatchedOrder(dispatchedOrder);
+                        if (!RemoveDispatchedOrder(dispatchedOrder))
+                        {
+                            AppLogger.Default.ErrorFormat("Failed to remove dispatched order. Order details: {0}", order);
+                        }
 
                         if (!order.IsCompleted())
                         {
                             // the order has not been finished yet, put it back into active order
-                            AddActiveIOrder(order);
+                            AddActiveOrder(order);
                         }
                     }
                 }
             }
         }
 
-        public void RegisterIOrder(IOrder order)
+        public void RegisterOrder(IOrder order)
         {
             if (order == null)
             {
@@ -275,11 +280,11 @@ namespace StockTrading.Utility
 
             lock (_orderLockObj)
             {
-                AddActiveIOrder(order);
+                AddActiveOrder(order);
             }
         }
 
-        public bool UnregisterIOrder(IOrder order)
+        public bool UnregisterOrder(IOrder order)
         {
             if (order == null)
             {
@@ -292,7 +297,7 @@ namespace StockTrading.Utility
             }
         }
 
-        private void AddActiveIOrder(IOrder order)
+        private void AddActiveOrder(IOrder order)
         {
             if (!_activeOrders.ContainsKey(order.SecurityCode))
             {
@@ -325,26 +330,25 @@ namespace StockTrading.Utility
                 // maybe the order has been dispatched, we need to cancel it
                 var dispatchedOrder = _dispatchedOrders.FirstOrDefault(o => object.ReferenceEquals(o.Request.AssociatedObject, order));
 
+                string error;
                 if (dispatchedOrder != null)
                 {
-                    // Here we can't remove the dispatched order from _dispatchedOrders because cancel operation will trigger
-                    // onOrderStatusChanged callback and the dispatched order must be kept in _dispatchedOrders.
-                    string error;
-                    CtpSimulator.GetInstance().CancelOrder(dispatchedOrder, out error);
-
-                    if (!string.IsNullOrEmpty(error))
+                    if (!CtpSimulator.GetInstance().CancelOrder(dispatchedOrder, out error, true))
                     {
                         AppLogger.Default.ErrorFormat(
-                            "Cancel dispatched stoploss order failed. Error: {0}. Order: {1}, {2}/{3}",
+                            "Cancel dispatched stoploss order failed. Error: {0}. Order details: {1}",
                             error,
-                            order.OrderId,
-                            order.SecurityCode,
-                            order.SecurityName);
+                            order);
 
                         removeSucceeded = false;
                     }
                     else
                     {
+                        if (!RemoveDispatchedOrder(dispatchedOrder))
+                        {
+                            AppLogger.Default.ErrorFormat("Failed to remove dispatched order. Order details: {0}", dispatchedOrder.Request.AssociatedObject);
+                        }
+
                         removeSucceeded = true;
                     }
                 }
@@ -357,9 +361,9 @@ namespace StockTrading.Utility
             return removeSucceeded;
         }
 
-        private void AddDispatchedOrder(DispatchedOrder order)
+        private bool AddDispatchedOrder(DispatchedOrder order)
         {
-            _dispatchedOrders.Add(order);
+            return _dispatchedOrders.Add(order);
         }
 
         private bool RemoveDispatchedOrder(DispatchedOrder order)
