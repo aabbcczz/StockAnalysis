@@ -46,12 +46,9 @@ namespace StockTrading.Utility
 
         public override void Fulfill(float dealPrice, int dealVolume)
         {
-            lock (this)
-            {
-                ExecutedVolume += dealVolume;
-                RemainingVolumeCanBeBought -= dealVolume;
-                RemainingCapitalCanBeUsed -= dealPrice * dealVolume;
-            }
+            ExecutedVolume += dealVolume;
+            RemainingVolumeCanBeBought -= dealVolume;
+            RemainingCapitalCanBeUsed -= dealPrice * dealVolume;
         }
 
         /// <summary>
@@ -61,30 +58,24 @@ namespace StockTrading.Utility
         /// <returns></returns>
         public int GetMaxVolumeInHandToBuy(float estimatedPrice)
         {
-            lock (this)
-            {
-                int minVolume = Math.Max(
-                    0,
-                    (int)Math.Min(
-                        RemainingCapitalCanBeUsed / estimatedPrice,
-                        (float)RemainingVolumeCanBeBought));
+            int minVolume = Math.Max(
+                0,
+                (int)Math.Min(
+                    RemainingCapitalCanBeUsed / estimatedPrice,
+                    (float)RemainingVolumeCanBeBought));
 
-                return minVolume / ChinaStockHelper.VolumePerHand;
-            }
+            return minVolume / ChinaStockHelper.VolumePerHand;
         }
 
         public override bool IsCompleted()
         {
-            lock (this)
+            if (RemainingCapitalCanBeUsed < MinBuyPrice * ChinaStockHelper.VolumePerHand
+                || RemainingVolumeCanBeBought < ChinaStockHelper.VolumePerHand)
             {
-                if (RemainingCapitalCanBeUsed < MinBuyPrice * ChinaStockHelper.VolumePerHand
-                    || RemainingVolumeCanBeBought < ChinaStockHelper.VolumePerHand)
-                {
-                    return true;
-                }
-
-                return false;
+                return true;
             }
+
+            return false;
         }
 
         public override OrderRequest BuildRequest(FiveLevelQuote quote)
@@ -95,6 +86,18 @@ namespace StockTrading.Utility
         public override bool ShouldExecute(FiveLevelQuote quote)
         {
             throw new NotImplementedException();
+        }
+
+        public override string ToString()
+        {
+            return string.Format(
+                "{0} remaining capital {1:0.000} remaining volume: {2} max bid price: {3:0.000} min buy price: {4:0.000} expected price: {5:0.000}",
+                base.ToString(),
+                RemainingCapitalCanBeUsed,
+                RemainingVolumeCanBeBought,
+                MaxBidPrice,
+                MinBuyPrice,
+                ExpectedPrice);
         }
     }
 }

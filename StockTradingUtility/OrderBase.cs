@@ -9,7 +9,7 @@ namespace StockTrading.Utility
     /// <summary>
     /// base class of all kinds of order
     /// </summary>
-    public abstract class OrderBase
+    public abstract class OrderBase : IOrder
     {
         /// <summary>
         /// Order unique id
@@ -32,9 +32,9 @@ namespace StockTrading.Utility
         public Exchange Exchange { get; private set; }
 
         /// <summary>
-        /// 初始数量
+        /// 期待执行数量
         /// </summary>
-        public int OriginalVolume { get; protected set; }
+        public int ExpectedVolume { get; protected set; }
 
         /// <summary>
         /// 已执行数量
@@ -79,8 +79,19 @@ namespace StockTrading.Utility
             SecurityCode = securityCode;
             SecurityName = securityName;
             Exchange = StockTrading.Utility.Exchange.GetTradeableExchangeForSecurity(SecurityCode);
-            OriginalVolume = volume;
+            ExpectedVolume = volume;
             ExecutedVolume = 0;
+        }
+
+        public override string ToString()
+        {
+            return string.Format(
+                "Id {0}, {1}/{2} expected volume: {3}, executed volume: {4}",
+                OrderId,
+                SecurityCode,
+                SecurityName,
+                ExpectedVolume,
+                ExecutedVolume);
         }
     }
 }
