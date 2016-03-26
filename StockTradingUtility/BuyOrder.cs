@@ -34,8 +34,8 @@ namespace StockTrading.Utility
         /// </summary>
         public int RemainingVolumeCanBeBought { get; private set; }
 
-        public BuyOrder(BuyInstruction instruction)
-            : base(instruction.SecurityCode, instruction.SecurityName, instruction.MaxVolumeCanBeBought)
+        public BuyOrder(BuyInstruction instruction, Action<IOrder, float, int> onOrderExecuted)
+            : base(instruction.SecurityCode, instruction.SecurityName, instruction.MaxVolumeCanBeBought, onOrderExecuted)
         {
             MinBuyPrice = instruction.MinBuyPrice;
             ExpectedPrice = instruction.ExpectedPrice;

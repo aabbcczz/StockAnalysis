@@ -52,6 +52,12 @@ namespace StockTrading.Utility
         bool ShouldCancelIfNotSucceeded { get; }
 
         /// <summary>
+        /// 当Order被执行后需要执行的Action
+        /// </summary>
+        /// <remarks>OnOrderExecuted(IOrder order, float dealPrice, int dealVolume)</remarks>
+        Action<IOrder, float, int> OnOrderExecuted { get; }
+
+        /// <summary>
         /// Decide if this order should be executed based on given quote
         /// </summary>
         /// <param name="quote">quote of stock</param>

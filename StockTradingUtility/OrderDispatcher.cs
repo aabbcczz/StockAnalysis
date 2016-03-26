@@ -24,8 +24,6 @@ namespace StockTrading.Utility
 
         private IDictionary<int, DispatchedOrder> _allActiveOrders = new Dictionary<int, DispatchedOrder>();
 
-        private CtpSimulator.OnOrderStatusChangedDelegate _onOrderStatusChangedCallback = null;
-
         public OrderDispatcher(TradingClient client, int refreshingIntervalInMillisecond)
         {
             if (client == null)
@@ -52,21 +50,16 @@ namespace StockTrading.Utility
             }
         }
 
-        public void RegisterOrderStatusChangedCallback(CtpSimulator.OnOrderStatusChangedDelegate callback)
+        public DispatchedOrder DispatchOrder(
+            OrderRequest request, 
+            Action<DispatchedOrder> onOrderStatusChanged, 
+            out string error)
         {
-            if (callback == null)
+            if (request == null || onOrderStatusChanged == null)
             {
                 throw new ArgumentNullException();
             }
 
-            lock (_dispatcherLockObj)
-            {
-                _onOrderStatusChangedCallback += callback;
-            }
-        }
-
-        public DispatchedOrder DispatchOrder(OrderRequest request, out string error)
-        {
             var result = _client.SendOrder(request, out error);
 
             if (result == null)
@@ -74,15 +67,8 @@ namespace StockTrading.Utility
                 return null;
             }
 
-            DispatchedOrder dispatchedOrder = new DispatchedOrder()
-            {
-                DispatchTime = DateTime.Now,
-                OrderNo = result.OrderNo,
-                Request = request,
-                LastDealPrice = 0.0f,
-                LastDealVolume = 0,
-                LastStatus = OrderStatus.NotSubmitted,
-            };
+            DispatchedOrder dispatchedOrder 
+                = new DispatchedOrder(request, onOrderStatusChanged, result.OrderNo);
 
             lock (_orderLockObj)
             {
@@ -92,7 +78,10 @@ namespace StockTrading.Utility
             return dispatchedOrder;
         }
 
-        public DispatchedOrder[] DispatchOrder(OrderRequest[] requests, out string[] errors)
+        public DispatchedOrder[] DispatchOrder(
+            OrderRequest[] requests, 
+            Action<DispatchedOrder> onOrderStatusChanged, 
+            out string[] errors)
         {
             var results = _client.SendOrder(requests, out errors);
 
@@ -104,15 +93,8 @@ namespace StockTrading.Utility
                 {
                     if (results[i] != null)
                     {
-                        DispatchedOrder dispatchedOrder = new DispatchedOrder()
-                        {
-                            DispatchTime = DateTime.Now,
-                            OrderNo = results[i].OrderNo,
-                            Request = requests[i],
-                            LastDealPrice = 0.0f,
-                            LastDealVolume = 0,
-                            LastStatus = OrderStatus.NotSubmitted,
-                        };
+                        DispatchedOrder dispatchedOrder
+                            = new DispatchedOrder(requests[i], onOrderStatusChanged, results[i].OrderNo);
 
                         _allActiveOrders.Add(results[i].OrderNo, dispatchedOrder);
 
@@ -122,6 +104,11 @@ namespace StockTrading.Utility
                     else
                     {
                         orders[i] = null;
+
+                        AppLogger.Default.ErrorFormat(
+                            "Send order failed. Error: {0}. Order request details: {1}", 
+                            errors[i],
+                            requests[i]);
                     }
                 }
 
@@ -131,6 +118,13 @@ namespace StockTrading.Utility
 
         public bool CancelOrder(DispatchedOrder order, out string error, bool waitForResult)
         {
+            error = string.Empty;
+
+            if (TradingHelper.IsFinalStatus(order.LastStatus))
+            {
+                return true;
+            }
+
             bool cancelSucceeded = _client.CancelOrder(order.Request.SecurityCode, order.OrderNo, out error);
 
             if (!waitForResult)
@@ -140,33 +134,17 @@ namespace StockTrading.Utility
 
             if (cancelSucceeded)
             {
-                do
+                while (!TradingHelper.IsFinalStatus(order.LastStatus))
                 {
-                    var submittedOrders = _client.QuerySubmittedOrderToday(out error).ToList();
+                    QueryOrderStatusForcibly();
 
-                    if (submittedOrders.Count() == 0)
+                    if (!TradingHelper.IsFinalStatus(order.LastStatus))
                     {
-                        if (!string.IsNullOrEmpty(error))
-                        {
-                            AppLogger.Default.WarnFormat("Failed to query submitted order. error: {0}", error);
-                            return false;
-                        }
-                        else
-                        {
-                            return true;
-                        }
+                        Thread.Sleep(1000);
                     }
+                }
 
-                    foreach (var submitedOrder in submittedOrders)
-                    {
-                        if (submitedOrder.OrderNo == order.OrderNo && TradingHelper.IsFinalStatus(submitedOrder.Status))
-                        {
-                            return true;
-                        }
-                    }
-
-                    Thread.Sleep(1000);
-                } while (true);
+                return true;
             }
 
             return false;
@@ -187,45 +165,20 @@ namespace StockTrading.Utility
             bool[] finalSucceededFlags = new bool[succeededFlags.Length];
             Array.Clear(finalSucceededFlags, 0, finalSucceededFlags.Length);
 
-            do
+            while (true)
             {
-                string error;
-                var submittedOrders = _client.QuerySubmittedOrderToday(out error).ToList();
+                QueryOrderStatusForcibly();
 
-                if (submittedOrders.Count() == 0)
+                for (int i = 0; i < succeededFlags.Length; ++i)
                 {
-                    if (!string.IsNullOrEmpty(error))
+                    if (succeededFlags[i] && !finalSucceededFlags[i])
                     {
-                        AppLogger.Default.WarnFormat("Failed to query submitted order. error: {0}", error);
-                        
-                        for (int i = 0; i < succeededFlags.Length; ++i)
+                        if (TradingHelper.IsFinalStatus(orders[i].LastStatus))
                         {
-                            if (succeededFlags[i] && !finalSucceededFlags[i])
-                            {
-                                succeededFlags[i] = false;
-                                finalSucceededFlags[i] = false;
-                                errors[i] = error;
-                            }
+                            finalSucceededFlags[i] = true;
                         }
                     }
-
-                    return finalSucceededFlags;
-                }
-
-                foreach (var submitedOrder in submittedOrders)
-                {
-                    for (int i = 0; i < succeededFlags.Length; ++i)
-                    {
-                        if (succeededFlags[i] && !finalSucceededFlags[i])
-                        {
-                            if (submitedOrder.OrderNo == orders[i].OrderNo && TradingHelper.IsFinalStatus(submitedOrder.Status))
-                            {
-                                finalSucceededFlags[i] = true;
-                                break;
-                            }
-                        }
-                    }
-                }
+                }              
 
                 int pendingOrderCount = Enumerable
                     .Range(0, succeededFlags.Length)
@@ -237,7 +190,7 @@ namespace StockTrading.Utility
                 }
 
                 Thread.Sleep(1000);
-            } while (true);
+            }
 
             return finalSucceededFlags;
         }
@@ -308,7 +261,7 @@ namespace StockTrading.Utility
                         CheckOrderStatusChangeAndNotify(ref dispatchedOrder, order);
 
                         // remove order in finished status
-                        if (TradingHelper.IsFinalStatus(order.Status))
+                        if (TradingHelper.IsFinalStatus(dispatchedOrder.LastStatus))
                         {
                             lock (_orderLockObj)
                             {
@@ -342,16 +295,10 @@ namespace StockTrading.Utility
             {
                 isStatusChanged = true;
             }
-            else if (orderResult.Status == OrderStatus.PartiallySucceeded 
-                && dispatchedOrder.LastStatus == orderResult.Status
-                && orderResult.DealVolume != dispatchedOrder.LastDealVolume)
-            {
-                isStatusChanged = true;
-            }
-
+            
             dispatchedOrder.LastStatus = orderResult.Status;
-            dispatchedOrder.LastDealVolume = orderResult.DealVolume;
-            dispatchedOrder.LastDealPrice = orderResult.DealPrice;
+            dispatchedOrder.LastTotalDealVolume = orderResult.DealVolume;
+            dispatchedOrder.LastAverageDealPrice = orderResult.DealPrice;
 
             if (isStatusChanged)
             {
@@ -363,9 +310,14 @@ namespace StockTrading.Utility
 
         private void NotifyOrderStatusChanged(DispatchedOrder dispatchedOrder)
         {
-            if (_onOrderStatusChangedCallback != null)
+            if (dispatchedOrder.OnOrderStatusChanged != null)
             {
-                _onOrderStatusChangedCallback(dispatchedOrder);
+                Action proxyAction = () =>
+                {
+                    dispatchedOrder.OnOrderStatusChanged(dispatchedOrder);
+                };
+
+                Task.Run(proxyAction);
             }
         }
     }

@@ -116,8 +116,6 @@ namespace TradingClient
             CtpSimulator.GetInstance().RegisterQuoteReadyCallback(OnQuoteReadyCallback);
             CtpSimulator.GetInstance().SubscribeQuote(_allCodes);
 
-            OrderManager.GetInstance().OnOrderExecuted += OnOrderExecutedCallback;
-
             PublishStopLossOrders();
         }
 
@@ -162,7 +160,8 @@ namespace TradingClient
                         kvp.Value.SecurityCode,
                         kvp.Value.SecurityName,
                         kvp.Value.StoplossPrice,
-                        kvp.Value.Volume);
+                        kvp.Value.Volume,
+                        OnOrderExecutedCallback);
 
                     _stoplossOrders.Add(order);
                 }
@@ -313,7 +312,12 @@ namespace TradingClient
                     // TODO
                 }
 
-                SellOrder order = new SellOrder(stock.SecurityCode, stock.SecurityName, upLimitPrice, stock.Volume);
+                SellOrder order = new SellOrder(
+                    stock.SecurityCode, 
+                    stock.SecurityName, 
+                    upLimitPrice, 
+                    stock.Volume,
+                    OnOrderExecutedCallback);
 
                 _sellOrders.Add(order);
 
@@ -416,7 +420,7 @@ namespace TradingClient
                     stock.TotalCapital,
                     (int)(stock.TotalCapital / stock.ActualMaxBuyPrice));
 
-                BuyOrder order = new BuyOrder(instruction);
+                BuyOrder order = new BuyOrder(instruction, OnOrderExecutedCallback);
 
                 _buyOrders.Add(order);
 

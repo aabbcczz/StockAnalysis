@@ -13,8 +13,8 @@ namespace StockTrading.Utility
 
         public int RemainingVolume { get; private set; }
 
-        public StoplossOrder(string securityCode, string securityName, float stoplossPrice, int volume)
-            : base(securityCode, securityName, volume)
+        public StoplossOrder(string securityCode, string securityName, float stoplossPrice, int volume, Action<IOrder, float, int> onOrderExecuted)
+            : base(securityCode, securityName, volume, onOrderExecuted)
         {
             if (stoplossPrice < 0.0)
             {

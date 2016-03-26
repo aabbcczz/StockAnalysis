@@ -54,5 +54,18 @@ namespace StockTrading.Utility
 
             AssociatedObject = associatedObject;
         }
+
+        public override string ToString()
+        {
+            return string.Format(
+                "{0}/{1}, RequestId: {2}, Category: {3}, PricingType: {4}, Price: {5:0.000}, Volume: {6}",
+                SecurityCode,
+                SecurityName,
+                RequestId,
+                Category,
+                PricingType,
+                Price,
+                Volume);
+        }
     }
 }

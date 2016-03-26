@@ -152,18 +152,18 @@ namespace StockTrading.Utility
                 return;
             }
 
-            if (_isStopped)
-            {
-                return;
-            }
-
-            if (_client == null || !_client.IsLoggedOn())
-            {
-                return;
-            }
-
             try
             {
+                if (_isStopped)
+                {
+                    return;
+                }
+
+                if (_client == null || !_client.IsLoggedOn())
+                {
+                    return;
+                }
+
                 // get a duplicate quote list to avoid lock quote list too long
                 List<string> codes = null;
 

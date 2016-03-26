@@ -53,6 +53,12 @@ namespace StockTrading.Utility
 
 
         /// <summary>
+        /// 当Order被执行后需要执行的Action
+        /// </summary>
+        /// <remarks>OnOrderExecuted(IOrder order, float dealPrice, int dealVolume)</remarks>
+        public Action<IOrder, float, int> OnOrderExecuted { get; private set; }
+
+        /// <summary>
         /// Decide if this order should be executed based on given quote
         /// </summary>
         /// <param name="quote">quote of stock</param>
@@ -99,7 +105,7 @@ namespace StockTrading.Utility
         /// <returns>true if the order is fully completed, otherwise false.</returns>
         public abstract bool IsCompleted();
 
-        protected OrderBase(string securityCode, string securityName, int volume)
+        protected OrderBase(string securityCode, string securityName, int volume, Action<IOrder, float, int> onOrderExecuted)
         {
             if (string.IsNullOrWhiteSpace(securityCode))
             {
@@ -118,6 +124,7 @@ namespace StockTrading.Utility
             ExpectedVolume = volume;
             ExecutedVolume = 0;
             ShouldCancelIfNotSucceeded = false;
+            OnOrderExecuted = onOrderExecuted;
         }
 
         public override string ToString()

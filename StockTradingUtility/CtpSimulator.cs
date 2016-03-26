@@ -11,8 +11,6 @@ namespace StockTrading.Utility
     {
         public delegate void OnQuoteReadyDelegate(FiveLevelQuote[] quotes, string[] errors);
 
-        public delegate void OnOrderStatusChangedDelegate(DispatchedOrder dispatchedOrder);
-
         /// <summary>
         /// the quote refreshing interval in millisecond.
         /// </summary>
@@ -145,9 +143,9 @@ namespace StockTrading.Utility
             _quotePublisher.Subscribe(codes);
         }
 
-        public DispatchedOrder DispatchOrder(OrderRequest request, out string error)
+        public DispatchedOrder DispatchOrder(OrderRequest request, Action<DispatchedOrder> onOrderStatusChanged, out string error)
         {
-            return _orderDispatcher.DispatchOrder(request, out error);
+            return _orderDispatcher.DispatchOrder(request, onOrderStatusChanged, out error);
         }
 
         public bool CancelOrder(DispatchedOrder order, out string error, bool waitForResult)
@@ -163,11 +161,6 @@ namespace StockTrading.Utility
         public void RegisterQuoteReadyCallback(OnQuoteReadyDelegate callback)
         {
             _quotePublisher.RegisterQuoteReadyCallback(callback);
-        }
-
-        public void RegisterOrderStatusChangedCallback(OnOrderStatusChangedDelegate callback)
-        {
-            _orderDispatcher.RegisterOrderStatusChangedCallback(callback);
         }
     }
 }

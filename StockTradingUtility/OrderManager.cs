@@ -24,10 +24,6 @@ namespace StockTrading.Utility
 
         private HashSet<DispatchedOrder> _dispatchedOrders = new HashSet<DispatchedOrder>();
 
-        public delegate void OnOrderExecutedDelegate(IOrder order, float dealPrice, int dealVolume);
-
-        public OnOrderExecutedDelegate OnOrderExecuted { get; set; }
-
         private Timer _cancelOrderTimer = null;
 
         private int _cancellationIntervalInMillisecond = MinCancellationIntervalInMillisecond;
@@ -66,7 +62,6 @@ namespace StockTrading.Utility
         private OrderManager()
         {
             CtpSimulator.GetInstance().RegisterQuoteReadyCallback(OnQuoteReady);
-            CtpSimulator.GetInstance().RegisterOrderStatusChangedCallback(OnOrderStatusChanged);
 
             _cancelOrderTimer = new Timer(CancelOrderTimerCallback, null, _cancellationIntervalInMillisecond, _cancellationIntervalInMillisecond);
         }
@@ -93,7 +88,7 @@ namespace StockTrading.Utility
 
                     try
                     {
-                        if ((now - dispatchedOrder.DispatchTime).TotalMilliseconds >= _cancellationIntervalInMillisecond)
+                        if ((now - dispatchedOrder.DispatchedTime).TotalMilliseconds >= _cancellationIntervalInMillisecond)
                         {
                             string error;
 
@@ -185,32 +180,37 @@ namespace StockTrading.Utility
             OrderRequest request = order.BuildRequest(quote);
 
             string error;
-            DispatchedOrder dispatchedOrder = CtpSimulator.GetInstance().DispatchOrder(request, out error);
 
-            if (dispatchedOrder == null)
+            // we must add lock here to avoid an order being created and executed immediately, 
+            // and then OnOrderStatusChanged will be called and cause problem.
+            lock (_orderLockObj)
             {
-                AppLogger.Default.ErrorFormat(
-                    "Exception in dispatching order, Error: {0}. Order details: {1}",
-                    error,
-                    order);
-            }
-            else
-            {
-                AppLogger.Default.InfoFormat("Dispatched order. Order details: {0}.", order);
 
+                DispatchedOrder dispatchedOrder
+                    = CtpSimulator.GetInstance().DispatchOrder(request, OnOrderStatusChanged, out error);
 
-                lock (_orderLockObj)
+                if (dispatchedOrder == null)
                 {
+                    AppLogger.Default.ErrorFormat(
+                        "Exception in dispatching order, Error: {0}. Order details: {1}",
+                        error,
+                        order);
+                }
+                else
+                {
+                    AppLogger.Default.InfoFormat("Dispatched order. Order details: {0}.", order);
+
+
                     RemoveActiveOrder(order);
                     if (!AddDispatchedOrder(dispatchedOrder))
                     {
                         throw new InvalidOperationException(
                             string.Format("Failed to add dispatched order. Order details: {0}", order));
                     }
-                }
 
-                // force query order status and then may trigger OnOrderStatusChanged event
-                CtpSimulator.GetInstance().QueryOrderStatusForcibly();
+                    // force query order status and then may trigger OnOrderStatusChanged event
+                    CtpSimulator.GetInstance().QueryOrderStatusForcibly();
+                }
             }
         }
 
@@ -236,23 +236,28 @@ namespace StockTrading.Utility
                 if (TradingHelper.IsFinalStatus(dispatchedOrder.LastStatus))
                 {
                     AppLogger.Default.InfoFormat(
-                         "Order executed:  id {0} code {1} status {2} succeeded volume {3} deal price {4}.",
+                         "Order executed:  id {0} code {1} status {2} deal volume {3} average deal price {4}.",
                          order.OrderId,
                          order.SecurityCode,
                          dispatchedOrder.LastStatus,
-                         dispatchedOrder.LastDealVolume,
-                         dispatchedOrder.LastDealPrice);
+                         dispatchedOrder.LastTotalDealVolume,
+                         dispatchedOrder.LastAverageDealPrice);
 
                     lock (_orderLockObj)
                     {
-                        if (dispatchedOrder.LastDealVolume > 0)
+                        if (dispatchedOrder.LastTotalDealVolume > 0)
                         {
-                            order.Deal(dispatchedOrder.LastDealPrice, dispatchedOrder.LastDealVolume);
+                            order.Deal(dispatchedOrder.LastAverageDealPrice, dispatchedOrder.LastTotalDealVolume);
 
                             // callback to client to notify partial or full success
-                            if (OnOrderExecuted != null)
+                            if (order.OnOrderExecuted != null)
                             {
-                                OnOrderExecuted(order, dispatchedOrder.LastDealPrice, dispatchedOrder.LastDealVolume);
+                                Action proxyAction = () =>
+                                    {
+                                        order.OnOrderExecuted(order, dispatchedOrder.LastAverageDealPrice, dispatchedOrder.LastTotalDealVolume);
+                                    };
+
+                                Task.Run(proxyAction);
                             }
                         }
 
