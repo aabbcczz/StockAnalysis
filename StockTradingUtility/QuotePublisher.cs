@@ -23,11 +23,13 @@ namespace StockTrading.Utility
         private bool _isStopped = false;
 
         private object _publisherLockObj = new object();
-        private object _codesLockObj = new object();
+        private ReaderWriterLockSlim _subscriptionReadWriteLock = new ReaderWriterLockSlim();
 
-        private IDictionary<string, int> _subscribedCodes = new Dictionary<string, int>();
+        private IDictionary<string, HashSet<QuoteSubscription.QuoteReceiver>> _subscriptions
+            = new Dictionary<string, HashSet<QuoteSubscription.QuoteReceiver>>();
 
-        private CtpSimulator.OnQuoteReadyDelegate _onQuoteReadyCallback = null;
+        private IDictionary<QuoteSubscription.QuoteReceiver, HashSet<string>> _subscriptionIndex
+            = new Dictionary<QuoteSubscription.QuoteReceiver, HashSet<string>>();
 
         public QuotePublisher(TradingClient client, int refreshingIntervalInMillisecond, bool enableSinaQuote)
         {
@@ -61,86 +63,95 @@ namespace StockTrading.Utility
             }
         }
 
-        public void RegisterQuoteReadyCallback(CtpSimulator.OnQuoteReadyDelegate callback)
+        public void UnsafeSubscribe(QuoteSubscription subscription)
         {
-            if (callback == null)
+            if (!_subscriptions.ContainsKey(subscription.SecurityCode))
             {
-                throw new ArgumentNullException();
+                _subscriptions.Add(subscription.SecurityCode, new HashSet<QuoteSubscription.QuoteReceiver>());
+            }
+ 
+            _subscriptions[subscription.SecurityCode].Add(subscription.Receiver);
+
+            if (!_subscriptionIndex.ContainsKey(subscription.Receiver))
+            {
+                _subscriptionIndex.Add(subscription.Receiver, new HashSet<string>());
             }
 
-            lock (_publisherLockObj)
+            _subscriptionIndex[subscription.Receiver].Add(subscription.SecurityCode);
+        }
+
+        public void UnsafeUnsubscribe(QuoteSubscription subscription)
+        {
+            if (_subscriptions.ContainsKey(subscription.SecurityCode))
             {
-                _onQuoteReadyCallback += callback;
+                _subscriptions[subscription.SecurityCode].Remove(subscription.Receiver);
+            }
+
+            if (_subscriptionIndex.ContainsKey(subscription.Receiver))
+            {
+                _subscriptionIndex[subscription.Receiver].Remove(subscription.SecurityCode);
             }
         }
 
-        public void UnsafeSubscribe(string code)
+        public void Subscribe(QuoteSubscription subscription)
         {
-            if (!_subscribedCodes.ContainsKey(code))
+            _subscriptionReadWriteLock.EnterWriteLock();
+
+            try
             {
-                _subscribedCodes.Add(code, 1);
+                UnsafeSubscribe(subscription);
             }
-            else
+            finally
             {
-                _subscribedCodes[code]++;
+                _subscriptionReadWriteLock.ExitWriteLock();
             }
         }
 
-        public void UnsafeUnsubscribe(string code)
+        public void Unsubscribe(QuoteSubscription subscription)
         {
+            _subscriptionReadWriteLock.EnterWriteLock();
 
-            if (_subscribedCodes.ContainsKey(code))
+            try
             {
-                int refCount = _subscribedCodes[code];
+                UnsafeUnsubscribe(subscription);
+            }
+            finally
+            {
+                _subscriptionReadWriteLock.ExitWriteLock();
+            }
+        }
 
-                --refCount;
+        public void Subscribe(IEnumerable<QuoteSubscription> subscriptions)
+        {
+            _subscriptionReadWriteLock.EnterWriteLock();
 
-                if (refCount > 0)
+            try
+            {
+                foreach (var subscription in subscriptions)
                 {
-                    _subscribedCodes[code] = refCount;
+                    UnsafeSubscribe(subscription);
                 }
-                else
+            }
+            finally
+            {
+                _subscriptionReadWriteLock.ExitWriteLock();
+            }
+        }
+
+        public void Unsubscribe(IEnumerable<QuoteSubscription> subscriptions)
+        {
+            _subscriptionReadWriteLock.EnterWriteLock();
+
+            try
+            {
+                foreach (var subscription in subscriptions)
                 {
-                    _subscribedCodes.Remove(code);
+                    UnsafeUnsubscribe(subscription);
                 }
             }
-        }
-
-        public void Subscribe(string code)
-        {
-            lock (_codesLockObj)
+            finally
             {
-                UnsafeSubscribe(code);
-            }
-        }
-
-        public void Unsubscribe(string code)
-        {
-            lock (_codesLockObj)
-            {
-                UnsafeUnsubscribe(code);
-            }
-        }
-
-        public void Subscribe(IEnumerable<string> codes)
-        {
-            lock (_codesLockObj)
-            {
-                foreach (var code in codes)
-                {
-                    UnsafeSubscribe(code);
-                }
-            }
-        }
-
-        public void Unsubscribe(IEnumerable<string> codes)
-        {
-            lock (_codesLockObj)
-            {
-                foreach (var code in codes)
-                {
-                    UnsafeUnsubscribe(code);
-                }
+                _subscriptionReadWriteLock.ExitWriteLock();
             }
         }
 
@@ -167,14 +178,20 @@ namespace StockTrading.Utility
                 // get a duplicate quote list to avoid lock quote list too long
                 List<string> codes = null;
 
-                lock (_codesLockObj)
+                _subscriptionReadWriteLock.EnterReadLock();
+
+                try
                 {
-                    if (_subscribedCodes.Count == 0)
+                    if (_subscriptions.Count == 0)
                     {
                         return;
                     }
 
-                    codes = new List<string>(_subscribedCodes.Keys);
+                    codes = new List<string>(_subscriptions.Keys);
+                }
+                finally
+                {
+                    _subscriptionReadWriteLock.ExitReadLock();
                 }
 
                 System.Diagnostics.Debug.Assert(codes.Count > 0);
@@ -236,7 +253,7 @@ namespace StockTrading.Utility
                                 }
                             }
                             
-                            PublishQuotes(quotes, errors);
+                            PublishQuotes(subset, quotes, errors);
                         });
             }
             catch (Exception ex)
@@ -249,11 +266,50 @@ namespace StockTrading.Utility
             }
         }
 
-        private void PublishQuotes(FiveLevelQuote[] quotes, string[] errors)
+        private void PublishQuotes(string[] codes, FiveLevelQuote[] quotes, string[] errors)
         {
-            if (_onQuoteReadyCallback != null)
+            List<QuoteResult> results = null;
+            List<QuoteSubscription.QuoteReceiver> receivers = null;
+            Dictionary<QuoteSubscription.QuoteReceiver, List<QuoteResult>> subsets = null;
+
+            _subscriptionReadWriteLock.EnterReadLock();
+
+            try
             {
-                _onQuoteReadyCallback(quotes, errors);
+                // find all valid results
+                results = Enumerable
+                    .Range(0, quotes.Length)
+                    .Where(i => _subscriptions.ContainsKey(codes[i]))
+                    .Select(i => new QuoteResult(codes[i], quotes[i], errors[i]))
+                    .ToList();
+
+                // get all distinct receivers
+                receivers = results
+                    .SelectMany(r => _subscriptions[r.SecurityCode])
+                    .Distinct()
+                    .ToList();
+
+                if (results.Count == 0)
+                {
+                    return;
+                }
+
+                subsets = receivers
+                    .ToDictionary(
+                        r => r, 
+                        r => results
+                                .Where(q => _subscriptionIndex[r].Contains(q.SecurityCode))
+                                .ToList());
+            }
+            finally
+            {
+                _subscriptionReadWriteLock.ExitReadLock();
+            }
+
+            // move callback out of lock, so that the callback can subscribe/unsubscribe quote
+            foreach (var subset in subsets)
+            {
+                subset.Key(subset.Value);
             }
         }
     }

@@ -87,6 +87,8 @@
     <Compile Include="QueryStockResult.cs" />
     <Compile Include="QuerySucceededOrderResult.cs" />
     <Compile Include="QuotePublisher.cs" />
+    <Compile Include="QuoteResult.cs" />
+    <Compile Include="QuoteSubscription.cs" />
     <Compile Include="SellOrder.cs" />
     <Compile Include="StoplossOrder.cs" />
     <Compile Include="TradingHelper.cs" />

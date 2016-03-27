@@ -12,16 +12,24 @@ namespace TradingClient
 {
     sealed class StrategyGdbExecuter
     {
+        private const int MaxBuyCount = 3;
         private const string DataFileFolder = "StrategyGDB";
         private readonly TimeSpan _startRunTime = new TimeSpan(9, 29, 0);
         private readonly TimeSpan _endRunTime = new TimeSpan(14, 50, 0);
+        private readonly TimeSpan _startExecuteTime = new TimeSpan(9, 29, 0);
+        private readonly TimeSpan _endExecuteTime = new TimeSpan(15, 30, 0);
+        private readonly TimeSpan _startAcceptQuoteTime = new TimeSpan(9, 30, 0);
+        private readonly TimeSpan _endAcceptQuoteTime = new TimeSpan(14, 56, 0);
         private readonly TimeSpan _startPublishStoplossOrderTime = new TimeSpan(9, 30, 0);
         private readonly TimeSpan _endPublishStoplossOrderTime = new TimeSpan(14, 56, 0);
         private readonly TimeSpan _startPublishBuyOrderTime = new TimeSpan(9, 30, 0);
         private readonly TimeSpan _endPublishBuyOrderTime = new TimeSpan(14, 55, 0);
         private readonly TimeSpan _startPublishSellOrderTime = new TimeSpan(14, 55, 0);
         private readonly TimeSpan _endPublishSellOrderTime = new TimeSpan(14, 57, 0);
-        
+
+        // the new stock has been bought
+        private HashSet<StrategyGDB.NewStock> _boughtStock = new HashSet<StrategyGDB.NewStock>();
+
         private List<StrategyGDB.NewStock> _newStocks = null;
         private List<StrategyGDB.ExistingStock> _existingStocks = null;
         
@@ -29,41 +37,26 @@ namespace TradingClient
         private Dictionary<string, StrategyGDB.NewStock> _activeNewStockIndex = null;
         private Dictionary<string, StrategyGDB.ExistingStock> _activeExistingStockIndex = null;
 
-        private HashSet<StoplossOrder> _stoplossOrders = new HashSet<StoplossOrder>();
-        private HashSet<BuyOrder> _buyOrders = new HashSet<BuyOrder>();
-        private HashSet<SellOrder> _sellOrders = new HashSet<SellOrder>();
+        private Dictionary<object, StockOrderRuntime> _stockOrderRuntimes = new Dictionary<object, StockOrderRuntime>();
 
-        private object _lockObj = new object();
+        private ReaderWriterLockSlim _runtimeReadWriteLock = new ReaderWriterLockSlim();
 
-        public IEnumerable<BuyOrder> ActiveBuyOrders
+        private float _useableCapital = 0.0f;
+        private object _queryCapitalLockObj = new object();
+
+        public IEnumerable<StockOrderRuntime> StockOrderRuntimes
         {
             get 
             {
-                lock (_lockObj)
+                _runtimeReadWriteLock.EnterReadLock();
+
+                try
                 {
-                    return new List<BuyOrder>(_buyOrders);
+                    return new List<StockOrderRuntime>(_stockOrderRuntimes.Values);
                 }
-            }
-        }
-
-        public IEnumerable<StoplossOrder> ActiveStoplossOrders
-        {
-            get 
-            {
-                lock (_lockObj)
+                finally
                 {
-                    return new List<StoplossOrder>(_stoplossOrders);
-                }
-            }
-        }
-
-        public IEnumerable<SellOrder> ActiveSellOrders
-        {
-            get 
-            {
-                lock (_lockObj)
-                {
-                    return new List<SellOrder>(_sellOrders);
+                    _runtimeReadWriteLock.ExitReadLock();
                 }
             }
         }
@@ -84,7 +77,8 @@ namespace TradingClient
 
             var allCodes = _newStocks
                 .Select(n => n.SecurityCode)
-                .Union(_existingStocks.Select(e => e.SecurityCode));
+                .Union(_existingStocks.Select(e => e.SecurityCode))
+                .Distinct();
                 
 
             _allCodes = new HashSet<string>(allCodes);
@@ -107,19 +101,59 @@ namespace TradingClient
                 return;
             }
 
-            if (!WaitForValidTime(_startRunTime, _endRunTime))
+            if (!WaitForActionTime(_startRunTime, _endRunTime))
             {
                 AppLogger.Default.ErrorFormat("Wait for valid trading time failed");
                 return;
             }
 
-            CtpSimulator.GetInstance().RegisterQuoteReadyCallback(OnQuoteReadyCallback);
-            CtpSimulator.GetInstance().SubscribeQuote(_allCodes);
+            // update useable capital
+            UpdateCurrentUseableCapital();
 
-            PublishStopLossOrders();
+            // subscribe quote for all stocks
+            CtpSimulator.GetInstance().SubscribeQuote(_newStocks.Select(s => new QuoteSubscription(s.SecurityCode, OnNewStockQuoteReady)));
+            AppLogger.Default.InfoFormat(
+                "Subscribe quote {0}", 
+                string.Join(",",_newStocks.Select(s => s.SecurityCode)));
+
+            CtpSimulator.GetInstance().SubscribeQuote(_existingStocks.Select(s => new QuoteSubscription(s.SecurityCode, OnExistingStockQuoteReady)));
+            AppLogger.Default.InfoFormat(
+                "Subscribe quote {0}",
+                string.Join(",", _existingStocks.Select(s => s.SecurityCode)));
+
+            while (IsValidActionTime(_startExecuteTime, _endExecuteTime))
+            {
+                Stoploss();
+                Sell();
+
+                Thread.Sleep(1000);
+            }
         }
 
-        private bool WaitForValidTime(TimeSpan startTime, TimeSpan endTime)
+        private void UpdateCurrentUseableCapital()
+        {
+            lock (_queryCapitalLockObj)
+            {
+                string error;
+
+                QueryCapitalResult result = CtpSimulator.GetInstance().QueryCapital(out error);
+
+                float useableCapital = 0.0f;
+
+                if (result == null)
+                {
+                    AppLogger.Default.ErrorFormat("Failed to query capital. Error: {0}", error);
+                }
+                else
+                {
+                    useableCapital = result.UsableCapital;
+                }
+
+                this._useableCapital = useableCapital;
+            }
+        }
+
+        private bool WaitForActionTime(TimeSpan startTime, TimeSpan endTime)
         {
             do
             {
@@ -139,147 +173,401 @@ namespace TradingClient
             } while (true);
         }
 
-        private void PublishStopLossOrders()
+        private bool IsValidActionTime(TimeSpan startTime, TimeSpan endTime)
         {
-            if (_activeExistingStockIndex.Count == 0)
-            {
-                return;
-            }
+            TimeSpan now = DateTime.Now.TimeOfDay;
 
-            if (!WaitForValidTime(_startPublishStoplossOrderTime, _endPublishStoplossOrderTime))
-            {
-                AppLogger.Default.ErrorFormat("Wait for valid trading time to publish stop loss order failed");
-                return;
-            }
-
-            lock (_lockObj)
-            {
-                foreach (var kvp in _activeExistingStockIndex)
-                {
-                    StoplossOrder order = new StoplossOrder(
-                        kvp.Value.SecurityCode,
-                        kvp.Value.SecurityName,
-                        kvp.Value.StoplossPrice,
-                        kvp.Value.Volume,
-                        OnOrderExecutedCallback);
-
-                    _stoplossOrders.Add(order);
-                }
-
-                foreach (var order in _stoplossOrders)
-                {
-                    // remove sell order if have
-                    var sellOrder = _sellOrders.FirstOrDefault(s => s.SecurityCode == order.SecurityCode);
-                    if (sellOrder != default(SellOrder))
-                    {
-                        _sellOrders.Remove(sellOrder);
-                        OrderManager.GetInstance().UnregisterOrder(sellOrder);
-
-                    }
-
-                    OrderManager.GetInstance().RegisterOrder(order);
-                }
-            }
+            return IsValidActionTime(now, startTime, endTime);
         }
 
-        private void OnOrderExecutedCallback(IOrder order, float dealPrice, int dealVolume)
+        private bool IsValidActionTime(TimeSpan currentTime, TimeSpan startTime, TimeSpan endTime)
         {
-            lock (_lockObj)
+            return (currentTime >= startTime && currentTime <= endTime);
+        }
+
+        private void UnsubscribeNewStock(string code)
+        {
+            CtpSimulator.GetInstance().UnsubscribeQuote(new QuoteSubscription(code, OnNewStockQuoteReady));
+            AppLogger.Default.InfoFormat("Unsubscribe quote {0}", code);
+        }
+
+        private void UnsubscribeExistingStock(string code)
+        {
+            CtpSimulator.GetInstance().UnsubscribeQuote(new QuoteSubscription(code, OnExistingStockQuoteReady));
+            AppLogger.Default.InfoFormat("Unsubscribe quote {0}", code);
+        }
+
+        private void Buy(FiveLevelQuote quote)
+        {
+            _runtimeReadWriteLock.EnterWriteLock();
+
+            try
             {
-                if (!_stoplossOrders.Contains(order))
+                if (!IsValidActionTime(quote.Timestamp.TimeOfDay, _startAcceptQuoteTime, _endAcceptQuoteTime))
                 {
                     return;
                 }
 
-                // remove from existing stock index, so that no any sell order can be created for this stock
-                _activeExistingStockIndex.Remove(order.SecurityCode);
+                if (!_activeNewStockIndex.ContainsKey(quote.SecurityCode))
+                {
+                    UnsubscribeNewStock(quote.SecurityCode);
+                    return;
+                }
+
+                var stock = _activeNewStockIndex[quote.SecurityCode];
+
+                // check if buy order has been created
+                if (_stockOrderRuntimes.ContainsKey(stock))
+                {
+                    var runtime = _stockOrderRuntimes[stock];
+                    if (runtime.AssociatedBuyOrder != null)
+                    {
+                        return;
+                    }
+                }
+
+                lock (_boughtStock)
+                {
+                    if (_boughtStock.Count >= StrategyGdbExecuter.MaxBuyCount)
+                    {
+                        UnsubscribeNewStock(quote.SecurityCode);
+                        return;
+                    }
+                }
+
+                if (stock.DateToBuy.Date != DateTime.Today)
+                {
+                    // remove from active new stock
+                    _activeNewStockIndex.Remove(quote.SecurityCode);
+
+                    AppLogger.Default.WarnFormat(
+                        "The buy date of stock {0:yyyy-MM-dd} is not today. {1}/{2}",
+                        stock.DateToBuy,
+                        stock.SecurityCode,
+                        stock.SecurityName);
+
+                    return;
+                }
+
+                // determine if open price is in valid range
+                if (float.IsNaN(stock.ActualOpenPrice))
+                {
+                    double upLimitPrice = ChinaStockHelper.CalculatePrice(
+                        quote.YesterdayClosePrice,
+                        stock.OpenPriceUpLimitPercentage - 100.0f,
+                        2);
+
+                    double downLimitPrice = ChinaStockHelper.CalculatePrice(
+                        quote.YesterdayClosePrice,
+                        stock.OpenPriceDownLimitPercentage - 100.0f,
+                        2);
+
+                    if (quote.TodayOpenPrice < downLimitPrice
+                        || quote.TodayOpenPrice > upLimitPrice
+                        || quote.TodayOpenPrice < stock.StoplossPrice)
+                    {
+                        // remove from active new stock
+                        _activeNewStockIndex.Remove(quote.SecurityCode);
+
+                        AppLogger.Default.InfoFormat(
+                            "Failed to buy stock because open price is out of range. {0}/{1} open {2:0.000} out of [{3:0.000}, {4:0.000}]",
+                            stock.SecurityCode,
+                            stock.SecurityName,
+                            quote.TodayOpenPrice,
+                            downLimitPrice,
+                            upLimitPrice);
+                    }
+                    else
+                    {
+                        stock.ActualOpenPrice = quote.TodayOpenPrice;
+                        stock.ActualOpenPriceDownLimit = (float)downLimitPrice;
+                        stock.ActualOpenPriceUpLimit = (float)upLimitPrice;
+                        stock.ActualMaxBuyPrice = (float)ChinaStockHelper.CalculatePrice(
+                            quote.TodayOpenPrice,
+                            stock.MaxBuyPriceIncreasePercentage,
+                            2);
+                        stock.TodayDownLimitPrice = (float)ChinaStockHelper.CalculateDownLimit(stock.SecurityCode, stock.SecurityName, quote.YesterdayClosePrice, 2);
+                        stock.ActualMinBuyPrice = Math.Max(stock.StoplossPrice, stock.TodayDownLimitPrice);
+
+                    }
+                }
+
+                // only buy those stock which has been raised over open price
+                if (quote.CurrentPrice > quote.TodayOpenPrice)
+                {
+                    stock.IsBuyable = true;
+                }
+
+                if (stock.IsBuyable)
+                {
+                    if (IsValidActionTime(quote.Timestamp.TimeOfDay, _startPublishBuyOrderTime, _endPublishBuyOrderTime))
+                    {
+                        CreateBuyOrder(stock);
+
+                        // unsubscribe the quote because all conditions has been setup.
+                        UnsubscribeNewStock(quote.SecurityCode);
+                    }
+                }
+            }
+            finally
+            {
+                _runtimeReadWriteLock.ExitWriteLock();
+            }
+        }
+
+        private void CreateBuyOrder(StrategyGDB.NewStock stock)
+        {
+            if (_stockOrderRuntimes.ContainsKey(stock))
+            {
+                if (_stockOrderRuntimes[stock].AssociatedBuyOrder != null)
+                {
+                    return;
+                }
             }
 
+            // update usable capital before issuing any buy order
+            UpdateCurrentUseableCapital();
+
+            if (_useableCapital < stock.TotalCapital * 0.9)
+            {
+                return;
+            }
+
+            float capital = Math.Min(stock.TotalCapital, _useableCapital);
+
+            int maxVolume = (int)(capital / stock.ActualMaxBuyPrice);
+
+            BuyInstruction instruction = new BuyInstruction(
+                stock.SecurityCode,
+                stock.SecurityName,
+                stock.ActualMinBuyPrice,
+                stock.ActualMaxBuyPrice,
+                stock.ActualMaxBuyPrice,
+                capital,
+                maxVolume);
+
+            BuyOrder order = new BuyOrder(instruction, OnBuyOrderExecuted);
+
+            if (_stockOrderRuntimes.ContainsKey(stock))
+            {
+                _stockOrderRuntimes[stock].AssociatedBuyOrder = order;
+            }
+            else
+            {
+                var runtime = new StockOrderRuntime(stock.SecurityCode, stock.SecurityName)
+                    {
+                        ExpectedVolume = order.ExpectedVolume,
+                        RemainingVolume = order.ExpectedVolume,
+                        AssociatedBuyOrder = order,
+                    };
+
+                _stockOrderRuntimes.Add(stock, runtime);
+            }
+
+            OrderManager.GetInstance().RegisterOrder(order);
+
+            AppLogger.Default.InfoFormat("Registered order {0}", order);
+        }
+
+        private void OnBuyOrderExecuted(IOrder order, float dealPrice, int dealVolume)
+        {
+            AppLogger.Default.InfoFormat("Order executed. order details: {0}", order);
+
+            if (dealVolume <= 0)
+            {
+                return;
+            }
+
+            HashSet<StrategyGDB.NewStock> boughtStockCopy = null;
+
+            lock (_boughtStock)
+            {
+                if (_boughtStock.Count >= StrategyGdbExecuter.MaxBuyCount)
+                {
+                    return;
+                }
+                 
+                _boughtStock.Add(_activeNewStockIndex[order.SecurityCode]);
+
+                if (_boughtStock.Count < StrategyGdbExecuter.MaxBuyCount)
+                {
+                    return;
+                }
+
+                // create a copy to avoid deadlock between _boughtStock's lock and _runtimeReadWriteLock;
+                boughtStockCopy = new HashSet<StrategyGDB.NewStock>(_boughtStock);
+            }
+
+            // remove all other buy orders which has not been executed successfully asynchronously
+            // to avoid deadlock in OrderManager.
+            Action action = () =>
+            {
+                _runtimeReadWriteLock.EnterWriteLock();
+
+                try
+                {
+                    foreach (var kvp in _stockOrderRuntimes)
+                    {
+                        if (kvp.Value.AssociatedBuyOrder != null)
+                        {
+                            if (!boughtStockCopy.Contains(kvp.Key))
+                            {
+                                OrderManager.GetInstance().UnregisterOrder(kvp.Value.AssociatedBuyOrder);
+                                kvp.Value.AssociatedBuyOrder = null;
+                            }
+                        }
+                    }
+                }
+                finally
+                {
+                    _runtimeReadWriteLock.ExitWriteLock();
+                }
+            };
+
+            Task.Run(action);
+        }
+
+        private void Stoploss()
+        {
+            if (!IsValidActionTime(_startPublishStoplossOrderTime, _endPublishStoplossOrderTime))
+            {
+                return;
+            }
+
+            _runtimeReadWriteLock.EnterWriteLock();
+
+            try
+            {
+                foreach (var stock in _activeExistingStockIndex.Values)
+                {
+                    if (!_stockOrderRuntimes.ContainsKey(stock))
+                    {
+                        StoplossOrder order = new StoplossOrder(
+                            stock.SecurityCode,
+                            stock.SecurityName,
+                            stock.StoplossPrice,
+                            stock.Volume,
+                            OnStoplossOrderExecuted);
+
+                        StockOrderRuntime runtime = new StockOrderRuntime(stock.SecurityCode, stock.SecurityName)
+                        {
+                            AssociatedStoplossOrder = order,
+                            ExpectedVolume = stock.Volume,
+                            RemainingVolume = stock.Volume,
+                        };
+
+                        _stockOrderRuntimes.Add(stock, runtime);
+
+                        OrderManager.GetInstance().RegisterOrder(order);
+                        AppLogger.Default.InfoFormat("Registered order {0}", order);
+                    }
+                    else
+                    {
+                        var runtime = _stockOrderRuntimes[stock];
+                        if (runtime.AssociatedSellOrder == null && runtime.AssociatedStoplossOrder == null)
+                        {
+                            StoplossOrder order = new StoplossOrder(
+                                stock.SecurityCode,
+                                stock.SecurityName,
+                                stock.StoplossPrice,
+                                runtime.RemainingVolume,
+                                OnStoplossOrderExecuted);
+
+                            runtime.AssociatedStoplossOrder = order;
+
+                            OrderManager.GetInstance().RegisterOrder(order);
+                            AppLogger.Default.InfoFormat("Registered order {0}", order);
+                        }
+                    }
+                }
+            }
+            finally
+            {
+                _runtimeReadWriteLock.ExitWriteLock();
+            }
+        }
+
+        private void OnStoplossOrderExecuted(IOrder order, float dealPrice, int dealVolume)
+        {
+            AppLogger.Default.InfoFormat("Order executed. order details: {0}", order);
+
+            if (dealVolume <= 0)
+            {
+                return;
+            }
+
+            _runtimeReadWriteLock.EnterReadLock();
+            try
+            {
+                var stock = _activeExistingStockIndex[order.SecurityCode];
+                System.Diagnostics.Debug.Assert(stock != null);
+
+                var runtime = _stockOrderRuntimes[stock];
+                System.Diagnostics.Debug.Assert(runtime != null);
+                System.Diagnostics.Debug.Assert(object.ReferenceEquals(runtime.AssociatedStoplossOrder, order));
+
+                runtime.RemainingVolume -= dealVolume;
+                System.Diagnostics.Debug.Assert(runtime.RemainingVolume >= 0);
+            }
+            finally
+            {
+                _runtimeReadWriteLock.ExitReadLock();
+            }
+        }
+
+        private void Sell()
+        {
+
+        }
+        private void OnSellOrderExecuted(IOrder order, float dealPrice, int dealVolume)
+        {
             AppLogger.Default.InfoFormat("Order executed. order details: {0}", order);
         }
 
-        private void OnBuyOrderExecutedCallback(BuyOrder order, float dealPrice, int dealVolume)
+        private void OnNewStockQuoteReady(IEnumerable<QuoteResult> quotes)
         {
-            lock (_lockObj)
+            foreach (var quote in quotes)
             {
-                if (!_buyOrders.Contains(order))
-                {
-                    return;
-                }
-            }
-
-            AppLogger.Default.InfoFormat(
-                "Buy order executed. Id: {0}, {1}/{2}, price {3:0.000}, volume {4}, remaining volume {5}, remaining capital {6:0.000}",
-                order.OrderId,
-                order.SecurityCode,
-                order.SecurityName,
-                dealPrice,
-                dealVolume,
-                order.RemainingVolumeCanBeBought,
-                order.RemainingCapitalCanBeUsed);
-            
-        }
-
-        private void OnSellOrderExecutedCallback(SellOrder order, float dealPrice, int dealVolume)
-        {
-            lock (_lockObj)
-            {
-                if (!_sellOrders.Contains(order))
-                {
-                    return;
-                }
-
-                // remove from existing stock index, so that no any stop loss order can be created for this stock
-                _activeExistingStockIndex.Remove(order.SecurityCode);
-            }
-
-            AppLogger.Default.InfoFormat(
-                "Sell order executed. Id: {0}, {1}/{2}, price {3:0.000}, volume {4}, remaining volume {5}",
-                order.OrderId,
-                order.SecurityCode,
-                order.SecurityName,
-                dealPrice,
-                dealVolume,
-                order.RemainingVolume);
-            
-        }
-
-        private void OnQuoteReadyCallback(FiveLevelQuote[] quotes, string[] errors)
-        {
-            for (int i = 0; i < quotes.Length; ++i)
-            {
-                if (!string.IsNullOrEmpty(errors[i]))
+                if (!quote.IsValidQuote())
                 {
                     continue;
                 }
 
-                if (!_allCodes.Contains(quotes[i].SecurityCode))
+                Buy(quote.Quote);
+            }
+        }
+
+        private void OnExistingStockQuoteReady(IEnumerable<QuoteResult> quotes)
+        {
+            foreach (var quote in quotes)
+            {
+                if (!quote.IsValidQuote())
                 {
                     continue;
                 }
 
-                FiveLevelQuote currentQuote = quotes[i];
-
-                lock (_lockObj)
+                if (!_activeExistingStockIndex.ContainsKey(quote.SecurityCode))
                 {
-                    // check if we can issue buy order
-                    if (_activeNewStockIndex.ContainsKey(currentQuote.SecurityCode))
-                    {
-                        TryPublishBuyOrder(currentQuote);
-                    }
+                    CtpSimulator.GetInstance().UnsubscribeQuote(new QuoteSubscription(quote.SecurityCode, OnExistingStockQuoteReady));
 
-                    // check if we can issue sell order
-                    if (_activeExistingStockIndex.ContainsKey(currentQuote.SecurityCode))
-                    {
-                        TryPublishSellOrder(currentQuote);
-                    }
+                    AppLogger.Default.InfoFormat("Unsubscribe quote {0}", quote.SecurityCode);
+                    continue;
+                }
+
+                FiveLevelQuote currentQuote = quote.Quote;
+
+                // check if we can issue buy order
+                if (_activeNewStockIndex.ContainsKey(currentQuote.SecurityCode))
+                {
+                    Buy(currentQuote);
+                }
+
+                // check if we can issue sell order
+                if (_activeExistingStockIndex.ContainsKey(currentQuote.SecurityCode))
+                {
+                    TryPublishSellOrder(currentQuote);
                 }
             }
-        }
-
-        private bool IsValidTime(TimeSpan currentTime, TimeSpan startTime, TimeSpan endTime)
-        {
-            return (currentTime >= startTime && currentTime <= endTime);
         }
 
         private void TryPublishSellOrder(FiveLevelQuote quote)
@@ -298,12 +586,12 @@ namespace TradingClient
                 && stock.HoldDays > 1)
             {
                 // remove stop loss order if have
-                var stoplossOrder = _stoplossOrders.FirstOrDefault(s => s.SecurityCode == stock.SecurityCode);
-                if (stoplossOrder != default(StoplossOrder))
+               // var stoplossOrder = _stoplossOrders.FirstOrDefault(s => s.SecurityCode == stock.SecurityCode);
+                //if (stoplossOrder != default(StoplossOrder))
                 {
-                    _stoplossOrders.Remove(stoplossOrder);
+                    //_stoplossOrders.Remove(stoplossOrder);
 
-                    OrderManager.GetInstance().UnregisterOrder(stoplossOrder);
+                    //OrderManager.GetInstance().UnregisterOrder(stoplossOrder);
 
                     // need to add back to existing stock index
                     // TODO
@@ -317,9 +605,9 @@ namespace TradingClient
                     stock.SecurityName, 
                     upLimitPrice, 
                     stock.Volume,
-                    OnOrderExecutedCallback);
+                    OnSellOrderExecuted);
 
-                _sellOrders.Add(order);
+                //_sellOrders.Add(order);
 
                 OrderManager.GetInstance().RegisterOrder(order);
 
@@ -333,7 +621,7 @@ namespace TradingClient
                     order.SellPrice);
             }
                 
-            if (!IsValidTime(quote.Timestamp.TimeOfDay, _startPublishSellOrderTime, _endPublishSellOrderTime))
+            if (!IsValidActionTime(quote.Timestamp.TimeOfDay, _startPublishSellOrderTime, _endPublishSellOrderTime))
             {
                 return;
             }
@@ -342,93 +630,6 @@ namespace TradingClient
             
         }
 
-        private void TryPublishBuyOrder(FiveLevelQuote quote)
-        {
-            if (!IsValidTime(quote.Timestamp.TimeOfDay, _startPublishBuyOrderTime, _endPublishBuyOrderTime))
-            {
-                return;
-            }
 
-            var stock = _activeNewStockIndex[quote.SecurityCode];
-            
-            if (stock.DateToBuy.Date != DateTime.Today)
-            {
-                // remove from active new stock
-                _activeNewStockIndex.Remove(quote.SecurityCode);
-
-                AppLogger.Default.WarnFormat(
-                    "The buy date of stock {0:yyyy-MM-dd} is not today. {1}/{2}",
-                    stock.DateToBuy,
-                    stock.SecurityCode,
-                    stock.SecurityName);
-
-                return;
-            }
-
-            // judge if open price is in valid range
-            if (float.IsNaN(stock.ActualOpenPrice))
-            {
-                double upLimitPrice = ChinaStockHelper.CalculatePrice(
-                    quote.YesterdayClosePrice, 
-                    stock.OpenPriceUpLimitPercentage - 100.0f, 
-                    2);
-
-                double downLimitPrice = ChinaStockHelper.CalculatePrice(
-                    quote.YesterdayClosePrice, 
-                    stock.OpenPriceDownLimitPercentage - 100.0f, 
-                    2);
-
-                if (quote.TodayOpenPrice < downLimitPrice 
-                    || quote.TodayOpenPrice > upLimitPrice 
-                    || quote.TodayOpenPrice < stock.StoplossPrice)
-                {
-                    // remove from active new stock
-                    _activeNewStockIndex.Remove(quote.SecurityCode);
-
-                    AppLogger.Default.InfoFormat(
-                        "Failed to buy stock because open price is out of range. {0}/{1} open {2:0.000} out of [{3:0.000}, {4:0.000}]",
-                        stock.SecurityCode,
-                        stock.SecurityName,
-                        quote.TodayOpenPrice,
-                        downLimitPrice,
-                        upLimitPrice);
-                }
-                else
-                {
-                    stock.ActualOpenPrice = quote.TodayOpenPrice;
-                    stock.ActualOpenPriceDownLimit = (float)downLimitPrice;
-                    stock.ActualOpenPriceUpLimit = (float)upLimitPrice;
-                    stock.ActualMaxBuyPrice = (float)ChinaStockHelper.CalculatePrice(
-                        quote.TodayOpenPrice, 
-                        stock.MaxBuyPriceIncreasePercentage, 
-                        2);
-                }
-            }
-
-            // only buy those stock which has been raised over open price
-            if (quote.CurrentPrice > quote.TodayOpenPrice)
-            {
-                float downLimitPrice = (float)ChinaStockHelper.CalculateDownLimit(stock.SecurityCode, stock.SecurityName, quote.YesterdayClosePrice, 2);
-                float minBuyPrice = Math.Max(stock.StoplossPrice, downLimitPrice);
-
-                BuyInstruction instruction = new BuyInstruction(
-                    stock.SecurityCode, 
-                    stock.SecurityName,
-                    minBuyPrice,
-                    stock.ActualMaxBuyPrice,
-                    stock.ActualMaxBuyPrice,
-                    stock.TotalCapital,
-                    (int)(stock.TotalCapital / stock.ActualMaxBuyPrice));
-
-                BuyOrder order = new BuyOrder(instruction, OnOrderExecutedCallback);
-
-                _buyOrders.Add(order);
-
-                OrderManager.GetInstance().RegisterOrder(order);
-
-                // remove active new stock after issued buy order.
-                _activeNewStockIndex.Remove(stock.SecurityCode);
-            }
-        }
     }
 }

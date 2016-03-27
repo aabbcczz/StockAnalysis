@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace StockTrading.Utility
@@ -12,9 +13,9 @@ namespace StockTrading.Utility
     public interface IOrder
     {
         /// <summary>
-        /// Order unique id
+        /// Order id
         /// </summary>
-        Guid OrderId { get; }
+        int OrderId { get; }
 
         /// <summary>
         /// 证券代码
@@ -50,6 +51,11 @@ namespace StockTrading.Utility
         /// 是否需要取消交易订单如果交易订单没有及时成功
         /// </summary>
         bool ShouldCancelIfNotSucceeded { get; }
+
+        /// <summary>
+        /// event that indicate no active order is dispatched
+        /// </summary>
+        ManualResetEvent NoActiveOrderDispatched { get; }
 
         /// <summary>
         /// 当Order被执行后需要执行的Action

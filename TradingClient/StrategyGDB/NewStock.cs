@@ -19,6 +19,9 @@ namespace TradingClient.StrategyGDB
         public float ActualOpenPriceDownLimit { get; set; }
         public float MaxBuyPriceIncreasePercentage { get; set; }
         public float ActualMaxBuyPrice { get; set; }
+        public float TodayDownLimitPrice { get; set; }
+        public float ActualMinBuyPrice { get; set; }
         public float TotalCapital { get; set; }
+        public bool IsBuyable { get; set; }
     }
 }

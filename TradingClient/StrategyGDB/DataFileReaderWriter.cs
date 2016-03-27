@@ -86,6 +86,9 @@ namespace TradingClient.StrategyGDB
                         stock.ActualMaxBuyPrice = float.NaN;
                         stock.ActualOpenPriceDownLimit = float.NaN;
                         stock.ActualOpenPriceUpLimit = float.NaN;
+                        stock.ActualMinBuyPrice = float.NaN;
+                        stock.TodayDownLimitPrice = float.NaN;
+                        stock.IsBuyable = false;
                     }
 
                     if (stocks.GroupBy(s => s.SecurityCode).Count() < stocks.Count)

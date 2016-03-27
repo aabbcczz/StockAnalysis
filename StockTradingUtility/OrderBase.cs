@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace StockTrading.Utility
@@ -12,9 +13,9 @@ namespace StockTrading.Utility
     public abstract class OrderBase : IOrder
     {
         /// <summary>
-        /// Order unique id
+        /// Order id
         /// </summary>
-        public Guid OrderId { get; private set; }
+        public int OrderId { get; private set; }
 
         /// <summary>
         /// 证券代码
@@ -51,6 +52,10 @@ namespace StockTrading.Utility
         /// </summary>
         public bool ShouldCancelIfNotSucceeded { get; protected set; }
 
+        /// <summary>
+        /// event that indicate no active order is dispatched
+        /// </summary>
+        public ManualResetEvent NoActiveOrderDispatched { get; private set; }
 
         /// <summary>
         /// 当Order被执行后需要执行的Action
@@ -117,7 +122,7 @@ namespace StockTrading.Utility
                 throw new ArgumentException();
             }
 
-            OrderId = Guid.NewGuid();
+            OrderId = Interlocked.Increment(ref currentOrderId);
             SecurityCode = securityCode;
             SecurityName = securityName;
             Exchange = StockTrading.Utility.Exchange.GetTradeableExchangeForSecurity(SecurityCode);
@@ -125,6 +130,8 @@ namespace StockTrading.Utility
             ExecutedVolume = 0;
             ShouldCancelIfNotSucceeded = false;
             OnOrderExecuted = onOrderExecuted;
+
+            NoActiveOrderDispatched = new ManualResetEvent(true);
         }
 
         public override string ToString()
@@ -138,5 +145,8 @@ namespace StockTrading.Utility
                 ExecutedVolume,
                 AverageExecutedPrice);
         }
+
+
+        private static int currentOrderId = 0;
     }
 }

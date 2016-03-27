@@ -48,10 +48,13 @@ namespace StockTrading.Utility
 
         public override void Deal(float dealPrice, int dealVolume)
         {
-            base.Deal(dealPrice, dealVolume);
+            lock (this)
+            {
+                base.Deal(dealPrice, dealVolume);
 
-            RemainingVolumeCanBeBought -= dealVolume;
-            RemainingCapitalCanBeUsed -= dealPrice * dealVolume;
+                RemainingVolumeCanBeBought -= dealVolume;
+                RemainingCapitalCanBeUsed -= dealPrice * dealVolume;
+            }
         }
 
         /// <summary>
@@ -61,17 +64,22 @@ namespace StockTrading.Utility
         /// <returns></returns>
         public int GetMaxVolumeInHandToBuy(float estimatedPrice)
         {
-            int minVolume = Math.Max(
-                0,
-                (int)Math.Min(
-                    RemainingCapitalCanBeUsed / estimatedPrice,
-                    (float)RemainingVolumeCanBeBought));
+            lock (this)
+            {
+                int minVolume = Math.Max(
+                    0,
+                    (int)Math.Min(
+                        RemainingCapitalCanBeUsed / estimatedPrice,
+                        (float)RemainingVolumeCanBeBought));
 
-            return minVolume / ChinaStockHelper.VolumePerHand;
+                return minVolume / ChinaStockHelper.VolumePerHand;
+            }
         }
 
         public override bool IsCompleted()
         {
+            lock (this)
+            { 
             if (RemainingCapitalCanBeUsed < MinBuyPrice * ChinaStockHelper.VolumePerHand
                 || RemainingVolumeCanBeBought < ChinaStockHelper.VolumePerHand)
             {
@@ -79,6 +87,7 @@ namespace StockTrading.Utility
             }
 
             return false;
+                }
         }
 
         public override OrderRequest BuildRequest(FiveLevelQuote quote)

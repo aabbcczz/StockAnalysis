@@ -9,8 +9,6 @@ namespace StockTrading.Utility
 {
     public sealed class CtpSimulator
     {
-        public delegate void OnQuoteReadyDelegate(FiveLevelQuote[] quotes, string[] errors);
-
         /// <summary>
         /// the quote refreshing interval in millisecond.
         /// </summary>
@@ -123,24 +121,24 @@ namespace StockTrading.Utility
             }
         }
 
-        public void SubscribeQuote(string code)
+        public void SubscribeQuote(QuoteSubscription subscription)
         {
-            _quotePublisher.Subscribe(code);
+            _quotePublisher.Subscribe(subscription);
         }
 
-        public void SubscribeQuote(IEnumerable<string> codes)
+        public void SubscribeQuote(IEnumerable<QuoteSubscription> subscriptions)
         {
-            _quotePublisher.Subscribe(codes);
+            _quotePublisher.Subscribe(subscriptions);
         }
 
-        public void UnsubscribeQuote(string code)
+        public void UnsubscribeQuote(QuoteSubscription subscription)
         {
-            _quotePublisher.Subscribe(code);
+            _quotePublisher.Unsubscribe(subscription);
         }
 
-        public void UnsubscribeQuote(IEnumerable<string> codes)
+        public void UnsubscribeQuote(IEnumerable<QuoteSubscription> subscriptions)
         {
-            _quotePublisher.Subscribe(codes);
+            _quotePublisher.Unsubscribe(subscriptions);
         }
 
         public DispatchedOrder DispatchOrder(OrderRequest request, Action<DispatchedOrder> onOrderStatusChanged, out string error)
@@ -158,9 +156,9 @@ namespace StockTrading.Utility
             _orderDispatcher.QueryOrderStatusForcibly();
         }
 
-        public void RegisterQuoteReadyCallback(OnQuoteReadyDelegate callback)
+        public QueryCapitalResult QueryCapital(out string error)
         {
-            _quotePublisher.RegisterQuoteReadyCallback(callback);
+            return _client.QueryCapital(out error);
         }
     }
 }
