@@ -1,0 +1,82 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\..\..\msbuild\FastRank.Common.targets" />
+  <PropertyGroup>
+    <ProductVersion>9.0.21022</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{4359DDD8-8F44-45DB-91DA-F39D4F6F53CF}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <RootNamespace>ParallelFastRank</RootNamespace>
+    <AssemblyName>ParallelCommunicator</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+    <DefineConstants>NOT_PROFILING;NOT_MSG_DEBUG;NOT_PACKET_DEBUG;NOT_BUFFER_DEBUG</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <DefineConstants>NOT_LOCAL_DEBUG;NOT_SHORT_TIMEOUT_TEST;NOT_PROFILING</DefineConstants>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.configuration" />
+    <Reference Include="System.Core">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Xml.Linq">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data.DataSetExtensions">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Communication\CommunicationChannel.cs" />
+    <Compile Include="Communication\CommunicationConfiguration.cs" />
+    <Compile Include="Communication\CommunicationEndpoint.cs" />
+    <Compile Include="Communication\CommunicationTimeout.cs" />
+    <Compile Include="Communication\ConcurrentMessageQueue.cs" />
+    <Compile Include="Communication\GreedyIntraPodBalancedMachineTreeBuilder.cs" />
+    <Compile Include="Communication\ICommunicationChannel.cs" />
+    <Compile Include="Communication\IMachineTreeBuilder.cs" />
+    <Compile Include="Communication\InvalidMachineTreeException.cs" />
+    <Compile Include="Communication\MachineTree.cs" />
+    <Compile Include="Communication\ManualMachineTreeBuilder.cs" />
+    <Compile Include="Communication\MessageCommunicatorBase.cs" />
+    <Compile Include="Communication\TcpSocketCommunicationChannel.cs" />
+    <Compile Include="Communication\TimeSynchronizer.cs" />
+    <Compile Include="Communication\TimeSyncMessage.cs" />
+    <Compile Include="Communication\WorkerCommunicator.cs" />
+    <Compile Include="Communication\WorkerMachineInfo.cs" />
+    <Compile Include="Communication\WorkerMachineInfoMessage.cs" />
+    <Compile Include="Communication\WorkerMachineListMessage.cs" />
+    <Compile Include="Message\InvalidMessageException.cs" />
+    <Compile Include="Message\MessageAggregator.cs" />
+    <Compile Include="Message\MessageCommunicationStatistics.cs" />
+    <Compile Include="Message\MessagePackage.cs" />
+    <Compile Include="Message\MessagePackageCreatorBase.cs" />
+    <Compile Include="Message\MessageStatistics.cs" />
+    <Compile Include="Message\MessageTimeCollector.cs" />
+    <Compile Include="Message\MessageTimeCounter.cs" />
+    <Compile Include="Message\MessageType.cs" />
+    <Compile Include="Message\MultiMessagePackage.cs" />
+    <Compile Include="Message\MultiMessagePackageAccumulator.cs" />
+    <Compile Include="Message\SingleTypeMessageTimeCollector.cs" />
+    <Compile Include="SocketProcessor\DataProcessExceptionEventArgs.cs" />
+    <Compile Include="SocketProcessor\DataReceivedEventArgs.cs" />
+    <Compile Include="SocketProcessor\DataSentEventArgs.cs" />
+    <Compile Include="SocketProcessor\IncomingTcpSocketProcessor.cs" />
+    <Compile Include="SocketProcessor\OutcomingTcpSocketProcessor.cs" />
+    <Compile Include="SocketProcessor\PackageHeader.cs" />
+    <Compile Include="SocketProcessor\SocketProcessorBase.cs" />
+    <Compile Include="SocketProcessor\TcpSocketAsyncEventArgs.cs" />
+    <Compile Include="SocketProcessor\TcpSocketProcessor.cs" />
+    <Compile Include="SocketProcessor\ThreadSafeOutcomingTcpSocketProcessor.cs" />
+  </ItemGroup>
+  <Import Project="$(FastRankReferenceRoot)\CommandLine.dref" />
+  <Import Project="$(FastRankReferenceRoot)\FastRankUtils.dref" />
+  <Import Project="$(FastRankReferenceRoot)\ParallelFastRankUtils.dref" />
+  <Import Project="$(FastRankBuildRoot)\FastRank.CSharp.targets" />
+</Project>
