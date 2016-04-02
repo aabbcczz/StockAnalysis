@@ -18,7 +18,7 @@ namespace TradingStrategy
         // EndPeriod()
         void Evaluate(ITradingObject[] tradingObjects, Bar[] bars);
 
-        void EstimateStoplossAndSizeForNewPosition(Instruction instruction, double price, int totalNumberOfObjectsToBeEstimated);
+        bool EstimateStoplossAndSizeForNewPosition(Instruction instruction, double price, int totalNumberOfObjectsToBeEstimated);
 
         int GetMaxNewPositionCount(int totalNumberOfObjectsToBeEstimated);
 

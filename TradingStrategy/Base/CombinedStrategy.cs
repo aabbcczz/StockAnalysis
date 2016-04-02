@@ -220,23 +220,23 @@ namespace TradingStrategy.Base
             SortInstructions();
         }
 
-        public void EstimateStoplossAndSizeForNewPosition(Instruction instruction, double price, int totalNumberOfObjectsToBeEstimated)
+        public bool EstimateStoplossAndSizeForNewPosition(Instruction instruction, double price, int totalNumberOfObjectsToBeEstimated)
         {
             OpenInstruction openInstruction = instruction as OpenInstruction;
 
             if (openInstruction == null)
             {
-                return;
+                return false;
             }
 
             if (Math.Abs(openInstruction.StopLossPriceForBuying) > 1e-6)
             {
-                return;
+                return true;
             }
             else if (Math.Abs(openInstruction.StopLossGapForBuying) > 1e-6)
             {
                 openInstruction.StopLossPriceForBuying = price + openInstruction.StopLossGapForBuying;
-                return;
+                return true;
             }
             else
             {
@@ -251,7 +251,7 @@ namespace TradingStrategy.Base
                         openInstruction.StopLossGapForBuying = 0.0;
                         openInstruction.StopLossPriceForBuying = price;
 
-                        return;
+                        return false;
                     }
                     else
                     {
@@ -266,8 +266,12 @@ namespace TradingStrategy.Base
                     throw new InvalidProgramException("the stop loss gap returned by the stop loss component is greater than zero");
                 }
 
-                var stopLossGap = stopLossResult.StopLossGap;
+                if (!stopLossResult.IsStopLossReasonable)
+                {
+                    return false;
+                }
 
+                var stopLossGap = stopLossResult.StopLossGap;
                 var positionSizingResult = _positionSizing.EstimatePositionSize(instruction.TradingObject, price, stopLossGap, totalNumberOfObjectsToBeEstimated);
                 var volume = positionSizingResult.PositionSize;
 
@@ -282,6 +286,8 @@ namespace TradingStrategy.Base
                 openInstruction.StopLossGapForBuying = stopLossGap;
 
                 openInstruction.StopLossPriceForBuying = price + stopLossGap;
+
+                return true;
             }
         }
 
