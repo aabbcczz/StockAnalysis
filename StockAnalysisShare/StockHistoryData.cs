@@ -58,14 +58,14 @@ namespace StockAnalysis.Share
             var lastInvalidBarTime = DateTime.MinValue;
             foreach (var row in inputData.Rows)
             {
-                var date = DateTime.Parse(row[1]);
-                if (date < startDate || date > endDate)
-                {
-                    continue;
-                }
-
                 try
                 {
+                    var date = DateTime.Parse(row[1]);
+                    if (date < startDate || date > endDate)
+                    {
+                        continue;
+                    }
+
                     var dailyData = new Bar
                     {
                         Time = DateTime.Parse(row[1]),
@@ -97,7 +97,7 @@ namespace StockAnalysis.Share
                 }
                 catch (FormatException)
                 {
-                    Console.WriteLine("Wrong format: {0} in file {1}", string.Join(",", inputData.Rows), file);
+                    Console.WriteLine("Wrong format: {0} in file {1}", string.Join(",", row), file);
                 }
             }
 
