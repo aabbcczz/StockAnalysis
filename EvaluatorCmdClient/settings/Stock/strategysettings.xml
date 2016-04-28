@@ -104,13 +104,6 @@
           <Values>false</Values>
         </ParameterSettings>		
         <ParameterSettings>
-          <Name>ObservableMetrics</Name>
-          <Description>观察用指标, 每个指标用|分隔</Description>
-          <ValueType>System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
-          <DefaultValue xsi:type="xsd:string" />
-          <Values>B_DIFF[&quot;BAR.CP&quot;, &quot;AMA[22]&quot;].PERCENT|B_DIFF[&quot;BAR.CP&quot;, &quot;FRAMA_EX[136, 12, 200]&quot;].PERCENT</Values>
-        </ParameterSettings>
-        <ParameterSettings>
           <Name>TrueBuyPriceScale</Name>
           <Description>真实买入价比例</Description>
           <ValueType>System.Double, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>

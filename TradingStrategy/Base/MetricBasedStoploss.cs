@@ -39,6 +39,14 @@ namespace TradingStrategy.Base
         public override StopLossComponentResult EstimateStopLossGap(ITradingObject tradingObject, double assumedPrice)
         {
             var value = _proxy.GetMetricValues(tradingObject)[0] * Scale;
+            if (value > assumedPrice)
+            {
+                return new StopLossComponentResult()
+                {
+                    IsStopLossReasonable = false,
+                };
+            }
+
             var stopLossGap = Math.Min(0.0, value - assumedPrice);
 
             var comments = string.Format(

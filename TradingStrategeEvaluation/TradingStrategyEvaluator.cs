@@ -403,8 +403,25 @@ namespace TradingStrategyEvaluation
                 // adjust buy price
                 if (instruction.Action == TradingAction.OpenLong)
                 {
-                    price *= _context.GlobalSettings.TrueBuyPriceScale;
+                    var newPrice = price * _context.GlobalSettings.TrueBuyPriceScale;
+
+                    // ensure there is at least one MinPriceUnit difference 
+                    if (_context.GlobalSettings.TrueBuyPriceScale > 1.0)
+                    {
+                        price = Math.Max(newPrice, price + instruction.TradingObject.MinPriceUnit);
+                    }
+                    else if (_context.GlobalSettings.TrueBuyPriceScale < 1.0)
+                    {
+                        price = Math.Min(newPrice, price - instruction.TradingObject.MinPriceUnit);
+                    }
+                    else
+                    {
+                        price = newPrice;
+                    }
                 }
+
+                // round the price to make it realistic
+                price = ChinaStockHelper.CalculatePrice(price, 0.0, 2);
 
                 // Exclude unrealistic price.
                 if ((_settings.IsLowestPriceAchievable && price < currentBarOfObject.LowestPrice)
@@ -446,7 +463,22 @@ namespace TradingStrategyEvaluation
                         continue;
                     }
 
-                    _strategy.EstimateStoplossAndSizeForNewPosition(instruction, price, totalNumberOfObjectsToBeEstimated);
+                    bool estimateStoplossSucceeded = _strategy.EstimateStoplossAndSizeForNewPosition(
+                        instruction, 
+                        price, 
+                        totalNumberOfObjectsToBeEstimated);
+
+                    if (!estimateStoplossSucceeded)
+                    {
+                        _context.Log(string.Format(
+                            "Estimate stoploss failed for {0}/{1}. price is {2:0.000}",
+                            instruction.TradingObject.Code,
+                            instruction.TradingObject.Name,
+                            price));
+
+                        continue;
+                    }
+
                     if (instruction.Volume == 0)
                     {
                         _context.Log(string.Format(

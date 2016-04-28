@@ -2,6 +2,7 @@
 {
     public sealed class StopLossComponentResult : TradingStrategyComponentResult
     {
+        public bool IsStopLossReasonable { get; set; }
         /// estimated stop loss gap, must be smaller than zero. 
         /// actual price + stop loss gap = stop loss price
         public double StopLossGap { get; set; }
@@ -9,6 +10,7 @@
         public StopLossComponentResult()
             : base()
         {
+            IsStopLossReasonable = true;
             StopLossGap = double.NegativeInfinity;
         }
     }
