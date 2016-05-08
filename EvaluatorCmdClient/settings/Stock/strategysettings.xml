@@ -1204,7 +1204,7 @@
           <Description>自适应划分中所允许的最小划分数目</Description>
           <ValueType>System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
           <DefaultValue xsi:type="xsd:int">1</DefaultValue>
-          <Values>3</Values>
+          <Values>6</Values>
         </ParameterSettings>		
         <ParameterSettings>
           <Name>MaxObjectNumberToBeEstimated</Name>
@@ -1225,7 +1225,7 @@
           <Description>权益利用率，[0.0..1.0], 0.0代表恒定权益利用率为1.0</Description>
           <ValueType>System.Double, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
           <DefaultValue xsi:type="xsd:double">1</DefaultValue>
-          <Values>0.0/1.01/0.1</Values>
+          <Values>0.0</Values>
         </ParameterSettings>
         <ParameterSettings>
           <Name>LimitNewPositionCountAsParts</Name>
@@ -1358,7 +1358,7 @@
           <Description>价格上限百分比</Description>
           <ValueType>System.Double, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
           <DefaultValue xsi:type="xsd:double">110</DefaultValue>
-          <Values>102</Values>
+          <Values>102.5</Values>
         </ParameterSettings>
         <ParameterSettings>
           <Name>PriceDownLimitPercentage</Name>
