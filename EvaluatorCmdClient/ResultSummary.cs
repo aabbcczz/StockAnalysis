@@ -199,6 +199,8 @@ namespace EvaluatorCmdClient
         public DateTime MaxDrawDownRatioStartTime { get; set; } // 最大回撤比率发生的起始时间
         public DateTime MaxDrawDownRatioEndTime { get; set; } // 最大回撤比率发生的结束时间
         public double Mar { get; set; } // = AnnualProfitRatio / MaxDrawDownRatio
+        public double AnnualSharpeRatio { get; set; } // sharpe ratio
+        public double KRatio { get; set; }  // K-Ratio
         public double Expectation { get; set; } // = AverageProfitPerTrading * ProfitTimesRatio - (1 - ProfitTimesRatio) * AverageLossPerTrading;
         public double BestFactor { get; set; } // best factor according to Kelly formular: f = (bp-q)/b.
         public int ContextId { get; set; }
@@ -289,6 +291,9 @@ namespace EvaluatorCmdClient
 
             var b = AverageProfitPerTrading / AverageLossPerTrading;
             BestFactor = (b * ProfitTimesRatio - (1.0 - ProfitTimesRatio)) / b;
+
+            AnnualSharpeRatio = metric.AnnualSharpeRatio;
+            KRatio = metric.KRatio;
 
             ContextId = context.ContextId;
             ContextDirectory = context.RootDirectory;

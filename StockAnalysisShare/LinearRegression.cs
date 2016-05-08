@@ -14,6 +14,9 @@ namespace StockAnalysis.Share
             public double Intercept { get; set; }
             public double CorrelationCoefficient { get; set; }
             public double SquareStandardError { get; set; }
+            public double StdErrorForSlope { get; set; }
+            public double StdErrorForIntercept { get; set; }
+
         }
 
         public sealed class IntermediateResult
@@ -96,6 +99,8 @@ namespace StockAnalysis.Share
         //      b = avg(y) - a * avg(x)
         //      r^2 = SSxy^2 / (SSxx * SSyy)
         //      s^2 = (SSyy - a * SSxy) / (n - 2)
+        //      SE(a) = s * sqrt((1/n) + avg(x) * avg(x) / SSxx)
+        //      SE(b) = s / sqrt(SSxx)
 
         public static FinalResult Compute(
             double n,
@@ -128,13 +133,18 @@ namespace StockAnalysis.Share
             double intercept = avgY - slope * avgX;
             double correlationCoefficient = SSxy * SSxy / SSxx / SSyy;
             double squareStandardError = Math.Abs(n - 2.0) < 1e-6 ? 0.0 : (SSyy - slope * SSxy) / (n - 2.0);
+            double standardError = Math.Sqrt(squareStandardError);
+            double standardErrorForIntercept = standardError * Math.Sqrt(1.0 / n + avgX * avgX / SSxx);
+            double standardErrorForSlope = standardError / Math.Sqrt(SSxx);
 
             return new FinalResult
             {
                 Slope = slope,
                 Intercept = intercept,
                 CorrelationCoefficient = correlationCoefficient,
-                SquareStandardError = squareStandardError
+                SquareStandardError = squareStandardError,
+                StdErrorForIntercept = standardErrorForIntercept,
+                StdErrorForSlope = standardErrorForSlope,
             };
         }
 

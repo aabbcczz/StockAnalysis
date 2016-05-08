@@ -2,6 +2,8 @@
 using System.Linq;
 using TradingStrategy;
 
+using StockAnalysis.Share;
+
 namespace TradingStrategyEvaluation
 {
     public sealed class TradeMetric
@@ -59,10 +61,14 @@ namespace TradingStrategyEvaluation
 
         public double Mar { get; set; } // = AnnualProfitRatio / MaxDrawDownRatio
 
+        public double AnnualSharpeRatio { get; set; } // Sharpe ratio
+
+        public double KRatio { get; set; } // K-Ratio
+
         public double MaxProfitInOneTransaction { get; set; } // 单次最大盈利
-        public double MaxLossInOneTransaction { get; set; } // 单词最大亏损
+        public double MaxLossInOneTransaction { get; set; } // 单次最大亏损
         public double ProfitRatioWithoutMaxProfit { get; set; } // 扣除单次最大盈利后的收益率 = (NetProfit - MaxProfitInOneTransaction) / InitialEquity
-        public double ProfitRatioWithoutMaxLoss { get; set; }  // 扣除单词最大亏损后的收益率 = (NetProfit + MaxLossInOneTransaction) / InitialEquity
+        public double ProfitRatioWithoutMaxLoss { get; set; }  // 扣除单次最大亏损后的收益率 = (NetProfit + MaxLossInOneTransaction) / InitialEquity
 
         public double StartPrice { get; set; } // 品种起始价格 
         public double EndPrice { get; set; } // 品种结束价格
@@ -83,7 +89,8 @@ namespace TradingStrategyEvaluation
             EquityPoint[] orderedEquitySequence, 
             CompletedTransaction[] orderedCompletedTransactionSequence,
             Transaction[] orderedTransactionSequence,
-            double[] eRatios)
+            double[] eRatios,
+            bool exponentialEquity = true)
         {
             if (code == null)
             {
@@ -160,10 +167,10 @@ namespace TradingStrategyEvaluation
             EndPrice = endPrice;
             Rise = Math.Abs(startPrice) < 1e-6 ? 0.0 : (endPrice - startPrice) / startPrice;
 
-            Initialize();
+            Initialize(exponentialEquity);
         }
 
-        private void Initialize()
+        private void Initialize(bool exponentialEquity)
         {
             // calculate max drawdown for each equity point
             double maxEquity = OrderedEquitySequence[0].Equity;
@@ -254,6 +261,10 @@ namespace TradingStrategyEvaluation
 
             ProfitRatioWithoutMaxProfit = (NetProfit - MaxProfitInOneTransaction) / InitialEquity;
             ProfitRatioWithoutMaxLoss = (NetProfit + MaxProfitInOneTransaction) / InitialEquity;
+
+            CalculateSharpeRatio();
+
+            CalculateKRatio(exponentialEquity);
         }
 
         private void CalcuateMaxDrawDownMetrics()
@@ -292,6 +303,34 @@ namespace TradingStrategyEvaluation
                 
             // update MAR
             Mar = Math.Abs(MaxDrawDownRatio) < 1e-6 ? 0.0 : AnnualProfitRatio / MaxDrawDownRatio;
+        }
+
+        private void CalculateSharpeRatio()
+        {
+            double[] periodReturns = new double[OrderedEquitySequence.Length];
+            periodReturns[0] = 0;
+
+            for (int i = 1; i < OrderedEquitySequence.Length; ++i)
+            {
+                periodReturns[i] = (OrderedEquitySequence[i].Equity - OrderedEquitySequence[i - 1].Equity) / OrderedEquitySequence[i - 1].Equity;
+            }
+
+            var averageReturn = periodReturns.Average();
+            var varianceReturn = periodReturns.Average(r => r * r) - averageReturn * averageReturn;
+            var stddevReturn = Math.Sqrt(varianceReturn);
+
+            AnnualSharpeRatio = averageReturn / stddevReturn * Math.Sqrt(252);
+        }
+
+        private void CalculateKRatio(bool exponentialEquity)
+        {
+            double[] equities = exponentialEquity
+                ? OrderedEquitySequence.Select(e => Math.Log(e.Equity)).ToArray()
+                : OrderedEquitySequence.Select(e => e.Equity).ToArray();
+
+            var result = LinearRegression.ComputeSeries(equities);
+
+            KRatio = result.Slope / result.StdErrorForSlope / equities.Length;
         }
     }
 }
