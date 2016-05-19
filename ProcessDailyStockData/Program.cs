@@ -220,14 +220,34 @@ namespace ProcessDailyStockData
             var mergedData = new Csv(fullData.Header);
 
             var orderedFullData = fullData.Rows
-                .Select(columns => Tuple.Create(DateTime.Parse(columns[1]), columns))
+                .Select(columns =>
+                    {
+                        DateTime date;
+                        
+                        if (!DateTime.TryParse(columns[1], out date))
+                        {
+                            throw new FormatException(string.Format("Failed to parse date {0} in full data file", columns[1]));
+                        }
+
+                        return Tuple.Create(date, columns);
+                    })
                 .GroupBy(tuple => tuple.Item1)
                 .Select(g => g.First())
                 .OrderBy(tuple => tuple.Item1)
                 .ToArray();
 
             var orderedDeltaData = deltaData.Rows
-                .Select(columns => Tuple.Create(DateTime.Parse(columns[1]), columns))
+                .Select(columns =>
+                    {
+                        DateTime date;
+
+                        if (!DateTime.TryParse(columns[1], out date))
+                        {
+                            throw new FormatException(string.Format("Failed to parse date {0} in delta data file", columns[1]));
+                        }
+
+                        return Tuple.Create(date, columns);
+                    })
                 .GroupBy(tuple => tuple.Item1)
                 .Select(g => g.First())
                 .OrderBy(tuple => tuple.Item1)
