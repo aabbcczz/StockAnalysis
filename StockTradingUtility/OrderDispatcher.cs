@@ -52,10 +52,10 @@ namespace StockTrading.Utility
 
         public DispatchedOrder DispatchOrder(
             OrderRequest request, 
-            Action<DispatchedOrder> onOrderStatusChanged, 
+            WaitableConcurrentQueue<OrderStatusChangedMessage> orderStatusChangedMessageReceiver, 
             out string error)
         {
-            if (request == null || onOrderStatusChanged == null)
+            if (request == null || orderStatusChangedMessageReceiver == null)
             {
                 throw new ArgumentNullException();
             }
@@ -68,21 +68,26 @@ namespace StockTrading.Utility
             }
 
             DispatchedOrder dispatchedOrder 
-                = new DispatchedOrder(request, onOrderStatusChanged, result.OrderNo);
+                = new DispatchedOrder(request, orderStatusChangedMessageReceiver, result.OrderNo);
 
             lock (_orderLockObj)
             {
                 _allActiveOrders.Add(result.OrderNo, dispatchedOrder);
             }
 
-            return dispatchedOrder;
+            return dispatchedOrder.Clone();
         }
 
         public DispatchedOrder[] DispatchOrder(
             OrderRequest[] requests, 
-            Action<DispatchedOrder> onOrderStatusChanged, 
+            WaitableConcurrentQueue<OrderStatusChangedMessage> orderStatusChangedMessageReceiver, 
             out string[] errors)
         {
+            if (requests == null || orderStatusChangedMessageReceiver == null)
+            {
+                throw new ArgumentNullException();
+            }
+
             var results = _client.SendOrder(requests, out errors);
 
             lock (_orderLockObj)
@@ -94,11 +99,11 @@ namespace StockTrading.Utility
                     if (results[i] != null)
                     {
                         DispatchedOrder dispatchedOrder
-                            = new DispatchedOrder(requests[i], onOrderStatusChanged, results[i].OrderNo);
+                            = new DispatchedOrder(requests[i], orderStatusChangedMessageReceiver, results[i].OrderNo);
 
                         _allActiveOrders.Add(results[i].OrderNo, dispatchedOrder);
 
-                        orders[i] = dispatchedOrder;
+                        orders[i] = dispatchedOrder.Clone();
 
                     }
                     else
@@ -112,11 +117,11 @@ namespace StockTrading.Utility
                     }
                 }
 
-                return orders.ToArray();
+                return orders;
             }
         }
 
-        public bool CancelOrder(DispatchedOrder order, out string error, bool waitForResult)
+        public bool CancelOrder(DispatchedOrder order, out string error)
         {
             error = string.Empty;
 
@@ -127,72 +132,17 @@ namespace StockTrading.Utility
 
             bool cancelSucceeded = _client.CancelOrder(order.Request.SecurityCode, order.OrderNo, out error);
 
-            if (!waitForResult)
-            {
-                return cancelSucceeded;
-            }
-
-            if (cancelSucceeded)
-            {
-                while (!TradingHelper.IsFinalStatus(order.LastStatus))
-                {
-                    QueryOrderStatusForcibly();
-
-                    if (!TradingHelper.IsFinalStatus(order.LastStatus))
-                    {
-                        Thread.Sleep(1000);
-                    }
-                }
-
-                return true;
-            }
-
-            return false;
+            return cancelSucceeded;
         }
 
-        public bool[] CancelOrder(DispatchedOrder[] orders, out string[] errors, bool waitForResult)
+        public bool[] CancelOrder(DispatchedOrder[] orders, out string[] errors)
         {
             var codes = orders.Select(o => o.Request.SecurityCode).ToArray();
             var orderNos = orders.Select(o => o.OrderNo).ToArray();
 
             bool[] succeededFlags = _client.CancelOrder(codes, orderNos, out errors);
 
-            if (!waitForResult)
-            {
-                return succeededFlags;
-            }
-
-            bool[] finalSucceededFlags = new bool[succeededFlags.Length];
-            Array.Clear(finalSucceededFlags, 0, finalSucceededFlags.Length);
-
-            while (true)
-            {
-                QueryOrderStatusForcibly();
-
-                for (int i = 0; i < succeededFlags.Length; ++i)
-                {
-                    if (succeededFlags[i] && !finalSucceededFlags[i])
-                    {
-                        if (TradingHelper.IsFinalStatus(orders[i].LastStatus))
-                        {
-                            finalSucceededFlags[i] = true;
-                        }
-                    }
-                }              
-
-                int pendingOrderCount = Enumerable
-                    .Range(0, succeededFlags.Length)
-                    .Count(i => succeededFlags[i] && !finalSucceededFlags[i]);
-
-                if (pendingOrderCount == 0)
-                {
-                    break;
-                }
-
-                Thread.Sleep(1000);
-            }
-
-            return finalSucceededFlags;
+            return succeededFlags;
         }
 
         public void QueryOrderStatusForcibly()
@@ -260,7 +210,7 @@ namespace StockTrading.Utility
                         // check if order status has been changed and notify client if necessary
                         CheckOrderStatusChangeAndNotify(ref dispatchedOrder, order);
 
-                        // remove order in finished status
+                        // remove order in final status
                         if (TradingHelper.IsFinalStatus(dispatchedOrder.LastStatus))
                         {
                             lock (_orderLockObj)
@@ -291,9 +241,18 @@ namespace StockTrading.Utility
 
             bool isStatusChanged = false;
 
+            OrderStatusChangedMessage message = null;
+
             if (orderResult.Status != dispatchedOrder.LastStatus)
             {
                 isStatusChanged = true;
+
+                message = new OrderStatusChangedMessage()
+                {
+                    Order = dispatchedOrder,
+                    PreviousStatus = dispatchedOrder.LastStatus,
+                    CurrentStatus = orderResult.Status
+                };
             }
             
             dispatchedOrder.LastStatus = orderResult.Status;
@@ -302,23 +261,15 @@ namespace StockTrading.Utility
 
             if (isStatusChanged)
             {
-                NotifyOrderStatusChanged(dispatchedOrder);
+                NotifyOrderStatusChanged(message);
             }
 
             return isStatusChanged;
         }
 
-        private void NotifyOrderStatusChanged(DispatchedOrder dispatchedOrder)
+        private void NotifyOrderStatusChanged(OrderStatusChangedMessage message)
         {
-            if (dispatchedOrder.OnOrderStatusChanged != null)
-            {
-                Action proxyAction = () =>
-                {
-                    dispatchedOrder.OnOrderStatusChanged(dispatchedOrder);
-                };
-
-                Task.Run(proxyAction);
-            }
+            message.Order.OrderStatusChangedMessageReceiver.Add(message);
         }
     }
 }

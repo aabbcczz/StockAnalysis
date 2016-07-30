@@ -12,7 +12,8 @@ namespace TradingClient
 {
     sealed class StrategyGdbExecuter
     {
-        private const int MaxBuyCount = 3;
+        private const int MaxNumberOfNewStockCanBeBoughtInOneDay = 6; // 策略一日内允许买入的股票最大数目
+
         private const string DataFileFolder = "StrategyGDB";
         private readonly TimeSpan _startRunTime = new TimeSpan(9, 29, 0);
         private readonly TimeSpan _endRunTime = new TimeSpan(14, 50, 0);
@@ -26,6 +27,14 @@ namespace TradingClient
         private readonly TimeSpan _endPublishBuyOrderTime = new TimeSpan(14, 55, 0);
         private readonly TimeSpan _startPublishSellOrderTime = new TimeSpan(14, 55, 0);
         private readonly TimeSpan _endPublishSellOrderTime = new TimeSpan(14, 57, 0);
+
+        private WaitableConcurrentQueue<QuoteResult> _newStockQuotes = new WaitableConcurrentQueue<QuoteResult>();
+        private WaitableConcurrentQueue<QuoteResult> _existingStockQuotes = new WaitableConcurrentQueue<QuoteResult>();
+        private WaitableConcurrentQueue<OrderExecutedMessage> _buyOrderExecutedMessageReceiver = new WaitableConcurrentQueue<OrderExecutedMessage>();
+        private WaitableConcurrentQueue<OrderExecutedMessage> _sellOrderExecutedMessageReceiver = new WaitableConcurrentQueue<OrderExecutedMessage>();
+        private WaitableConcurrentQueue<OrderExecutedMessage> _stoplossOrderExecutedMessageReceiver = new WaitableConcurrentQueue<OrderExecutedMessage>();
+
+        private CancellationToken _cancellationToken;
 
         // the new stock has been bought
         private HashSet<StrategyGDB.NewStock> _boughtStock = new HashSet<StrategyGDB.NewStock>();
@@ -61,8 +70,15 @@ namespace TradingClient
             }
         }
 
-        public StrategyGdbExecuter()
+        public StrategyGdbExecuter(CancellationToken cancellationToken)
         {
+            if (cancellationToken == null)
+            {
+                throw new ArgumentNullException();
+            }
+
+            _cancellationToken = cancellationToken;
+
             Initialize();
         }
 
@@ -111,15 +127,19 @@ namespace TradingClient
             UpdateCurrentUseableCapital();
 
             // subscribe quote for all stocks
-            CtpSimulator.GetInstance().SubscribeQuote(_newStocks.Select(s => new QuoteSubscription(s.SecurityCode, OnNewStockQuoteReady)));
+            CtpSimulator.GetInstance().SubscribeQuote(_newStocks.Select(s => new QuoteSubscription(s.SecurityCode, _newStockQuotes)));
             AppLogger.Default.InfoFormat(
                 "Subscribe quote {0}", 
                 string.Join(",",_newStocks.Select(s => s.SecurityCode)));
 
-            CtpSimulator.GetInstance().SubscribeQuote(_existingStocks.Select(s => new QuoteSubscription(s.SecurityCode, OnExistingStockQuoteReady)));
+            CtpSimulator.GetInstance().SubscribeQuote(_existingStocks.Select(s => new QuoteSubscription(s.SecurityCode, _existingStockQuotes)));
             AppLogger.Default.InfoFormat(
                 "Subscribe quote {0}",
                 string.Join(",", _existingStocks.Select(s => s.SecurityCode)));
+
+            // run an asynchronous task for listening quotes
+            new Task(QuoteListener).Start();
+            new Task(OrderExecutedListener).Start();
 
             while (IsValidActionTime(_startExecuteTime, _endExecuteTime))
             {
@@ -129,6 +149,94 @@ namespace TradingClient
                 Thread.Sleep(1000);
             }
         }
+
+        private void QuoteListener()
+        {
+            WaitableConcurrentQueue<QuoteResult>[] queues = new WaitableConcurrentQueue<QuoteResult>[]
+            {
+                _newStockQuotes,
+                _existingStockQuotes
+            };
+
+            int queueIndex;
+
+            try
+            {
+                for (;;)
+                {
+                    var quote = WaitableConcurrentQueue<QuoteResult>.TakeFromAny(queues, _cancellationToken, out queueIndex);
+                    if (quote != null)
+                    {
+                        if (queueIndex == 0)
+                        {
+                            OnNewStockQuoteReady(quote);
+                        }
+                        else if (queueIndex == 1)
+                        {
+                            OnExistingStockQuoteReady(quote);
+                        }
+                        else
+                        {
+                            throw new InvalidOperationException("queueIndex out of range. must be code bug");
+                        }
+                    }
+                }
+            }
+            catch (OperationCanceledException)
+            {
+            }
+            catch (Exception ex)
+            {
+                AppLogger.Default.ErrorFormat("Exception in listening quote: {0}", ex);
+            }
+        }
+
+        private void OrderExecutedListener()
+        {
+            WaitableConcurrentQueue<OrderExecutedMessage>[] queues = new WaitableConcurrentQueue<OrderExecutedMessage>[]
+            {
+                _buyOrderExecutedMessageReceiver,
+                _sellOrderExecutedMessageReceiver,
+                _stoplossOrderExecutedMessageReceiver
+            };
+
+            int queueIndex;
+
+            try
+            {
+                for (;;)
+                {
+                    var message = WaitableConcurrentQueue<OrderExecutedMessage>.TakeFromAny(queues, _cancellationToken, out queueIndex);
+                    if (message != null)
+                    {
+                        if (queueIndex == 0)
+                        {
+                            OnBuyOrderExecuted(message);
+                        }
+                        else if (queueIndex == 1)
+                        {
+                            OnSellOrderExecuted(message);
+                        }
+                        else if (queueIndex == 2)
+                        {
+                            OnStoplossOrderExecuted(message);
+                        }
+                        else
+                        {
+                            throw new InvalidOperationException("queueIndex out of range. must be code bug");
+                        }
+                    }
+                }
+            }
+            catch (OperationCanceledException)
+            {
+            }
+            catch (Exception ex)
+            {
+                AppLogger.Default.ErrorFormat("Exception in listening quote: {0}", ex);
+            }
+        }
+
 
         private void UpdateCurrentUseableCapital()
         {
@@ -187,13 +295,13 @@ namespace TradingClient
 
         private void UnsubscribeNewStock(string code)
         {
-            CtpSimulator.GetInstance().UnsubscribeQuote(new QuoteSubscription(code, OnNewStockQuoteReady));
+            CtpSimulator.GetInstance().UnsubscribeQuote(new QuoteSubscription(code, _newStockQuotes));
             AppLogger.Default.InfoFormat("Unsubscribe quote {0}", code);
         }
 
         private void UnsubscribeExistingStock(string code)
         {
-            CtpSimulator.GetInstance().UnsubscribeQuote(new QuoteSubscription(code, OnExistingStockQuoteReady));
+            CtpSimulator.GetInstance().UnsubscribeQuote(new QuoteSubscription(code, _existingStockQuotes));
             AppLogger.Default.InfoFormat("Unsubscribe quote {0}", code);
         }
 
@@ -228,7 +336,7 @@ namespace TradingClient
 
                 lock (_boughtStock)
                 {
-                    if (_boughtStock.Count >= StrategyGdbExecuter.MaxBuyCount)
+                    if (_boughtStock.Count >= StrategyGdbExecuter.MaxNumberOfNewStockCanBeBoughtInOneDay)
                     {
                         UnsubscribeNewStock(quote.SecurityCode);
                         return;
@@ -346,7 +454,7 @@ namespace TradingClient
                 capital,
                 maxVolume);
 
-            BuyOrder order = new BuyOrder(instruction, OnBuyOrderExecuted);
+            BuyOrder order = new BuyOrder(instruction, _buyOrderExecutedMessageReceiver);
 
             if (_stockOrderRuntimes.ContainsKey(stock))
             {
@@ -369,8 +477,17 @@ namespace TradingClient
             AppLogger.Default.InfoFormat("Registered order {0}", order);
         }
 
-        private void OnBuyOrderExecuted(IOrder order, float dealPrice, int dealVolume)
+        private void OnBuyOrderExecuted(OrderExecutedMessage message)
         {
+            if (message == null)
+            {
+                throw new ArgumentException();
+            }
+
+            IOrder order = message.Order;
+            int dealVolume = message.DealVolume;
+            float dealPrice = message.DealPrice;
+
             AppLogger.Default.InfoFormat("Order executed. order details: {0}", order);
 
             if (dealVolume <= 0)
@@ -382,14 +499,14 @@ namespace TradingClient
 
             lock (_boughtStock)
             {
-                if (_boughtStock.Count >= StrategyGdbExecuter.MaxBuyCount)
+                if (_boughtStock.Count >= StrategyGdbExecuter.MaxNumberOfNewStockCanBeBoughtInOneDay)
                 {
                     return;
                 }
                  
                 _boughtStock.Add(_activeNewStockIndex[order.SecurityCode]);
 
-                if (_boughtStock.Count < StrategyGdbExecuter.MaxBuyCount)
+                if (_boughtStock.Count < StrategyGdbExecuter.MaxNumberOfNewStockCanBeBoughtInOneDay)
                 {
                     return;
                 }
@@ -447,7 +564,7 @@ namespace TradingClient
                             stock.SecurityName,
                             stock.StoplossPrice,
                             stock.Volume,
-                            OnStoplossOrderExecuted);
+                            _stoplossOrderExecutedMessageReceiver);
 
                         StockOrderRuntime runtime = new StockOrderRuntime(stock.SecurityCode, stock.SecurityName)
                         {
@@ -471,7 +588,7 @@ namespace TradingClient
                                 stock.SecurityName,
                                 stock.StoplossPrice,
                                 runtime.RemainingVolume,
-                                OnStoplossOrderExecuted);
+                                _stoplossOrderExecutedMessageReceiver);
 
                             runtime.AssociatedStoplossOrder = order;
 
@@ -487,8 +604,18 @@ namespace TradingClient
             }
         }
 
-        private void OnStoplossOrderExecuted(IOrder order, float dealPrice, int dealVolume)
+        private void OnStoplossOrderExecuted(OrderExecutedMessage message)
         {
+
+            if (message == null)
+            {
+                throw new ArgumentException();
+            }
+
+            IOrder order = message.Order;
+            int dealVolume = message.DealVolume;
+            float dealPrice = message.DealPrice;
+
             AppLogger.Default.InfoFormat("Order executed. order details: {0}", order);
 
             if (dealVolume <= 0)
@@ -519,54 +646,57 @@ namespace TradingClient
         {
 
         }
-        private void OnSellOrderExecuted(IOrder order, float dealPrice, int dealVolume)
+        private void OnSellOrderExecuted(OrderExecutedMessage message)
         {
+            if (message == null)
+            {
+                throw new ArgumentException();
+            }
+
+            IOrder order = message.Order;
+            int dealVolume = message.DealVolume;
+            float dealPrice = message.DealPrice;
+
             AppLogger.Default.InfoFormat("Order executed. order details: {0}", order);
         }
 
-        private void OnNewStockQuoteReady(IEnumerable<QuoteResult> quotes)
+        private void OnNewStockQuoteReady(QuoteResult quote)
         {
-            foreach (var quote in quotes)
+            if (!quote.IsValidQuote())
             {
-                if (!quote.IsValidQuote())
-                {
-                    continue;
-                }
-
-                Buy(quote.Quote);
+                return;
             }
+
+            Buy(quote.Quote);
         }
 
-        private void OnExistingStockQuoteReady(IEnumerable<QuoteResult> quotes)
+        private void OnExistingStockQuoteReady(QuoteResult quote)
         {
-            foreach (var quote in quotes)
+            if (!quote.IsValidQuote())
             {
-                if (!quote.IsValidQuote())
-                {
-                    continue;
-                }
+                return;
+            }
 
-                if (!_activeExistingStockIndex.ContainsKey(quote.SecurityCode))
-                {
-                    CtpSimulator.GetInstance().UnsubscribeQuote(new QuoteSubscription(quote.SecurityCode, OnExistingStockQuoteReady));
+            if (!_activeExistingStockIndex.ContainsKey(quote.SecurityCode))
+            {
+                CtpSimulator.GetInstance().UnsubscribeQuote(new QuoteSubscription(quote.SecurityCode, _existingStockQuotes));
 
-                    AppLogger.Default.InfoFormat("Unsubscribe quote {0}", quote.SecurityCode);
-                    continue;
-                }
+                AppLogger.Default.InfoFormat("Unsubscribe quote {0}", quote.SecurityCode);
+                return;
+            }
 
-                FiveLevelQuote currentQuote = quote.Quote;
+            FiveLevelQuote currentQuote = quote.Quote;
 
-                // check if we can issue buy order
-                if (_activeNewStockIndex.ContainsKey(currentQuote.SecurityCode))
-                {
-                    Buy(currentQuote);
-                }
+            // check if we can issue buy order
+            if (_activeNewStockIndex.ContainsKey(currentQuote.SecurityCode))
+            {
+                Buy(currentQuote);
+            }
 
-                // check if we can issue sell order
-                if (_activeExistingStockIndex.ContainsKey(currentQuote.SecurityCode))
-                {
-                    TryPublishSellOrder(currentQuote);
-                }
+            // check if we can issue sell order
+            if (_activeExistingStockIndex.ContainsKey(currentQuote.SecurityCode))
+            {
+                TryPublishSellOrder(currentQuote);
             }
         }
 
@@ -605,7 +735,7 @@ namespace TradingClient
                     stock.SecurityName, 
                     upLimitPrice, 
                     stock.Volume,
-                    OnSellOrderExecuted);
+                    _sellOrderExecutedMessageReceiver);
 
                 //_sellOrders.Add(order);
 

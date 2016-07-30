@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using StockAnalysis.Share;
 
 namespace StockTrading.Utility
 {
@@ -53,15 +54,9 @@ namespace StockTrading.Utility
         public bool ShouldCancelIfNotSucceeded { get; protected set; }
 
         /// <summary>
-        /// event that indicate no active order is dispatched
+        /// 当Order被执行后用了接收OrderExecutedMessage的消息队列
         /// </summary>
-        public ManualResetEvent NoActiveOrderDispatched { get; private set; }
-
-        /// <summary>
-        /// 当Order被执行后需要执行的Action
-        /// </summary>
-        /// <remarks>OnOrderExecuted(IOrder order, float dealPrice, int dealVolume)</remarks>
-        public Action<IOrder, float, int> OnOrderExecuted { get; private set; }
+        public WaitableConcurrentQueue<OrderExecutedMessage> OrderExecutedMessageReceiver { get; protected set; }
 
         /// <summary>
         /// Decide if this order should be executed based on given quote
@@ -110,7 +105,7 @@ namespace StockTrading.Utility
         /// <returns>true if the order is fully completed, otherwise false.</returns>
         public abstract bool IsCompleted();
 
-        protected OrderBase(string securityCode, string securityName, int volume, Action<IOrder, float, int> onOrderExecuted)
+        protected OrderBase(string securityCode, string securityName, int volume, WaitableConcurrentQueue<OrderExecutedMessage> orderExecutedMessageReceiver)
         {
             if (string.IsNullOrWhiteSpace(securityCode))
             {
@@ -129,9 +124,7 @@ namespace StockTrading.Utility
             ExpectedVolume = volume;
             ExecutedVolume = 0;
             ShouldCancelIfNotSucceeded = false;
-            OnOrderExecuted = onOrderExecuted;
-
-            NoActiveOrderDispatched = new ManualResetEvent(true);
+            OrderExecutedMessageReceiver = orderExecutedMessageReceiver;
         }
 
         public override string ToString()

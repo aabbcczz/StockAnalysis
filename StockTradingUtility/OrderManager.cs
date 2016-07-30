@@ -16,12 +16,18 @@ namespace StockTrading.Utility
     {
         public const int MinCancellationIntervalInMillisecond = 1000;
 
+        public WaitableConcurrentQueue<OrderExecutedMessage> OrderExecutedMessageQueue { get; private set; }
+
         private static OrderManager _instance = null;
 
         private object _orderLockObj = new object();
 
-        private IDictionary<string, List<IOrder>> _activeOrders = new Dictionary<string, List<IOrder>>();
+        private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 
+        private WaitableConcurrentQueue<QuoteResult> _quotes = new WaitableConcurrentQueue<QuoteResult>();
+        private WaitableConcurrentQueue<OrderStatusChangedMessage> _orderStatusChangedMessageReceiver = new WaitableConcurrentQueue<OrderStatusChangedMessage>();
+
+        private IDictionary<string, List<IOrder>> _activeOrders = new Dictionary<string, List<IOrder>>();
         private HashSet<DispatchedOrder> _dispatchedOrders = new HashSet<DispatchedOrder>();
 
         private Timer _cancelOrderTimer = null;
@@ -61,7 +67,60 @@ namespace StockTrading.Utility
 
         private OrderManager()
         {
+            OrderExecutedMessageQueue = new WaitableConcurrentQueue<OrderExecutedMessage>();
+
             _cancelOrderTimer = new Timer(CancelOrderTimerCallback, null, _cancellationIntervalInMillisecond, _cancellationIntervalInMillisecond);
+
+            new Task(QuoteListner).Start();
+            new Task(OrderStatusChangedListner).Start();
+        }
+
+        private void QuoteListner()
+        {
+            try
+            {
+                var token = _cancellationTokenSource.Token;
+
+                for (;;)
+                {
+                    var quote = _quotes.Take(token);
+                    if (quote != null)
+                    {
+                        OnQuoteReady(quote);
+                    }
+                }
+            }
+            catch (OperationCanceledException)
+            {
+            }
+            catch (Exception ex)
+            {
+                AppLogger.Default.ErrorFormat("Exception in listening quote: {0}", ex);
+            }
+        }
+
+        private void OrderStatusChangedListner()
+        {
+            try
+            {
+                var token = _cancellationTokenSource.Token;
+
+                for (;;)
+                {
+                    var message = _orderStatusChangedMessageReceiver.Take(token);
+                    if (message != null)
+                    {
+                        OnOrderStatusChanged(message);
+                    }
+                }
+            }
+            catch (OperationCanceledException)
+            {
+            }
+            catch (Exception ex)
+            {
+                AppLogger.Default.ErrorFormat("Exception in listening order status changed message: {0}", ex);
+            }
         }
 
         private void CancelOrderTimerCallback(object obj)
@@ -90,7 +149,7 @@ namespace StockTrading.Utility
                         {
                             string error;
 
-                            if (!CtpSimulator.GetInstance().CancelOrder(dispatchedOrder, out error, false))
+                            if (!CtpSimulator.GetInstance().CancelOrder(dispatchedOrder, out error))
                             {
                                 AppLogger.Default.ErrorFormat(
                                     "fail to cancel order: order no {0}. order details: {1}, Error: {2}",
@@ -116,9 +175,14 @@ namespace StockTrading.Utility
             }
         }
 
-        private void OnQuoteReady(IEnumerable<QuoteResult> quotes)
+        private void OnQuoteReady(QuoteResult quote)
         {
-            if (quotes == null || quotes.Count() == 0)
+            if (quote == null)
+            {
+                return;
+            }
+
+            if (!quote.IsValidQuote())
             {
                 return;
             }
@@ -131,34 +195,27 @@ namespace StockTrading.Utility
                 }
             }
 
-            foreach (var quote in quotes)
+
+            IOrder[] orderCopies = null;
+
+            lock (_orderLockObj)
             {
-                if (!quote.IsValidQuote())
+                List<IOrder> orders;
+                if (!_activeOrders.TryGetValue(quote.SecurityCode, out orders))
                 {
-                    continue;
+                    return;
                 }
 
-                IOrder[] orderCopies = null;
+                // copy orders to avoid the "orders" object being updated in SendOrder function.
+                orderCopies = orders.ToArray();
 
-                lock (_orderLockObj)
+                // we need to keep this part in the lock to avoid the order was unregistered
+                // before being sent out.
+                foreach (var order in orderCopies)
                 {
-                    List<IOrder> orders;
-                    if (!_activeOrders.TryGetValue(quote.SecurityCode, out orders))
+                    if (order.ShouldExecute(quote.Quote))
                     {
-                        continue;
-                    }
-
-                    // copy orders to avoid the "orders" object being updated in SendOrder function.
-                    orderCopies = orders.ToArray();
-
-                    // we need to keep this part in the lock to avoid the order was unregistered
-                    // before being sent out.
-                    foreach (var order in orderCopies)
-                    {
-                        if (order.ShouldExecute(quote.Quote))
-                        {
-                            SendOrder(order, quote.Quote);
-                        }
+                        SendOrder(order, quote.Quote);
                     }
                 }
             }
@@ -174,8 +231,7 @@ namespace StockTrading.Utility
             // and then OnOrderStatusChanged will be called and cause problem.
             lock (_orderLockObj)
             {
-                DispatchedOrder dispatchedOrder
-                    = CtpSimulator.GetInstance().DispatchOrder(request, OnOrderStatusChanged, out error);
+                var dispatchedOrder = CtpSimulator.GetInstance().DispatchOrder(request, _orderStatusChangedMessageReceiver, out error);
 
                 if (dispatchedOrder == null)
                 {
@@ -188,28 +244,28 @@ namespace StockTrading.Utility
                 {
                     AppLogger.Default.InfoFormat("Dispatched order. Order details: {0}.", order);
 
-                    // reset the event after dispatched
-                    order.NoActiveOrderDispatched.Reset();
-
-                    RemoveActiveOrder(order, false);
                     if (!AddDispatchedOrder(dispatchedOrder))
                     {
                         throw new InvalidOperationException(
                             string.Format("Failed to add dispatched order. Order details: {0}", order));
                     }
+
+                    RemoveActiveOrder(order, false);
                 }
             }
         }
 
-        private void OnOrderStatusChanged(DispatchedOrder dispatchedOrder)
+        private void OnOrderStatusChanged(OrderStatusChangedMessage message)
         {
-            if (dispatchedOrder == null)
+            if (message == null || message.Order == null)
             {
                 return;
             }
 
             lock (_orderLockObj)
             {
+                var dispatchedOrder = message.Order;
+
                 // it is possible we can't find the order in _dispatchedOrders because it has 
                 // been unregistered
                 bool isCancelled = !IsDispatchedOrder(dispatchedOrder);
@@ -234,15 +290,18 @@ namespace StockTrading.Utility
                         }
 
                         // callback to client to notify partial or full success
-                        if (order.OnOrderExecuted != null)
+                        if (order.OrderExecutedMessageReceiver != null)
                         {
                             // use sync call here although there is risk of deadlock, to ensure the order's event
                             // can be set properly without worrying if the callback has been executed.
-                            order.OnOrderExecuted(order, dispatchedOrder.LastAverageDealPrice, dispatchedOrder.LastTotalDealVolume);
+                            order.OrderExecutedMessageReceiver.Add(
+                                new OrderExecutedMessage()
+                                {
+                                    Order = order,
+                                    DealPrice = dispatchedOrder.LastAverageDealPrice,
+                                    DealVolume = dispatchedOrder.LastTotalDealVolume
+                                });
                         }
-
-                        // set event after dispatched order has been executed.
-                        order.NoActiveOrderDispatched.Set();
 
                         if (!isCancelled)
                         {
@@ -294,7 +353,7 @@ namespace StockTrading.Utility
             {
                 _activeOrders.Add(order.SecurityCode, new List<IOrder>());
 
-                CtpSimulator.GetInstance().SubscribeQuote(new QuoteSubscription(order.SecurityCode, OnQuoteReady));
+                CtpSimulator.GetInstance().SubscribeQuote(new QuoteSubscription(order.SecurityCode, _quotes));
             }
 
             _activeOrders[order.SecurityCode].Add(order);
@@ -312,7 +371,7 @@ namespace StockTrading.Utility
                 {
                     _activeOrders.Remove(order.SecurityCode);
 
-                    CtpSimulator.GetInstance().UnsubscribeQuote(new QuoteSubscription(order.SecurityCode, OnQuoteReady));
+                    CtpSimulator.GetInstance().UnsubscribeQuote(new QuoteSubscription(order.SecurityCode, _quotes));
                 }
             }
 
@@ -324,10 +383,10 @@ namespace StockTrading.Utility
                 string error;
                 if (dispatchedOrder != null)
                 {
-                    if (!CtpSimulator.GetInstance().CancelOrder(dispatchedOrder, out error, true))
+                    if (!CtpSimulator.GetInstance().CancelOrder(dispatchedOrder, out error))
                     {
                         AppLogger.Default.ErrorFormat(
-                            "Cancel dispatched stoploss order failed. Error: {0}. Order details: {1}",
+                            "Cancel dispatched order failed. Error: {0}. Order details: {1}",
                             error,
                             order);
 

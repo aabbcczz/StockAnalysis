@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Threading;
+using StockAnalysis.Share;
 
 namespace StockTrading.Utility
 {
@@ -141,14 +142,14 @@ namespace StockTrading.Utility
             _quotePublisher.Unsubscribe(subscriptions);
         }
 
-        public DispatchedOrder DispatchOrder(OrderRequest request, Action<DispatchedOrder> onOrderStatusChanged, out string error)
+        public DispatchedOrder DispatchOrder(OrderRequest request, WaitableConcurrentQueue<OrderStatusChangedMessage> orderStatusChangedMessageReceiver, out string error)
         {
-            return _orderDispatcher.DispatchOrder(request, onOrderStatusChanged, out error);
+            return _orderDispatcher.DispatchOrder(request, orderStatusChangedMessageReceiver, out error);
         }
 
-        public bool CancelOrder(DispatchedOrder order, out string error, bool waitForResult)
+        public bool CancelOrder(DispatchedOrder order, out string error)
         {
-            return _orderDispatcher.CancelOrder(order, out error, waitForResult);
+            return _orderDispatcher.CancelOrder(order, out error);
         }
 
         public void QueryOrderStatusForcibly()

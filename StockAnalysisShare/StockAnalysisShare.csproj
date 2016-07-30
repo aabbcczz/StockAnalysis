@@ -98,6 +98,7 @@
     <Compile Include="TdxHangYeBlockDataReader.cs" />
     <Compile Include="TdxStockBlockConfigReader.cs" />
     <Compile Include="UntradableObject.cs" />
+    <Compile Include="WaitableConcurrentQueue.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

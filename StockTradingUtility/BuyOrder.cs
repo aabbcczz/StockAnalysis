@@ -34,8 +34,8 @@ namespace StockTrading.Utility
         /// </summary>
         public int RemainingVolumeCanBeBought { get; private set; }
 
-        public BuyOrder(BuyInstruction instruction, Action<IOrder, float, int> onOrderExecuted)
-            : base(instruction.SecurityCode, instruction.SecurityName, instruction.MaxVolumeCanBeBought, onOrderExecuted)
+        public BuyOrder(BuyInstruction instruction, WaitableConcurrentQueue<OrderExecutedMessage> orderExecutedMessageReceiver)
+            : base(instruction.SecurityCode, instruction.SecurityName, instruction.MaxVolumeCanBeBought, orderExecutedMessageReceiver)
         {
             MinBuyPrice = instruction.MinBuyPrice;
             ExpectedPrice = instruction.ExpectedPrice;
@@ -79,15 +79,15 @@ namespace StockTrading.Utility
         public override bool IsCompleted()
         {
             lock (this)
-            { 
-            if (RemainingCapitalCanBeUsed < MinBuyPrice * ChinaStockHelper.VolumePerHand
-                || RemainingVolumeCanBeBought < ChinaStockHelper.VolumePerHand)
             {
-                return true;
-            }
-
-            return false;
+                if (RemainingCapitalCanBeUsed < MinBuyPrice * ChinaStockHelper.VolumePerHand
+                    || RemainingVolumeCanBeBought < ChinaStockHelper.VolumePerHand)
+                {
+                    return true;
                 }
+
+                return false;
+            }
         }
 
         public override OrderRequest BuildRequest(FiveLevelQuote quote)
@@ -113,7 +113,7 @@ namespace StockTrading.Utility
                 shouldBuy = true;
             }
 
-            return shouldBuy; 
+            return shouldBuy;
         }
 
         public override string ToString()

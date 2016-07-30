@@ -21,6 +21,6 @@ namespace StockTrading.Utility
         /// <summary>
         /// 连续竞价
         /// </summary>
-        ContinousBidding,
+        ContinuousBidding,
     }
 }

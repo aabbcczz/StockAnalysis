@@ -25,11 +25,11 @@ namespace StockTrading.Utility
         private object _publisherLockObj = new object();
         private ReaderWriterLockSlim _subscriptionReadWriteLock = new ReaderWriterLockSlim();
 
-        private IDictionary<string, HashSet<QuoteSubscription.QuoteReceiver>> _subscriptions
-            = new Dictionary<string, HashSet<QuoteSubscription.QuoteReceiver>>();
+        private IDictionary<string, HashSet<WaitableConcurrentQueue<QuoteResult>>> _subscriptions
+            = new Dictionary<string, HashSet<WaitableConcurrentQueue<QuoteResult>>>();
 
-        private IDictionary<QuoteSubscription.QuoteReceiver, HashSet<string>> _subscriptionIndex
-            = new Dictionary<QuoteSubscription.QuoteReceiver, HashSet<string>>();
+        private IDictionary<WaitableConcurrentQueue<QuoteResult>, HashSet<string>> _subscriptionIndex
+            = new Dictionary<WaitableConcurrentQueue<QuoteResult>, HashSet<string>>();
 
         public QuotePublisher(TradingClient client, int refreshingIntervalInMillisecond, bool enableSinaQuote)
         {
@@ -63,33 +63,33 @@ namespace StockTrading.Utility
             }
         }
 
-        public void UnsafeSubscribe(QuoteSubscription subscription)
+        private void UnsafeSubscribe(QuoteSubscription subscription)
         {
             if (!_subscriptions.ContainsKey(subscription.SecurityCode))
             {
-                _subscriptions.Add(subscription.SecurityCode, new HashSet<QuoteSubscription.QuoteReceiver>());
+                _subscriptions.Add(subscription.SecurityCode, new HashSet<WaitableConcurrentQueue<QuoteResult>>());
             }
  
-            _subscriptions[subscription.SecurityCode].Add(subscription.Receiver);
+            _subscriptions[subscription.SecurityCode].Add(subscription.ResultQueue);
 
-            if (!_subscriptionIndex.ContainsKey(subscription.Receiver))
+            if (!_subscriptionIndex.ContainsKey(subscription.ResultQueue))
             {
-                _subscriptionIndex.Add(subscription.Receiver, new HashSet<string>());
+                _subscriptionIndex.Add(subscription.ResultQueue, new HashSet<string>());
             }
 
-            _subscriptionIndex[subscription.Receiver].Add(subscription.SecurityCode);
+            _subscriptionIndex[subscription.ResultQueue].Add(subscription.SecurityCode);
         }
 
-        public void UnsafeUnsubscribe(QuoteSubscription subscription)
+        private void UnsafeUnsubscribe(QuoteSubscription subscription)
         {
             if (_subscriptions.ContainsKey(subscription.SecurityCode))
             {
-                _subscriptions[subscription.SecurityCode].Remove(subscription.Receiver);
+                _subscriptions[subscription.SecurityCode].Remove(subscription.ResultQueue);
             }
 
-            if (_subscriptionIndex.ContainsKey(subscription.Receiver))
+            if (_subscriptionIndex.ContainsKey(subscription.ResultQueue))
             {
-                _subscriptionIndex[subscription.Receiver].Remove(subscription.SecurityCode);
+                _subscriptionIndex[subscription.ResultQueue].Remove(subscription.SecurityCode);
             }
         }
 
@@ -269,8 +269,8 @@ namespace StockTrading.Utility
         private void PublishQuotes(string[] codes, FiveLevelQuote[] quotes, string[] errors)
         {
             List<QuoteResult> results = null;
-            List<QuoteSubscription.QuoteReceiver> receivers = null;
-            Dictionary<QuoteSubscription.QuoteReceiver, List<QuoteResult>> subsets = null;
+            List<WaitableConcurrentQueue<QuoteResult>> resultQueues = null;
+            Dictionary<WaitableConcurrentQueue<QuoteResult>, List<QuoteResult>> subsets = null;
 
             _subscriptionReadWriteLock.EnterReadLock();
 
@@ -283,8 +283,8 @@ namespace StockTrading.Utility
                     .Select(i => new QuoteResult(codes[i], quotes[i], errors[i]))
                     .ToList();
 
-                // get all distinct receivers
-                receivers = results
+                // get all distinct resultQueues
+                resultQueues = results
                     .SelectMany(r => _subscriptions[r.SecurityCode])
                     .Distinct()
                     .ToList();
@@ -294,7 +294,7 @@ namespace StockTrading.Utility
                     return;
                 }
 
-                subsets = receivers
+                subsets = resultQueues
                     .ToDictionary(
                         r => r, 
                         r => results
@@ -306,10 +306,10 @@ namespace StockTrading.Utility
                 _subscriptionReadWriteLock.ExitReadLock();
             }
 
-            // move callback out of lock, so that the callback can subscribe/unsubscribe quote
+            // put quotes to queues 
             foreach (var subset in subsets)
             {
-                subset.Key(subset.Value);
+                subset.Key.Add(subset.Value);
             }
         }
     }

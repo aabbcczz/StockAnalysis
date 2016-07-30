@@ -3,18 +3,17 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using StockAnalysis.Share;
 
 namespace StockTrading.Utility
 {
     public sealed class QuoteSubscription
     {
-        public delegate void QuoteReceiver(IEnumerable<QuoteResult> quotes);
-
         public string SecurityCode { get; private set; }
 
-        public QuoteReceiver Receiver { get; private set; }
+        public WaitableConcurrentQueue<QuoteResult> ResultQueue { get; private set; }
 
-        public QuoteSubscription(string code, QuoteReceiver receiver)
+        public QuoteSubscription(string code, WaitableConcurrentQueue<QuoteResult> receiver)
         {
             if (string.IsNullOrEmpty(code) || receiver == null)
             {
@@ -22,7 +21,7 @@ namespace StockTrading.Utility
             }
 
             SecurityCode = code;
-            Receiver = receiver;
+            ResultQueue = receiver;
         }
     }
 }

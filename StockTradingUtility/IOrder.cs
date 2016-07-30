@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using StockAnalysis.Share;
 
 namespace StockTrading.Utility
 {
@@ -53,15 +54,9 @@ namespace StockTrading.Utility
         bool ShouldCancelIfNotSucceeded { get; }
 
         /// <summary>
-        /// event that indicate no active order is dispatched
+        /// 当Order被执行后用了接收OrderExecutedMessage的消息队列
         /// </summary>
-        ManualResetEvent NoActiveOrderDispatched { get; }
-
-        /// <summary>
-        /// 当Order被执行后需要执行的Action
-        /// </summary>
-        /// <remarks>OnOrderExecuted(IOrder order, float dealPrice, int dealVolume)</remarks>
-        Action<IOrder, float, int> OnOrderExecuted { get; }
+        WaitableConcurrentQueue<OrderExecutedMessage> OrderExecutedMessageReceiver { get; }
 
         /// <summary>
         /// Decide if this order should be executed based on given quote

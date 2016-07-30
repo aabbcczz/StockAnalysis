@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using StockAnalysis.Share;
 
 namespace StockTrading.Utility
 {
@@ -22,12 +23,17 @@ namespace StockTrading.Utility
 
         public OrderRequest Request { get; private set; }
 
-        public Action<DispatchedOrder> OnOrderStatusChanged { get; private set; }
+        public WaitableConcurrentQueue<OrderStatusChangedMessage> OrderStatusChangedMessageReceiver { get; private set; }
 
-        public DispatchedOrder(OrderRequest request, Action<DispatchedOrder> onOrderStatusChanged, int orderNo)
+        private DispatchedOrder()
+        {
+
+        }
+
+        public DispatchedOrder(OrderRequest request, WaitableConcurrentQueue<OrderStatusChangedMessage> orderStatusChangedMessageReceiver, int orderNo)
         {
             Request = request;
-            OnOrderStatusChanged = onOrderStatusChanged;
+            OrderStatusChangedMessageReceiver = orderStatusChangedMessageReceiver;
             OrderNo = orderNo;
 
             DispatchedTime = DateTime.Now;
@@ -35,6 +41,21 @@ namespace StockTrading.Utility
             LastTotalDealVolume = 0;
             LastStatus = OrderStatus.NotSubmitted;
 
+        }
+
+        public DispatchedOrder Clone()
+        {
+            return new DispatchedOrder()
+            {
+                DispatchedTime = this.DispatchedTime,
+                OrderNo = this.OrderNo,
+                LastTotalDealVolume = this.LastTotalDealVolume,
+                LastAverageDealPrice = this.LastAverageDealPrice,
+                LastDeltaDealVolume = this.LastDeltaDealVolume,
+                LastStatus = this.LastStatus,
+                Request = this.Request,
+                OrderStatusChangedMessageReceiver = this.OrderStatusChangedMessageReceiver
+            };
         }
     }
 }

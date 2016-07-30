@@ -15,8 +15,8 @@ namespace StockTrading.Utility
         public int RemainingVolume { get; private set; }
 
 
-        public SellOrder(string securityCode, string securityName, float sellPrice, int volume, Action<IOrder, float, int> onOrderExecuted)
-            : base(securityCode, securityName, volume, onOrderExecuted)
+        public SellOrder(string securityCode, string securityName, float sellPrice, int volume, WaitableConcurrentQueue<OrderExecutedMessage> orderExecutedMessageReceiver)
+            : base(securityCode, securityName, volume, orderExecutedMessageReceiver)
         {
             if (sellPrice < 0.0)
             {

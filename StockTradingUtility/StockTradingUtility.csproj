@@ -71,6 +71,7 @@
     <Compile Include="BiddingTimeRange.cs" />
     <Compile Include="BuyInstruction.cs" />
     <Compile Include="BuyOrder.cs" />
+    <Compile Include="OrderExecutedMessage.cs" />
     <Compile Include="OrderManager.cs" />
     <Compile Include="CtpSimulator.cs" />
     <Compile Include="DispatchedOrder.cs" />
@@ -83,6 +84,7 @@
     <Compile Include="OrderPricingType.cs" />
     <Compile Include="OrderRequest.cs" />
     <Compile Include="OrderStatus.cs" />
+    <Compile Include="OrderStatusChangedMessage.cs" />
     <Compile Include="QueryGeneralOrderResult.cs" />
     <Compile Include="QueryStockResult.cs" />
     <Compile Include="QuerySucceededOrderResult.cs" />
