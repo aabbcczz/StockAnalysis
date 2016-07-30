@@ -426,7 +426,8 @@ namespace TradingStrategyEvaluation
                 // Exclude unrealistic price.
                 if ((_settings.IsLowestPriceAchievable && price < currentBarOfObject.LowestPrice)
                     || (!_settings.IsLowestPriceAchievable && price <= currentBarOfObject.LowestPrice)
-                    || price > currentBarOfObject.HighestPrice)
+                    || price > currentBarOfObject.HighestPrice
+                    || currentBarOfObject.HighestPrice <= currentBarOfObject.OpenPrice * _context.GlobalSettings.HighPriceScaleBeforeBuying)
                 {
                     _context.Log(
                         string.Format(

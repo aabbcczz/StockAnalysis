@@ -10,6 +10,8 @@ namespace TradingStrategy.Strategy
     {
         private RuntimeMetricProxy _movingAverage;
         private RuntimeMetricProxy _previousDayBar;
+        private RuntimeMetricProxy _previous2DaysBar;
+
         private RuntimeMetricProxy _lowest;
 
         [Parameter(5, "移动平均趋势线周期, 0表示忽略")]
@@ -33,6 +35,9 @@ namespace TradingStrategy.Strategy
         [Parameter(5, "反弹日最低价满足为最近若干周期内的最低价条件中的最小周期数, 0表示忽略此条件")]
         public int MinPeriodForBeingLowestPrice { get; set; }
 
+        [Parameter(false, "允许两日反弹")]
+        public bool AllowTwoDaysBounce { get; set; }
+
         protected override void RegisterMetric()
         {
             base.RegisterMetric();
@@ -46,6 +51,11 @@ namespace TradingStrategy.Strategy
             _previousDayBar = new RuntimeMetricProxy(
                 Context.MetricManager,
                 "REFBAR[1]");
+
+
+            _previous2DaysBar = new RuntimeMetricProxy(
+                Context.MetricManager,
+                "REFBAR[2]");
 
             _lowest = MinPeriodForBeingLowestPrice > 0
                 ? new RuntimeMetricProxy(Context.MetricManager, string.Format("LO[{0}](BAR.LP)", MinPeriodForBeingLowestPrice))
@@ -67,10 +77,14 @@ namespace TradingStrategy.Strategy
             var result = new MarketEnteringComponentResult();
 
             var previousDayBarValues = _previousDayBar.GetMetricValues(tradingObject);
+            var previous2DaysBarValues = _previous2DaysBar.GetMetricValues(tradingObject);
 
             var todayBar = Context.GetBarOfTradingObjectForCurrentPeriod(tradingObject);
             double movingAverage = _movingAverage == null ? 1000000.00 : _movingAverage.GetMetricValues(tradingObject)[0];
             var previousDayBarLowest = previousDayBarValues[3];
+            var previousDayBarOpen = previousDayBarValues[1];
+            var previousDayBarClose = previousDayBarValues[0];
+            var previous2DaysBarLowest = previous2DaysBarValues[3];
             var lowest = _lowest == null ? 0.0 : _lowest.GetMetricValues(tradingObject)[0];
             bool isLowest = _lowest == null ? true : lowest == todayBar.LowestPrice;
 
@@ -83,8 +97,16 @@ namespace TradingStrategy.Strategy
                 : (todayBar.OpenPrice - todayBar.LowestPrice) / (todayBar.HighestPrice - todayBar.LowestPrice) * 100.0;
 
             if (todayBar.ClosePrice < movingAverage * (100.0 - MinPercentageBelowMovingAverage) / 100.0 // below average
-                && todayBar.OpenPrice < previousDayBarLowest * (100.0 - MinPercentageOfGapDown) / 100.0 // gap down
-                && todayBar.ClosePrice > previousDayBarLowest * (100.0 + MinBouncePercentageOverLastLowestPrice) / 100.0 // bounce over last day
+                && ((todayBar.OpenPrice < previousDayBarLowest * (100.0 - MinPercentageOfGapDown) / 100.0 // one day gap down
+                        && todayBar.ClosePrice > previousDayBarLowest * (100.0 + MinBouncePercentageOverLastLowestPrice) / 100.0) // bounce over last day
+                    || (AllowTwoDaysBounce // allow 2 days bounce
+                        && previousDayBarOpen < previous2DaysBarLowest * (100.0 - MinPercentageOfGapDown) / 100.0 // two days gap down
+                        && previousDayBarClose > previousDayBarOpen
+                        && previousDayBarClose <= previous2DaysBarLowest * (100.0 + MinBouncePercentageOverLastLowestPrice) / 100.0 // does not meet 1 day bounce criteria
+                        && todayBar.LowestPrice >= previousDayBarLowest
+                        && todayBar.OpenPrice >= previousDayBarOpen
+                        && todayBar.ClosePrice > todayBar.OpenPrice
+                        && todayBar.ClosePrice > previous2DaysBarLowest * (100.0 + MinBouncePercentageOverLastLowestPrice) / 100.0)) // bounce over last 2 days lowest
                 && isLowest  // is lowest in recent bars
                 && upShadowPercentage <= MaxUpShadowPercentage
                 && downShadowPercentage <= MaxDownShadowPercentage

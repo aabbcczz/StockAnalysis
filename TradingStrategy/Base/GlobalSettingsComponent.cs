@@ -77,8 +77,11 @@ namespace TradingStrategy.Base
         [Parameter(false, "用收盘价判断止损")]
         public bool StopLossByClosePrice { get; set; }
 
-        [Parameter(1.0, "真实买入价比例")]
+        [Parameter(1.0, "真实买入价比例，为0时取HighPriceScaleBeforeBuying的值")]
         public double TrueBuyPriceScale { get; set; }
+
+        [Parameter(1.0, "买入时历史价格高点相对开盘价需达到的比例")]
+        public double HighPriceScaleBeforeBuying { get; set; }
 
         public RuntimeMetricProxy IncreasePositionSortMetricProxy { get; private set; }
         public RuntimeMetricProxy NewPositionSortMetricProxy { get; private set; }
@@ -99,6 +102,16 @@ namespace TradingStrategy.Base
             if (!string.IsNullOrWhiteSpace(NewPositionSortMetric))
             {
                 NewPositionSortMetricProxy = new RuntimeMetricProxy(Context.MetricManager, NewPositionSortMetric);
+            }
+        }
+
+        protected override void ValidateParameterValues()
+        {
+            base.ValidateParameterValues();
+
+            if (Math.Abs(TrueBuyPriceScale) < 1e-6)
+            {
+                TrueBuyPriceScale = HighPriceScaleBeforeBuying;
             }
         }
     }

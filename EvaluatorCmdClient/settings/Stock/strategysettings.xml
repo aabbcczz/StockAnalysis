@@ -105,10 +105,17 @@
         </ParameterSettings>		
         <ParameterSettings>
           <Name>TrueBuyPriceScale</Name>
-          <Description>真实买入价比例</Description>
+          <Description>真实买入价比例，为0时取HighPriceScaleBeforeBuying的值</Description>
           <ValueType>System.Double, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
           <DefaultValue xsi:type="xsd:double">1</DefaultValue>
-          <Values>1.001</Values>
+          <Values>0.0</Values>
+        </ParameterSettings>
+        <ParameterSettings>
+          <Name>HighPriceScaleBeforeBuying</Name>
+          <Description>买入时历史价格高点相对开盘价需达到的比例</Description>
+          <ValueType>System.Double, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
+          <DefaultValue xsi:type="xsd:double">1</DefaultValue>
+          <Values>1.000/1.01/0.001</Values>
         </ParameterSettings>
       </ComponentParameterSettings>
     </TradingStrategyComponentSettings>
@@ -299,6 +306,13 @@
           <DefaultValue xsi:type="xsd:int">5</DefaultValue>
           <Values>0</Values>
         </ParameterSettings>		
+        <ParameterSettings>
+          <Name>AllowTwoDaysBounce</Name>
+          <Description>允许两日反弹</Description>
+          <ValueType>System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
+          <DefaultValue xsi:type="xsd:boolean">false</DefaultValue>
+          <Values>false</Values>
+        </ParameterSettings>
       </ComponentParameterSettings>
     </TradingStrategyComponentSettings>
     <TradingStrategyComponentSettings Enabled="false" Name="跳空后盘中反弹过昨日最低点入市策略">
@@ -960,7 +974,7 @@
         </ParameterSettings>
       </ComponentParameterSettings>
     </TradingStrategyComponentSettings>
-    <TradingStrategyComponentSettings Enabled="true" Name="第二天亏损退出">
+    <TradingStrategyComponentSettings Enabled="false" Name="第二天亏损退出">
       <ClassType>TradingStrategy.Strategy.SecondDayLossMarketExiting, TradingStrategy, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</ClassType>
       <Description>当头寸持有第二天就亏损则退出市场</Description>
       <ImplementedInterfaces>ITradingStrategyComponent;IMarketExitingComponent</ImplementedInterfaces>
@@ -1169,7 +1183,7 @@
           <Description>原始指标</Description>
           <ValueType>System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
           <DefaultValue xsi:type="xsd:string">ATR[10]</DefaultValue>
-          <Values>BAR.LP</Values>
+          <Values>LO[2](BAR.LP)</Values>
         </ParameterSettings>
         <ParameterSettings>
           <Name>RawMetricScale</Name>
