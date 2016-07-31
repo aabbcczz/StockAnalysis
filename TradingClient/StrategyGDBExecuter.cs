@@ -46,14 +46,14 @@ namespace TradingClient
         private Dictionary<string, StrategyGDB.NewStock> _activeNewStockIndex = null;
         private Dictionary<string, StrategyGDB.ExistingStock> _activeExistingStockIndex = null;
 
-        private Dictionary<object, StockOrderRuntime> _stockOrderRuntimes = new Dictionary<object, StockOrderRuntime>();
+        private Dictionary<object, RuntimeStockOrder> _runtimeStockOrders = new Dictionary<object, RuntimeStockOrder>();
 
         private ReaderWriterLockSlim _runtimeReadWriteLock = new ReaderWriterLockSlim();
 
         private float _useableCapital = 0.0f;
         private object _queryCapitalLockObj = new object();
 
-        public IEnumerable<StockOrderRuntime> StockOrderRuntimes
+        public IEnumerable<RuntimeStockOrder> RuntimeStockOrders
         {
             get 
             {
@@ -61,7 +61,7 @@ namespace TradingClient
 
                 try
                 {
-                    return new List<StockOrderRuntime>(_stockOrderRuntimes.Values);
+                    return new List<RuntimeStockOrder>(_runtimeStockOrders.Values);
                 }
                 finally
                 {
@@ -325,9 +325,9 @@ namespace TradingClient
                 var stock = _activeNewStockIndex[quote.SecurityCode];
 
                 // check if buy order has been created
-                if (_stockOrderRuntimes.ContainsKey(stock))
+                if (_runtimeStockOrders.ContainsKey(stock))
                 {
-                    var runtime = _stockOrderRuntimes[stock];
+                    var runtime = _runtimeStockOrders[stock];
                     if (runtime.AssociatedBuyOrder != null)
                     {
                         return;
@@ -425,9 +425,9 @@ namespace TradingClient
 
         private void CreateBuyOrder(StrategyGDB.NewStock stock)
         {
-            if (_stockOrderRuntimes.ContainsKey(stock))
+            if (_runtimeStockOrders.ContainsKey(stock))
             {
-                if (_stockOrderRuntimes[stock].AssociatedBuyOrder != null)
+                if (_runtimeStockOrders[stock].AssociatedBuyOrder != null)
                 {
                     return;
                 }
@@ -456,20 +456,20 @@ namespace TradingClient
 
             BuyOrder order = new BuyOrder(instruction, _buyOrderExecutedMessageReceiver);
 
-            if (_stockOrderRuntimes.ContainsKey(stock))
+            if (_runtimeStockOrders.ContainsKey(stock))
             {
-                _stockOrderRuntimes[stock].AssociatedBuyOrder = order;
+                _runtimeStockOrders[stock].AssociatedBuyOrder = order;
             }
             else
             {
-                var runtime = new StockOrderRuntime(stock.SecurityCode, stock.SecurityName)
+                var runtime = new RuntimeStockOrder(stock.SecurityCode, stock.SecurityName)
                     {
                         ExpectedVolume = order.ExpectedVolume,
                         RemainingVolume = order.ExpectedVolume,
                         AssociatedBuyOrder = order,
                     };
 
-                _stockOrderRuntimes.Add(stock, runtime);
+                _runtimeStockOrders.Add(stock, runtime);
             }
 
             OrderManager.GetInstance().RegisterOrder(order);
@@ -523,7 +523,7 @@ namespace TradingClient
 
                 try
                 {
-                    foreach (var kvp in _stockOrderRuntimes)
+                    foreach (var kvp in _runtimeStockOrders)
                     {
                         if (kvp.Value.AssociatedBuyOrder != null)
                         {
@@ -557,7 +557,7 @@ namespace TradingClient
             {
                 foreach (var stock in _activeExistingStockIndex.Values)
                 {
-                    if (!_stockOrderRuntimes.ContainsKey(stock))
+                    if (!_runtimeStockOrders.ContainsKey(stock))
                     {
                         StoplossOrder order = new StoplossOrder(
                             stock.SecurityCode,
@@ -566,21 +566,21 @@ namespace TradingClient
                             stock.Volume,
                             _stoplossOrderExecutedMessageReceiver);
 
-                        StockOrderRuntime runtime = new StockOrderRuntime(stock.SecurityCode, stock.SecurityName)
+                        RuntimeStockOrder runtime = new RuntimeStockOrder(stock.SecurityCode, stock.SecurityName)
                         {
                             AssociatedStoplossOrder = order,
                             ExpectedVolume = stock.Volume,
                             RemainingVolume = stock.Volume,
                         };
 
-                        _stockOrderRuntimes.Add(stock, runtime);
+                        _runtimeStockOrders.Add(stock, runtime);
 
                         OrderManager.GetInstance().RegisterOrder(order);
                         AppLogger.Default.InfoFormat("Registered order {0}", order);
                     }
                     else
                     {
-                        var runtime = _stockOrderRuntimes[stock];
+                        var runtime = _runtimeStockOrders[stock];
                         if (runtime.AssociatedSellOrder == null && runtime.AssociatedStoplossOrder == null)
                         {
                             StoplossOrder order = new StoplossOrder(
@@ -629,7 +629,7 @@ namespace TradingClient
                 var stock = _activeExistingStockIndex[order.SecurityCode];
                 System.Diagnostics.Debug.Assert(stock != null);
 
-                var runtime = _stockOrderRuntimes[stock];
+                var runtime = _runtimeStockOrders[stock];
                 System.Diagnostics.Debug.Assert(runtime != null);
                 System.Diagnostics.Debug.Assert(object.ReferenceEquals(runtime.AssociatedStoplossOrder, order));
 

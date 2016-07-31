@@ -52,7 +52,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="StockOrderRuntime.cs" />
+    <Compile Include="RuntimeStockOrder.cs" />
     <Compile Include="StrategyGDBExecuter.cs" />
     <Compile Include="StrategyGDB\ExistingStock.cs" />
     <Compile Include="MainForm.cs">

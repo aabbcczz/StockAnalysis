@@ -16,8 +16,6 @@ namespace StockTrading.Utility
     {
         public const int MinCancellationIntervalInMillisecond = 1000;
 
-        public WaitableConcurrentQueue<OrderExecutedMessage> OrderExecutedMessageQueue { get; private set; }
-
         private static OrderManager _instance = null;
 
         private object _orderLockObj = new object();
@@ -67,12 +65,10 @@ namespace StockTrading.Utility
 
         private OrderManager()
         {
-            OrderExecutedMessageQueue = new WaitableConcurrentQueue<OrderExecutedMessage>();
-
             _cancelOrderTimer = new Timer(CancelOrderTimerCallback, null, _cancellationIntervalInMillisecond, _cancellationIntervalInMillisecond);
 
             new Task(QuoteListner).Start();
-            new Task(OrderStatusChangedListner).Start();
+            new Task(OrderStatusChangedListener).Start();
         }
 
         private void QuoteListner()
@@ -99,7 +95,7 @@ namespace StockTrading.Utility
             }
         }
 
-        private void OrderStatusChangedListner()
+        private void OrderStatusChangedListener()
         {
             try
             {
@@ -259,7 +255,7 @@ namespace StockTrading.Utility
         {
             if (message == null || message.Order == null)
             {
-                return;
+                throw new ArgumentNullException();
             }
 
             lock (_orderLockObj)
@@ -289,17 +285,15 @@ namespace StockTrading.Utility
                             order.Deal(dispatchedOrder.LastAverageDealPrice, dispatchedOrder.LastTotalDealVolume);
                         }
 
-                        // callback to client to notify partial or full success
+                        // send message to client to notify partial or full success
                         if (order.OrderExecutedMessageReceiver != null)
                         {
-                            // use sync call here although there is risk of deadlock, to ensure the order's event
-                            // can be set properly without worrying if the callback has been executed.
                             order.OrderExecutedMessageReceiver.Add(
                                 new OrderExecutedMessage()
                                 {
                                     Order = order,
                                     DealPrice = dispatchedOrder.LastAverageDealPrice,
-                                    DealVolume = dispatchedOrder.LastTotalDealVolume
+                                    DealVolume = dispatchedOrder.LastTotalDealVolume,
                                 });
                         }
 
