@@ -115,7 +115,7 @@
           <Description>买入时历史价格高点相对开盘价需达到的比例</Description>
           <ValueType>System.Double, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
           <DefaultValue xsi:type="xsd:double">1</DefaultValue>
-          <Values>1.000/1.01/0.001</Values>
+          <Values>1.001</Values>
         </ParameterSettings>
       </ComponentParameterSettings>
     </TradingStrategyComponentSettings>
@@ -974,7 +974,7 @@
         </ParameterSettings>
       </ComponentParameterSettings>
     </TradingStrategyComponentSettings>
-    <TradingStrategyComponentSettings Enabled="false" Name="第二天亏损退出">
+    <TradingStrategyComponentSettings Enabled="true" Name="第二天亏损退出">
       <ClassType>TradingStrategy.Strategy.SecondDayLossMarketExiting, TradingStrategy, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</ClassType>
       <Description>当头寸持有第二天就亏损则退出市场</Description>
       <ImplementedInterfaces>ITradingStrategyComponent;IMarketExitingComponent</ImplementedInterfaces>
@@ -984,7 +984,7 @@
           <Description>最小亏损百分比, 当亏损大于此值时退出</Description>
           <ValueType>System.Double, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
           <DefaultValue xsi:type="xsd:double">0</DefaultValue>
-          <Values>1.2</Values>
+          <Values>0/5/0.1</Values>
         </ParameterSettings>
         <ParameterSettings>
           <Name>MinLossPercentageOpenToFirstDayMin</Name>
