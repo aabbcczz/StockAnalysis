@@ -2,6 +2,7 @@
 
 namespace MetricsDefinition.Metrics
 {
+    // Volatility Volume Ratio
     [Metric("VR")]
     public sealed class VolumeRatio : SingleOutputBarInputSerialMetric
     {

@@ -16,16 +16,16 @@
         <ParameterSettings>
           <Name>IncreasePositionInstructionSortMode</Name>
           <Description>加仓指令排序模式，取值为：
-			NoSorting = 0,
-			Randomize = 1,
-			SortByInstructionIdAscending = 2,
-			SortByInstructionIdDescending = 3,
-			SortByCodeAscending = 4,
-			SortByCodeDescending = 5,
-			SortByVolumeAscending = 6,
-			SortByVolumeDescending = 7,
-			SortByMetricAscending = 8,
-			SortByMetricDescending = 9</Description>
+      NoSorting = 0,
+      Randomize = 1,
+      SortByInstructionIdAscending = 2,
+      SortByInstructionIdDescending = 3,
+      SortByCodeAscending = 4,
+      SortByCodeDescending = 5,
+      SortByVolumeAscending = 6,
+      SortByVolumeDescending = 7,
+      SortByMetricAscending = 8,
+      SortByMetricDescending = 9</Description>
           <ValueType>TradingStrategy.Base.InstructionSortMode, TradingStrategy, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</ValueType>
           <DefaultValue xsi:type="xsd:int">0</DefaultValue>
           <Values>NoSorting</Values>
@@ -40,16 +40,16 @@
         <ParameterSettings>
           <Name>NewPositionInstructionSortMode</Name>
           <Description>新建仓指令排序模式，取值为：
-			NoSorting = 0,
-			Randomize = 1,
-			SortByInstructionIdAscending = 2,
-			SortByInstructionIdDescending = 3,
-			SortByCodeAscending = 4,
-			SortByCodeDescending = 5,
-			SortByVolumeAscending = 6,
-			SortByVolumeDescending = 7,
-			SortByMetricAscending = 8,
-			SortByMetricDescending = 9</Description>
+      NoSorting = 0,
+      Randomize = 1,
+      SortByInstructionIdAscending = 2,
+      SortByInstructionIdDescending = 3,
+      SortByCodeAscending = 4,
+      SortByCodeDescending = 5,
+      SortByVolumeAscending = 6,
+      SortByVolumeDescending = 7,
+      SortByMetricAscending = 8,
+      SortByMetricDescending = 9</Description>
           <ValueType>TradingStrategy.Base.InstructionSortMode, TradingStrategy, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</ValueType>
           <DefaultValue xsi:type="xsd:int">0</DefaultValue>
           <Values>9</Values>
@@ -59,6 +59,10 @@
           <Description>新建仓指令排序指标，当且仅当新建仓指令排序模式为8/9时有效</Description>
           <ValueType>System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
           <DefaultValue xsi:type="xsd:string">ATR[20]</DefaultValue>
+      <!--
+          <Values>BARM[0.8].UPFORCE</Values>
+          <Values>VC[5]</Values>
+      -->
           <Values>BARM[0.8].UPFORCE</Values>
         </ParameterSettings>
         <ParameterSettings>
@@ -115,7 +119,7 @@
           <Description>买入时历史价格高点相对开盘价需达到的比例</Description>
           <ValueType>System.Double, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
           <DefaultValue xsi:type="xsd:double">1</DefaultValue>
-          <Values>1.001</Values>
+          <Values>1.000</Values>
         </ParameterSettings>
       </ComponentParameterSettings>
     </TradingStrategyComponentSettings>
@@ -458,6 +462,9 @@
           <Description>原始指标</Description>
           <ValueType>System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
           <DefaultValue xsi:type="xsd:string">ATR[20]</DefaultValue>
+      <!--
+          <Values>BARM[0.8].UPFORCE</Values>
+      -->
           <Values>BARM[0.8].UPFORCE</Values>
         </ParameterSettings>
         <ParameterSettings>
@@ -942,7 +949,7 @@
           <Description>原始指标</Description>
           <ValueType>System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
           <DefaultValue xsi:type="xsd:string">ATR[10]</DefaultValue>
-          <Values>BAR.LP</Values>
+          <Values>LO[2](BAR.LP)(;)LO[3](BAR.LP)(;)LO[4](BAR.LP)(;)LO[5](BAR.LP)(;)LO[6](BAR.LP)</Values>
         </ParameterSettings>
       </ComponentParameterSettings>
     </TradingStrategyComponentSettings>	
@@ -984,7 +991,7 @@
           <Description>最小亏损百分比, 当亏损大于此值时退出</Description>
           <ValueType>System.Double, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
           <DefaultValue xsi:type="xsd:double">0</DefaultValue>
-          <Values>0/5/0.1</Values>
+          <Values>1.2</Values>
         </ParameterSettings>
         <ParameterSettings>
           <Name>MinLossPercentageOpenToFirstDayMin</Name>
@@ -1183,7 +1190,7 @@
           <Description>原始指标</Description>
           <ValueType>System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
           <DefaultValue xsi:type="xsd:string">ATR[10]</DefaultValue>
-          <Values>LO[2](BAR.LP)</Values>
+          <Values>BAR.LP</Values>
         </ParameterSettings>
         <ParameterSettings>
           <Name>RawMetricScale</Name>
@@ -1353,7 +1360,7 @@
           <DefaultValue xsi:type="xsd:int">10</DefaultValue>
           <Values>10</Values>
         </ParameterSettings>		
-	  </ComponentParameterSettings>
+    </ComponentParameterSettings>
     </TradingStrategyComponentSettings>
     <TradingStrategyComponentSettings Enabled="true" Name="通用买入价过滤器">
       <ClassType>TradingStrategy.Strategy.CommonBuyPriceFiltering, TradingStrategy, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</ClassType>
