@@ -112,7 +112,7 @@
           <Description>真实买入价比例，为0时取HighPriceScaleBeforeBuying的值</Description>
           <ValueType>System.Double, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
           <DefaultValue xsi:type="xsd:double">1</DefaultValue>
-          <Values>0.0</Values>
+          <Values>1.0/1.02/0.001</Values>
         </ParameterSettings>
         <ParameterSettings>
           <Name>HighPriceScaleBeforeBuying</Name>
@@ -472,7 +472,7 @@
           <Description>上阈值</Description>
           <ValueType>System.Double, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
           <DefaultValue xsi:type="xsd:double">10</DefaultValue>
-          <Values>1</Values>
+          <Values>0.09</Values>
         </ParameterSettings>
         <ParameterSettings>
           <Name>LowThreshold</Name>
@@ -518,7 +518,7 @@
         </ParameterSettings>
       </ComponentParameterSettings>
     </TradingStrategyComponentSettings>
-    <TradingStrategyComponentSettings Enabled="true" Name="单移动平均板块指数入市">
+    <TradingStrategyComponentSettings Enabled="false" Name="单移动平均板块指数入市">
       <ClassType>TradingStrategy.Strategy.SingleMovingAverageBoardIndexMarketEntering, TradingStrategy, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</ClassType>
       <Description>当板块指数收盘价和移动平均值满足触发条件时允许入市</Description>
       <ImplementedInterfaces>ITradingStrategyComponent;IMarketEnteringComponent</ImplementedInterfaces>
@@ -991,7 +991,7 @@
           <Description>最小亏损百分比, 当亏损大于此值时退出</Description>
           <ValueType>System.Double, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
           <DefaultValue xsi:type="xsd:double">0</DefaultValue>
-          <Values>1.2</Values>
+          <Values>0</Values>
         </ParameterSettings>
         <ParameterSettings>
           <Name>MinLossPercentageOpenToFirstDayMin</Name>
@@ -1005,7 +1005,7 @@
           <Description>第二天收盘相对第一天开盘收盘小者的最小亏损百分比, 当亏损大于此值时退出</Description>
           <ValueType>System.Double, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
           <DefaultValue xsi:type="xsd:double">0</DefaultValue>
-          <Values>100</Values>
+          <Values>-6</Values>
         </ParameterSettings>
         <ParameterSettings>
           <Name>ExitingPeriod</Name>
@@ -1225,7 +1225,7 @@
           <Description>自适应划分中所允许的最小划分数目</Description>
           <ValueType>System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
           <DefaultValue xsi:type="xsd:int">1</DefaultValue>
-          <Values>6</Values>
+          <Values>3</Values>
         </ParameterSettings>		
         <ParameterSettings>
           <Name>MaxObjectNumberToBeEstimated</Name>
@@ -1379,14 +1379,14 @@
           <Description>价格上限百分比</Description>
           <ValueType>System.Double, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
           <DefaultValue xsi:type="xsd:double">110</DefaultValue>
-          <Values>102.5</Values>
+          <Values>102</Values>
         </ParameterSettings>
         <ParameterSettings>
           <Name>PriceDownLimitPercentage</Name>
           <Description>价格下限百分比</Description>
           <ValueType>System.Double, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
           <DefaultValue xsi:type="xsd:double">90</DefaultValue>
-          <Values>96.5</Values>
+          <Values>97</Values>
         </ParameterSettings>
         <ParameterSettings>
           <Name>IsUpLimitPriceAcceptable</Name>

@@ -424,19 +424,22 @@ namespace TradingStrategyEvaluation
                 price = ChinaStockHelper.CalculatePrice(price, 0.0, 2);
 
                 // Exclude unrealistic price.
-                if ((_settings.IsLowestPriceAchievable && price < currentBarOfObject.LowestPrice)
-                    || (!_settings.IsLowestPriceAchievable && price <= currentBarOfObject.LowestPrice)
-                    || price > currentBarOfObject.HighestPrice
-                    || currentBarOfObject.HighestPrice <= currentBarOfObject.OpenPrice * _context.GlobalSettings.HighPriceScaleBeforeBuying)
+                if (instruction.Action == TradingAction.OpenLong)
                 {
-                    _context.Log(
-                        string.Format(
-                            "{0} price {1:0.000} in {2:yyyy-MM-dd} is not achievable",
-                            instruction.TradingObject.Code,
-                            price,
-                            time));
+                    if ((_settings.IsLowestPriceAchievable && price < currentBarOfObject.LowestPrice)
+                        || (!_settings.IsLowestPriceAchievable && price <= currentBarOfObject.LowestPrice)
+                        || price > currentBarOfObject.HighestPrice
+                        || currentBarOfObject.HighestPrice <= currentBarOfObject.OpenPrice * _context.GlobalSettings.HighPriceScaleBeforeBuying)
+                    {
+                        _context.Log(
+                            string.Format(
+                                "{0} price {1:0.000} in {2:yyyy-MM-dd} is not achievable",
+                                instruction.TradingObject.Code,
+                                price,
+                                time));
 
-                    continue;
+                        continue;
+                    }
                 }
 
                 readyInstructions.Add(Tuple.Create(instruction, price));
