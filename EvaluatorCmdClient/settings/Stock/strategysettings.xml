@@ -112,7 +112,7 @@
           <Description>真实买入价比例，为0时取HighPriceScaleBeforeBuying的值</Description>
           <ValueType>System.Double, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
           <DefaultValue xsi:type="xsd:double">1</DefaultValue>
-          <Values>1.0/1.02/0.001</Values>
+          <Values>0.0</Values>
         </ParameterSettings>
         <ParameterSettings>
           <Name>HighPriceScaleBeforeBuying</Name>
@@ -981,7 +981,7 @@
         </ParameterSettings>
       </ComponentParameterSettings>
     </TradingStrategyComponentSettings>
-    <TradingStrategyComponentSettings Enabled="true" Name="第二天亏损退出">
+    <TradingStrategyComponentSettings Enabled="false" Name="第二天亏损退出">
       <ClassType>TradingStrategy.Strategy.SecondDayLossMarketExiting, TradingStrategy, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</ClassType>
       <Description>当头寸持有第二天就亏损则退出市场</Description>
       <ImplementedInterfaces>ITradingStrategyComponent;IMarketExitingComponent</ImplementedInterfaces>
@@ -1005,7 +1005,7 @@
           <Description>第二天收盘相对第一天开盘收盘小者的最小亏损百分比, 当亏损大于此值时退出</Description>
           <ValueType>System.Double, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
           <DefaultValue xsi:type="xsd:double">0</DefaultValue>
-          <Values>-6</Values>
+          <Values>0</Values>
         </ParameterSettings>
         <ParameterSettings>
           <Name>ExitingPeriod</Name>
@@ -1120,7 +1120,7 @@
           <Description>头寸持有周期数</Description>
           <ValueType>System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
           <DefaultValue xsi:type="xsd:int">20</DefaultValue>
-          <Values>2</Values>
+          <Values>1</Values>
         </ParameterSettings>
       </ComponentParameterSettings>
     </TradingStrategyComponentSettings>
@@ -1197,7 +1197,7 @@
           <Description>原始指标比例尺</Description>
           <ValueType>System.Double, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
           <DefaultValue xsi:type="xsd:double">1</DefaultValue>
-          <Values>1</Values>
+          <Values>0.01</Values>
         </ParameterSettings>		
       </ComponentParameterSettings>
     </TradingStrategyComponentSettings>	
@@ -1225,7 +1225,7 @@
           <Description>自适应划分中所允许的最小划分数目</Description>
           <ValueType>System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
           <DefaultValue xsi:type="xsd:int">1</DefaultValue>
-          <Values>3</Values>
+          <Values>6</Values>
         </ParameterSettings>		
         <ParameterSettings>
           <Name>MaxObjectNumberToBeEstimated</Name>
@@ -1253,7 +1253,7 @@
           <Description>限制新头寸数目不超过划分数目</Description>
           <ValueType>System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
           <DefaultValue xsi:type="xsd:boolean">true</DefaultValue>
-          <Values>true</Values>
+          <Values>true;false</Values>
         </ParameterSettings>
         <ParameterSettings>
           <Name>LogarithmBase</Name>

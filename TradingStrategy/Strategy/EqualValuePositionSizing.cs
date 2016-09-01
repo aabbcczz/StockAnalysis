@@ -127,22 +127,28 @@ namespace TradingStrategy.Strategy
                 ? Math.Max(Math.Min(totalNumberOfObjectsToBeEstimated, maxParts), MinPartsOfAdpativeAllocation)
                 : PartsOfEquity;
 
+            return parts;
+        }
+
+        private double GetUsableEquity()
+        {
+            double usableEquity = Context.GetCurrentEquity(CurrentPeriod, EquityEvaluationMethod);
+
             if (LogarithmBase != 0.0
                 && EquityEvaluationMethod != TradingStrategy.EquityEvaluationMethod.InitialEquity)
             {
-                double currentEquity = Context.GetCurrentEquity(CurrentPeriod, EquityEvaluationMethod);
                 double initialEquity = Context.GetInitialEquity();
-                double proportion = (1.0 + Math.Log(currentEquity / initialEquity, LogarithmBase));
+                double proportion = (1.0 + Math.Log(usableEquity / initialEquity, LogarithmBase));
 
                 if (proportion < 0.0)
                 {
                     proportion = 1.0;
                 }
 
-                parts = Math.Max(parts, (int)(parts * proportion));
+                usableEquity = Math.Min(usableEquity, proportion * initialEquity);
             }
 
-            return parts;
+            return usableEquity;
         }
 
         public override int GetMaxPositionCount(int totalNumberOfObjectsToBeEstimated)
@@ -166,7 +172,7 @@ namespace TradingStrategy.Strategy
                 return result;
             }
 
-            var currentEquity = Context.GetCurrentEquity(CurrentPeriod, EquityEvaluationMethod);
+            var usableEquity = GetUsableEquity();
 
             int parts = GetParts(totalNumberOfObjectsToBeEstimated);
 
@@ -177,13 +183,13 @@ namespace TradingStrategy.Strategy
             double finalUtilization = totalEquityUtilization * boardIndexUtilization;
 
             result.Comments = string.Format(
-                "positionsize = currentEquity({0:0.000}) * equityUtilization({1:0.000}) / Parts ({2}) / price({3:0.000})",
-                currentEquity,
+                "positionsize = usableEquity({0:0.000}) * equityUtilization({1:0.000}) / Parts ({2}) / price({3:0.000})",
+                usableEquity,
                 finalUtilization,
                 parts,
                 price);
 
-            result.PositionSize = (int)(currentEquity * finalUtilization/ parts / price);
+            result.PositionSize = (int)(usableEquity * finalUtilization/ parts / price);
 
             return result;
         }
