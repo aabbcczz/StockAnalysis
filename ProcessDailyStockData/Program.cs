@@ -328,8 +328,10 @@ namespace ProcessDailyStockData
                         }
                     }
 
-                    Console.Write(".");
+                    Console.Write("\r{0}", file);
                 });
+
+            Console.WriteLine();
 
             return table;
         }
