@@ -1253,7 +1253,7 @@
           <Description>限制新头寸数目不超过划分数目</Description>
           <ValueType>System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
           <DefaultValue xsi:type="xsd:boolean">true</DefaultValue>
-          <Values>true;false</Values>
+          <Values>true</Values>
         </ParameterSettings>
         <ParameterSettings>
           <Name>LogarithmBase</Name>
@@ -1389,12 +1389,12 @@
           <Values>97</Values>
         </ParameterSettings>
         <ParameterSettings>
-          <Name>IsUpLimitPriceAcceptable</Name>
-          <Description>是否允许价格超过上限后按上限价格买入</Description>
-          <ValueType>System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
-          <DefaultValue xsi:type="xsd:boolean">false</DefaultValue>
-          <Values>False</Values>
-        </ParameterSettings>		
+          <Name>AcceptablePricePercentageIfExceedsUpLimit</Name>
+          <Description>价格超过上限后能接受的价格相对参考指标的百分比, 0.0表示不接受任何价格</Description>
+          <ValueType>System.Double, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
+          <DefaultValue xsi:type="xsd:double">90.0</DefaultValue>
+          <Values>0.0</Values>
+        </ParameterSettings>
       </ComponentParameterSettings>
     </TradingStrategyComponentSettings>	
     <TradingStrategyComponentSettings Enabled="false" Name="跳空反弹策略专用买入价过滤器">

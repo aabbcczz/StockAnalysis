@@ -28,7 +28,18 @@ namespace TradingClient
 
         private void button1_Click(object sender, EventArgs e)
         {
+            string error;
+            var result = CtpSimulator.GetInstance().QueryCapital(out error);
 
+            if (result == null)
+            {
+                AppLogger.Default.FatalFormat("Failed to query capital", error);
+            }
+            else
+            {
+                AppLogger.Default.InfoFormat("total: {0}, usable: {1}, market: {2}, cashable: {3}, frozen: {4}", 
+                    result.TotalEquity, result.UsableCapital, result.LatestMarketValue, result.CashableCapital, result.FrozenCapital);
+            }
         }
 
         private void MainForm_Load(object sender, EventArgs e)

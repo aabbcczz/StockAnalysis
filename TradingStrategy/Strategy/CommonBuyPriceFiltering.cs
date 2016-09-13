@@ -31,8 +31,8 @@ namespace TradingStrategy.Strategy
         [Parameter(90.0, "价格下限百分比")]
         public double PriceDownLimitPercentage { get; set; }
 
-        [Parameter(false, "是否允许价格超过上限后按上限价格买入")]
-        public bool IsUpLimitPriceAcceptable { get; set; }
+        [Parameter(90.0, "价格超过上限后能接受的价格相对参考指标的百分比, 0.0表示不接受任何价格")]
+        public double AcceptablePricePercentageIfExceedsUpLimit { get; set; }
 
         public override BuyPriceFilteringComponentResult IsPriceAcceptable(ITradingObject tradingObject, double price)
         {
@@ -52,9 +52,9 @@ namespace TradingStrategy.Strategy
                     RawMetric,
                     baseValue);
 
-                if (price > upLimit && IsUpLimitPriceAcceptable)
+                if (price > upLimit && AcceptablePricePercentageIfExceedsUpLimit != 0.0)
                 {
-                    result.AcceptablePrice = upLimit;
+                    result.AcceptablePrice = baseValue * AcceptablePricePercentageIfExceedsUpLimit / 100.0;
                     result.IsPriceAcceptable = true;
                 }
                 else

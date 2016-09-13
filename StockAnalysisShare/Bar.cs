@@ -24,6 +24,7 @@ namespace StockAnalysis.Share
         public double LowestPrice; // lowest price in the whole day
         public double Volume; // total amount of volume in all transactions
         public double Amount; // total amount of money in all transaction
+        public double OpenInterest; // for commodity only
 
         public class TimeComparer : IComparer<Bar>
         {
