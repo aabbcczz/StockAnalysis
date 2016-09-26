@@ -28,13 +28,6 @@ namespace GenerateMetrics
         [Option('e', "EndDate", HelpText = "The end date of data being processed")]
         public DateTime EndDate { get; set; }
 
-        [HelpOption]
-        public string GetUsage()
-        {
-            string usage = HelpText.AutoBuild(this, current => HelpText.DefaultParsingErrorsHandler(this, current));
-            return usage;
-        }
-
         public void Print(TextWriter writer)
         {
             if (VerboseLevel == 2)

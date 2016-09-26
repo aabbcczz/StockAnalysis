@@ -25,20 +25,8 @@ namespace GetFinanceReports
         [Option('r', "RandomRange", DefaultValue = 10, HelpText = "The range of random value added to interval to avoid being banned by server")]
         public int RandomRange { get; set; }
 
-        [ValueList(typeof(List<string>))]
-        public IList<string> Files { get; set; }
-
-        [ParserState]
-        public IParserState LastParserState { get; set; }
-
         public string FinanceReportServerAddress { get; set; }
 
-        [HelpOption]
-        public string GetUsage()
-        {
-            string usage = HelpText.AutoBuild(this, current => HelpText.DefaultParsingErrorsHandler(this, current));
-            return usage;
-        }
 
         public void Print(TextWriter writer)
         {

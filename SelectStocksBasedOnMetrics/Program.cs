@@ -14,25 +14,36 @@ namespace SelectStocksBasedOnMetrics
     {
         static void Main(string[] args)
         {
-            var options = new Options();
-            var parser = new Parser(with => with.HelpWriter = Console.Error);
+            var parser = new Parser(with => { with.HelpWriter = Console.Error; });
 
-            if (parser.ParseArgumentsStrict(args, options, () => Environment.Exit(-2)))
+            var parseResult = parser.ParseArguments<Options>(args);
+
+            if (parseResult.Errors.Any())
             {
-                options.BoundaryCheck();
+                var helpText = CommandLine.Text.HelpText.AutoBuild(parseResult);
+                Console.WriteLine("{0}", helpText);
 
-                if (string.IsNullOrEmpty(options.InputFileList))
-                {
-                    Console.WriteLine("No input file list is specified");
-                    Environment.Exit(-2);
-                }
+                Environment.Exit(-2);
+            }
 
-                var returnValue = Run(options);
+            var options = parseResult.Value;
 
-                if (returnValue != 0)
-                {
-                    Environment.Exit(returnValue);
-                }
+            options.BoundaryCheck();
+            options.Print(Console.Out);
+
+            Run(options);
+
+            if (string.IsNullOrEmpty(options.InputFileList))
+            {
+                Console.WriteLine("No input file list is specified");
+                Environment.Exit(-2);
+            }
+
+            var returnValue = Run(options);
+
+            if (returnValue != 0)
+            {
+                Environment.Exit(returnValue);
             }
         }
 

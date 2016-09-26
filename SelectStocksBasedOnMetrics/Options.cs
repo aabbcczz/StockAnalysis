@@ -19,13 +19,6 @@ namespace SelectStocksBasedOnMetrics
         [Option('k', "KeptRecord", Required = true, HelpText = "The number of record to be kept for each stock")]
         public int KeptRecord { get; set; }
 
-        [HelpOption]
-        public string GetUsage()
-        {
-            string usage = HelpText.AutoBuild(this, current => HelpText.DefaultParsingErrorsHandler(this, current));
-            return usage;
-        }
-
         public void Print(TextWriter writer)
         {
             if (VerboseLevel == 2)

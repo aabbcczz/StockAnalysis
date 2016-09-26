@@ -28,13 +28,6 @@ namespace ConvertTdxBlockData
         [Option('v', "Verbose", HelpText = "Verbose level, Range: from 0 to 2.", DefaultValue = 0)]
         public int VerboseLevel { get; set; }
 
-        [HelpOption]
-        public string GetUsage()
-        {
-            string usage = HelpText.AutoBuild(this, current => HelpText.DefaultParsingErrorsHandler(this, current));
-            return usage;
-        }
-
         public void Print(TextWriter writer)
         {
             if (VerboseLevel == 2)

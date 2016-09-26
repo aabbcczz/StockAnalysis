@@ -20,17 +20,24 @@ namespace PredicatorCmdClient
     {
         static void Main(string[] args)
         {
-            var options = new Options();
-            var parser = new Parser(with => with.HelpWriter = Console.Error);
+            var parser = new Parser(with => { with.HelpWriter = Console.Error; });
 
-            if (parser.ParseArgumentsStrict(args, options, () => Environment.Exit(-2)))
+            var parseResult = parser.ParseArguments<Options>(args);
+
+            if (parseResult.Errors.Any())
             {
-                options.BoundaryCheck();
-                options.Print(Console.Out);
+                var helpText = CommandLine.Text.HelpText.AutoBuild(parseResult);
+                Console.WriteLine("{0}", helpText);
 
-                Run(options);
+                Environment.Exit(-2);
             }
 
+            var options = parseResult.Value;
+
+            options.BoundaryCheck();
+            options.Print(Console.Out);
+
+            Run(options);
 #if DEBUG
             Console.WriteLine("Press any key to exit...");
             Console.ReadKey();

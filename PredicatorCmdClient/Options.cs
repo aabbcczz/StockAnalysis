@@ -46,13 +46,6 @@ namespace PredicatorCmdClient
         [Option('f', "PositionFrozenDays", DefaultValue = 1, HelpText = "The frozen days of new positions")]
         public int PositionFrozenDays { get; set; }
 
-        [HelpOption]
-        public string GetUsage()
-        {
-            string usage = HelpText.AutoBuild(this, current => HelpText.DefaultParsingErrorsHandler(this, current));
-            return usage;
-        }
-
         public void Print(TextWriter writer)
         {
             if (VerboseLevel == 2)

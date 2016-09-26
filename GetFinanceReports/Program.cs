@@ -3,6 +3,7 @@ using System.Configuration;
 using System.IO;
 using System.Threading;
 using CommandLine;
+using System.Linq;
 using StockAnalysis.Share;
 
 namespace GetFinanceReports
@@ -13,15 +14,24 @@ namespace GetFinanceReports
 
         static void Main(string[] args)
         {
-            var options = new Options();
-            var parser = new Parser(with => with.HelpWriter = Console.Error);
+            var parser = new Parser(with => { with.HelpWriter = Console.Error; });
 
-            if (parser.ParseArgumentsStrict(args, options, () => Environment.Exit(-2)))
+            var parseResult = parser.ParseArguments<Options>(args);
+
+            if (parseResult.Errors.Any())
             {
-                options.BoundaryCheck();
+                var helpText = CommandLine.Text.HelpText.AutoBuild(parseResult);
+                Console.WriteLine("{0}", helpText);
 
-                Run(options);
+                Environment.Exit(-2);
             }
+
+            var options = parseResult.Value;
+
+            options.BoundaryCheck();
+            options.Print(Console.Out);
+
+            Run(options);
         }
 
         static void Run(Options options)

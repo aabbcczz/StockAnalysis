@@ -25,19 +25,6 @@ namespace ReportParser
         [Option('g', "GeneratorDictionary", HelpText = "Generate data dictionary file")]
         public string GenerateDataDictionaryFile { get; set; }
 
-        [ValueList(typeof(List<string>))]
-        public IList<string> Files { get; set; }
-
-        [ParserState]
-        public IParserState LastParserState { get; set; }
-
-        [HelpOption]
-        public string GetUsage()
-        {
-            string usage = HelpText.AutoBuild(this, current => HelpText.DefaultParsingErrorsHandler(this, current));
-            return usage;
-        }
-
         public void Print(TextWriter writer)
         {
             if (VerboseLevel == 2)

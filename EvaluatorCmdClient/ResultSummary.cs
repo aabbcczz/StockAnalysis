@@ -23,7 +23,7 @@ namespace EvaluatorCmdClient
 
                 for (var i = 0; i < MaxParameterCount; ++i)
                 {
-                    var exp = string.Format("m => m.ParameterValue{0}", i + 1);
+                    var exp = string.Format("ParameterValue{0}", i + 1);
                     var e = DynamicExpression.ParseLambda<ResultSummary, object>(exp);
 
                     if (i >= ParameterNames.Length)
@@ -38,7 +38,7 @@ namespace EvaluatorCmdClient
 
                 for (var i = 0; i < MaxERatioCount; ++i)
                 {
-                    var exp = string.Format("m => m.ERatio{0}", i + 1);
+                    var exp = string.Format("ERatio{0}", i + 1);
                     var e = DynamicExpression.ParseLambda<ResultSummary, object>(exp);
 
                     if (i >= TradeMetricsCalculator.ERatioWindowSizes.Length || !ResultSummary.ShouldOutputERatio)

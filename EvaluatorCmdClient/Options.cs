@@ -61,12 +61,6 @@ namespace EvaluatorCmdClient
         [Option('j', "AccountNumber", HelpText = "Number of accounts")]
         public int AccountNumber { get; set; }
 
-        [HelpOption]
-        public string GetUsage()
-        {
-            string usage = HelpText.AutoBuild(this, current => HelpText.DefaultParsingErrorsHandler(this, current));
-            return usage;
-        }
 
         public void Print(TextWriter writer)
         {

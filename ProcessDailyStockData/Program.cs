@@ -12,31 +12,40 @@ namespace ProcessDailyStockData
     {
         static void Main(string[] args)
         {
-            var options = new Options();
-            var parser = new Parser(with => with.HelpWriter = Console.Error);
+            var parser = new Parser(with => { with.HelpWriter = Console.Error; });
 
-            if (parser.ParseArgumentsStrict(args, options, () => Environment.Exit(-2)))
+            var parseResult = parser.ParseArguments<Options>(args);
+
+            if (parseResult.Errors.Any())
             {
-                options.BoundaryCheck();
+                var helpText = CommandLine.Text.HelpText.AutoBuild(parseResult);
+                Console.WriteLine("{0}", helpText);
 
-                if (string.IsNullOrEmpty(options.InputFile) && string.IsNullOrEmpty(options.InputFileList))
-                {
-                    Console.WriteLine("Neither input file nor input file list is specified");
-                    Environment.Exit(-2);
-                }
+                Environment.Exit(-2);
+            }
 
-                if (!string.IsNullOrEmpty(options.InputFile) && !string.IsNullOrEmpty(options.InputFileList))
-                {
-                    Console.WriteLine("Both input file and input file list are specified");
-                    Environment.Exit(-2);
-                }
+            var options = parseResult.Value;
 
-                var returnValue = Run(options);
+            options.BoundaryCheck();
+            options.Print(Console.Out);
 
-                if (returnValue != 0)
-                {
-                    Environment.Exit(returnValue);
-                }
+            if (string.IsNullOrEmpty(options.InputFile) && string.IsNullOrEmpty(options.InputFileList))
+            {
+                Console.WriteLine("Neither input file nor input file list is specified");
+                Environment.Exit(-2);
+            }
+
+            if (!string.IsNullOrEmpty(options.InputFile) && !string.IsNullOrEmpty(options.InputFileList))
+            {
+                Console.WriteLine("Both input file and input file list are specified");
+                Environment.Exit(-2);
+            }
+
+            var returnValue = Run(options);
+
+            if (returnValue != 0)
+            {
+                Environment.Exit(returnValue);
             }
         }
 
