@@ -31,7 +31,7 @@ namespace StockTrading.Utility
         /// <summary>
         /// 所属交易所
         /// </summary>
-        public Exchange Exchange { get; private set; }
+        public StockExchange Exchange { get; private set; }
 
         /// <summary>
         /// 期待执行数量
@@ -120,7 +120,7 @@ namespace StockTrading.Utility
             OrderId = Interlocked.Increment(ref currentOrderId);
             SecurityCode = securityCode;
             SecurityName = securityName;
-            Exchange = StockTrading.Utility.Exchange.GetTradeableExchangeForSecurity(SecurityCode);
+            Exchange = StockExchange.GetTradeableExchangeForSecurity(SecurityCode);
             ExpectedVolume = volume;
             ExecutedVolume = 0;
             ShouldCancelIfNotSucceeded = false;

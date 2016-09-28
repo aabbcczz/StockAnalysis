@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using StockAnalysis.Share;
 
 namespace StockTrading.Utility
 {
@@ -27,7 +28,7 @@ namespace StockTrading.Utility
         /// <summary>
         /// 所属交易所
         /// </summary>
-        public Exchange Exchange { get; private set; }
+        public StockExchange Exchange { get; private set; }
 
         /// <summary>
         /// 资金账号
@@ -59,7 +60,7 @@ namespace StockTrading.Utility
 
                 int index = 0;
                 result.ShareholderCode = row[index++];
-                result.Exchange = row[index] == "0" ? Exchange.ShenzhenExchange : (row[index] == "1" ? Exchange.ShanghaiExchange : null); 
+                result.Exchange = row[index] == "0" ? StockExchange.ShenzhenExchange : (row[index] == "1" ? StockExchange.ShanghaiExchange : null); 
                 index++;
 
                 result.CapitalAccount = row[index++];

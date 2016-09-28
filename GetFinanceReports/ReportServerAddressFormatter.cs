@@ -5,7 +5,7 @@ namespace GetFinanceReports
 {
     static class ReportServerAddressFormatter
     {
-        public static string Format(string format, StockName stock, Func<StockExchangeId, string> marketFormatter = null)
+        public static string Format(string format, StockName stock, Func<StockExchange.StockExchangeId, string> marketFormatter = null)
         {
             if (format == null)
             {
@@ -28,17 +28,9 @@ namespace GetFinanceReports
             return format;
         }
 
-        public static string DefaultAbbrevationMarketFormatter(StockExchangeId market)
+        public static string DefaultAbbrevationMarketFormatter(StockExchange.StockExchangeId market)
         {
-            switch (market)
-            {
-                case StockExchangeId.ShanghaiExchange:
-                    return "sh";
-                case StockExchangeId.ShenzhenExchange:
-                    return "sz";
-                default:
-                    return "";
-            }
+            return StockExchange.GetExchangeById(market).CapitalizedAbbreviation.ToLowerInvariant();
         }
     }
 }

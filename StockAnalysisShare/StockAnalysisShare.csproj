@@ -71,9 +71,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AliasNameMapping.cs" />
+    <Compile Include="BiddingMethod.cs" />
+    <Compile Include="BiddingTimeRange.cs" />
     <Compile Include="ChinaStockHelper.cs" />
+    <Compile Include="ChinaStockTick.cs" />
     <Compile Include="Csv.cs" />
     <Compile Include="DataDictionary.cs" />
+    <Compile Include="StockOrderPricingType.cs" />
+    <Compile Include="StockExchange.cs" />
     <Compile Include="FinanceReport.cs" />
     <Compile Include="FinanceReportCell.cs" />
     <Compile Include="FinanceReportColumnDefinition.cs" />
@@ -96,7 +101,6 @@
     <Compile Include="StockBoardIndex.cs" />
     <Compile Include="StockHistoryData.cs" />
     <Compile Include="Bar.cs" />
-    <Compile Include="StockExchangeId.cs" />
     <Compile Include="StockName.cs" />
     <Compile Include="StockNameTable.cs" />
     <Compile Include="StringHelper.cs" />

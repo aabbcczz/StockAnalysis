@@ -26,7 +26,7 @@ namespace StockAnalysis.Share
 
         static UntradableObject()
         {
-            untradableObjects = untradableCodes.ToDictionary(s => StockName.NormalizeCode(s), s => new UntradableObject(s));
+            untradableObjects = untradableCodes.ToDictionary(s => StockName.GetCanonicalCode(s), s => new UntradableObject(s));
         }
 
         public static bool IsUntradable(string code)

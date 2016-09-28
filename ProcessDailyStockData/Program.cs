@@ -118,6 +118,18 @@ namespace ProcessDailyStockData
             return 0;
         }
 
+        static string ExtractCodeFromFileName(string file)
+        {
+            if (string.IsNullOrEmpty(file))
+            {
+                throw new ArgumentNullException();
+            }
+
+            var fileNameStub = Path.GetFileNameWithoutExtension(file);
+
+            return fileNameStub;
+        }
+
         static StockName ProcessOneFile(string file, DateTime startDate, DateTime endDate, string outputFileFolder)
         {
             if (string.IsNullOrEmpty(file) || string.IsNullOrEmpty(outputFileFolder))
@@ -137,22 +149,29 @@ namespace ProcessDailyStockData
                     return null;
                 }
 
-                // first line contains the stock code, name and '日线'
+                // first line contains the stock code, name(can include ' '), '日线', '前复权'
                 var fields = lines[0].Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
-                if (fields.Length < 3)
+                if (fields.Length < 4)
                 {
                     Console.WriteLine("Invalid first line in file {0}", file);
 
                     return null;
                 }
 
+                var codeFromFileName = ExtractCodeFromFileName(file);
+
                 var code = fields[0];
-                var name = string.Concat(fields.Skip(1).Take(fields.Length - 2).ToArray());
+                var name = string.Concat(fields.Skip(1).Take(fields.Length - 3));
+
+                if (codeFromFileName.Contains(code))
+                {
+                    code = codeFromFileName;
+                }
 
                 var stockName = new StockName(code, name);
 
-                var fullDataFile = Path.Combine(outputFileFolder, code + ".day.csv");
-                var deltaDataFile = Path.Combine(outputFileFolder, code + ".day.delta.csv");
+                var fullDataFile = Path.Combine(outputFileFolder, stockName.Code + ".day.csv");
+                var deltaDataFile = Path.Combine(outputFileFolder, stockName.Code + ".day.delta.csv");
 
                 var generateDeltaFile = File.Exists(fullDataFile);
 

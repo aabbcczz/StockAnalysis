@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using StockAnalysis.Share;
 
 namespace StockTrading.Utility
 {
@@ -21,7 +22,7 @@ namespace StockTrading.Utility
         /// <summary>
         /// 委托价格类型
         /// </summary>
-        public OrderPricingType PricingType { get; set; }
+        public StockOrderPricingType PricingType { get; set; }
 
         /// <summary>
         /// 证券代码

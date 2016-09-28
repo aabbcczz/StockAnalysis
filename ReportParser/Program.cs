@@ -275,17 +275,7 @@ namespace ReportParser
         {
             var name = StockName.Parse(code);
 
-            var prefix = string.Empty;
-            if (name.ExchangeId == StockExchangeId.ShanghaiExchange)
-            {
-                prefix = "SH";
-            }
-            else if (name.ExchangeId == StockExchangeId.ShenzhenExchange)
-            {
-                prefix = "SZ";
-            }
-
-            return prefix + name.Code;
+            return StockExchange.GetExchangeById(name.ExchangeId).CapitalizedAbbreviation + code;
         }
 
         private static void CreateRevenueTableForLast12Months(IEnumerable<FinanceReport> reports)

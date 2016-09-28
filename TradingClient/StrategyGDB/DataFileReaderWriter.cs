@@ -81,7 +81,7 @@ namespace TradingClient.StrategyGDB
 
                     foreach (var stock in stocks)
                     {
-                        stock.SecurityCode = StockName.UnnormalizeCode(stock.SecurityCode);
+                        stock.SecurityCode = StockName.GetUncanonicalCode(stock.SecurityCode);
                         stock.ActualOpenPrice = float.NaN;
                         stock.ActualMaxBuyPrice = float.NaN;
                         stock.ActualOpenPriceDownLimit = float.NaN;
@@ -117,7 +117,7 @@ namespace TradingClient.StrategyGDB
 
                     foreach (var stock in stocks)
                     {
-                        stock.SecurityCode = StockName.UnnormalizeCode(stock.SecurityCode);
+                        stock.SecurityCode = StockName.GetUncanonicalCode(stock.SecurityCode);
                     }
 
                     if (stocks.GroupBy(s => s.SecurityCode).Count() < stocks.Count)
@@ -139,7 +139,7 @@ namespace TradingClient.StrategyGDB
                     List<NewStock> newStocks = new List<NewStock>(_newStocks);
                     foreach (var s in newStocks)
                     {
-                        s.SecurityCode = StockName.NormalizeCode(s.SecurityCode);
+                        s.SecurityCode = StockName.GetCanonicalCode(s.SecurityCode);
                     }
 
                     csvWriter.WriteRecords(newStocks);
@@ -156,7 +156,7 @@ namespace TradingClient.StrategyGDB
                     List<ExistingStock> existingStocks = new List<ExistingStock>(_existingStocks);
                     foreach (var s in existingStocks)
                     {
-                        s.SecurityCode = StockName.NormalizeCode(s.SecurityCode);
+                        s.SecurityCode = StockName.GetCanonicalCode(s.SecurityCode);
                     }
 
                     csvWriter.WriteRecords(existingStocks);

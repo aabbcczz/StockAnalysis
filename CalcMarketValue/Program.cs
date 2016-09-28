@@ -113,13 +113,10 @@ namespace CalcMarketValue
             var name = StockName.Parse(code);
 
             var prefix = string.Empty;
-            if (name.ExchangeId == StockExchangeId.ShenzhenExchange)
+            if (name.ExchangeId == StockExchange.StockExchangeId.ShenzhenExchange ||
+                name.ExchangeId == StockExchange.StockExchangeId.ShanghaiExchange)
             {
-                prefix = "SZ";
-            }
-            else if (name.ExchangeId == StockExchangeId.ShanghaiExchange)
-            {
-                prefix = "SH";
+                prefix = StockExchange.GetExchangeById(name.ExchangeId).CapitalizedAbbreviation;
             }
 
             return prefix + code;

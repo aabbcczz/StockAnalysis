@@ -73,7 +73,7 @@ namespace DataStatistic
         {
             var codes = File.ReadAllLines(codeFile)
                 .Where(s => !string.IsNullOrWhiteSpace(s))
-                .Select(s => StockName.NormalizeCode(s))
+                .Select(s => StockName.GetCanonicalCode(s))
                 .OrderBy(s => s)
                 .ToArray();
 

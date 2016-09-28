@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Runtime.InteropServices;
+using StockAnalysis.Share;
 
 namespace StockTrading.Utility
 {
@@ -15,7 +16,7 @@ namespace StockTrading.Utility
 
         private bool _disposed = false;
 
-        private Dictionary<Exchange, string> _shareholderCodes = new Dictionary<Exchange, string>();
+        private Dictionary<StockExchange, string> _shareholderCodes = new Dictionary<StockExchange, string>();
 
         public int ClientId { get; private set; }
 
@@ -420,7 +421,7 @@ namespace StockTrading.Utility
             }
         }
 
-        public string GetShareholderCode(Exchange exchange)
+        public string GetShareholderCode(StockExchange exchange)
         {
             CheckDisposed();
             CheckLoggedOn();
@@ -437,7 +438,7 @@ namespace StockTrading.Utility
 
         public string GetShareholderCode(string securityCode)
         {
-            Exchange exchange = Exchange.GetTradeableExchangeForSecurity(securityCode);
+            StockExchange exchange = StockExchange.GetTradeableExchangeForSecurity(securityCode);
             if (exchange == null)
             {
                 return string.Empty;
@@ -606,7 +607,7 @@ namespace StockTrading.Utility
             StringBuilder resultInfo = new StringBuilder(MaxResultStringSize);
             StringBuilder errorInfo = new StringBuilder(MaxErrorStringSize);
 
-            Exchange exchange = Exchange.GetTradeableExchangeForSecurity(code);
+            StockExchange exchange = StockExchange.GetTradeableExchangeForSecurity(code);
             if (exchange == null)
             {
                 result = null;
@@ -651,7 +652,7 @@ namespace StockTrading.Utility
 
             try
             {
-                var exchangeIds = codes.Select(c => Exchange.GetTradeableExchangeForSecurity(c))
+                var exchangeIds = codes.Select(c => StockExchange.GetTradeableExchangeForSecurity(c))
                     .Select(e => e == null ? string.Empty : e.ExchangeId.ToString())
                     .ToArray();
                 var orderNoStrings = orderNos.Select(id => id.ToString()).ToArray();

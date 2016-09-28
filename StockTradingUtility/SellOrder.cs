@@ -47,7 +47,7 @@ namespace StockTrading.Utility
             request.SecurityName = SecurityName;
             request.Category = OrderCategory.Sell;
             request.Price = SellPrice;
-            request.PricingType = OrderPricingType.MarketPriceMakeDealInFiveGradesThenCancel;
+            request.PricingType = StockOrderPricingType.MarketPriceMakeDealInFiveGradesThenCancel;
             request.Volume = RemainingVolume;
 
             return request;

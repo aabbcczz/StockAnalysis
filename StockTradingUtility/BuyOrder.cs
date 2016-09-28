@@ -98,7 +98,7 @@ namespace StockTrading.Utility
             request.SecurityName = SecurityName;
             request.Category = OrderCategory.Buy;
             request.Price = MaxBidPrice;
-            request.PricingType = OrderPricingType.LimitPrice;
+            request.PricingType = StockOrderPricingType.LimitPrice;
             request.Volume = GetMaxVolumeInHandToBuy(MaxBidPrice);
 
             return request;

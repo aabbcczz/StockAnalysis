@@ -5,7 +5,8 @@ namespace StockAnalysis.Share
 {
     public sealed class StockName
     {
-        private static string _normalizedCodeHeader = "T_";
+        public static string CanonicalNameSeparator = ".";
+        public static string[] CanonicalNameSeparators = new string[] { "." };
 
         private string _code;
         public string Code 
@@ -13,23 +14,23 @@ namespace StockAnalysis.Share
             get { return _code; }
             private set
             {
-                _code = NormalizeCode(value);
-                ExchangeId = GetExchangeId(value);
-                Board = GetBoard(value);
+                _code = GetCanonicalCode(value);
+                ExchangeId = GetExchangeId(_code);
+                Board = GetBoard(_code);
             }
         }
 
-        public StockExchangeId ExchangeId { get; private set; }
+        public StockExchange.StockExchangeId ExchangeId { get; private set; }
 
         public StockBoard Board { get; private set; }
 
         public string[] Names { get; private set; }
 
-        public static string NormalizeCode(string code)
+        private static string SkipOldLeading(string code)
         {
-            if (!code.StartsWith(_normalizedCodeHeader))
+            if (code.StartsWith("T_"))
             {
-                return _normalizedCodeHeader + code;
+                return code.Substring(2);
             }
             else
             {
@@ -37,33 +38,114 @@ namespace StockAnalysis.Share
             }
         }
 
-        public static string UnnormalizeCode(string code)
+        public static string GetCanonicalCode(string code)
         {
-            if (code.StartsWith(_normalizedCodeHeader))
+            code = SkipOldLeading(code);
+
+            var fields = code.Split(CanonicalNameSeparators, StringSplitOptions.None);
+
+            if (fields.Length == 1)
             {
-                return code.Substring(_normalizedCodeHeader.Length);
+                var abbreviations = StockExchange.GetExchangeCapitalizedAbbrevations();
+
+                foreach (var abbr in abbreviations)
+                {
+                    if (code.StartsWith(abbr))
+                    {
+                        var exchange = StockExchange.GetExchangeByAbbreviation(abbr);
+                        return exchange.CapitalizedAbbreviation + CanonicalNameSeparator + code.Substring(abbr.Length);
+                    }
+                }
+
+                {
+                    var exchange = StockExchange.GetExchangeById(GetExchangeIdForUncanonicalCode(code));
+                    return exchange.CapitalizedAbbreviation + CanonicalNameSeparator + code;
+                }
             }
             else
             {
-                return code;
+                var exchange = StockExchange.GetExchangeByAbbreviation(fields[0]);
+                fields[0] = exchange.CapitalizedAbbreviation;
+                return string.Join(CanonicalNameSeparator, fields);
             }
         }
 
-        public static StockExchangeId GetExchangeId(string code)
+        public static string GetUncanonicalCode(string code)
         {
-            code = UnnormalizeCode(code);
+            code = SkipOldLeading(code);
 
+            var fields = code.Split(CanonicalNameSeparators, StringSplitOptions.None);
+
+            if (fields.Length == 1)
+            {
+
+                var abbreviations = StockExchange.GetExchangeCapitalizedAbbrevations();
+
+                foreach (var abbr in abbreviations)
+                {
+                    if (code.StartsWith(abbr))
+                    {
+                        return code.Substring(abbr.Length);
+                    }
+                }
+
+                return code;
+            }
+            else
+            {
+                StockExchange exchange;
+                
+                if (StockExchange.TryGetExchangeByAbbreviation(fields[0], out exchange))
+                {
+                    return string.Join(CanonicalNameSeparator, fields.Skip(1));
+
+                }
+                else
+                {
+                    return code;
+                }
+            }
+        }
+
+        public static StockExchange.StockExchangeId GetExchangeId(string code)
+        {
+            code = SkipOldLeading(code);
+
+            var fields = code.Split(CanonicalNameSeparators, StringSplitOptions.None);
+
+            if (fields.Length == 1)
+            {
+                return GetExchangeIdForUncanonicalCode(code);
+            }
+            else
+            {
+                StockExchange exchange;
+
+                if (StockExchange.TryGetExchangeByAbbreviation(fields[0], out exchange))
+                {
+                    return exchange.ExchangeId;
+                }
+                else
+                {
+                    return GetExchangeIdForUncanonicalCode(code);
+                }
+            }
+        }
+
+        private static StockExchange.StockExchangeId GetExchangeIdForUncanonicalCode(string code)
+        {
             switch (code[0])
             {
                 case '0':
                 case '1':
                 case '2':
                 case '3':
-                    return StockExchangeId.ShenzhenExchange;
+                    return StockExchange.StockExchangeId.ShenzhenExchange;
                 case '5':
                 case '6':
+                case '7':
                 case '9':
-                    return StockExchangeId.ShanghaiExchange;
+                    return StockExchange.StockExchangeId.ShanghaiExchange;
                 default:
                     throw new InvalidOperationException(string.Format("unsupported code {0}", code));
             }
@@ -71,7 +153,7 @@ namespace StockAnalysis.Share
 
         public static StockBoard GetBoard(string code)
         {
-            code = UnnormalizeCode(code);
+            code = GetUncanonicalCode(code);
             if (code.StartsWith("3"))
             {
                 return StockBoard.GrowingBoard;
@@ -102,13 +184,13 @@ namespace StockAnalysis.Share
 
         public StockName(string code, string name)
         {
-            Code = NormalizeCode(code);
+            Code = GetCanonicalCode(code);
             Names = new[] { name };
         }
 
         public StockName(string code, string[] names)
         {
-            Code = NormalizeCode(code);
+            Code = GetCanonicalCode(code);
             Names = names;
         }
 
@@ -119,7 +201,7 @@ namespace StockAnalysis.Share
 
         public static string GetBoardIndex(StockBoard board)
         {
-            return StockName.NormalizeCode(StockBoardIndex.GetBoardIndex(board));
+            return StockName.GetCanonicalCode(StockBoardIndex.GetBoardIndex(board));
         }
 
         public override string ToString()
@@ -143,7 +225,7 @@ namespace StockAnalysis.Share
 
             var name = new StockName
             {
-                Code = NormalizeCode(fields[0]),
+                Code = GetCanonicalCode(fields[0]),
                 Names = fields.Length > 1 ? fields.Skip(1).ToArray() : new[] {string.Empty}
             };
 
