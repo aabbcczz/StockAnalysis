@@ -10,8 +10,9 @@ namespace StockAnalysis.Share
     {
         public enum StockExchangeId : int
         {
-            ShenzhenExchange = 0,
-            ShanghaiExchange = 1
+            Unknown = 0,
+            ShenzhenExchange = 1,
+            ShanghaiExchange = 2
         }
 
         /// <summary>
@@ -77,7 +78,7 @@ namespace StockAnalysis.Share
         /// </summary>
         /// <param name="code">the code of security to be checked</param>
         /// <returns>true if the security can be exchanged, otherwise false</returns>
-        public static StockExchange GetTradeableExchangeForSecurity(string code)
+        public static StockExchange GetTradingExchangeForSecurity(string code)
         {
             if (string.IsNullOrWhiteSpace(code))
             {

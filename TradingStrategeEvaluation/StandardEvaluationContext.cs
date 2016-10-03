@@ -77,7 +77,7 @@ namespace TradingStrategyEvaluation
 
             foreach (var board in boards)
             {
-                string boardIndex = StockName.GetBoardIndex(board);
+                string boardIndex = StockName.GetBoardIndexName(board).CanonicalCode;
                 ITradingObject tradingObject = GetTradingObject(boardIndex);
                 _boardIndexTradingObjects.Add(boardIndex, tradingObject);
             }
@@ -130,12 +130,12 @@ namespace TradingStrategyEvaluation
                 return null;
             }
 
-            return _boardIndexTradingObjects[stockName.GetBoardIndex()];
+            return _boardIndexTradingObjects[stockName.GetBoardIndexName().CanonicalCode];
         }
 
         public ITradingObject GetBoardIndexTradingObject(StockBoard board)
         {
-            return _boardIndexTradingObjects[StockName.GetBoardIndex(board)];
+            return _boardIndexTradingObjects[StockName.GetBoardIndexName(board).CanonicalCode];
         }
 
 

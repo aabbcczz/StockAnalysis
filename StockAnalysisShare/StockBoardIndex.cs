@@ -8,24 +8,28 @@ namespace StockAnalysis.Share
 {
     public static class StockBoardIndex
     {
-        public const string GrowingBoardIndex = "399006";
+        private const string GrowingBoardIndexCode = "SZ.399006";
 
-        public const string SmallMiddleBoardIndex = "399005";
+        private const string SmallMiddleBoardIndexCode = "SZ.399005";
 
-        public const string MainBoardIndex = "399300";
+        private const string MainBoardIndexCode = "SZ.399300";
 
-        public static string GetBoardIndex(StockBoard board)
+        public static StockName GrowingBoardIndexName = new StockName(GrowingBoardIndexCode, "创业板指数");
+        public static StockName SmallMiddleBoardIndexName = new StockName(SmallMiddleBoardIndexCode, "中小板指数");
+        public static StockName MainBoardIndexName = new StockName(MainBoardIndexCode, "沪深300指数");
+
+        public static StockName GetBoardIndexName(StockBoard board)
         {
             switch(board)
             {
                 case StockBoard.GrowingBoard:
-                    return GrowingBoardIndex;
+                    return GrowingBoardIndexName;
                 case StockBoard.SmallMiddleBoard:
-                    return SmallMiddleBoardIndex;
+                    return SmallMiddleBoardIndexName;
                 case StockBoard.MainBoard:
-                    return MainBoardIndex;
+                    return MainBoardIndexName;
                 default:
-                    return MainBoardIndex;
+                    return MainBoardIndexName;
             }
         }
     }

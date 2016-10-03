@@ -438,7 +438,7 @@ namespace StockTrading.Utility
 
         public string GetShareholderCode(string securityCode)
         {
-            StockExchange exchange = StockExchange.GetTradeableExchangeForSecurity(securityCode);
+            StockExchange exchange = StockExchange.GetTradingExchangeForSecurity(securityCode);
             if (exchange == null)
             {
                 return string.Empty;
@@ -607,7 +607,7 @@ namespace StockTrading.Utility
             StringBuilder resultInfo = new StringBuilder(MaxResultStringSize);
             StringBuilder errorInfo = new StringBuilder(MaxErrorStringSize);
 
-            StockExchange exchange = StockExchange.GetTradeableExchangeForSecurity(code);
+            StockExchange exchange = StockExchange.GetTradingExchangeForSecurity(code);
             if (exchange == null)
             {
                 result = null;
@@ -652,7 +652,7 @@ namespace StockTrading.Utility
 
             try
             {
-                var exchangeIds = codes.Select(c => StockExchange.GetTradeableExchangeForSecurity(c))
+                var exchangeIds = codes.Select(c => StockExchange.GetTradingExchangeForSecurity(c))
                     .Select(e => e == null ? string.Empty : e.ExchangeId.ToString())
                     .ToArray();
                 var orderNoStrings = orderNos.Select(id => id.ToString()).ToArray();

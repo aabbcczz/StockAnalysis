@@ -8,17 +8,9 @@ namespace StockAnalysis.Share
         public static string CanonicalNameSeparator = ".";
         public static string[] CanonicalNameSeparators = new string[] { "." };
 
-        private string _code;
-        public string Code 
-        {
-            get { return _code; }
-            private set
-            {
-                _code = GetCanonicalCode(value);
-                ExchangeId = GetExchangeId(_code);
-                Board = GetBoard(_code);
-            }
-        }
+        public string CanonicalCode { get; private set; }
+
+        public string RawCode { get; private set; }
 
         public StockExchange.StockExchangeId ExchangeId { get; private set; }
 
@@ -28,6 +20,11 @@ namespace StockAnalysis.Share
 
         private static string SkipOldLeading(string code)
         {
+            if (string.IsNullOrWhiteSpace(code))
+            {
+                return code;
+            }
+
             if (code.StartsWith("T_"))
             {
                 return code.Substring(2);
@@ -38,9 +35,14 @@ namespace StockAnalysis.Share
             }
         }
 
-        public static string GetCanonicalCode(string code)
+        public static bool IsCanonicalCode(string code)
         {
             code = SkipOldLeading(code);
+
+            if (string.IsNullOrWhiteSpace(code))
+            {
+                return false;
+            }
 
             var fields = code.Split(CanonicalNameSeparators, StringSplitOptions.None);
 
@@ -52,87 +54,38 @@ namespace StockAnalysis.Share
                 {
                     if (code.StartsWith(abbr))
                     {
-                        var exchange = StockExchange.GetExchangeByAbbreviation(abbr);
-                        return exchange.CapitalizedAbbreviation + CanonicalNameSeparator + code.Substring(abbr.Length);
+                        StockExchange exchange;
+
+                        return StockExchange.TryGetExchangeByAbbreviation(abbr, out exchange);
                     }
                 }
 
-                {
-                    var exchange = StockExchange.GetExchangeById(GetExchangeIdForUncanonicalCode(code));
-                    return exchange.CapitalizedAbbreviation + CanonicalNameSeparator + code;
-                }
-            }
-            else
-            {
-                var exchange = StockExchange.GetExchangeByAbbreviation(fields[0]);
-                fields[0] = exchange.CapitalizedAbbreviation;
-                return string.Join(CanonicalNameSeparator, fields);
-            }
-        }
-
-        public static string GetUncanonicalCode(string code)
-        {
-            code = SkipOldLeading(code);
-
-            var fields = code.Split(CanonicalNameSeparators, StringSplitOptions.None);
-
-            if (fields.Length == 1)
-            {
-
-                var abbreviations = StockExchange.GetExchangeCapitalizedAbbrevations();
-
-                foreach (var abbr in abbreviations)
-                {
-                    if (code.StartsWith(abbr))
-                    {
-                        return code.Substring(abbr.Length);
-                    }
-                }
-
-                return code;
+                return false;
             }
             else
             {
                 StockExchange exchange;
-                
-                if (StockExchange.TryGetExchangeByAbbreviation(fields[0], out exchange))
-                {
-                    return string.Join(CanonicalNameSeparator, fields.Skip(1));
 
-                }
-                else
-                {
-                    return code;
-                }
+                return StockExchange.TryGetExchangeByAbbreviation(fields[0], out exchange);
             }
+        }
+
+         public static string GetCanonicalCode(string code)
+        {
+            return new StockName(code).CanonicalCode;
+        }
+
+        public static string GetRawCode(string code)
+        {
+            return new StockName(code).RawCode;
         }
 
         public static StockExchange.StockExchangeId GetExchangeId(string code)
         {
-            code = SkipOldLeading(code);
-
-            var fields = code.Split(CanonicalNameSeparators, StringSplitOptions.None);
-
-            if (fields.Length == 1)
-            {
-                return GetExchangeIdForUncanonicalCode(code);
-            }
-            else
-            {
-                StockExchange exchange;
-
-                if (StockExchange.TryGetExchangeByAbbreviation(fields[0], out exchange))
-                {
-                    return exchange.ExchangeId;
-                }
-                else
-                {
-                    return GetExchangeIdForUncanonicalCode(code);
-                }
-            }
+            return new StockName(code).ExchangeId;
         }
 
-        private static StockExchange.StockExchangeId GetExchangeIdForUncanonicalCode(string code)
+        private static StockExchange.StockExchangeId GetExchangeIdForRawCode(string code)
         {
             switch (code[0])
             {
@@ -151,25 +104,24 @@ namespace StockAnalysis.Share
             }
         }
 
-        public static StockBoard GetBoard(string code)
+        private static StockBoard GetBoard(string rawCode)
         {
-            code = GetUncanonicalCode(code);
-            if (code.StartsWith("3"))
+            if (rawCode.StartsWith("3"))
             {
                 return StockBoard.GrowingBoard;
             }
             
-            if (code.StartsWith("6"))
+            if (rawCode.StartsWith("6"))
             {
                 return StockBoard.MainBoard;
             }
             
-            if (code.StartsWith("002"))
+            if (rawCode.StartsWith("002"))
             {
                 return StockBoard.SmallMiddleBoard;
             }
 
-            if (code.StartsWith("0"))
+            if (rawCode.StartsWith("0"))
             {
                 return StockBoard.MainBoard;
             }
@@ -182,31 +134,102 @@ namespace StockAnalysis.Share
         {
         }
 
-        public StockName(string code, string name)
+        private void SetValues(StockExchange exchange, string rawCode)
         {
-            Code = GetCanonicalCode(code);
+            RawCode = rawCode;
+            CanonicalCode = exchange.CapitalizedAbbreviation + CanonicalNameSeparator + rawCode;
+            ExchangeId = exchange.ExchangeId;
+            Board = GetBoard(rawCode);
+        }
+
+        private StockName(string code, StockExchange exchange = null)
+        {
+            code = SkipOldLeading(code);
+
+            if (string.IsNullOrWhiteSpace(code))
+            {
+                throw new ArgumentNullException();
+            }
+
+            var fields = code.Split(CanonicalNameSeparators, StringSplitOptions.None);
+
+            if (fields.Length == 1)
+            {
+                if (exchange == null)
+                {
+                    var abbreviations = StockExchange.GetExchangeCapitalizedAbbrevations();
+
+                    foreach (var abbr in abbreviations)
+                    {
+                        if (code.StartsWith(abbr))
+                        {
+                            exchange = StockExchange.GetExchangeByAbbreviation(abbr);
+                            var rawCode = code.Substring(abbr.Length);
+
+                            SetValues(exchange, rawCode);
+                        }
+                    }
+
+                    {
+                        exchange = StockExchange.GetExchangeById(GetExchangeIdForRawCode(code));
+                        SetValues(exchange, code);
+                    }
+                }
+                else
+                {
+                    SetValues(exchange, code);
+                }
+            }
+            else
+            {
+                var exchangeDerivedFromCode = StockExchange.GetExchangeByAbbreviation(fields[0]);
+                if (exchange != null && exchangeDerivedFromCode.ExchangeId != exchange.ExchangeId)
+                {
+                    throw new InvalidOperationException("Exchange derived from code is not the exchange specified in arguments");
+                }
+
+                var rawCode = string.Join(CanonicalNameSeparator, fields.Skip(1));
+                SetValues(exchangeDerivedFromCode, rawCode);
+            }
+        }
+
+        public StockName(string code, string name)
+            : this(code)
+        {
+            Names = new[] { name };
+        }
+
+        public StockName(StockExchange exchange, string code, string name)
+            : this(code, exchange)
+        {
             Names = new[] { name };
         }
 
         public StockName(string code, string[] names)
+            : this(code)
         {
-            Code = GetCanonicalCode(code);
             Names = names;
         }
 
-        public string GetBoardIndex()
+        public StockName(StockExchange exchange, string code, string[] names)
+            : this(code, exchange)
         {
-            return StockName.GetBoardIndex(Board);
+            Names = names;
         }
 
-        public static string GetBoardIndex(StockBoard board)
+        public StockName GetBoardIndexName()
         {
-            return StockName.GetCanonicalCode(StockBoardIndex.GetBoardIndex(board));
+            return StockName.GetBoardIndexName(Board);
+        }
+
+        public static StockName GetBoardIndexName(StockBoard board)
+        {
+            return StockBoardIndex.GetBoardIndexName(board);
         }
 
         public override string ToString()
         {
-            return Code + "|" + String.Join("|", Names);
+            return CanonicalCode + "|" + String.Join("|", Names);
         }
 
         public static StockName Parse(string stockName)
@@ -223,11 +246,7 @@ namespace StockAnalysis.Share
                 throw new FormatException(string.Format("stock name [{0}] is invalid", stockName));
             }
 
-            var name = new StockName
-            {
-                Code = GetCanonicalCode(fields[0]),
-                Names = fields.Length > 1 ? fields.Skip(1).ToArray() : new[] {string.Empty}
-            };
+            var name = new StockName(fields[0], fields.Length > 1 ? fields.Skip(1).ToArray() : new[] { string.Empty });
 
             return name;
         }

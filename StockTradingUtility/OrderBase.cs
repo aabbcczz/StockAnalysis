@@ -120,7 +120,7 @@ namespace StockTrading.Utility
             OrderId = Interlocked.Increment(ref currentOrderId);
             SecurityCode = securityCode;
             SecurityName = securityName;
-            Exchange = StockExchange.GetTradeableExchangeForSecurity(SecurityCode);
+            Exchange = StockExchange.GetTradingExchangeForSecurity(SecurityCode);
             ExpectedVolume = volume;
             ExecutedVolume = 0;
             ShouldCancelIfNotSucceeded = false;

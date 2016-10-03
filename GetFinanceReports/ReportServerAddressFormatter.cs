@@ -18,7 +18,7 @@ namespace GetFinanceReports
             }
 
             // replace %code%
-            format = format.Replace("%code%", stock.Code);
+            format = format.Replace("%code%", stock.CanonicalCode);
 
             // replace %market%
             var market = marketFormatter == null ? stock.ExchangeId.ToString() : marketFormatter(stock.ExchangeId);

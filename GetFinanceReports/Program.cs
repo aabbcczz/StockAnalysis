@@ -91,7 +91,7 @@ namespace GetFinanceReports
                 Console.WriteLine("==============================================");
                 foreach (var stock in failedStocks.StockNames)
                 {
-                    Console.WriteLine("{0}", stock.Code);
+                    Console.WriteLine("{0}", stock.CanonicalCode);
                 }
                 Console.WriteLine("==============================================");
             }
@@ -114,14 +114,14 @@ namespace GetFinanceReports
             foreach (var stock in stocks.StockNames)
             {
                 string errorMessage;
-                var outputFile = string.Format("{0}.{1}", stock.Code, defaultSuffix);
+                var outputFile = string.Format("{0}.{1}", stock.CanonicalCode, defaultSuffix);
                 outputFile = Path.Combine(outputFolder, outputFile);
 
                 var succeeded = fetcher.FetchReport(stock, outputFile, out errorMessage);
 
                 if (!succeeded)
                 {
-                    Console.WriteLine("Fetch report for {0} failed. Error: {1}", stock.Code, errorMessage);
+                    Console.WriteLine("Fetch report for {0} failed. Error: {1}", stock.CanonicalCode, errorMessage);
                     failedStocks.AddStock(stock);
                 }
 

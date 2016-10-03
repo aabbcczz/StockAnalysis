@@ -141,7 +141,7 @@ namespace GenerateMetrics
                     .ToArray())
                 .ToList();
 
-            var outputFile = Path.Combine(outputFileFolder, data.Name.Code + ".day.metric.csv");
+            var outputFile = Path.Combine(outputFileFolder, data.Name.CanonicalCode + ".day.metric.csv");
 
             using (var outputter = new StreamWriter(outputFile, false, Encoding.UTF8))
             {
@@ -161,7 +161,7 @@ namespace GenerateMetrics
 
                     outputter.WriteLine(
                         "{0},{1:yyyy/MM/dd},{2}",
-                        data.Name.Code,
+                        data.Name.CanonicalCode,
                         times[i],
                         value);
                 }

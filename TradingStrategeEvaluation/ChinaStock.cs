@@ -39,9 +39,9 @@ namespace TradingStrategyEvaluation
             double limitDownRatio = 0.1)
         {
             Index = index;
-            Code = stockName.Code;
+            Code = stockName.CanonicalCode;
             Name = stockName.Names.Last();
-            IsTradable = !UntradableObject.IsUntradable(stockName.Code);
+            IsTradable = !UntradableObject.IsUntradable(stockName.CanonicalCode);
             Object = stockName;
             VolumePerHand = volumePerHand;
             VolumePerBuyingUnit = volumePerBuyingUnit;

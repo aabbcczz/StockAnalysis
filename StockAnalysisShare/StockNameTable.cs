@@ -27,7 +27,7 @@ namespace StockAnalysis.Share
 
         public void AddStock(StockName stock)
         {
-            _stockNames.Add(stock.Code, stock);
+            _stockNames.Add(stock.CanonicalCode, stock);
         }
 
         public bool ContainsStock(string code)
@@ -70,7 +70,7 @@ namespace StockAnalysis.Share
                         StockName stockName = StockName.Parse(line);
 
                         // avoid duplicated stock name (two stocks are treated as duplicated iff. their code are the same)
-                        if (!ContainsStock(stockName.Code))
+                        if (!ContainsStock(stockName.CanonicalCode))
                         {
                             AddStock(stockName);
                         }

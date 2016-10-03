@@ -81,7 +81,7 @@ namespace TradingClient.StrategyGDB
 
                     foreach (var stock in stocks)
                     {
-                        stock.SecurityCode = StockName.GetUncanonicalCode(stock.SecurityCode);
+                        stock.SecurityCode = StockName.GetRawCode(stock.SecurityCode);
                         stock.ActualOpenPrice = float.NaN;
                         stock.ActualMaxBuyPrice = float.NaN;
                         stock.ActualOpenPriceDownLimit = float.NaN;
@@ -117,7 +117,7 @@ namespace TradingClient.StrategyGDB
 
                     foreach (var stock in stocks)
                     {
-                        stock.SecurityCode = StockName.GetUncanonicalCode(stock.SecurityCode);
+                        stock.SecurityCode = StockName.GetRawCode(stock.SecurityCode);
                     }
 
                     if (stocks.GroupBy(s => s.SecurityCode).Count() < stocks.Count)
