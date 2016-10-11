@@ -5,34 +5,35 @@ using System.IO;
 
 namespace StockAnalysis.Share
 {
-    public sealed class StockNameTable
+    public sealed class TradingObjectNameTable<T>
+        where T : TradingObjectName, new()
     {
-        private readonly Dictionary<string, StockName> _stockNames = new Dictionary<string, StockName>();
+        private readonly Dictionary<string, T> _names = new Dictionary<string, T>();
 
-        public IEnumerable<StockName> StockNames { get { return _stockNames.Values; } }
+        public IEnumerable<T> Names { get { return _names.Values; } }
 
-        public int Count { get { return _stockNames.Count; } }
+        public int Count { get { return _names.Count; } }
 
-        public StockName this[string code]
+        public T this[string code]
         {
             get 
             {
-                return _stockNames[code];
+                return _names[code];
             }
         }
 
-        public StockNameTable()
+        public TradingObjectNameTable()
         {
         }
 
-        public void AddStock(StockName stock)
+        public void AddName(T name)
         {
-            _stockNames.Add(stock.CanonicalCode, stock);
+            _names.Add(name.CanonicalCode, name);
         }
 
         public bool ContainsStock(string code)
         {
-            return _stockNames.ContainsKey(code);
+            return _names.ContainsKey(code);
         }
 
         /// <summary>
@@ -48,7 +49,7 @@ namespace StockAnalysis.Share
         /// 
         /// if the function returns false, no more input lines will be read from file.
         /// </param>
-        public StockNameTable(string fileName, Func<string, bool> onError = null)
+        public TradingObjectNameTable(string fileName, Func<string, bool> onError = null)
         {
             if (string.IsNullOrEmpty(fileName))
             {
@@ -67,12 +68,12 @@ namespace StockAnalysis.Share
 
                     try
                     {
-                        StockName stockName = StockName.Parse(line);
+                        T name = (T)(new T().ParseFromString(line));
 
                         // avoid duplicated stock name (two stocks are treated as duplicated iff. their code are the same)
-                        if (!ContainsStock(stockName.CanonicalCode))
+                        if (!ContainsStock(name.CanonicalCode))
                         {
-                            AddStock(stockName);
+                            AddName(name);
                         }
                     }
                     catch
@@ -81,6 +82,7 @@ namespace StockAnalysis.Share
                         {
                             throw;
                         }
+
                         var continueProcess = onError(line);
                         if (!continueProcess)
                         {

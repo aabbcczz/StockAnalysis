@@ -221,7 +221,7 @@ namespace EvaluatorCmdClient
             var stockDataSettings = ChinaStockDataSettings.LoadFromFile(options.StockDataSettingsFile);
 
             // load codes and stock name table
-            var stockNameTable = new StockNameTable(stockDataSettings.StockNameTableFile);
+            var stockNameTable = new TradingObjectNameTable<StockName>(stockDataSettings.StockNameTableFile);
             var codes = LoadCodeOfStocks(options.CodeFile);
 
             // load stock block relationship if necessary, and filter codes

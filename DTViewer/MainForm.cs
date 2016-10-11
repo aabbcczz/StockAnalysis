@@ -36,7 +36,7 @@ namespace DTViewer
 
         private Dictionary<Position, string[]> _positionDetails = new Dictionary<Position, string[]>();
 
-        private StockNameTable _stockNameTable = null;
+        private TradingObjectNameTable<StockName> _stockNameTable = null;
 
         private StockHistoryData _currentShownData = null;
 
@@ -105,10 +105,10 @@ namespace DTViewer
         {
             _stockDataSettings = ChinaStockDataSettings.LoadFromFile(fileName);
 
-            _stockNameTable = new StockNameTable(_stockDataSettings.StockNameTableFile);
+            _stockNameTable = new TradingObjectNameTable<StockName>(_stockDataSettings.StockNameTableFile);
 
             // fill the codes and names to grid view
-            var stockProperties = _stockNameTable.StockNames
+            var stockProperties = _stockNameTable.Names
                 .Select(sn => new StockProperty()
                         {
                             Code = sn.CanonicalCode,

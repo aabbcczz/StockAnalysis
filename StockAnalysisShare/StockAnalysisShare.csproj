@@ -77,6 +77,7 @@
     <Compile Include="ChinaStockTick.cs" />
     <Compile Include="Csv.cs" />
     <Compile Include="DataDictionary.cs" />
+    <Compile Include="FutureName.cs" />
     <Compile Include="StockOrderPricingType.cs" />
     <Compile Include="StockExchange.cs" />
     <Compile Include="FinanceReport.cs" />
@@ -102,11 +103,12 @@
     <Compile Include="StockHistoryData.cs" />
     <Compile Include="Bar.cs" />
     <Compile Include="StockName.cs" />
-    <Compile Include="StockNameTable.cs" />
+    <Compile Include="TradingObjectNameTable.cs" />
     <Compile Include="StringHelper.cs" />
     <Compile Include="TdxBinaryBlockDataReader.cs" />
     <Compile Include="TdxHangYeBlockDataReader.cs" />
     <Compile Include="TdxStockBlockConfigReader.cs" />
+    <Compile Include="TradingObjectName.cs" />
     <Compile Include="UntradableObject.cs" />
     <Compile Include="WaitableConcurrentQueue.cs" />
   </ItemGroup>

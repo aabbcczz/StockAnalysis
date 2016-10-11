@@ -118,7 +118,7 @@ namespace TradingStrategyEvaluation
                 .ToArray();
         }
 
-        public ChinaStockDataProvider(StockNameTable nameTable, string[] dataFiles, DateTime start, DateTime end, int warmupDataSize)
+        public ChinaStockDataProvider(TradingObjectNameTable<StockName> nameTable, string[] dataFiles, DateTime start, DateTime end, int warmupDataSize)
         {
             if (nameTable == null)
             {

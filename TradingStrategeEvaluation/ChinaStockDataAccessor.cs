@@ -30,7 +30,7 @@ namespace TradingStrategyEvaluation
             }
         }
 
-        public static StockHistoryData Load(string file, StockNameTable nameTable)
+        public static StockHistoryData Load(string file, TradingObjectNameTable<StockName> nameTable)
         {
             StockHistoryData data;
 

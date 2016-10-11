@@ -29,7 +29,7 @@ namespace StockAnalysis.Share
             string file, 
             DateTime startDate, 
             DateTime endDate, 
-            StockNameTable nameTable = null, 
+            TradingObjectNameTable<StockName> nameTable = null, 
             long interval = 86400L)
         {
             if (string.IsNullOrEmpty(file))

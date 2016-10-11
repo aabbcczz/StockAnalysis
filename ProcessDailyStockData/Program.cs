@@ -73,22 +73,33 @@ namespace ProcessDailyStockData
                 }
             }
 
-            StockNameTable table;
+            IDataProcessor processor = null;
+
+            if (options.IsForFuture)
+            {
+                processor = new FutureDataProcessor();
+            }
+            else
+            {
+                processor = new StockDataProcessor();
+            }
+
+            TradingObjectNameTable<TradingObjectName> table;
 
             if (!string.IsNullOrEmpty(options.InputFile))
             {
                 // single input file
-                StockName name = ProcessOneFile(options.InputFile, options.StartDate, options.EndDate, folder);
-                table = new StockNameTable();
+                TradingObjectName name = ProcessOneFile(processor, options.InputFile, options.StartDate, options.EndDate, folder);
+                table = new TradingObjectNameTable<TradingObjectName>();
 
                 if (name != null)
                 {
-                    table.AddStock(name);
+                    table.AddName(name);
                 }
             }
             else
             {
-                table = ProcessListOfFiles(options.InputFileList, options.StartDate, options.EndDate, folder);
+                table = ProcessListOfFiles(processor, options.InputFileList, options.StartDate, options.EndDate, folder);
             }
 
             if (!string.IsNullOrEmpty(options.NameFile))
@@ -98,7 +109,7 @@ namespace ProcessDailyStockData
 
                 File.WriteAllLines(
                     options.NameFile,
-                    table.StockNames.Select(sn => sn.ToString()).ToArray(),
+                    table.Names.Select(sn => sn.ToString()).ToArray(),
                     Encoding.UTF8);
             }
 
@@ -109,7 +120,7 @@ namespace ProcessDailyStockData
 
                 File.WriteAllLines(
                     options.CodeFile,
-                    table.StockNames.Select(sn => sn.CanonicalCode).ToArray(),
+                    table.Names.Select(sn => sn.CanonicalCode).ToArray(),
                     Encoding.UTF8);
             }
 
@@ -118,20 +129,14 @@ namespace ProcessDailyStockData
             return 0;
         }
 
-        static string ExtractCodeFromFileName(string file)
+
+        static TradingObjectName ProcessOneFile(IDataProcessor processor, string file, DateTime startDate, DateTime endDate, string outputFileFolder)
         {
-            if (string.IsNullOrEmpty(file))
+            if (processor == null)
             {
                 throw new ArgumentNullException();
             }
 
-            var fileNameStub = Path.GetFileNameWithoutExtension(file);
-
-            return fileNameStub;
-        }
-
-        static StockName ProcessOneFile(string file, DateTime startDate, DateTime endDate, string outputFileFolder)
-        {
             if (string.IsNullOrEmpty(file) || string.IsNullOrEmpty(outputFileFolder))
             {
                 throw new ArgumentNullException();
@@ -139,94 +144,28 @@ namespace ProcessDailyStockData
 
             try
             {
-                var lines = File.ReadAllLines(file, Encoding.GetEncoding("GB2312"));
+                var name = processor.GetName(file);
 
-                // in general the file contains at least 3 lines, 2 lines of header and at least 1 line of data.
-                if (lines.Length <= 2)
+                if (name == null)
                 {
-                    Console.WriteLine("Input {0} contains less than 3 lines, ignore it", file);
-
                     return null;
                 }
 
-                // first line contains the stock code, name(can include ' '), '日线', '前复权'
-                var fields = lines[0].Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
-                if (fields.Length < 4)
-                {
-                    Console.WriteLine("Invalid first line in file {0}", file);
-
-                    return null;
-                }
-
-                var codeFromFileName = ExtractCodeFromFileName(file);
-
-                var code = fields[0];
-                var name = string.Concat(fields.Skip(1).Take(fields.Length - 3));
-
-                if (codeFromFileName.Contains(code))
-                {
-                    code = codeFromFileName;
-                }
-
-                var stockName = new StockName(code, name);
-
-                var fullDataFile = Path.Combine(outputFileFolder, stockName.CanonicalCode + ".day.csv");
-                var deltaDataFile = Path.Combine(outputFileFolder, stockName.CanonicalCode + ".day.delta.csv");
+                var fullDataFile = Path.Combine(outputFileFolder, name.CanonicalCode + ".day.csv");
+                var deltaDataFile = Path.Combine(outputFileFolder, name.CanonicalCode + ".day.delta.csv");
 
                 var generateDeltaFile = File.Exists(fullDataFile);
 
                 var outputFile = generateDeltaFile ? deltaDataFile : fullDataFile;
 
-                using (var outputter = new StreamWriter(outputFile, false, Encoding.UTF8))
-                {
-                    const string header = "code,date,open,highest,lowest,close,volume,amount";
-                    const int indexOfVolume = 6;
-
-                    outputter.WriteLine(header);
-
-                    fields = header.Split(new[] { ',' });
-                    var expectedFieldCount = fields.Length - 1; // remove the first column 'code' which does not exists in input file
-
-                    for (var i = 2; i < lines.Length - 1; ++i)
-                    {
-                        lines[i] = lines[i].Trim();
-                        fields = lines[i].Split(new[] { ',' });
-                        if (fields.Length == expectedFieldCount)
-                        {
-                            // the first field is date
-                            DateTime date;
-
-                            if (!DateTime.TryParse(fields[0], out date))
-                            {
-                                continue;
-                            }
-
-                            if (date < startDate || date > endDate)
-                            {
-                                continue;
-                            }
-
-                            int volume;
-
-                            if (int.TryParse(fields[indexOfVolume], out volume))
-                            {
-                                if (volume == 0)
-                                {
-                                    continue;
-                                }
-                            }
-
-                            outputter.WriteLine("{0},{1}", stockName.CanonicalCode, lines[i]);
-                        }
-                    }
-                }
+                processor.ConvertToCsvFile(name, file, outputFile, startDate, endDate);
 
                 if (generateDeltaFile)
                 {
-                    MergeFile(fullDataFile, deltaDataFile);
+                    MergeFile(processor.GetColumnIndexOfDateInCsvFile(), fullDataFile, deltaDataFile);
                 }
 
-                return stockName;
+                return name;
             }
             catch (Exception ex)
             {
@@ -234,7 +173,7 @@ namespace ProcessDailyStockData
             }
         }
 
-        static void MergeFile(string fullDataFile, string deltaDataFile)
+        static void MergeFile(int dateColumnIndex, string fullDataFile, string deltaDataFile)
         {
             if (!File.Exists(fullDataFile) || !File.Exists(deltaDataFile))
             {
@@ -247,14 +186,15 @@ namespace ProcessDailyStockData
 
             var mergedData = new Csv(fullData.Header);
 
+
             var orderedFullData = fullData.Rows
                 .Select(columns =>
                     {
                         DateTime date;
                         
-                        if (!DateTime.TryParse(columns[1], out date))
+                        if (!DateTime.TryParse(columns[dateColumnIndex], out date))
                         {
-                            throw new FormatException(string.Format("Failed to parse date {0} in full data file", columns[1]));
+                            throw new FormatException(string.Format("Failed to parse date {0} in full data file", columns[dateColumnIndex]));
                         }
 
                         return Tuple.Create(date, columns);
@@ -269,9 +209,9 @@ namespace ProcessDailyStockData
                     {
                         DateTime date;
 
-                        if (!DateTime.TryParse(columns[1], out date))
+                        if (!DateTime.TryParse(columns[dateColumnIndex], out date))
                         {
-                            throw new FormatException(string.Format("Failed to parse date {0} in delta data file", columns[1]));
+                            throw new FormatException(string.Format("Failed to parse date {0} in delta data file", columns[dateColumnIndex]));
                         }
 
                         return Tuple.Create(date, columns);
@@ -327,14 +267,19 @@ namespace ProcessDailyStockData
             File.Delete(deltaDataFile);
         }
 
-        static StockNameTable ProcessListOfFiles(string listFile, DateTime startDate, DateTime endDate, string outputFileFolder)
+        static TradingObjectNameTable<TradingObjectName> ProcessListOfFiles(IDataProcessor processor, string listFile, DateTime startDate, DateTime endDate, string outputFileFolder)
         {
+            if (processor == null)
+            {
+                throw new ArgumentNullException();
+            }
+
             if (string.IsNullOrEmpty(listFile) || string.IsNullOrEmpty(outputFileFolder))
             {
                 throw new ArgumentNullException();
             }
 
-            var table = new StockNameTable();
+            var table = new TradingObjectNameTable<TradingObjectName>();
 
             // Get all input files from list file
             var files = File.ReadAllLines(listFile, Encoding.UTF8);
@@ -345,13 +290,13 @@ namespace ProcessDailyStockData
                 {
                     if (!String.IsNullOrWhiteSpace(file))
                     {
-                        var stockName = ProcessOneFile(file.Trim(), startDate, endDate, outputFileFolder);
+                        var name = ProcessOneFile(processor, file.Trim(), startDate, endDate, outputFileFolder);
 
-                        if (stockName != null)
+                        if (name != null)
                         {
                             lock (table)
                             {
-                                table.AddStock(stockName);
+                                table.AddName(name);
                             }
                         }
                     }

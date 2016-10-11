@@ -3,20 +3,14 @@ using System.Linq;
 
 namespace StockAnalysis.Share
 {
-    public sealed class StockName
+    public sealed class StockName : TradingObjectName
     {
         public static string CanonicalNameSeparator = ".";
         public static string[] CanonicalNameSeparators = new string[] { "." };
 
-        public string CanonicalCode { get; private set; }
-
-        public string RawCode { get; private set; }
-
         public StockExchange.StockExchangeId ExchangeId { get; private set; }
 
         public StockBoard Board { get; private set; }
-
-        public string[] Names { get; private set; }
 
         private static string SkipOldLeading(string code)
         {
@@ -130,7 +124,7 @@ namespace StockAnalysis.Share
         }
 
 
-        private StockName()
+        public StockName()
         {
         }
 
@@ -167,6 +161,7 @@ namespace StockAnalysis.Share
                             var rawCode = code.Substring(abbr.Length);
 
                             SetValues(exchange, rawCode);
+                            return;
                         }
                     }
 
@@ -227,23 +222,28 @@ namespace StockAnalysis.Share
             return StockBoardIndex.GetBoardIndexName(board);
         }
 
-        public override string ToString()
+        public override string SaveToString()
         {
             return CanonicalCode + "|" + String.Join("|", Names);
         }
 
-        public static StockName Parse(string stockName)
+        public override TradingObjectName ParseFromString(string s)
         {
-            if (string.IsNullOrWhiteSpace(stockName))
+            return StockName.Parse(s);
+        }
+
+        public static StockName Parse(string s)
+        {
+            if (string.IsNullOrWhiteSpace(s))
             {
-                throw new ArgumentNullException("stockName");
+                throw new ArgumentNullException();
             }
 
-            var fields = stockName.Trim().Split(new[] { '|' }, StringSplitOptions.RemoveEmptyEntries);
+            var fields = s.Trim().Split(new[] { '|' }, StringSplitOptions.RemoveEmptyEntries);
 
             if (fields == null || fields.Length == 0)
             {
-                throw new FormatException(string.Format("stock name [{0}] is invalid", stockName));
+                throw new FormatException(string.Format("[{0}] is invalid stock name", s));
             }
 
             var name = new StockName(fields[0], fields.Length > 1 ? fields.Skip(1).ToArray() : new[] { string.Empty });
