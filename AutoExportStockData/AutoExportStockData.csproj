@@ -47,8 +47,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DataExporterHelper.cs" />
+    <Compile Include="IDataExporter.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="FutureDataExporter.cs" />
+    <Compile Include="StockDataExporter.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
