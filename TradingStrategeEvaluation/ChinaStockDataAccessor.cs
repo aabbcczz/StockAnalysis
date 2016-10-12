@@ -9,7 +9,7 @@ namespace TradingStrategyEvaluation
     public static class ChinaStockDataAccessor
     {
         private static object _lock = new object();
-        private static ConcurrentDictionary<string, StockHistoryData> _cache;
+        private static ConcurrentDictionary<string, HistoryData> _cache;
 
         public static void Initialize()
         {
@@ -17,7 +17,7 @@ namespace TradingStrategyEvaluation
             {
                 if (_cache == null)
                 {
-                    _cache = new ConcurrentDictionary<string, StockHistoryData>();
+                    _cache = new ConcurrentDictionary<string, HistoryData>();
                 }
             }
         }
@@ -26,15 +26,15 @@ namespace TradingStrategyEvaluation
         {
             lock (_lock)
             {
-                _cache = new ConcurrentDictionary<string, StockHistoryData>();
+                _cache = new ConcurrentDictionary<string, HistoryData>();
             }
         }
 
-        public static StockHistoryData Load(string file, TradingObjectNameTable<StockName> nameTable)
+        public static HistoryData Load(string file, TradingObjectNameTable<StockName> nameTable)
         {
-            StockHistoryData data;
+            HistoryData data;
 
-            data = _cache.GetOrAdd(file, (string f) => StockHistoryData.LoadFromFile(f, DateTime.MinValue, DateTime.MaxValue, nameTable));
+            data = _cache.GetOrAdd(file, (string f) => HistoryData.LoadStockDataFromFile(f, DateTime.MinValue, DateTime.MaxValue, nameTable));
 
             return data;
         }

@@ -100,7 +100,7 @@
     <Compile Include="StockBlockRelationshipManager.cs" />
     <Compile Include="StockBoard.cs" />
     <Compile Include="StockBoardIndex.cs" />
-    <Compile Include="StockHistoryData.cs" />
+    <Compile Include="HistoryData.cs" />
     <Compile Include="Bar.cs" />
     <Compile Include="StockName.cs" />
     <Compile Include="TradingObjectNameTable.cs" />

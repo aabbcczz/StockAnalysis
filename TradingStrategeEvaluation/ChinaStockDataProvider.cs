@@ -141,7 +141,7 @@ namespace TradingStrategyEvaluation
             }
 
             // load data
-            var allTradingData = new List<StockHistoryData>(dataFiles.Length);
+            var allTradingData = new List<HistoryData>(dataFiles.Length);
             var allFirstNonWarmupDataPeriods = new Dictionary<string, DateTime>();
 
             ChinaStockDataAccessor.Initialize();
@@ -241,7 +241,7 @@ namespace TradingStrategyEvaluation
 
                         lock (allTradingData)
                         {
-                            allTradingData.Add(new StockHistoryData(data.Name, data.IntervalInSecond, tradingData));
+                            allTradingData.Add(new HistoryData(data.Name, data.IntervalInSecond, tradingData));
                         }
                     }
                 });
@@ -270,7 +270,7 @@ namespace TradingStrategyEvaluation
             var tempTradingData = allTradingData.OrderBy(t => t.Name.CanonicalCode).ToArray();
 
             _stocks = Enumerable.Range(0, tempTradingData.Length)
-                .Select(i => (ITradingObject)new ChinaStock(i, tempTradingData[i].Name))
+                .Select(i => (ITradingObject)new ChinaStock(i, (StockName)tempTradingData[i].Name))
                 .ToArray();
 
             for (var i = 0; i < _stocks.Length; ++i) 

@@ -31,7 +31,7 @@ namespace StockAnalysis.Share
             _names.Add(name.CanonicalCode, name);
         }
 
-        public bool ContainsStock(string code)
+        public bool ContainsObject(string code)
         {
             return _names.ContainsKey(code);
         }
@@ -71,7 +71,7 @@ namespace StockAnalysis.Share
                         T name = (T)(new T().ParseFromString(line));
 
                         // avoid duplicated stock name (two stocks are treated as duplicated iff. their code are the same)
-                        if (!ContainsStock(name.CanonicalCode))
+                        if (!ContainsObject(name.CanonicalCode))
                         {
                             AddName(name);
                         }

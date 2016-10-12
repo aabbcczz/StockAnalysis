@@ -38,7 +38,7 @@ namespace DTViewer
 
         private TradingObjectNameTable<StockName> _stockNameTable = null;
 
-        private StockHistoryData _currentShownData = null;
+        private HistoryData _currentShownData = null;
 
         public MainForm()
         {
@@ -259,7 +259,7 @@ namespace DTViewer
         {
             string file = _stockDataSettings.BuildActualDataFilePathAndName(code);
 
-            StockHistoryData data;
+            HistoryData data;
             try
             {
                 data = ChinaStockDataAccessor.Load(file, _stockNameTable);

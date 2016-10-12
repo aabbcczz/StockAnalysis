@@ -273,7 +273,7 @@ namespace EvaluatorCmdClient
                     EndTime = options.EndDate,
                     YearInterval = options.YearInterval,
                     ObjectNames = codes
-                        .Select(c => stockNameTable.ContainsStock(c)
+                        .Select(c => stockNameTable.ContainsObject(c)
                             ? c + '|' + stockNameTable[c].Names[0]
                             : c)
                         .ToArray()

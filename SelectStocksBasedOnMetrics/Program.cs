@@ -119,53 +119,52 @@ namespace SelectStocksBasedOnMetrics
 
             using (var outputter = new StreamWriter(outputFile, false, Encoding.UTF8))
             {
-                Parallel.ForEach(
-                    files,
-                    file =>
+                foreach (var file in files)
+                {
+                    if (String.IsNullOrWhiteSpace(file))
                     {
-                        if (String.IsNullOrWhiteSpace(file))
-                        {
-                            return;
-                        }
+                        continue;
+                    }
 
-                        var rawMetrics = ProcessOneFile(file.Trim(), keptRecord);
-                        if (rawMetrics == null)
-                        {
-                            return;
-                        }
+                    var rawMetrics = ProcessOneFile(file.Trim(), keptRecord);
+                    if (rawMetrics == null)
+                    {
+                        continue;
+                    }
 
-                        var metrics = rawMetrics.Reverse().ToArray();
+                    var metrics = rawMetrics.Reverse().ToArray();
 
-                        var expandedMetric = new StockMetricRecord
-                        {
-                            Code = metrics[0].Code,
-                            Date = metrics[0].Date,
-                            MetricNames = Enumerable
-                                .Range(0, metrics.Length)
-                                .SelectMany(i => metrics[i].MetricNames
-                                    .Select(s => "T" + (i == 0 ? "0" : (-i).ToString(CultureInfo.InvariantCulture)) + s))
-                                .ToArray(),
-                            Metrics = Enumerable
-                                .Range(0, metrics.Length)
-                                .SelectMany(i => metrics[i].Metrics)
-                                .ToArray()
-                        };
+                    var expandedMetric = new StockMetricRecord
+                    {
+                        Code = metrics[0].Code,
+                        Date = metrics[0].Date,
+                        MetricNames = Enumerable
+                            .Range(0, metrics.Length)
+                            .SelectMany(i => metrics[i].MetricNames
+                                .Select(s => "T" + (i == 0 ? "0" : (-i).ToString(CultureInfo.InvariantCulture)) + s))
+                            .ToArray(),
+                        Metrics = Enumerable
+                            .Range(0, metrics.Length)
+                            .SelectMany(i => metrics[i].Metrics)
+                            .ToArray()
+                    };
 
-                        lock(records)
-                        {
-                            records.Add(expandedMetric);
-                        }
+                    lock (records)
+                    {
+                        records.Add(expandedMetric);
+                    }
 
-                        Console.Write(".");
-                    });
+                    Console.Write("{0}\r", file);
+                }
 
+                Console.WriteLine();
 
                 outputter.WriteLine("Code,Date,{0}", string.Join(",", records.First().MetricNames));
 
                 foreach (var record in records)
                 {
                     outputter.WriteLine(
-                        "N{0},{1:yyyy/MM/dd},{2}",
+                        "{0},{1:yyyy/MM/dd},{2}",
                         record.Code,
                         record.Date,
                         string.Join(",", record.Metrics.Select(v => string.Format("{0:0.00}", v)).ToArray()));

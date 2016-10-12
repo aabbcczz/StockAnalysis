@@ -28,6 +28,9 @@ namespace GenerateMetrics
         [Option('e', "EndDate", HelpText = "The end date of data being processed")]
         public DateTime EndDate { get; set; }
 
+        [Option('f', "IsForFuture", HelpText = "Flag indicate if the data is for future")]
+        public bool IsForFuture { get; set; }
+
         public void Print(TextWriter writer)
         {
             if (VerboseLevel == 2)

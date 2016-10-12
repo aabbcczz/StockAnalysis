@@ -80,11 +80,11 @@ namespace GenerateMetrics
             if (!string.IsNullOrEmpty(options.InputFile))
             {
                 // single input file
-                ProcessOneFile(options.InputFile, options.StartDate, options.EndDate, folder, metrics);
+                ProcessOneFile(options.IsForFuture, options.InputFile, options.StartDate, options.EndDate, folder, metrics);
             }
             else
             {
-                ProcessListOfFiles(options.InputFileList, options.StartDate, options.EndDate, folder, metrics);
+                ProcessListOfFiles(options.IsForFuture, options.InputFileList, options.StartDate, options.EndDate, folder, metrics);
             }
 
 
@@ -95,14 +95,17 @@ namespace GenerateMetrics
 
 
 
-        static void ProcessOneFile(string file, DateTime startDate, DateTime endDate, string outputFileFolder, string[] metrics)
+        static void ProcessOneFile(bool isForFuture, string file, DateTime startDate, DateTime endDate, string outputFileFolder, string[] metrics)
         {
             if (string.IsNullOrEmpty(file) || string.IsNullOrEmpty(outputFileFolder))
             {
                 throw new ArgumentNullException();
             }
 
-            var data = StockHistoryData.LoadFromFile(file, startDate, endDate);
+            var data = isForFuture 
+                ? HistoryData.LoadFutureDataFromFile(file, startDate, endDate)
+                : HistoryData.LoadStockDataFromFile(file, startDate, endDate);
+
             if (data == null)
             {
                 return;
@@ -168,7 +171,7 @@ namespace GenerateMetrics
             }
         }
 
-        static void ProcessListOfFiles(string listFile, DateTime startDate, DateTime endDate, string outputFileFolder, string[] metrics)
+        static void ProcessListOfFiles(bool isForFuture, string listFile, DateTime startDate, DateTime endDate, string outputFileFolder, string[] metrics)
         {
             if (string.IsNullOrEmpty(listFile) || string.IsNullOrEmpty(outputFileFolder))
             {
@@ -184,7 +187,7 @@ namespace GenerateMetrics
                 {
                     if (!String.IsNullOrWhiteSpace(file))
                     {
-                        ProcessOneFile(file.Trim(), startDate, endDate, outputFileFolder, metrics);
+                        ProcessOneFile(isForFuture, file.Trim(), startDate, endDate, outputFileFolder, metrics);
                     }
 
                     Console.Write(".");
