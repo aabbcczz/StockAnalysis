@@ -41,8 +41,8 @@ namespace GetFinanceReports
             options.Print(Console.Out);
 
             // create stock name table
-            var stockNameTable 
-                = new StockNameTable
+            var stockNameTable
+                = new TradingObjectNameTable<StockName>
                     (
                         options.StockNameTable, 
                         invalidLine => 
@@ -70,7 +70,7 @@ namespace GetFinanceReports
             }
 
             var lastRoundStocks = stockNameTable;
-            StockNameTable failedStocks;
+            TradingObjectNameTable<StockName> failedStocks;
 
             while (true)
             {
@@ -89,9 +89,9 @@ namespace GetFinanceReports
             {
                 Console.WriteLine("Following stocks' report are not been fetched:");
                 Console.WriteLine("==============================================");
-                foreach (var stock in failedStocks.StockNames)
+                foreach (var name in failedStocks.Names)
                 {
-                    Console.WriteLine("{0}", stock.CanonicalCode);
+                    Console.WriteLine("{0}", name.CanonicalCode);
                 }
                 Console.WriteLine("==============================================");
             }
@@ -99,30 +99,30 @@ namespace GetFinanceReports
             Console.WriteLine("Done.");
         }
 
-        private static StockNameTable FetchReports(
-            IReportFetcher fetcher, 
-            StockNameTable stocks, 
+        private static TradingObjectNameTable<StockName> FetchReports(
+            IReportFetcher fetcher,
+            TradingObjectNameTable<StockName> stockNames, 
             string outputFolder, 
             int intervalInSecond,
             int randomRangeInSecond)
         {
-            var failedStocks = new StockNameTable();
+            var failedStocks = new TradingObjectNameTable<StockName>();
 
             var defaultSuffix = fetcher.GetDefaultSuffixOfOutputFile();
             var rand = new Random();
 
-            foreach (var stock in stocks.StockNames)
+            foreach (var name in stockNames.Names)
             {
                 string errorMessage;
-                var outputFile = string.Format("{0}.{1}", stock.CanonicalCode, defaultSuffix);
+                var outputFile = string.Format("{0}.{1}", name.CanonicalCode, defaultSuffix);
                 outputFile = Path.Combine(outputFolder, outputFile);
 
-                var succeeded = fetcher.FetchReport(stock, outputFile, out errorMessage);
+                var succeeded = fetcher.FetchReport(name, outputFile, out errorMessage);
 
                 if (!succeeded)
                 {
-                    Console.WriteLine("Fetch report for {0} failed. Error: {1}", stock.CanonicalCode, errorMessage);
-                    failedStocks.AddStock(stock);
+                    Console.WriteLine("Fetch report for {0} failed. Error: {1}", name.CanonicalCode, errorMessage);
+                    failedStocks.AddName(name);
                 }
 
                 Thread.Sleep((intervalInSecond + rand.Next(randomRangeInSecond)) * 1000);
