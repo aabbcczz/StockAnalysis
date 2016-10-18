@@ -31,8 +31,6 @@ namespace SelectStocksBasedOnMetrics
             options.BoundaryCheck();
             options.Print(Console.Out);
 
-            Run(options);
-
             if (string.IsNullOrEmpty(options.InputFileList))
             {
                 Console.WriteLine("No input file list is specified");
@@ -52,6 +50,7 @@ namespace SelectStocksBasedOnMetrics
             if (string.IsNullOrEmpty(options.OutputFile))
             {
                 Console.WriteLine("output file is empty");
+                return -3;
             }
 
             var outputFile = Path.GetFullPath(options.OutputFile);
