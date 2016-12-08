@@ -228,7 +228,16 @@ namespace AutoExportStockData
             AutoItX.Sleep(1000);
 
             // wait for a dialog "连接扩展行情" to disappear
-            AutoItX.Sleep(10000);
+            string title1 = "连接扩展市场行情主站";
+            int handle1 = AutoItX.WinWait(title1, "", 5);
+            if (handle != 0)
+            {
+                IntPtr hwnd1 = AutoItX.WinGetHandle(title1, "");
+                if (hwnd1 != IntPtr.Zero)
+                {
+                    AutoItX.WinWaitClose(hwnd1);
+                }
+            }
 
             var rectControlInScreen = DataExporterHelper.GetControlPosInScreen(hwnd, tabControl);
 

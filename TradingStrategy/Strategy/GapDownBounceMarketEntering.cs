@@ -72,9 +72,9 @@ namespace TradingStrategy.Strategy
             get { return "当收盘价低于移动平均一定程度并且开盘跳空收盘超过昨日收盘后入市"; }
         }
 
-        public override MarketEnteringComponentResult CanEnter(ITradingObject tradingObject)
+        private bool IsGDBToday(ITradingObject tradingObject, out string comments)
         {
-            var result = new MarketEnteringComponentResult();
+            comments = string.Empty;
 
             var previousDayBarValues = _previousDayBar.GetMetricValues(tradingObject);
             var previous2DaysBarValues = _previous2DaysBar.GetMetricValues(tradingObject);
@@ -111,9 +111,9 @@ namespace TradingStrategy.Strategy
                 && upShadowPercentage <= MaxUpShadowPercentage
                 && downShadowPercentage <= MaxDownShadowPercentage
                 )
-            { 
-                result.Comments = string.Format(
-                    "MA[{0}]={1:0.000} Close:{2:0.000} Open:{3:0.000} LastLowest:{4:0.000} UpShadow%:{5:0.000}% DownShadow%:{6:0.000}%", 
+            {
+                comments = string.Format(
+                    "MA[{0}]={1:0.000} Close:{2:0.000} Open:{3:0.000} LastLowest:{4:0.000} UpShadow%:{5:0.000}% DownShadow%:{6:0.000}%",
                     MovingAveragePeriod,
                     movingAverage,
                     todayBar.ClosePrice,
@@ -122,6 +122,20 @@ namespace TradingStrategy.Strategy
                     upShadowPercentage,
                     downShadowPercentage);
 
+                return true;
+            }
+
+            return false;
+        }
+
+        public override MarketEnteringComponentResult CanEnter(ITradingObject tradingObject)
+        {
+            var result = new MarketEnteringComponentResult();
+
+            string comments;
+            if (IsGDBToday(tradingObject, out comments))
+            {
+                result.Comments = comments;
                 result.CanEnter = true;
             }
 
