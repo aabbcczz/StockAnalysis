@@ -95,7 +95,7 @@ namespace StockTrading.Utility
         {
             if (columnIndices == null)
             {
-                columnIndices = columns.Select(c => data.GetColumnIndex(c)).ToArray();
+                columnIndices = data.GetColumnIndices(columns).ToArray();
             }
 
             var subData = data.GetSubColumns(columnIndices);

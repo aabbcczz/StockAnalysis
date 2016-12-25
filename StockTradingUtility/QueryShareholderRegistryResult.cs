@@ -12,9 +12,11 @@ namespace StockTrading.Utility
         private static string[] columns = new string[]
         {
             "股东代码",
+            "股东名称|股东姓名",
             "帐号类别",
             "资金帐号",
-            "席位代码",
+            "席位代码|交易席位",
+            "融资融券标识",
             "保留信息"
         };
 
@@ -24,6 +26,11 @@ namespace StockTrading.Utility
         /// 股东代码
         /// </summary>
         public string ShareholderCode { get; private set; }
+
+        /// <summary>
+        /// 股东名称
+        /// </summary>
+        public string ShareholderName { get; private set; }
 
         /// <summary>
         /// 所属交易所
@@ -41,6 +48,11 @@ namespace StockTrading.Utility
         public string SeatCode { get; private set; }
 
         /// <summary>
+        /// 融资融券标识
+        /// </summary>
+        public bool IsCreditAccount { get; private set; }
+
+        /// <summary>
         /// 备注
         /// </summary>
         public string Notes { get; private set; }
@@ -49,7 +61,7 @@ namespace StockTrading.Utility
         {
             if (columnIndices == null)
             {
-                columnIndices = columns.Select(c => data.GetColumnIndex(c)).ToArray();
+                columnIndices = data.GetColumnIndices(columns).ToArray();
             }
 
             var subData = data.GetSubColumns(columnIndices);
@@ -60,11 +72,16 @@ namespace StockTrading.Utility
 
                 int index = 0;
                 result.ShareholderCode = row[index++];
+                result.ShareholderName = row[index++];
                 result.Exchange = row[index] == "0" ? StockExchange.ShenzhenExchange : (row[index] == "1" ? StockExchange.ShanghaiExchange : null); 
                 index++;
 
                 result.CapitalAccount = row[index++];
-                result.SeatCode = row[index++];;
+                result.SeatCode = row[index++];
+
+                result.IsCreditAccount = row[index] == "1";
+                index++;
+
                 result.Notes = row[index++];
 
                 yield return result;

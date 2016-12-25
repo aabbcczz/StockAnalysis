@@ -54,7 +54,7 @@ namespace StockTrading.Utility
 
 
 
-    static class TdxWrapper
+    public static class TdxWrapper
     {
         //基本版
 

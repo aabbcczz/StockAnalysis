@@ -8,6 +8,8 @@ namespace StockTrading.Utility
 {
     public sealed class TabulateData
     {
+        public static char[] columnSplitters = new char[] { '|' };
+
         private string[] _columns;
         private Dictionary<string, int> _columnNameToIndexMap = new Dictionary<string, int>();
         private List<string[]> _rows = new List<string[]>();
@@ -30,19 +32,43 @@ namespace StockTrading.Utility
         /// <summary>
         /// Get index for given column
         /// </summary>
-        /// <param name="column">name of column</param>
+        /// <param name="column">name of column. multiple columns can be separated by |, 
+        /// and the index of first existing column will be returned.
+        /// </param>
         /// <returns>index of column (starts from 0) if column exists, otherwise -1</returns>
         public int GetColumnIndex(string column)
         {
-            int index;
-            if (_columnNameToIndexMap.TryGetValue(column, out index))
+            if (string.IsNullOrEmpty(column))
             {
-                return index;
+                throw new ArgumentNullException();
             }
-            else
+
+            string[] columns = column.Split(columnSplitters, StringSplitOptions.RemoveEmptyEntries);
+            if (columns == null || columns.Length == 0)
             {
-                return -1;
+                throw new ArgumentNullException();
             }
+
+            foreach (var s in columns)
+            {
+                int index;
+                if (_columnNameToIndexMap.TryGetValue(s, out index))
+                {
+                    return index;
+                }
+            }
+
+            return -1;
+        }
+
+        /// <summary>
+        /// Get indices for given columns
+        /// </summary>
+        /// <param name="columns">all columns</param>
+        /// <returns>indices for columns. keep input order</returns>
+        public IEnumerable<int> GetColumnIndices(IEnumerable<string> columns)
+        {
+            return columns.Select(s => GetColumnIndex(s));
         }
 
         public TabulateData(IEnumerable<string> columns)
@@ -73,7 +99,7 @@ namespace StockTrading.Utility
                 return null;
             }
 
-            var columnIndices = columns.Select(c => GetColumnIndex(c));
+            var columnIndices = GetColumnIndices(columns);
 
             TabulateData subResult = new TabulateData(columns);
             foreach (var row in _rows)

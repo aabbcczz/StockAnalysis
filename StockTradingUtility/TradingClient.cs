@@ -88,7 +88,7 @@ namespace StockTrading.Utility
             {
                 ClientId = clientId;
 
-                if (!InitializeAfterLoggedOn(out error))
+                if (!InitializeAfterLoggedOn(tradeAccount, out error))
                 {
                     LogOff();
 
@@ -99,12 +99,21 @@ namespace StockTrading.Utility
             return IsLoggedOn();
         }
 
-        private bool InitializeAfterLoggedOn(out string error)
+        private bool InitializeAfterLoggedOn(string tradeAccount, out string error)
         {
+            error = string.Empty;
+
             var registries = QueryShareholderRegistry(out error);
 
             if (registries == null)
             {
+                return false;
+            }
+
+            registries = registries.Where(r => r.CapitalAccount == tradeAccount);
+            if (registries.Count() == 0)
+            {
+                error = "No shareholder registry can match trade account";
                 return false;
             }
 

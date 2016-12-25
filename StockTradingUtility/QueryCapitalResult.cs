@@ -15,7 +15,6 @@ namespace StockTrading.Utility
             "冻结资金",
             "可取资金",
             "总资产",
-            "最新市值"
         };
 
         private static int[] columnIndices = null;
@@ -45,17 +44,11 @@ namespace StockTrading.Utility
         /// </summary>
         public float TotalEquity { get; private set; }
 
-        /// <summary>
-        /// 最新市值
-        /// </summary>
-        public float LatestMarketValue { get; private set; }
-
-
         public static IEnumerable<QueryCapitalResult> ExtractFrom(TabulateData data)
         {
             if (columnIndices == null)
             {
-                columnIndices = columns.Select(c => data.GetColumnIndex(c)).ToArray();
+                columnIndices = data.GetColumnIndices(columns).ToArray();
             }
 
             var subData = data.GetSubColumns(columnIndices);
@@ -70,7 +63,6 @@ namespace StockTrading.Utility
                 result.FrozenCapital = TradingHelper.SafeParseFloat(row[index++], 0.0f);
                 result.CashableCapital = TradingHelper.SafeParseFloat(row[index++], 0.0f);
                 result.TotalEquity = TradingHelper.SafeParseFloat(row[index++], 0.0f);
-                result.LatestMarketValue = TradingHelper.SafeParseFloat(row[index++], 0.0f); 
 
                 yield return result;
             }

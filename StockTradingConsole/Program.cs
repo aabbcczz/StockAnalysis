@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 using CommandLine;
 using CommandLine.Text;
+using StockTrading.Utility;
 
 namespace StockTradingConsole
 {
@@ -13,6 +14,12 @@ namespace StockTradingConsole
     {
         static void Main(string[] args)
         {
+            //string encryptAccount = TdxWrapper.EncryptAccount("42000042387");
+            //Console.WriteLine(encryptAccount);
+
+            //string decryptAccount = TdxWrapper.DecryptAccount("CCHOGIBI");
+            //Console.WriteLine(decryptAccount);
+
             var parser = new Parser(with => { with.HelpWriter = Console.Error; });
 
             var parseResult = parser.ParseArguments<Options>(args);
