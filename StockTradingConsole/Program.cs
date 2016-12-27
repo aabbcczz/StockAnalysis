@@ -59,7 +59,7 @@ namespace StockTradingConsole
             }
         }
 
-        async static Task<int> Run(Options options)
+        static int Run(Options options)
         {
             try
             {
@@ -79,11 +79,11 @@ namespace StockTradingConsole
 
                         bool loggedOn = client.LogOn(
                             tdxConfig.Server, 
-                            tdxConfig.Port,
+                            (short)tdxConfig.Port,
                             tdxConfig.ProtocalVersion, 
-                            tdxConfig.YybId, 
+                            (short)tdxConfig.YybId, 
                             tdxConfig.Account, 
-                            tdxConfig.AccountType, 
+                            (short)tdxConfig.AccountType, 
                             tdxConfig.Account, 
                             tdxConfig.Password, 
                             "", 
@@ -98,8 +98,8 @@ namespace StockTradingConsole
                         var task1 = BuyNewStocksAsync(client, newStocks);
                         var task2 = SellOldStocksAsync(client, oldStocks);
 
-                        await task1;
-                        await task2;
+                        //await task1;
+                        //await task2;
                     }
                 }
 

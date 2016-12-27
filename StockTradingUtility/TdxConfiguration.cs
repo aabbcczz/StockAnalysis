@@ -26,9 +26,9 @@ namespace StockTrading.Utility
 
         [ConfigurationProperty(PortPropertyName, IsRequired = true)]
         [IntegerValidator(MinValue= 0, MaxValue = 65535)]
-        public short Port
+        public int Port
         {
-            get { return (short)this[PortPropertyName]; }
+            get { return (int)this[PortPropertyName]; }
             set { this[PortPropertyName] = value; }
         }
 
@@ -41,9 +41,9 @@ namespace StockTrading.Utility
 
         [ConfigurationProperty(YybIdPropertyName, IsRequired = true)]
         [IntegerValidator(MinValue = 0, MaxValue = 256)]
-        public short YybId
+        public int YybId
         {
-            get { return (short)this[YybIdPropertyName]; }
+            get { return (int)this[YybIdPropertyName]; }
             set { this[YybIdPropertyName] = value; }
         }
 
@@ -54,12 +54,12 @@ namespace StockTrading.Utility
             set { this[AccountPropertyName] = value; }
         }
 
-        [ConfigurationProperty(AccountPropertyName, IsRequired = true)]
+        [ConfigurationProperty(AccountTypePropertyName, IsRequired = true)]
         [IntegerValidator(MinValue = 0, MaxValue = 256)]
-        public short AccountType
+        public int AccountType
         {
-            get { return (short)this[AccountPropertyName]; }
-            set { this[AccountPropertyName] = value; }
+            get { return (int)this[AccountTypePropertyName]; }
+            set { this[AccountTypePropertyName] = value; }
         }
 
         [ConfigurationProperty(PasswordPropertyName, IsRequired = true)]
