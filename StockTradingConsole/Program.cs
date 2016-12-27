@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 using CommandLine;
 using CommandLine.Text;
 using StockTrading.Utility;
+using StockAnalysis.Share;
+using System.Configuration;
 
 namespace StockTradingConsole
 {
@@ -57,11 +59,87 @@ namespace StockTradingConsole
             }
         }
 
-        static int Run(Options options)
+        async static Task<int> Run(Options options)
         {
-            Console.WriteLine("Done.");
+            try
+            {
+                TdxConfiguration tdxConfig = ConfigurationManager.GetSection("tdxConfiguration") as TdxConfiguration;
 
-            return 0;
+                DataFileReaderWriter rw = new DataFileReaderWriter(options.NewStockFile, options.OldStockFile);
+                rw.Read();
+
+                var newStocks = rw.NewStocks.ToArray();
+                var oldStocks = rw.OldStocks.ToArray();
+
+                if (newStocks.Count() > 0 || oldStocks.Count() > 0)
+                {
+                    using (TradingClient client = new TradingClient())
+                    {
+                        string error;
+
+                        bool loggedOn = client.LogOn(
+                            tdxConfig.Server, 
+                            tdxConfig.Port,
+                            tdxConfig.ProtocalVersion, 
+                            tdxConfig.YybId, 
+                            tdxConfig.Account, 
+                            tdxConfig.AccountType, 
+                            tdxConfig.Account, 
+                            tdxConfig.Password, 
+                            "", 
+                            out error);
+
+                        if (!loggedOn)
+                        {
+                            throw new InvalidOperationException(
+                                string.Format("failed to log on server. Error: {0}", error));
+                        }
+
+                        var task1 = BuyNewStocksAsync(client, newStocks);
+                        var task2 = SellOldStocksAsync(client, oldStocks);
+
+                        await task1;
+                        await task2;
+                    }
+                }
+
+                Console.WriteLine("Done.");
+
+                return 0;
+            }
+            catch (Exception ex)
+            {
+                AppLogger.Default.FatalFormat("Exception: {0}", ex);
+                return -1;
+            }
+        }
+
+        async static Task BuyNewStocksAsync(TradingClient client, IEnumerable<NewStock> stocks)
+        {
+            await Task.Run(() =>
+            {
+                if (stocks.Count() == 0)
+                {
+                    return;
+                }
+
+                var codes = stocks.Select(s => s.Name.RawCode).ToArray();
+
+                
+            });
+        } 
+
+        async static Task SellOldStocksAsync(TradingClient client, IEnumerable<OldStock> stocks)
+        {
+            await Task.Run(() =>
+            {
+                if (stocks.Count() == 0)
+                {
+                    return;
+                }
+
+                var codes = stocks.Select(s => s.Name.RawCode).ToArray();
+            });
         }
     }
 }

@@ -13,10 +13,10 @@ namespace StockTradingConsole
     sealed class DataFileReaderWriter
     {
         public const string NewStockFileName = "newstocks.csv";
-        public const string ExistingStockFileName = "existingstocks.csv";
+        public const string OldStockFileName = "oldstocks.csv";
 
         private List<NewStock> _newStocks = new List<NewStock>();
-        private List<OldStock> _existingStocks = new List<OldStock>();
+        private List<OldStock> _oldStocks = new List<OldStock>();
         private readonly string _newStockFile;
         private readonly string _oldStockFile;
 
@@ -28,8 +28,8 @@ namespace StockTradingConsole
 
         public IEnumerable<OldStock> OldStocks
         {
-            get { return _existingStocks;  }
-            set { _existingStocks = new List<OldStock>(value); }
+            get { return _oldStocks;  }
+            set { _oldStocks = new List<OldStock>(value); }
         }
 
         public DataFileReaderWriter(string newStockFile, string oldStockFile)
@@ -61,7 +61,7 @@ namespace StockTradingConsole
             }
 
             _newStocks = newStocks;
-            _existingStocks = oldStocks;
+            _oldStocks = oldStocks;
         }
 
         public void Write()
@@ -139,7 +139,7 @@ namespace StockTradingConsole
             {
                 using (CsvWriter csvWriter = new CsvWriter(writer))
                 {
-                    List<OldStockForSerialization> existingStocks = _existingStocks.Select(s => new OldStockForSerialization(s)).ToList();
+                    List<OldStockForSerialization> existingStocks = _oldStocks.Select(s => new OldStockForSerialization(s)).ToList();
 
                     csvWriter.WriteRecords(existingStocks);
                 }
