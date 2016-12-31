@@ -57,6 +57,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DataFileReaderWriter.cs" />
+    <Compile Include="IStockTradingStateMachine.cs" />
     <Compile Include="NewStockForSerialization.cs" />
     <Compile Include="OldStockForSerialization.cs" />
     <Compile Include="OldStock.cs" />
@@ -64,6 +65,9 @@
     <Compile Include="Options.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="StockSellingStateMachine.cs" />
+    <Compile Include="StockBuyingStateMachine.cs" />
+    <Compile Include="StockTradingStateMachineBase.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
