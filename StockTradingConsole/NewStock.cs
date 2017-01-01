@@ -29,5 +29,19 @@ namespace StockTradingConsole
             TotalCapitalUsedToBuy = nss.TotalCapitalUsedToBuy;
             ActualOpenPrice = 0.0f;
         }
+
+        public int BuyableVolumeInHand(float price)
+        {
+            int volume = (int)(TotalCapitalUsedToBuy / price);
+
+            int hand = ChinaStockHelper.ConvertVolumeToHand(volume);
+
+            return hand;
+        }
+
+        public bool IsBuyablePrice(float price)
+        {
+            return BuyPriceDownLimitInclusive <= price && price <= BuyPriceUpLimitInclusive;
+        }
     }
 }

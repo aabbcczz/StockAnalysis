@@ -131,5 +131,41 @@ namespace StockTrading.Utility
             float downLimitPrice = (float)quote.GetDownLimitPrice();
             return quote.CurrentPrice == downLimitPrice && quote.BuyVolumesInHand.Sum() == 0;
         }
+
+        public static bool TryGetCollectiveBiddingPriceAndVolumeInHand(this FiveLevelQuote quote, out float price, out int volumeInHand)
+        {
+            if (quote.BuyPrices[0] != 0.0f && quote.BuyVolumesInHand[0] > 0)
+            {
+                price = quote.BuyPrices[0];
+                volumeInHand = quote.BuyVolumesInHand[0];
+                return true;
+            }
+            else if (quote.SellPrices[0] != 0.0f && quote.SellVolumesInHand[0] > 0)
+            {
+                price = quote.SellPrices[0];
+                volumeInHand = quote.SellVolumesInHand[0];
+                return true;
+            }
+            else
+            {
+                price = 0.0f;
+                volumeInHand = 0;
+                return false;
+            }
+        }
+
+        public static int GetApplicableVolumeInHandForBuyingPrice(this FiveLevelQuote quote, float buyingPrice)
+        {
+            return Enumerable.Range(0, 5)
+                .Where(i => quote.SellPrices[i] != 0.0f && quote.SellPrices[i] <= buyingPrice)
+                .Sum(i => quote.SellVolumesInHand[i]);
+        }
+
+        public static int GetApplicableVolumeInHandForSellingPrice(this FiveLevelQuote quote, float sellingPrice)
+        {
+            return Enumerable.Range(0, 5)
+                .Where(i => quote.BuyPrices[i] != 0.0f && quote.BuyPrices[i] >= sellingPrice)
+                .Sum(i => quote.BuyVolumesInHand[i]);
+        }
     }
 }
