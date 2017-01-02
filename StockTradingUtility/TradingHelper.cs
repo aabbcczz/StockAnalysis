@@ -154,18 +154,172 @@ namespace StockTrading.Utility
             }
         }
 
-        public static int GetApplicableVolumeInHandForBuyingPrice(this FiveLevelQuote quote, float buyingPrice)
+        public static int EstimateApplicableVolumeInHandForBuyingPrice(this FiveLevelQuote quote, float buyingPrice)
         {
-            return Enumerable.Range(0, 5)
-                .Where(i => quote.SellPrices[i] != 0.0f && quote.SellPrices[i] <= buyingPrice)
-                .Sum(i => quote.SellVolumesInHand[i]);
+            if (float.IsNaN(buyingPrice) || buyingPrice <= 0.0)
+            {
+                throw new ArgumentOutOfRangeException();
+            }
+
+            float maxSellPrice = quote.SellPrices.Max();
+            float minSellPrice = quote.SellPrices.Min();
+
+            if (buyingPrice < minSellPrice)
+            {
+                return 0;
+            }
+            else if (buyingPrice <= maxSellPrice)
+            {
+                return Enumerable.Range(0, 5)
+                    .Where(i => quote.SellPrices[i] != 0.0f && quote.SellPrices[i] <= buyingPrice)
+                    .Sum(i => quote.SellVolumesInHand[i]);
+            }
+            else // buyingPrice > maxSellPrice
+            {
+                // use linear extrapolation to estimate the volume
+                if (minSellPrice == maxSellPrice)
+                {
+                    // we can't extrapolate now, have to return current all selling volumes.
+                    return quote.SellVolumesInHand.Sum();
+                }
+                else
+                {
+                    buyingPrice = Math.Min(buyingPrice, (float)quote.GetUpLimitPrice());
+                    return (int)((buyingPrice - minSellPrice) / (maxSellPrice - minSellPrice) * quote.SellVolumesInHand.Sum());
+                }
+            }
         }
 
-        public static int GetApplicableVolumeInHandForSellingPrice(this FiveLevelQuote quote, float sellingPrice)
+        public static float EstimateApplicableBuyingPriceForVolumeInHand(this FiveLevelQuote quote, int volumeInHand)
         {
-            return Enumerable.Range(0, 5)
-                .Where(i => quote.BuyPrices[i] != 0.0f && quote.BuyPrices[i] >= sellingPrice)
-                .Sum(i => quote.BuyVolumesInHand[i]);
+            if (volumeInHand <= 0)
+            {
+                throw new ArgumentOutOfRangeException();
+            }
+
+            float maxSellPrice = quote.SellPrices.Max();
+            float minSellPrice = quote.SellPrices.Min();
+            int existingTotalVolumeInHand = quote.SellVolumesInHand.Sum();
+
+            if (existingTotalVolumeInHand >= volumeInHand)
+            {
+                for (int i = 0; i < quote.SellVolumesInHand.Count(); ++i)
+                {
+                    if (quote.SellPrices[i] != 0)
+                    {
+                        if (quote.SellVolumesInHand[i] >= volumeInHand)
+                        {
+                            return quote.SellPrices[i];
+                        }
+                        else
+                        {
+                            volumeInHand -= quote.SellVolumesInHand[i];
+                        }
+                    }
+                }
+
+                // should not reach here.
+                throw new InvalidOperationException("logic error. should not reach here");
+            }
+            else // not enough volume base on exisiting quote
+            {
+                // use linear extrapolation to estimate the price
+                if (minSellPrice == maxSellPrice)
+                {
+                    // we can't extrapolate now, have to return up limit price.
+                    return (float)quote.GetUpLimitPrice();
+                }
+                else
+                {
+                    float buyPrice = volumeInHand * (maxSellPrice - minSellPrice) / existingTotalVolumeInHand + minSellPrice;
+
+                    return Math.Min(buyPrice, (float)quote.GetUpLimitPrice());
+                }
+            }
+        }
+
+        public static int EstimateApplicableVolumeInHandForSellingPrice(this FiveLevelQuote quote, float sellingPrice)
+        {
+            if (float.IsNaN(sellingPrice) || sellingPrice <= 0.0)
+            {
+                throw new ArgumentOutOfRangeException();
+            }
+
+            float maxBuyPrice = quote.BuyPrices.Max();
+            float minBuyPrice = quote.BuyPrices.Min();
+
+            if (sellingPrice > maxBuyPrice)
+            {
+                return 0;
+            }
+            else if (sellingPrice >= minBuyPrice)
+            {
+                return Enumerable.Range(0, 5)
+                    .Where(i => quote.BuyPrices[i] != 0.0f && quote.BuyPrices[i] >= sellingPrice)
+                    .Sum(i => quote.BuyVolumesInHand[i]);
+            }
+            else // sellingPrice < minSellPrice
+            {
+                // use linear extrapolation to estimate the volume
+                if (minBuyPrice == maxBuyPrice)
+                {
+                    // we can't extrapolate now, have to return current all selling volumes.
+                    return quote.BuyVolumesInHand.Sum();
+                }
+                else
+                {
+                    sellingPrice = Math.Max(sellingPrice, (float)quote.GetDownLimitPrice());
+                    return (int)((maxBuyPrice - sellingPrice) / (maxBuyPrice - minBuyPrice) * quote.BuyVolumesInHand.Sum());
+                }
+            }
+        }
+
+        public static float EstimateApplicableSellingPriceForVolumeInHand(this FiveLevelQuote quote, int volumeInHand)
+        {
+            if (volumeInHand <= 0)
+            {
+                throw new ArgumentOutOfRangeException();
+            }
+
+            float maxBuyPrice = quote.BuyPrices.Max();
+            float minBuyPrice = quote.BuyPrices.Min();
+            int existingTotalVolumeInHand = quote.BuyVolumesInHand.Sum();
+
+            if (existingTotalVolumeInHand >= volumeInHand)
+            {
+                for (int i = 0; i < quote.BuyVolumesInHand.Count(); ++i)
+                {
+                    if (quote.BuyPrices[i] != 0)
+                    {
+                        if (quote.BuyVolumesInHand[i] >= volumeInHand)
+                        {
+                            return quote.BuyPrices[i];
+                        }
+                        else
+                        {
+                            volumeInHand -= quote.BuyVolumesInHand[i];
+                        }
+                    }
+                }
+
+                // should not reach here.
+                throw new InvalidOperationException("logic error. should not reach here");
+            }
+            else // not enough volume base on exisiting quote
+            {
+                // use linear extrapolation to estimate the price
+                if (minBuyPrice == maxBuyPrice)
+                {
+                    // we can't extrapolate now, have to return down limit price.
+                    return (float)quote.GetDownLimitPrice();
+                }
+                else
+                {
+                    float sellPrice = maxBuyPrice - volumeInHand * (maxBuyPrice - minBuyPrice) / existingTotalVolumeInHand;
+
+                    return Math.Max(sellPrice, (float)quote.GetDownLimitPrice());
+                }
+            }
         }
     }
 }

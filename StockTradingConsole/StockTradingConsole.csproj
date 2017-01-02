@@ -56,6 +56,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="StockTradingInput.cs" />
+    <Compile Include="StateMachine.cs" />
+    <Compile Include="StateTransition.cs" />
+    <Compile Include="BuyingState.cs" />
     <Compile Include="DataFileReaderWriter.cs" />
     <Compile Include="IStockTradingStateMachine.cs" />
     <Compile Include="NewStockForSerialization.cs" />

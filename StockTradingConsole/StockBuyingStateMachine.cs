@@ -10,18 +10,8 @@ namespace StockTradingConsole
 {
     class StockBuyingStateMachine : StockTradingStateMachineBase
     {
-        enum InternalState
-        {
-            NotReady = 0, // 初始状态
-            BuyInCollectiveBiddingPhase, // 在集合竞价时下单，09:24:30->09:24:50
-            BuyAfterCollectiveBiddingAndBeforeContinuousBidding, // 在09:26:00->09:29:30间下单
-            BuyInContinuousBiddingPhase, // 在连续竞价时下单 09:30:00->14:50:00
-            PartiallyBought, // 部分买成
-            FullyBought, // 全部买成
-            FailedToBuy, // 购买失败
-        };
+        private StateMachine<BuyingState, StockTradingInput> _stateMachine;
 
-        private InternalState _state = InternalState.NotReady;
         private NewStock _stock;
         private int _orderNo; // order number returned by SendOrder
 
@@ -34,11 +24,143 @@ namespace StockTradingConsole
 
             Name = stock.Name;
             _stock = stock;
+
+            StateTransition<BuyingState, StockTradingInput>[] transitions
+                = new StateTransition<BuyingState, StockTradingInput>[]
+                {
+                    new StateTransition<BuyingState, StockTradingInput>(
+                        BuyingState.Initial,
+                        BuyingState.BuyInCollectiveBiddingPhase,
+                        TryBuyInCollectiveBiddingPhase),
+
+                    new StateTransition<BuyingState, StockTradingInput>(
+                        BuyingState.Initial,
+                        BuyingState.FailedToBuy,
+                        IsOpenPriceNotBuyable),
+
+                    new StateTransition<BuyingState, StockTradingInput>(
+                        BuyingState.Initial,
+                        BuyingState.BuyInContinuousBiddingPhase,
+                        TryBuyInContinuousBiddingPhase),
+                };
+
+            _stateMachine = new StateMachine<BuyingState, StockTradingInput>(transitions, BuyingState.Initial);
         }
 
         public override bool IsFinalState()
         {
-            return _state == InternalState.FailedToBuy;
+            return _stateMachine.IsFinalState();
+        }
+
+        private bool TryBuyInCollectiveBiddingPhase(StockTradingInput input)
+        {
+            if (!InCollectiveBiddingPhase(input.Time)
+                || input.Quote.IsTradingStopped())
+            {
+                return false;
+            }
+
+            var quote = input.Quote;
+            float collectiveBiddingPrice;
+            int collectiveBiddingVolumeInHand;
+
+            if (quote.TryGetCollectiveBiddingPriceAndVolumeInHand(out collectiveBiddingPrice, out collectiveBiddingVolumeInHand))
+            {
+                AppLogger.Default.DebugFormat("Collective bidding price {0:F2} volume {1} hand", collectiveBiddingPrice, collectiveBiddingVolumeInHand);
+
+                if (_stock.IsBuyablePrice(collectiveBiddingPrice))
+                {
+                    float buyingPrice = (float)Math.Round(Math.Min(collectiveBiddingPrice * 1.02, _stock.BuyPriceUpLimitInclusive), 2);
+                    int buyableVolumeInHand = _stock.BuyableVolumeInHand(buyingPrice);
+
+                    // has enough buyer/seller, so that our bid will not impact market
+                    if (collectiveBiddingVolumeInHand >= buyableVolumeInHand * 5)
+                    {
+                        AppLogger.Default.DebugFormat("Buying price {0:F2} volume(hand) {1}", buyingPrice, buyableVolumeInHand);
+
+                        if (Buy(input.Client, buyingPrice, buyableVolumeInHand))
+                        {
+                            return true;
+                        }
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        private bool IsOpenPriceNotBuyable(StockTradingInput input)
+        {
+            if (!InContinuousBiddingPhase(input.Time)
+                || input.Quote.IsTradingStopped())
+            {
+                return false;
+            }
+
+            var quote = input.Quote;
+
+            float openPrice = quote.TodayOpenPrice;
+            AppLogger.Default.DebugFormat("Open price {0:F2}", openPrice);
+
+            bool isBuyable = _stock.IsBuyablePrice(openPrice);
+            if (!isBuyable)
+            {
+                AppLogger.Default.InfoFormat(
+                    "Failed to buy {0} because open price is out of range [{1:F2}..{2:F2}]", 
+                    quote.SecurityCode, 
+                    _stock.BuyPriceDownLimitInclusive, 
+                    _stock.BuyPriceUpLimitInclusive);
+            }
+
+            return !isBuyable;
+        }
+
+        private bool TryBuyInContinuousBiddingPhase(StockTradingInput input)
+        {
+            if (!InContinuousBiddingPhase(input.Time)
+                || input.Quote.IsTradingStopped())
+            {
+                return false;
+            }
+
+            var quote = input.Quote;
+
+            float openPrice = quote.TodayOpenPrice;
+            AppLogger.Default.DebugFormat("Open price {0:F2}", openPrice);
+
+            if (_stock.IsBuyablePrice(openPrice))
+            {
+                float buyingPrice = _stock.BuyPriceUpLimitInclusive;
+                int buyableVolumeInHand = _stock.BuyableVolumeInHand(buyingPrice);
+                int applicableVolumeInHand = quote.EstimateApplicableVolumeInHandForBuyingPrice(buyingPrice);
+
+                float actualBuyingPrice = 0.0f;
+                int actualBuyingVolumeInHand = 0;
+
+                if (applicableVolumeInHand >= buyableVolumeInHand * 3)
+                {
+                    // has much more seller
+                    actualBuyingPrice = buyingPrice;
+                    actualBuyingVolumeInHand = buyableVolumeInHand;
+                }
+                else if (applicableVolumeInHand >= buyableVolumeInHand)
+                {
+                    // seller is enough, but 
+                }
+
+                // has enough buyer/Seller, so that our bid will not impact market
+                if (quote.EstimateApplicableVolumeInHandForBuyingPrice(buyingPrice) >= buyableVolumeInHand)
+                {
+                    AppLogger.Default.DebugFormat("Buying price {0:F2} volume {1} hand", buyingPrice, buyableVolumeInHand);
+
+                    if (Buy(input.Client, buyingPrice, buyableVolumeInHand))
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
         }
 
         private bool InCollectiveBiddingPhase(DateTime time)
@@ -49,17 +171,9 @@ namespace StockTradingConsole
             return time.TimeOfDay >= begin && time.TimeOfDay <= end;
         }
 
-        private bool AfterCollectiveBiddingBeforeContinuousBidding(DateTime time)
-        {
-            TimeSpan begin = new TimeSpan(9, 26, 00);
-            TimeSpan end = new TimeSpan(9, 29, 30);
-
-            return time.TimeOfDay >= begin && time.TimeOfDay <= end;
-        }
-
         private bool InContinuousBiddingPhase(DateTime time)
         {
-            TimeSpan begin = new TimeSpan(9, 30, 0);
+            TimeSpan begin = new TimeSpan(9, 29, 30);
             TimeSpan end = new TimeSpan(14, 50, 0);
 
             return time.TimeOfDay >= begin && time.TimeOfDay <= end;
@@ -99,83 +213,13 @@ namespace StockTradingConsole
             return true;
         }
 
-        public override void HandleQuote(TradingClient client, FiveLevelQuote quote, DateTime time)
+        public override void ProcessQuote(TradingClient client, FiveLevelQuote quote, DateTime time)
         {
-            AppLogger.Default.DebugFormat("Time:{0:u} Quote:{1}", time, quote);
+            AppLogger.Default.DebugFormat("State: {2} Time:{0:u} Quote:{1}", time, quote, _stateMachine.CurrentState);
 
-            switch (_state)
-            {
-                case InternalState.NotReady:
-                    if (InCollectiveBiddingPhase(time))
-                    {
-                        if (quote.IsTradingStopped())
-                        {
-                            break;
-                        }
+            var input = new StockTradingInput(client, quote, time);
 
-                        float collectiveBiddingPrice;
-                        int collectiveBiddingVolumeInHand;
-
-                        if (quote.TryGetCollectiveBiddingPriceAndVolumeInHand(out collectiveBiddingPrice, out collectiveBiddingVolumeInHand))
-                        {
-                            AppLogger.Default.DebugFormat("Collective bidding price {0:F2} volume {1} hand", collectiveBiddingPrice, collectiveBiddingVolumeInHand);
-
-                            if (_stock.IsBuyablePrice(collectiveBiddingPrice))
-                            {
-                                float buyingPrice = (float)Math.Round(Math.Min(collectiveBiddingPrice * 1.02, _stock.BuyPriceUpLimitInclusive), 2);
-                                int buyableVolumeInHand = _stock.BuyableVolumeInHand(buyingPrice);
-
-                                // has enough buyer/Seller, so that our bid will not impact market
-                                if (collectiveBiddingVolumeInHand >= buyableVolumeInHand * 5)
-                                {
-                                    AppLogger.Default.DebugFormat("Buying price {0:F2} volume {1} hand", buyingPrice, buyableVolumeInHand);
-
-                                    if (Buy(client, buyingPrice, buyableVolumeInHand))
-                                    {
-                                        _state = InternalState.BuyInCollectiveBiddingPhase;
-                                    }
-                                }
-                            }
-                        }
-
-                        break;
-                    }
-
-                    if (AfterCollectiveBiddingBeforeContinuousBidding(time))
-                    {
-                        if (quote.IsTradingStopped())
-                        {
-                            break;
-                        }
-
-                        float openPrice = quote.TodayOpenPrice;
-                        AppLogger.Default.DebugFormat("Open price {0:F2}", openPrice);
-
-                        if (_stock.IsBuyablePrice(openPrice))
-                        {
-                            float buyingPrice = (float)Math.Round(Math.Min(openPrice * 1.02, _stock.BuyPriceUpLimitInclusive), 2);
-                            int buyableVolumeInHand = _stock.BuyableVolumeInHand(buyingPrice);
-
-                            // has enough buyer/Seller, so that our bid will not impact market
-                            if (collectiveBiddingVolumeInHand >= buyableVolumeInHand * 5)
-                            {
-                                AppLogger.Default.DebugFormat("Buying price {0:F2} volume {1} hand", buyingPrice, buyableVolumeInHand);
-
-                                if (Buy(client, buyingPrice, buyableVolumeInHand))
-                                {
-                                    _state = InternalState.BuyInCollectiveBiddingPhase;
-                                }
-                            }
-                        }
-
-                        break;
-                    }
-
-                    break;
-                default:
-                    throw new InvalidOperationException(string.Format("unsupported state {0}", _state));
-
-            }
+            _stateMachine.ProcessInput(input);
         }
     }
 }

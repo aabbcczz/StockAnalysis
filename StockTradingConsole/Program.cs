@@ -161,7 +161,7 @@ namespace StockTradingConsole
                     // handle the quote
                     if (!stateMachines[i].IsFinalState())
                     {
-                        stateMachines[i].HandleQuote(client, quotes[i], now);
+                        stateMachines[i].ProcessQuote(client, quotes[i], now);
 
                         ++activeMachineCount;
                     }
