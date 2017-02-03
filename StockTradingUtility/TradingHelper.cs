@@ -10,6 +10,11 @@ namespace StockTrading.Utility
 {
     public static class TradingHelper
     {
+        /// <summary>
+        /// 按万分之2.5佣金算，每笔最低5元，所以最低交易金额是20000.00元
+        /// </summary>
+        public const float MinimumCapitalOfOneTransaction = 20000.00f;
+
         private static IDictionary<string, OrderStatus> statusMap 
             = new Dictionary<string, OrderStatus>()
                 {

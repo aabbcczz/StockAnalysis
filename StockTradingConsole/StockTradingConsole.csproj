@@ -72,6 +72,7 @@
     <Compile Include="StockSellingStateMachine.cs" />
     <Compile Include="StockBuyingStateMachine.cs" />
     <Compile Include="StockTradingStateMachineBase.cs" />
+    <Compile Include="OrderTracker.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
