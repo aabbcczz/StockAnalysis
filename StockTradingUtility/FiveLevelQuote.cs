@@ -109,6 +109,40 @@ namespace StockTrading.Utility
             Timestamp = timestamp;
         }
 
+        public override string ToString()
+        {
+            return string.Format(
+                @"{0:yyyy-MM-dd HH:mm:ss.fff} {1} {2} S1:[{3:F2} {4}] B1:[{5:F2} {6}] S2:[{7:F2} {8}]
+S3:[{9:F2}, {10}] S4:[{11:F2} {12}] S5:[{13:F2} {14}] B2:[{15:F2} {16}] B3:[{17:F2} {18}]
+B4:[{19:F2} {20}] B5:[{21:F2} {22}] YC:{23:F2} TO:{24:F2} CP:{25:F2}",
+                Timestamp,
+                SecurityCode,
+                SecurityName,
+                SellPrices[0],
+                SellVolumesInHand[0],
+                BuyPrices[0],
+                BuyVolumesInHand[0],
+                SellPrices[1],
+                SellVolumesInHand[1],
+                SellPrices[2],
+                SellVolumesInHand[2],
+                SellPrices[3],
+                SellVolumesInHand[3],
+                SellPrices[4],
+                SellVolumesInHand[4],
+                BuyPrices[1],
+                BuyVolumesInHand[1],
+                BuyPrices[2],
+                BuyVolumesInHand[2],
+                BuyPrices[3],
+                BuyVolumesInHand[3],
+                BuyPrices[4],
+                BuyVolumesInHand[4],
+                YesterdayClosePrice,
+                TodayOpenPrice,
+                CurrentPrice);
+        }
+
         public static IEnumerable<FiveLevelQuote> ExtractFrom(TabulateData data)
         {
             return ExtractFrom(data, DateTime.Now);
@@ -118,7 +152,7 @@ namespace StockTrading.Utility
         {
             if (columnIndices == null)
             {
-                columnIndices = columns.Select(c => data.GetColumnIndex(c)).ToArray();
+                columnIndices = data.GetColumnIndices(columns).ToArray();
             }
 
             var subData = data.GetSubColumns(columnIndices);

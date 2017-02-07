@@ -8,7 +8,7 @@
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>StockTrading.Utility</RootNamespace>
-    <AssemblyName>StockTrading.Utility</AssemblyName>
+    <AssemblyName>StockTradingUtility</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -60,6 +60,7 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -90,6 +91,7 @@
     <Compile Include="QuoteSubscription.cs" />
     <Compile Include="SellOrder.cs" />
     <Compile Include="StoplossOrder.cs" />
+    <Compile Include="TdxConfiguration.cs" />
     <Compile Include="TradingHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="DataCategory.cs" />

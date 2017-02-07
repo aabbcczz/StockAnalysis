@@ -19,7 +19,7 @@ namespace AutoExportStockData
 
             string title = "[TITLE:中信证券金融终端; CLASS:TdxW_MainFrame_Class]";
 
-            int handle = AutoItX.WinWait(title, "", 20);
+            int handle = AutoItX.WinWait(title, "", 120);
 
             if (handle == 0)
             {
