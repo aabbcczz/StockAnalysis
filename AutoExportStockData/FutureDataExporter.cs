@@ -14,7 +14,7 @@ namespace AutoExportStockData
         {
             IntPtr hwnd = DataExporterHelper.CleanUpAndGetMainWindowHandle();
 
-            //DownloadQuote(hwnd);
+            DownloadQuote(hwnd);
 
             // export data.
             // show a stock to enable menu item.
