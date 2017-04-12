@@ -14,7 +14,7 @@ namespace AutoExportStockData
         {
             IntPtr hwnd = DataExporterHelper.CleanUpAndGetMainWindowHandle();
 
-            DownloadQuote(hwnd);
+            //DownloadQuote(hwnd);
 
             // export data.
             // show a stock to enable menu item.
@@ -166,39 +166,51 @@ namespace AutoExportStockData
             AutoItX.ControlClick(hwnd, tabControl, "left", 1, 534, 10);
             AutoItX.Sleep(1000);
 
+            string itemIdStr = null;
+
             switch (step)
             {
                 case 1:
-                    AutoItX.ControlListView(hwnd, listView, "Select", "8", ""); // 中金所期货
-                    AutoItX.Sleep(500);
-                    AutoItX.ControlClick(hwnd, buttonSelectAll);
-                    AutoItX.Sleep(1000);
-                    AutoItX.ControlClick(hwnd, buttonOk);
+                    itemIdStr = AutoItX.ControlListView(hwnd, listView, "FindItem", "中金所期货", ""); // 中金所期货
                     break;
                 case 2:
-                    AutoItX.ControlListView(hwnd, listView, "Select", "9", ""); // 郑州
-                    AutoItX.Sleep(500);
-                    AutoItX.ControlClick(hwnd, buttonSelectAll);
-                    AutoItX.Sleep(1000);
-                    AutoItX.ControlClick(hwnd, buttonOk);
+                    itemIdStr = AutoItX.ControlListView(hwnd, listView, "FindItem", "郑州商品", ""); // 郑州商品
                     break;
                 case 3:
-                    AutoItX.ControlListView(hwnd, listView, "Select", "10", ""); // 大连
-                    AutoItX.Sleep(500);
-                    AutoItX.ControlClick(hwnd, buttonSelectAll);
-                    AutoItX.Sleep(1000);
-                    AutoItX.ControlClick(hwnd, buttonOk);
+                    itemIdStr = AutoItX.ControlListView(hwnd, listView, "FindItem", "上海商品", ""); // 上海商品
                     break;
                 case 4:
-                    AutoItX.ControlListView(hwnd, listView, "Select", "11", ""); // 上海
-                    AutoItX.Sleep(500);
-                    AutoItX.ControlClick(hwnd, buttonSelectAll);
-                    AutoItX.Sleep(1000);
-                    AutoItX.ControlClick(hwnd, buttonOk);
+                    itemIdStr = AutoItX.ControlListView(hwnd, listView, "FindItem", "大连商品", ""); // 大连商品
                     break;
                 default:
                     AutoItX.WinClose(hwnd);
                     break;
+            }
+
+            bool succeeded = false;
+
+            if (itemIdStr != null)
+            {
+                int itemId;
+                if (int.TryParse(itemIdStr, out itemId))
+                {
+                    if (itemId >= 0)
+                    {
+                        AutoItX.ControlListView(hwnd, listView, "Select", itemId.ToString(), ""); 
+                        AutoItX.Sleep(500);
+                        AutoItX.ControlClick(hwnd, buttonSelectAll);
+                        AutoItX.Sleep(1000);
+                        AutoItX.ControlClick(hwnd, buttonOk);
+
+                        succeeded = true;
+                    }
+                }
+            }
+
+            if (!succeeded)
+            {
+                throw new InvalidOperationException(
+                    string.Format("failed to find item id for step {0}, result is {1}", step, itemIdStr));
             }
 
             AutoItX.Sleep(1000);
