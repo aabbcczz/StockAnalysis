@@ -56,6 +56,7 @@ namespace GenerateMetrics
             if (string.IsNullOrEmpty(options.OutputFileFolder))
             {
                 Console.WriteLine("output file folder is empty");
+                return -5;
             }
 
             var folder = Path.GetFullPath(options.OutputFileFolder);
