@@ -124,51 +124,76 @@ namespace CorrelationCalculator
             // we don't call Correlation.PearsonMatrix() directly because we need to align the data.
             int dataSetCount = dataSet.Count();
             var coefficientMatrix = Matrix<double>.Build.Dense(dataSetCount, dataSetCount);
+            var intersectionMatrix = new int[dataSetCount, dataSetCount];
 
             for (int row = 0; row < dataSetCount; ++row)
             {
                 for (int column = row; column < dataSetCount; ++column)
                 {
-                    // find first non-zero data and last non-zero data
-                    int rowStart = Enumerable
-                        .Range(0, dataSet[row].Count())
-                        .First(i => dataSet[row][i] != 0.0);
-
-                    int rowEnd = Enumerable
-                        .Range(0, dataSet[row].Count())
-                        .Last(i => dataSet[row][i] != 0.0);
-
-                    int columnStart = Enumerable
-                        .Range(0, dataSet[column].Count())
-                        .First(i => dataSet[column][i] != 0.0);
-
-                    int columnEnd = Enumerable
-                        .Range(0, dataSet[column].Count())
-                        .Last(i => dataSet[column][i] != 0.0);
-
-                    int start = Math.Max(rowStart, columnStart);
-                    int end = Math.Min(rowEnd, columnEnd);
+                    var intersection = Enumerable.Range(0, allDates.Length)
+                        .Where(i => dataSet[row][i] != 0.0 && dataSet[column][i] != 0.0);
 
                     double correlationCoefficient;
-                    if (start >= end)
+                    int intersectionLength = intersection.Count();
+
+                    if (intersection.Count() == 0)
                     {
                         correlationCoefficient = 0.0;
                     }
                     else
                     {
-                        int length = end - start + 1;
-
-                        double[] rowSubArray = new double[length];
-                        double[] columnSubArray = new double[length];
-
-                        Array.Copy(dataSet[row], start, rowSubArray, 0, length);
-                        Array.Copy(dataSet[column], start, columnSubArray, 0, length);
+                        double[] rowSubArray = intersection.Select(i => dataSet[row][i]).ToArray();
+                        double[] columnSubArray = intersection.Select(i => dataSet[column][i]).ToArray();
 
                         correlationCoefficient = Correlation.Pearson(rowSubArray, columnSubArray);
                     }
 
+                    //// find first non-zero data and last non-zero data
+                    //int rowStart = Enumerable
+                    //    .Range(0, dataSet[row].Count())
+                    //    .First(i => dataSet[row][i] != 0.0);
+
+                    //int rowEnd = Enumerable
+                    //    .Range(0, dataSet[row].Count())
+                    //    .Last(i => dataSet[row][i] != 0.0);
+
+                    //int columnStart = Enumerable
+                    //    .Range(0, dataSet[column].Count())
+                    //    .First(i => dataSet[column][i] != 0.0);
+
+                    //int columnEnd = Enumerable
+                    //    .Range(0, dataSet[column].Count())
+                    //    .Last(i => dataSet[column][i] != 0.0);
+
+                    //int start = Math.Max(rowStart, columnStart);
+                    //int end = Math.Min(rowEnd, columnEnd);
+
+                    //double correlationCoefficient;
+                    //int intersectionLength = 0;
+
+                    //if (start >= end)
+                    //{
+                    //    correlationCoefficient = 0.0;
+                    //}
+                    //else
+                    //{
+                    //    int length = end - start + 1;
+
+                    //    double[] rowSubArray = new double[length];
+                    //    double[] columnSubArray = new double[length];
+
+                    //    Array.Copy(dataSet[row], start, rowSubArray, 0, length);
+                    //    Array.Copy(dataSet[column], start, columnSubArray, 0, length);
+
+                    //    correlationCoefficient = Correlation.Pearson(rowSubArray, columnSubArray);
+                    //    intersectionLength = length;
+                    //}
+
                     coefficientMatrix[row, column] = correlationCoefficient;
                     coefficientMatrix[column, row] = correlationCoefficient;
+
+                    intersectionMatrix[row, column] = intersectionLength;
+                    intersectionMatrix[column, row] = intersectionLength;
                 }
             }
 
@@ -181,13 +206,19 @@ namespace CorrelationCalculator
                 string separator = ",";
 
                 // write header
-                string header = "N/A" + separator + string.Join(separator, names);
+                string header = "N/A" + separator + string.Join(separator, names.Select(n => n + separator + n));
                 writer.WriteLine(header);
 
                 // write metric
                 for (int i = 0; i < coefficientMatrix.RowCount; ++i)
                 {
-                    string content = names[i] + separator + string.Join(separator, coefficientMatrix.Row(i).Select(v => v.ToString()));
+                    string content = names[i] + separator
+                        + string.Join(
+                            separator,
+                            Enumerable
+                            .Range(0, coefficientMatrix.ColumnCount)
+                            .Select(j => coefficientMatrix[i, j].ToString() + separator + intersectionMatrix[i, j].ToString()));
+
                     writer.WriteLine(content);
                 }
             }
