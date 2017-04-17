@@ -108,7 +108,7 @@ namespace CorrelationCalculator
             // begin to calculate pearson correlation coefficient
 
             // get names 
-            var names = allData.Select(d => d.Name.Names[0]).ToArray();
+            var codeAndNames = allData.Select(d => d.Name.CanonicalCode + " " + d.Name.Names[0]).ToArray();
 
             // align data and fill missed data
             // 1. select all distince date
@@ -201,25 +201,42 @@ namespace CorrelationCalculator
             // var clusters = Clustering(coefficientMatrix, threshold);
 
             // write to output file
-            using (StreamWriter writer = new StreamWriter(outputFile, false, Encoding.UTF8))
+            string intersectionFile = Path.Combine(
+                Path.GetDirectoryName(outputFile),
+                Path.GetFileNameWithoutExtension(outputFile) + "_intersection" + Path.GetExtension(outputFile));
+
+            using (StreamWriter outputWriter = new StreamWriter(outputFile, false, Encoding.UTF8))
             {
-                string separator = ",";
-
-                // write header
-                string header = "N/A" + separator + string.Join(separator, names.Select(n => n + separator + n));
-                writer.WriteLine(header);
-
-                // write metric
-                for (int i = 0; i < coefficientMatrix.RowCount; ++i)
+                using (StreamWriter intersectionWriter = new StreamWriter(intersectionFile, false, Encoding.UTF8))
                 {
-                    string content = names[i] + separator
-                        + string.Join(
-                            separator,
-                            Enumerable
-                            .Range(0, coefficientMatrix.ColumnCount)
-                            .Select(j => coefficientMatrix[i, j].ToString() + separator + intersectionMatrix[i, j].ToString()));
+                    string separator = ",";
 
-                    writer.WriteLine(content);
+                    // write header
+                    string header = "N/A" + separator + string.Join(separator, codeAndNames);
+                    outputWriter.WriteLine(header);
+                    intersectionWriter.WriteLine(header);
+
+                    // write metric
+                    for (int i = 0; i < coefficientMatrix.RowCount; ++i)
+                    {
+                        string content = codeAndNames[i] + separator
+                            + string.Join(
+                                separator,
+                                Enumerable
+                                .Range(0, coefficientMatrix.ColumnCount)
+                                .Select(j => coefficientMatrix[i, j].ToString()));
+
+                        outputWriter.WriteLine(content);
+
+                        string intersection = codeAndNames[i] + separator
+                            + string.Join(
+                                separator,
+                                Enumerable
+                                .Range(0, dataSetCount)
+                                .Select(j => intersectionMatrix[i, j].ToString()));
+
+                        intersectionWriter.WriteLine(intersection);
+                    }
                 }
             }
         }
