@@ -341,6 +341,8 @@ namespace StockAnalysis.Share
             {
                 // try to remove numbers at the end.
                 string numberString = string.Empty;
+                string subProductCode = productCode;
+
 
                 for (int i = productCode.Length - 1; i >= 0; --i)
                 {
@@ -348,15 +350,16 @@ namespace StockAnalysis.Share
 
                     if (!Char.IsDigit(ch))
                     {
-                        productCode = productCode.Substring(0, i + 1);
-                        numberString = productCode.Substring(i + 1, productCode.Length - i);
+                        numberString = productCode.Substring(i + 1, productCode.Length - i - 1);
+                        subProductCode = productCode.Substring(0, i + 1);
                         break;
                     }
                 }
 
-                if (ProductCodeNameMap.ContainsKey(productCode))
+
+                if (ProductCodeNameMap.ContainsKey(subProductCode))
                 {
-                    return ProductCodeNameMap[productCode] + numberString;
+                    return ProductCodeNameMap[subProductCode] + numberString;
                 }
                 else // still can't find 
                 {
