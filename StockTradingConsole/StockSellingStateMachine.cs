@@ -30,7 +30,7 @@ namespace StockTradingConsole
             return _state == InternalState.Final;
         }
 
-        public override void ProcessQuote(TradingClient client, FiveLevelQuote quote, DateTime time)
+        public override void ProcessQuote(TradingClient client, OrderStatusTracker tracker, FiveLevelQuote quote, DateTime time)
         {
             return;
         }

@@ -245,40 +245,40 @@ namespace CorrelationCalculator
         {
             return null;
 
-            bool[] isClustered = new bool[coeffMatrix.RowCount];
-            Array.Clear(isClustered, 0, isClustered.Length);
+            //bool[] isClustered = new bool[coeffMatrix.RowCount];
+            //Array.Clear(isClustered, 0, isClustered.Length);
 
-            do
-            {
-                int[] unclusteredRowIndices = Enumerable
-                    .Range(0, isClustered.Count())
-                    .Where(i => !isClustered[i])
-                    .ToArray();
+            //do
+            //{
+            //    int[] unclusteredRowIndices = Enumerable
+            //        .Range(0, isClustered.Count())
+            //        .Where(i => !isClustered[i])
+            //        .ToArray();
 
-                if (unclusteredRowIndices.Length == 0)
-                {
-                    break;
-                }
+            //    if (unclusteredRowIndices.Length == 0)
+            //    {
+            //        break;
+            //    }
 
-                // for any row that has no any coefficient (except with itself) great than threshold, 
-                // it should be an individual cluster.
-                foreach (var rowIndex in unclusteredRowIndices)
-                {
-                    //if ()
-                }
+            //    // for any row that has no any coefficient (except with itself) great than threshold, 
+            //    // it should be an individual cluster.
+            //    foreach (var rowIndex in unclusteredRowIndices)
+            //    {
+            //        //if ()
+            //    }
 
-            } while (true);
+            //} while (true);
 
-            while (isClustered.Count(b => !b) > 0)
-            {
-                for (int i = 0; i < isClustered.Length; ++i)
-                {
-                    if (!isClustered[i])
-                    {
+            //while (isClustered.Count(b => !b) > 0)
+            //{
+            //    for (int i = 0; i < isClustered.Length; ++i)
+            //    {
+            //        if (!isClustered[i])
+            //        {
 
-                    }
-                }
-            }
+            //        }
+            //    }
+            //}
         }
 
         private static double[] NormalizeData(HistoryData data, DateTime[] allDates)

@@ -17,6 +17,6 @@ namespace StockTradingConsole
 
         public abstract bool IsFinalState();
 
-        public abstract void ProcessQuote(TradingClient client, FiveLevelQuote quote, DateTime time);
+        public abstract void ProcessQuote(TradingClient client, OrderStatusTracker tracker, FiveLevelQuote quote, DateTime time);
     }
 }

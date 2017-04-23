@@ -10,6 +10,8 @@ namespace StockTrading.Utility
 {
     public static class TradingHelper
     {
+        public const int InvalidOrderNo = -1;
+
         /// <summary>
         /// 按万分之2.5佣金算，每笔最低5元，所以最低交易金额是20000.00元
         /// </summary>
@@ -37,6 +39,11 @@ namespace StockTrading.Utility
         public static bool IsValidPrice(float price)
         {
             return !float.IsNaN(price);
+        }
+
+        public static bool IsInvalidOrderNo(int orderNo)
+        {
+            return orderNo == InvalidOrderNo;
         }
 
         public static float SafeParseFloat(string s, float defaultValue)
@@ -175,7 +182,7 @@ namespace StockTrading.Utility
             }
             else if (buyingPrice <= maxSellPrice)
             {
-                return Enumerable.Range(0, 5)
+                return Enumerable.Range(0, quote.SellPrices.Count())
                     .Where(i => quote.SellPrices[i] != 0.0f && quote.SellPrices[i] <= buyingPrice)
                     .Sum(i => quote.SellVolumesInHand[i]);
             }

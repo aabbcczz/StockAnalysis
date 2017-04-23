@@ -13,7 +13,7 @@ namespace StockTradingConsole
         private StateMachine<BuyingState, StockTradingInput> _stateMachine;
 
         private NewStock _stock;
-        private int _orderNo; // order number returned by SendOrder
+        private int _orderNo = TradingHelper.InvalidOrderNo; // order number returned by SendOrder
 
         public StockBuyingStateMachine(NewStock stock)
         {
@@ -30,18 +30,54 @@ namespace StockTradingConsole
                 {
                     new StateTransition<BuyingState, StockTradingInput>(
                         BuyingState.Initial,
-                        BuyingState.BuyInCollectiveBiddingPhase,
-                        TryBuyInCollectiveBiddingPhase),
+                        BuyingState.TriedToBuyInCollectiveBiddingPhase,
+                        TryToBuyInCollectiveBiddingPhase),
+
+                    new StateTransition<BuyingState, StockTradingInput>(
+                        BuyingState.TriedToBuyInCollectiveBiddingPhase,
+                        BuyingState.Cancelling,
+                        CancelOrder),
+
+                    new StateTransition<BuyingState, StockTradingInput>(
+                        BuyingState.Cancelling,
+                        BuyingState.NewInitial,
+                        WaitForFinalOrderStatus),
 
                     new StateTransition<BuyingState, StockTradingInput>(
                         BuyingState.Initial,
-                        BuyingState.FailedToBuy,
-                        IsOpenPriceNotBuyable),
+                        BuyingState.Final,
+                        IsOpenPriceNotAcceptable),
+
+                    new StateTransition<BuyingState, StockTradingInput>(
+                        BuyingState.NewInitial,
+                        BuyingState.Final,
+                        IsOpenPriceNotAcceptable),
 
                     new StateTransition<BuyingState, StockTradingInput>(
                         BuyingState.Initial,
-                        BuyingState.BuyInContinuousBiddingPhase,
-                        TryBuyInContinuousBiddingPhase),
+                        BuyingState.Final,
+                        IsCapitalNotEnough),
+
+                    new StateTransition<BuyingState, StockTradingInput>(
+                        BuyingState.NewInitial,
+                        BuyingState.Final,
+                        IsCapitalNotEnough),
+
+                    new StateTransition<BuyingState, StockTradingInput>(
+                        BuyingState.Initial,
+                        BuyingState.TriedToBuyInContinuousBiddingPhase,
+                        TryToBuyInContinuousBiddingPhase),
+
+                    new StateTransition<BuyingState, StockTradingInput>(
+                        BuyingState.NewInitial,
+                        BuyingState.TriedToBuyInContinuousBiddingPhase,
+                        TryToBuyInContinuousBiddingPhase),
+
+                    new StateTransition<BuyingState, StockTradingInput>(
+                        BuyingState.TriedToBuyInContinuousBiddingPhase,
+                        BuyingState.NewInitial,
+                        WaitForFinalOrderStatus),
+
                 };
 
             _stateMachine = new StateMachine<BuyingState, StockTradingInput>(transitions, BuyingState.Initial);
@@ -52,7 +88,102 @@ namespace StockTradingConsole
             return _stateMachine.IsFinalState();
         }
 
-        private bool TryBuyInCollectiveBiddingPhase(StockTradingInput input)
+        private bool WaitForFinalOrderStatus(StockTradingInput input)
+        {
+            QueryGeneralOrderResult result;
+            if (!GetOrderResult(input, _orderNo, out result))
+            {
+                return false;
+            }
+
+            if (!TradingHelper.IsFinalStatus(result.Status))
+            {
+                return false;
+            }
+
+            input.OrderStatusTracker.UnregisterOrder(_orderNo);
+            _orderNo = TradingHelper.InvalidOrderNo;
+
+            if (result.DealVolume > 0)
+            {
+                float remainingCapital = _stock.TotalCapitalUsedToBuy - result.DealVolume * result.DealPrice;
+
+                NewStock stock = new NewStock()
+                {
+                    ActualOpenPrice = input.Quote.TodayOpenPrice,
+                    BuyPriceDownLimitInclusive = _stock.BuyPriceDownLimitInclusive,
+                    BuyPriceUpLimitInclusive = _stock.BuyPriceUpLimitInclusive,
+                    DateToBuy = _stock.DateToBuy,
+                    Name = _stock.Name,
+                    TotalCapitalUsedToBuy = remainingCapital
+                };
+
+                // replace current NewStock object with updated NewStock object
+                _stock = stock;
+
+                AppLogger.Default.DebugFormat("[{0}] Remaining capital {1:F2}", _stock.Name.RawCode, remainingCapital);
+            }
+
+            return true;
+        }
+
+        private bool CancelOrder(StockTradingInput input)
+        {
+            QueryGeneralOrderResult result;
+            if (!GetOrderResult(input, _orderNo, out result))
+            {
+                return false;
+            }
+
+            if (TradingHelper.IsFinalStatus(result.Status))
+            {
+                return true;
+            }
+
+            string error;
+            // try to cancel order
+            if (!input.Client.CancelOrder(_stock.Name.RawCode, _orderNo, out error))
+            {
+                AppLogger.Default.ErrorFormat("[{0}] Failed to cancel order {1}, Error: {2}", _stock.Name.RawCode, _orderNo, error);
+                return false;
+            }
+
+            return true;
+        }
+
+        private bool GetOrderResult(StockTradingInput input, int orderNo, out QueryGeneralOrderResult result)
+        {
+            AppLogger.Default.DebugFormat("[{0}] Try to get order result for order {1}", _stock.Name.RawCode, orderNo);
+
+            result = null;
+
+            if (TradingHelper.IsInvalidOrderNo(_orderNo))
+            {
+                throw new InvalidOperationException("Invalid orderNo");
+            }
+
+            result = input.OrderStatusTracker.GetOrderStatus(_orderNo);
+            if (result == null)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        private bool GetOrderResultInCollectiveBiddingPhrase(StockTradingInput input, int orderNo, out QueryGeneralOrderResult result)
+        {
+            result = null;
+
+            if (!AfterCollectiveBiddingPhaseAndBeforeContinuousBuiddingPhase(input.Time))
+            {
+                return false;
+            }
+
+            return GetOrderResult(input, orderNo, out result);
+        }
+
+        private bool TryToBuyInCollectiveBiddingPhase(StockTradingInput input)
         {
             if (!InCollectiveBiddingPhase(input.Time)
                 || input.Quote.IsTradingStopped())
@@ -66,21 +197,31 @@ namespace StockTradingConsole
 
             if (quote.TryGetCollectiveBiddingPriceAndVolumeInHand(out collectiveBiddingPrice, out collectiveBiddingVolumeInHand))
             {
-                AppLogger.Default.DebugFormat("Collective bidding price {0:F2} volume {1} hand", collectiveBiddingPrice, collectiveBiddingVolumeInHand);
+                AppLogger.Default.DebugFormat("[{0}] Collective bidding price {1:F2} volume {2} hand", _stock.Name.RawCode, collectiveBiddingPrice, collectiveBiddingVolumeInHand);
 
-                if (_stock.IsBuyablePrice(collectiveBiddingPrice))
+                if (_stock.IsPriceAcceptable(collectiveBiddingPrice))
                 {
-                    float buyingPrice = (float)Math.Round(Math.Min(collectiveBiddingPrice * 1.02, _stock.BuyPriceUpLimitInclusive), 2);
+                    float buyingPrice = (float)Math.Round(_stock.BuyPriceUpLimitInclusive, 2);
                     int buyableVolumeInHand = _stock.BuyableVolumeInHand(buyingPrice);
 
                     // has enough buyer/seller, so that our bid will not impact market
-                    if (collectiveBiddingVolumeInHand >= buyableVolumeInHand * 5)
+                    if (collectiveBiddingVolumeInHand >= buyableVolumeInHand)
                     {
-                        AppLogger.Default.DebugFormat("Buying price {0:F2} volume(hand) {1}", buyingPrice, buyableVolumeInHand);
-
-                        if (Buy(input.Client, buyingPrice, buyableVolumeInHand))
+                        // try best not to impact market
+                        int buyingVolumeInHand = Math.Min(buyableVolumeInHand, collectiveBiddingVolumeInHand / 3);
+                        if (buyableVolumeInHand > 0)
                         {
-                            return true;
+                            AppLogger.Default.DebugFormat("[{0}] Buying price {1:F2} volume {2} hand", _stock.Name.RawCode, buyingPrice, buyableVolumeInHand);
+
+                            int orderNo = Buy(input.Client, buyingPrice, buyableVolumeInHand);
+
+                            if (!TradingHelper.IsInvalidOrderNo(orderNo))
+                            {
+                                _orderNo = orderNo;
+                                input.OrderStatusTracker.RegisterOrder(orderNo);
+
+                                return true;
+                            }
                         }
                     }
                 }
@@ -89,9 +230,9 @@ namespace StockTradingConsole
             return false;
         }
 
-        private bool IsOpenPriceNotBuyable(StockTradingInput input)
+        private bool IsOpenPriceNotAcceptable(StockTradingInput input)
         {
-            if (!InContinuousBiddingPhase(input.Time)
+            if (!AfterCollectiveBiddingPhaseAndBeforeContinuousBuiddingPhase(input.Time)
                 || input.Quote.IsTradingStopped())
             {
                 return false;
@@ -100,22 +241,47 @@ namespace StockTradingConsole
             var quote = input.Quote;
 
             float openPrice = quote.TodayOpenPrice;
-            AppLogger.Default.DebugFormat("Open price {0:F2}", openPrice);
+            AppLogger.Default.DebugFormat("[{0}] Open price {1:F2}", _stock.Name.RawCode, openPrice);
 
-            bool isBuyable = _stock.IsBuyablePrice(openPrice);
-            if (!isBuyable)
+            bool notAcceptable = !_stock.IsPriceAcceptable(openPrice);
+            if (notAcceptable)
             {
                 AppLogger.Default.InfoFormat(
-                    "Failed to buy {0} because open price is out of range [{1:F2}..{2:F2}]", 
-                    quote.SecurityCode, 
+                    "[{0}] Failed to buy because open price is out of range [{1:F2}..{2:F2}]",
+                    _stock.Name.RawCode, 
                     _stock.BuyPriceDownLimitInclusive, 
                     _stock.BuyPriceUpLimitInclusive);
             }
 
-            return !isBuyable;
+            return notAcceptable;
         }
 
-        private bool TryBuyInContinuousBiddingPhase(StockTradingInput input)
+        private bool IsCapitalNotEnough(StockTradingInput input)
+        {
+            if (!InContinuousBiddingPhase(input.Time)
+                || input.Quote.IsTradingStopped())
+            {
+                return false;
+            }
+
+            var quote = input.Quote;
+
+            // capital is not enough for 1 hand for open price
+            if (_stock.TotalCapitalUsedToBuy < quote.TodayOpenPrice * ChinaStockHelper.ConvertHandToVolume(1))
+            {
+                AppLogger.Default.InfoFormat(
+                    "[{0}] Failed to buy because no enough capital {1:F2} for 1 hand for price {2:F2}",
+                    _stock.Name.RawCode,
+                    _stock.TotalCapitalUsedToBuy,
+                    quote.TodayOpenPrice);
+
+                return true;
+            }
+
+            return false;
+        }
+
+        private bool TryToBuyInContinuousBiddingPhase(StockTradingInput input)
         {
             if (!InContinuousBiddingPhase(input.Time)
                 || input.Quote.IsTradingStopped())
@@ -126,41 +292,57 @@ namespace StockTradingConsole
             var quote = input.Quote;
 
             float openPrice = quote.TodayOpenPrice;
-            AppLogger.Default.DebugFormat("Open price {0:F2}", openPrice);
 
-            if (_stock.IsBuyablePrice(openPrice))
+            if (!_stock.IsPriceAcceptable(openPrice))
             {
-                float buyingPrice = _stock.BuyPriceUpLimitInclusive;
-                int buyableVolumeInHand = _stock.BuyableVolumeInHand(buyingPrice);
-                int applicableVolumeInHand = quote.EstimateApplicableVolumeInHandForBuyingPrice(buyingPrice);
-
-                float actualBuyingPrice = 0.0f;
-                int actualBuyingVolumeInHand = 0;
-
-                if (applicableVolumeInHand >= buyableVolumeInHand * 3)
-                {
-                    // has much more seller
-                    actualBuyingPrice = buyingPrice;
-                    actualBuyingVolumeInHand = buyableVolumeInHand;
-                }
-                else if (applicableVolumeInHand >= buyableVolumeInHand)
-                {
-                    // seller is enough, but 
-                }
-
-                // has enough buyer/Seller, so that our bid will not impact market
-                if (quote.EstimateApplicableVolumeInHandForBuyingPrice(buyingPrice) >= buyableVolumeInHand)
-                {
-                    AppLogger.Default.DebugFormat("Buying price {0:F2} volume {1} hand", buyingPrice, buyableVolumeInHand);
-
-                    if (Buy(input.Client, buyingPrice, buyableVolumeInHand))
-                    {
-                        return true;
-                    }
-                }
+                return false;
             }
 
-            return false;
+            // 如果卖一价比开盘价高，说明买盘比较强，抬高0.1%的价格买，如果卖二价也低于开盘价，以卖二价买，否则以开盘价买
+            float buyingPrice;
+
+            if (quote.SellPrices[0] > openPrice)
+            {
+                buyingPrice = openPrice * 1.001f;
+            }
+            else if (TradingHelper.IsValidPrice(quote.SellPrices[1]) && quote.SellPrices[1] < openPrice)
+            {
+                buyingPrice = quote.SellPrices[1];
+            }
+            else
+            {
+                buyingPrice = openPrice;
+            }
+
+            buyingPrice = (float)Math.Round(Math.Min(quote.GetUpLimitPrice(), (double)buyingPrice), 2);
+
+            int buyableVolumeInHand = _stock.BuyableVolumeInHand(buyingPrice);
+            int applicableVolumeInHand = quote.EstimateApplicableVolumeInHandForBuyingPrice(buyingPrice);
+
+            int buyingVolumeInHand = Math.Min(buyableVolumeInHand, applicableVolumeInHand);
+
+            if (buyingVolumeInHand == 0)
+            {
+                return false;
+            }
+
+            AppLogger.Default.DebugFormat("[{0}] Buying price {1:F2} volume {2} hand", _stock.Name.RawCode, buyingPrice, buyingVolumeInHand);
+
+            int orderNo = Buy(input.Client, buyingPrice, buyingVolumeInHand);
+
+            if (!TradingHelper.IsInvalidOrderNo(orderNo))
+            {
+                _orderNo = orderNo;
+
+                input.OrderStatusTracker.RegisterOrder(orderNo);
+
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+
         }
 
         private bool InCollectiveBiddingPhase(DateTime time)
@@ -179,7 +361,15 @@ namespace StockTradingConsole
             return time.TimeOfDay >= begin && time.TimeOfDay <= end;
         }
 
-        private bool Buy(TradingClient client, float buyingPrice, int volumeInHand)
+        private bool AfterCollectiveBiddingPhaseAndBeforeContinuousBuiddingPhase(DateTime time)
+        {
+            TimeSpan begin = new TimeSpan(9, 26, 00);
+            TimeSpan end = new TimeSpan(9, 29, 00);
+
+            return time.TimeOfDay >= begin && time.TimeOfDay <= end;
+        }
+
+        private int Buy(TradingClient client, float buyingPrice, int volumeInHand)
         {
             OrderRequest request = new OrderRequest(_stock)
             {
@@ -191,33 +381,33 @@ namespace StockTradingConsole
                 SecurityName = _stock.Name.Names[0]
             };
 
-            AppLogger.Default.InfoFormat("Prepare buy request: {0}", request);
+            AppLogger.Default.InfoFormat("[{0}] Prepare buy request: {1}", _stock.Name.RawCode, request);
 
             string error;
             var result = client.SendOrder(request, out error);
 
             if (result == null)
             {
-                AppLogger.Default.ErrorFormat("Failed to send request. error: {0}", error);
-                return false;
+                AppLogger.Default.ErrorFormat("[{0}] Failed to send request. error: {1}", _stock.Name.RawCode, error);
+                return TradingHelper.InvalidOrderNo;
             }
 
             AppLogger.Default.InfoFormat(
-                "SendOrder result: OrderNo: {0}, ReturnedInfo: {1}, ReservedInfo {2}, CheckingRiskFlag: {3}", 
+                "[{0}] SendOrder result: OrderNo: {1}, ReturnedInfo: {2}, ReservedInfo {3}, CheckingRiskFlag: {4}",
+                _stock.Name.RawCode,
                 result.OrderNo, 
                 result.ReturnedInfo, 
                 result.ReservedInfo, 
                 result.CheckingRiskFlag);
 
-            _orderNo = result.OrderNo;
-            return true;
+            return result.OrderNo;
         }
 
-        public override void ProcessQuote(TradingClient client, FiveLevelQuote quote, DateTime time)
+        public override void ProcessQuote(TradingClient client, OrderStatusTracker tracker, FiveLevelQuote quote, DateTime time)
         {
-            AppLogger.Default.DebugFormat("State: {2} Time:{0:u} Quote:{1}", time, quote, _stateMachine.CurrentState);
+            AppLogger.Default.DebugFormat("[{0}] State: {1} Time:{2:u} Quote:{3}", _stock.Name.RawCode, _stateMachine.CurrentState, time, quote);
 
-            var input = new StockTradingInput(client, quote, time);
+            var input = new StockTradingInput(client, tracker, quote, time);
 
             _stateMachine.ProcessInput(input);
         }

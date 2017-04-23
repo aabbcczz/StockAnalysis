@@ -22,6 +22,6 @@ namespace StockTradingConsole
         /// </summary>
         /// <param name="quote">latest quote</param>
         /// <param name="time">current time</param>
-        void ProcessQuote(TradingClient client, FiveLevelQuote quote, DateTime time);
+        void ProcessQuote(TradingClient client, OrderStatusTracker orderStatusTracker, FiveLevelQuote quote, DateTime time);
     }
 }

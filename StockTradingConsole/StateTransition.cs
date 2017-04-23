@@ -9,7 +9,7 @@ using StockAnalysis.Share;
 
 namespace StockTradingConsole
 {
-    class StateTransition<StateType, InputType> where InputType : class
+    class StateTransition<StateType, InputType>
     {
         public StateType FromState { get; private set; }
         public StateType ToState { get; private set; }
@@ -36,6 +36,14 @@ namespace StockTradingConsole
             }
 
             return _transitionFunction(input);
+        }
+    }
+
+    static class StateTransition
+    {
+        public static StateTransition<StateType, InputType> Create<StateType, InputType>(StateType fromState, StateType toState, Func<InputType, bool> transitionFunction)
+        {
+            return new StateTransition<StateType, InputType>(fromState, toState, transitionFunction);
         }
     }
 }

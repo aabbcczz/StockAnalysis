@@ -39,7 +39,7 @@ namespace StockTradingConsole
             return hand;
         }
 
-        public bool IsBuyablePrice(float price)
+        public bool IsPriceAcceptable(float price)
         {
             return BuyPriceDownLimitInclusive <= price && price <= BuyPriceUpLimitInclusive;
         }

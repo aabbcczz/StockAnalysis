@@ -98,10 +98,13 @@ namespace StockTradingConsole
                                 string.Format("failed to log on server. Error: {0}", error));
                         }
 
-                        var taskBuy = BuyNewStocksAsync(client, newStocks, token);
-                        var taskSell = SellOldStocksAsync(client, oldStocks, token);
+                        var orderStatusTracker = new OrderStatusTracker(client);
 
-                        Task.WaitAll(new Task[] { taskBuy, taskSell });
+                        var taskBuy = BuyNewStocksAsync(client, orderStatusTracker, newStocks, token);
+                        var taskSell = SellOldStocksAsync(client, orderStatusTracker, oldStocks, token);
+                        var taskUpdateOrderStatus = UpdateOrderStatusAsync(orderStatusTracker, token);
+
+                        Task.WaitAll(new Task[] { taskBuy, taskSell, taskUpdateOrderStatus });
                     }
                 }
 
@@ -116,9 +119,10 @@ namespace StockTradingConsole
             }
         }
 
-        static void TradeStock(TradingClient client, IStockTradingStateMachine[] stateMachines, CancellationToken token)
+        static void TradeStock(TradingClient client, OrderStatusTracker orderStatusTracker, IStockTradingStateMachine[] stateMachines, CancellationToken token)
         {
-            if (client == null || stateMachines == null || stateMachines.Count() == 0 || token == null)
+            if (client == null || stateMachines == null || stateMachines.Count() == 0 || token == null
+                || orderStatusTracker == null)
             {
                 throw new ArgumentNullException();
             }
@@ -161,7 +165,7 @@ namespace StockTradingConsole
                     // handle the quote
                     if (!stateMachines[i].IsFinalState())
                     {
-                        stateMachines[i].ProcessQuote(client, quotes[i], now);
+                        stateMachines[i].ProcessQuote(client, orderStatusTracker, quotes[i], now);
 
                         ++activeMachineCount;
                     }
@@ -177,7 +181,7 @@ namespace StockTradingConsole
             }
         }
 
-        async static Task BuyNewStocksAsync(TradingClient client, IEnumerable<NewStock> stocks, CancellationToken token)
+        async static Task BuyNewStocksAsync(TradingClient client, OrderStatusTracker orderStatusTracker, IEnumerable<NewStock> stocks, CancellationToken token)
         {
             await Task.Run(() =>
             {
@@ -188,11 +192,46 @@ namespace StockTradingConsole
 
                 IStockTradingStateMachine[] machines = stocks.Select(s => new StockBuyingStateMachine(s)).ToArray();
 
-                TradeStock(client, machines, token);
+                TradeStock(client, orderStatusTracker, machines, token);
             });
         } 
 
-        async static Task SellOldStocksAsync(TradingClient client, IEnumerable<OldStock> stocks, CancellationToken token)
+        async static Task UpdateOrderStatusAsync(OrderStatusTracker orderStatusTracker, CancellationToken token)
+        {
+            if (orderStatusTracker == null || token == null)
+            {
+                throw new ArgumentNullException();
+            }
+
+            await Task.Run(() =>
+            {
+                TimeSpan marketOpenTime = new TimeSpan(9, 15, 30);
+                TimeSpan marketCloseTime = new TimeSpan(15, 00, 30);
+
+                while (!token.IsCancellationRequested)
+                {
+                    DateTime now = DateTime.Now;
+                    TimeSpan currentTime = now.TimeOfDay;
+
+                    // check if market is opening
+                    if (currentTime >= marketOpenTime)
+                    {
+                        if (currentTime <= marketCloseTime)
+                        {
+                            orderStatusTracker.UpdateStatus();
+                        }
+                        else
+                        {
+                            return;
+                        }
+                    }
+
+                    Thread.Sleep(1000);
+                }
+            });
+        }
+
+        async static Task SellOldStocksAsync(TradingClient client, OrderStatusTracker orderStatusTracker, IEnumerable<OldStock> stocks, CancellationToken token)
         {
             await Task.Run(() =>
             {
@@ -203,7 +242,7 @@ namespace StockTradingConsole
 
                 IStockTradingStateMachine[] machines = stocks.Select(s => new StockSellingStateMachine(s)).ToArray();
 
-                TradeStock(client, machines, token);
+                TradeStock(client, orderStatusTracker, machines, token);
             });
         }
     }

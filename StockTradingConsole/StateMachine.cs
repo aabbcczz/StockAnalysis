@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using StockTrading.Utility;
+using StockAnalysis.Share;
 
 namespace StockTradingConsole
 {
@@ -27,7 +28,7 @@ namespace StockTradingConsole
             _outgoingTransitions = transitions.GroupBy(t => t.FromState).ToDictionary(g => g.Key, g => g.ToList());
             _ingoingTransitions = transitions.GroupBy(t => t.ToState).ToDictionary(g => g.Key, g => g.ToList());
 
-            // final states are the states that have ingoing transitiona nd has no outgoing transition.
+            // final states are the states that have ingoing transition and has no outgoing transition.
             var finalStates = _ingoingTransitions.Keys.Except(_outgoingTransitions.Keys);
             if (finalStates.Count() < 1)
             {
@@ -60,6 +61,8 @@ namespace StockTradingConsole
                 {
                     if (transition.Transfer(input))
                     {
+                        AppLogger.Default.DebugFormat("Transfer state from {0} to {1}", CurrentState, transition.ToState);
+
                         CurrentState = transition.ToState;
                         break;
                     }

@@ -32,6 +32,11 @@ namespace StockTradingConsole
 
         public int ProcessedVolumeInHand { get { return _processedVolumeInHand; } }
 
-
+        public OrderTracker(NewStock stock)
+        {
+            this._orderType = OrderType.Buy;
+            this._processedVolumeInHand = 0;
+            this._currentCapital = stock.TotalCapitalUsedToBuy;
+        }
     }
 }
