@@ -51,6 +51,7 @@ namespace StockTrading.Utility
         }
 
         public bool Initialize(
+            bool useSimulatorServer,
             bool enableSinaQuote,
             string address, 
             short port, 
@@ -71,7 +72,7 @@ namespace StockTrading.Utility
                     {
                         TradingEnvironment.Initialize();
 
-                        _client = new TradingClient();
+                        _client = new TradingClient(TradingHelper.CreateTradingServer(useSimulatorServer));
 
                         if (!_client.LogOn(address, port, protocolVersion, yybId, accountNo, accountType, tradeAccount, tradePassword, communicationPassword, out error))
                         {

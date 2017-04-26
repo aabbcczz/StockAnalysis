@@ -76,7 +76,7 @@ namespace StockTradingConsole
 
                 if (newStocks.Count() > 0 || oldStocks.Count() > 0)
                 {
-                    using (TradingClient client = new TradingClient())
+                    using (TradingClient client = new TradingClient(TradingHelper.CreateTradingServer(tdxConfig.Simulating))) 
                     {
                         string error;
 

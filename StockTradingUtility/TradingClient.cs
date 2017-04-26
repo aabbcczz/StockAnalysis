@@ -10,32 +10,22 @@ namespace StockTrading.Utility
 {
     public sealed class TradingClient : IDisposable
     {
-        public const int InvalidClientId = -1;
-        private const int MaxErrorStringSize = 1024;
-        private const int MaxResultStringSize = 128 * 1024;
-
-        private bool _disposed = false;
-
         private Dictionary<StockExchange, string> _shareholderCodes = new Dictionary<StockExchange, string>();
 
         public int ClientId { get; private set; }
 
-        public TradingClient()
-        {
-            ClientId = InvalidClientId;
-        }
+        public ITradingServer Server { get; private set; }
 
-        ~TradingClient()
+        public TradingClient(ITradingServer server)
         {
-            Dispose();
-        }
-
-        private void CheckDisposed()
-        {
-            if (_disposed)
+            if (server == null)
             {
-                throw new ObjectDisposedException(this.GetType().FullName);
+                throw new ArgumentNullException();
             }
+
+            ClientId = TradingHelper.InvalidClientId;
+
+            Server = server;
         }
 
         private void CheckLoggedOn()
@@ -58,8 +48,6 @@ namespace StockTrading.Utility
             string communicationPassword,
             out string error)
         {
-            CheckDisposed();
-
             error = string.Empty;
 
             if (IsLoggedOn())
@@ -67,9 +55,7 @@ namespace StockTrading.Utility
                 throw new InvalidOperationException("Client has logged on");
             }
 
-            StringBuilder errorInfo = new StringBuilder(MaxErrorStringSize);
-
-            int clientId = TdxWrapper.Logon(
+            int clientId = Server.Logon(
                 address,
                 port,
                 protocolVersion,
@@ -78,13 +64,9 @@ namespace StockTrading.Utility
                 tradeAccount,
                 tradePassword,
                 communicationPassword,
-                errorInfo);
+                out error);
 
-            if (clientId < 0)
-            {
-                error = errorInfo.ToString();
-            }
-            else
+            if (clientId >= 0)
             {
                 ClientId = clientId;
 
@@ -127,15 +109,11 @@ namespace StockTrading.Utility
 
         public bool IsLoggedOn()
         {
-            CheckDisposed();
-
-            return ClientId != InvalidClientId;
+            return ClientId != TradingHelper.InvalidClientId;
         }
     
         public void LogOff()
         {
-            CheckDisposed();
-
             if (!IsLoggedOn())
             {
                 return;
@@ -143,7 +121,7 @@ namespace StockTrading.Utility
 
             TdxWrapper.Logoff(ClientId);
 
-            ClientId = InvalidClientId;
+            ClientId = TradingHelper.InvalidClientId;
         }
 
         public QueryCapitalResult QueryCapital(out string error)
@@ -222,62 +200,26 @@ namespace StockTrading.Utility
 
         public bool QueryData(DataCategory category, out TabulateData result, out string error)
         {
-            CheckDisposed();
             CheckLoggedOn();
 
-            StringBuilder resultInfo = new StringBuilder(MaxResultStringSize);
-            StringBuilder errorInfo = new StringBuilder(MaxErrorStringSize);
+            string resultString;
 
-            TdxWrapper.QueryData(ClientId, (int)category, resultInfo, errorInfo);
+            Server.QueryData(ClientId, (int)category, out resultString, out error);
 
-            error = errorInfo.ToString();
             result = null;
 
             bool succeeded = string.IsNullOrEmpty(error);
 
             if (succeeded)
             {
-                result = TabulateData.Parse(resultInfo.ToString());
+                result = TabulateData.Parse(resultString);
             }
 
             return  succeeded;
         }
 
-        private IntPtr[] AllocateStringBuffers(int count, int bufferSize)
-        {
-            IntPtr[] ptrs = new IntPtr[count];
-
-            for (int i = 0; i < count; ++i)
-            {
-                ptrs[i] = Marshal.AllocHGlobal(bufferSize);
-            }
-
-            return ptrs;
-        }
-
-        private string[] ConvertStringBufferToString(IntPtr[] ptrs)
-        {
-            string[] strings = new string[ptrs.Length];
-
-            for (int i = 0; i < strings.Length; ++i)
-            {
-                strings[i] = Marshal.PtrToStringAnsi(ptrs[i]);
-            }
-
-            return strings;
-        }
-
-        private void FreeStringBuffers(IntPtr[] ptrs)
-        {
-            foreach (var ptr in ptrs)
-            {
-                Marshal.FreeHGlobal(ptr);
-            }
-        }
-
         public bool[] QueryData(DataCategory[] categories, out TabulateData[] results, out string[] errors)
         {
-            CheckDisposed();
             CheckLoggedOn();
 
             if (categories == null || categories.Length == 0)
@@ -285,35 +227,23 @@ namespace StockTrading.Utility
                 throw new ArgumentNullException();
             }
 
-            IntPtr[] resultInfos = AllocateStringBuffers(categories.Length, MaxResultStringSize);
-            IntPtr[] errorInfos = AllocateStringBuffers(categories.Length, MaxErrorStringSize);
+            string[] resultStrings;
 
-            try
-            {
-                int[] categoryArray = categories.Select(c => (int)c).ToArray();
+            int[] categoryArray = categories.Select(c => (int)c).ToArray();
  
-                TdxWrapper.QueryDatas(ClientId, categoryArray, categoryArray.Length, resultInfos, errorInfos);
+            Server.QueryData(ClientId, categoryArray, categoryArray.Length, out resultStrings, out errors);
 
-                string[] resultStrings = ConvertStringBufferToString(resultInfos);
-                errors = ConvertStringBufferToString(errorInfos);
+            bool[] succeeds = new bool[categories.Length];
+            results = new TabulateData[categories.Length];
 
-                bool[] succeeds = new bool[categories.Length];
-                results = new TabulateData[categories.Length];
-
-                for (int i = 0; i < results.Length; ++i)
-                {
-                    succeeds[i] = string.IsNullOrEmpty(errors[i]);
-
-                    results[i] = succeeds[i] ? TabulateData.Parse(resultStrings[i]) : null;
-                }
-
-                return succeeds;
-            }
-            finally
+            for (int i = 0; i < results.Length; ++i)
             {
-                FreeStringBuffers(resultInfos);
-                FreeStringBuffers(errorInfos);
+                succeeds[i] = string.IsNullOrEmpty(errors[i]);
+
+                results[i] = succeeds[i] ? TabulateData.Parse(resultStrings[i]) : null;
             }
+
+            return succeeds;
         }
 
         public FiveLevelQuote GetQuote(string securityCode, out string error)
@@ -337,22 +267,19 @@ namespace StockTrading.Utility
 
         public bool GetQuote(string securityCode, out TabulateData result, out string error)
         {
-            CheckDisposed();
             CheckLoggedOn();
 
-            StringBuilder resultInfo = new StringBuilder(MaxResultStringSize);
-            StringBuilder errorInfo = new StringBuilder(MaxErrorStringSize);
+            string resultString;
 
-            TdxWrapper.GetQuote(ClientId, securityCode, resultInfo, errorInfo);
+            Server.GetQuote(ClientId, securityCode, out resultString, out error);
 
-            error = errorInfo.ToString();
             result = null;
 
             bool succeeded = string.IsNullOrEmpty(error);
 
             if (succeeded)
             {
-                result = TabulateData.Parse(resultInfo.ToString());
+                result = TabulateData.Parse(resultString);
             }
 
             return succeeded;
@@ -393,7 +320,6 @@ namespace StockTrading.Utility
 
         public bool[] GetQuote(string[] securityCodes, out TabulateData[] results, out string[] errors)
         {
-            CheckDisposed();
             CheckLoggedOn();
 
             if (securityCodes == null || securityCodes.Length == 0)
@@ -401,38 +327,25 @@ namespace StockTrading.Utility
                 throw new ArgumentNullException();
             }
 
-            IntPtr[] resultInfos = AllocateStringBuffers(securityCodes.Length, MaxResultStringSize);
-            IntPtr[] errorInfos = AllocateStringBuffers(securityCodes.Length, MaxErrorStringSize);
+            string[] resultStrings;
 
-            try
+            Server.GetQuotes(ClientId, securityCodes, securityCodes.Length, out resultStrings, out errors);
+
+            bool[] succeeds = new bool[securityCodes.Length];
+            results = new TabulateData[securityCodes.Length];
+
+            for (int i = 0; i < results.Length; ++i)
             {
-                TdxWrapper.GetQuotes(ClientId, securityCodes, securityCodes.Length, resultInfos, errorInfos);
+                succeeds[i] = string.IsNullOrEmpty(errors[i]);
 
-                string[] resultStrings = ConvertStringBufferToString(resultInfos);
-                errors = ConvertStringBufferToString(errorInfos);
-
-                bool[] succeeds = new bool[securityCodes.Length];
-                results = new TabulateData[securityCodes.Length];
-
-                for (int i = 0; i < results.Length; ++i)
-                {
-                    succeeds[i] = string.IsNullOrEmpty(errors[i]);
-
-                    results[i] = succeeds[i] ? TabulateData.Parse(resultStrings[i]) : null;
-                }
-
-                return succeeds;
+                results[i] = succeeds[i] ? TabulateData.Parse(resultStrings[i]) : null;
             }
-            finally
-            {
-                FreeStringBuffers(resultInfos);
-                FreeStringBuffers(errorInfos);
-            }
+
+            return succeeds;
         }
 
         public string GetShareholderCode(StockExchange exchange)
         {
-            CheckDisposed();
             CheckLoggedOn();
 
             if (_shareholderCodes.ContainsKey(exchange))
@@ -479,18 +392,14 @@ namespace StockTrading.Utility
 
         public bool SendOrder(OrderRequest request, out TabulateData result, out string error)
         {
-            CheckDisposed();
             CheckLoggedOn();
-
-            result = null;
-            error = string.Empty;
 
             string shareholderCode = GetShareholderCode(request.SecurityCode);
 
-            StringBuilder resultInfo = new StringBuilder(MaxResultStringSize);
-            StringBuilder errorInfo = new StringBuilder(MaxErrorStringSize);
+            result = null;
+            string resultString;
 
-            TdxWrapper.SendOrder(
+            Server.SendOrder(
                 ClientId,
                 (int)request.Category,
                 (int)request.PricingType,
@@ -498,16 +407,14 @@ namespace StockTrading.Utility
                 request.SecurityCode, 
                 request.Price,
                 request.Volume,
-                resultInfo, 
-                errorInfo);
-
-            error = errorInfo.ToString();
+                out resultString, 
+                out error);
 
             bool succeeded = string.IsNullOrEmpty(error);
 
             if (succeeded)
             {
-                result = TabulateData.Parse(resultInfo.ToString());
+                result = TabulateData.Parse(resultString.ToString());
             }
 
             return succeeded;
@@ -547,7 +454,6 @@ namespace StockTrading.Utility
 
         public bool[] SendOrder(OrderRequest[] requests, out TabulateData[] results, out string[] errors)
         {
-            CheckDisposed();
             CheckLoggedOn();
 
             if (requests == null || requests.Length == 0)
@@ -555,50 +461,38 @@ namespace StockTrading.Utility
                 throw new ArgumentNullException();
             }
 
-            IntPtr[] resultInfos = AllocateStringBuffers(requests.Length, MaxResultStringSize);
-            IntPtr[] errorInfos = AllocateStringBuffers(requests.Length, MaxErrorStringSize);
+            string[] resultStrings;
 
-            try
-            {
-                var shareholderCodes = requests.Select(req => GetShareholderCode(req.SecurityCode)).ToArray();
-                var categories = requests.Select(req => (int)req.Category).ToArray();
-                var priceTypes = requests.Select(req => (int)req.PricingType).ToArray();
-                var securityCodes = requests.Select(req => req.SecurityCode).ToArray();
-                var prices = requests.Select(req => req.Price).ToArray();
-                var quantities = requests.Select(req => req.Volume).ToArray();
+            var shareholderCodes = requests.Select(req => GetShareholderCode(req.SecurityCode)).ToArray();
+            var categories = requests.Select(req => (int)req.Category).ToArray();
+            var priceTypes = requests.Select(req => (int)req.PricingType).ToArray();
+            var securityCodes = requests.Select(req => req.SecurityCode).ToArray();
+            var prices = requests.Select(req => req.Price).ToArray();
+            var quantities = requests.Select(req => req.Volume).ToArray();
 
-                TdxWrapper.SendOrders(
-                    ClientId,
-                    categories,
-                    priceTypes,
-                    shareholderCodes,
-                    securityCodes,
-                    prices,
-                    quantities,
-                    requests.Count(),
-                    resultInfos,
-                    errorInfos);
+            Server.SendOrders(
+                ClientId,
+                categories,
+                priceTypes,
+                shareholderCodes,
+                securityCodes,
+                prices,
+                quantities,
+                requests.Count(),
+                out resultStrings,
+                out errors);
                     
-                string[] resultStrings = ConvertStringBufferToString(resultInfos);
-                errors = ConvertStringBufferToString(errorInfos);
+            bool[] succeeds = new bool[securityCodes.Length];
+            results = new TabulateData[securityCodes.Length];
 
-                bool[] succeeds = new bool[securityCodes.Length];
-                results = new TabulateData[securityCodes.Length];
-
-                for (int i = 0; i < results.Length; ++i)
-                {
-                    succeeds[i] = string.IsNullOrEmpty(errors[i]);
-
-                    results[i] = succeeds[i] ? TabulateData.Parse(resultStrings[i]) : null;
-                }
-
-                return succeeds;
-            }
-            finally
+            for (int i = 0; i < results.Length; ++i)
             {
-                FreeStringBuffers(resultInfos);
-                FreeStringBuffers(errorInfos);
+                succeeds[i] = string.IsNullOrEmpty(errors[i]);
+
+                results[i] = succeeds[i] ? TabulateData.Parse(resultStrings[i]) : null;
             }
+
+            return succeeds;
         }
 
         public bool CancelOrder(string code, int orderNo, out string error)
@@ -610,11 +504,9 @@ namespace StockTrading.Utility
 
         public bool CancelOrder(string code, int orderNo, out TabulateData result, out string error)
         {
-            CheckDisposed();
             CheckLoggedOn();
 
-            StringBuilder resultInfo = new StringBuilder(MaxResultStringSize);
-            StringBuilder errorInfo = new StringBuilder(MaxErrorStringSize);
+            string resultString;
 
             StockExchange exchange = StockExchange.GetTradingExchangeForSecurity(code);
             if (exchange == null)
@@ -624,16 +516,15 @@ namespace StockTrading.Utility
                 return false;
             }
 
-            TdxWrapper.CancelOrder(ClientId, exchange.ExchangeId.ToString(), orderNo.ToString(), resultInfo, errorInfo);
+            Server.CancelOrder(ClientId, exchange.ExchangeId.ToString(), orderNo.ToString(), out resultString, out error);
 
-            error = errorInfo.ToString();
             result = null;
 
             bool succeeded = string.IsNullOrEmpty(error);
 
             if (succeeded)
             {
-                result = TabulateData.Parse(resultInfo.ToString());
+                result = TabulateData.Parse(resultString);
             }
 
             return succeeded;
@@ -648,7 +539,6 @@ namespace StockTrading.Utility
 
         public bool[] CancelOrder(string[] codes, int[] orderNos, out TabulateData[] results, out string[] errors)
         {
-            CheckDisposed();
             CheckLoggedOn();
 
             if (codes == null || codes.Length == 0 || orderNos == null || orderNos.Length != codes.Length)
@@ -656,67 +546,33 @@ namespace StockTrading.Utility
                 throw new ArgumentNullException();
             }
 
-            IntPtr[] resultInfos = AllocateStringBuffers(codes.Length, MaxResultStringSize);
-            IntPtr[] errorInfos = AllocateStringBuffers(codes.Length, MaxErrorStringSize);
+            string[] resultStrings;
 
-            try
+
+            var exchangeIds = codes.Select(c => StockExchange.GetTradingExchangeForSecurity(c))
+                .Select(e => e == null ? string.Empty : e.ExchangeId.ToString())
+                .ToArray();
+            var orderNoStrings = orderNos.Select(id => id.ToString()).ToArray();
+
+            Server.CancelOrders(
+                ClientId,
+                exchangeIds,
+                orderNoStrings,
+                codes.Length,
+                out resultStrings,
+                out errors);
+
+            bool[] succeeds = new bool[codes.Length];
+            results = new TabulateData[codes.Length];
+
+            for (int i = 0; i < results.Length; ++i)
             {
-                var exchangeIds = codes.Select(c => StockExchange.GetTradingExchangeForSecurity(c))
-                    .Select(e => e == null ? string.Empty : e.ExchangeId.ToString())
-                    .ToArray();
-                var orderNoStrings = orderNos.Select(id => id.ToString()).ToArray();
+                succeeds[i] = string.IsNullOrEmpty(errors[i]);
 
-                TdxWrapper.CancelOrders(
-                    ClientId,
-                    exchangeIds,
-                    orderNoStrings,
-                    codes.Length,
-                    resultInfos,
-                    errorInfos);
-
-                string[] resultStrings = ConvertStringBufferToString(resultInfos);
-                errors = ConvertStringBufferToString(errorInfos);
-
-                bool[] succeeds = new bool[codes.Length];
-                results = new TabulateData[codes.Length];
-
-                for (int i = 0; i < results.Length; ++i)
-                {
-                    succeeds[i] = string.IsNullOrEmpty(errors[i]);
-
-                    results[i] = succeeds[i] ? TabulateData.Parse(resultStrings[i]) : null;
-                }
-
-                return succeeds;
-            }
-            finally
-            {
-                FreeStringBuffers(resultInfos);
-                FreeStringBuffers(errorInfos);
-            }
-        }
-
-        public bool Payback(float amount, out TabulateData result, out string error)
-        {
-            CheckDisposed();
-            CheckLoggedOn();
-
-            StringBuilder resultInfo = new StringBuilder(MaxResultStringSize);
-            StringBuilder errorInfo = new StringBuilder(MaxErrorStringSize);
-
-            TdxWrapper.Repay(ClientId, amount.ToString("0.00"), resultInfo, errorInfo);
-
-            error = errorInfo.ToString();
-            result = null;
-
-            bool succeeded = string.IsNullOrEmpty(error);
-
-            if (succeeded)
-            {
-                result = TabulateData.Parse(resultInfo.ToString());
+                results[i] = succeeds[i] ? TabulateData.Parse(resultStrings[i]) : null;
             }
 
-            return succeeded;
+            return succeeds;
         }
 
         public IEnumerable<QueryGeneralOrderResult> QuerySubmittedOrderHistory(DateTime startDate, DateTime endDate, out string error)
@@ -748,44 +604,67 @@ namespace StockTrading.Utility
             out TabulateData result, 
             out string error)
         {
-            CheckDisposed();
             CheckLoggedOn();
 
-            StringBuilder resultInfo = new StringBuilder(MaxResultStringSize);
-            StringBuilder errorInfo = new StringBuilder(MaxErrorStringSize);
+            string resultString;
 
-            TdxWrapper.QueryHistoryData(
+            Server.QueryHistoryData(
                 ClientId, 
                 (int)category, 
                 startDate.ToString("yyyyMMdd"), 
                 endDate.ToString("yyyyMMdd"),
-                resultInfo, 
-                errorInfo);
+                out resultString, 
+                out error);
 
-            error = errorInfo.ToString();
             result = null;
 
             bool succeeded = string.IsNullOrEmpty(error);
 
             if (succeeded)
             {
-                result = TabulateData.Parse(resultInfo.ToString());
+                result = TabulateData.Parse(resultString);
             }
 
             return succeeded;
         }
 
-        public void Dispose()
+        #region IDisposable Support
+        private bool disposedValue = false; // To detect redundant calls
+
+        void Dispose(bool disposing)
         {
-            if (!_disposed)
+            if (!disposedValue)
             {
+                if (disposing)
+                {
+                    // TODO: dispose managed state (managed objects).
+                }
+
+                // TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.
+                // TODO: set large fields to null.
                 if (IsLoggedOn())
                 {
                     LogOff();
                 }
 
-                _disposed = true;
+                disposedValue = true;
             }
         }
+
+        ~TradingClient()
+        {
+            // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+            Dispose(false);
+        }
+
+        // This code added to correctly implement the disposable pattern.
+        public void Dispose()
+        {
+            // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+            Dispose(true);
+            // TODO: uncomment the following line if the finalizer is overridden above.
+            GC.SuppressFinalize(this);
+        }
+        #endregion
     }
 }

@@ -9,6 +9,7 @@ namespace StockTrading.Utility
 {
     public class TdxConfiguration : ConfigurationSection
     {
+        private const string SimulatingPropertyName = "simulating";
         private const string ServerPropertyName = "server";
         private const string PortPropertyName = "port";
         private const string ProtocolVersionPropertyName = "protocolVersion";
@@ -16,6 +17,13 @@ namespace StockTrading.Utility
         private const string AccountPropertyName = "account";
         private const string AccountTypePropertyName = "accountType";
         private const string PasswordPropertyName = "password";
+
+        [ConfigurationProperty(SimulatingPropertyName, IsRequired = true)]
+        public bool Simulating
+        {
+            get { return (bool)this[SimulatingPropertyName]; }
+            set { this[SimulatingPropertyName] = value; }
+        }
 
         [ConfigurationProperty(ServerPropertyName, IsRequired = true)]
         public string Server

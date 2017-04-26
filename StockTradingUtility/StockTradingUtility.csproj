@@ -71,6 +71,7 @@
   <ItemGroup>
     <Compile Include="BuyInstruction.cs" />
     <Compile Include="BuyOrder.cs" />
+    <Compile Include="ITradingServer.cs" />
     <Compile Include="OrderExecutedMessage.cs" />
     <Compile Include="OrderManager.cs" />
     <Compile Include="CtpSimulator.cs" />
@@ -92,6 +93,8 @@
     <Compile Include="SellOrder.cs" />
     <Compile Include="StoplossOrder.cs" />
     <Compile Include="TdxConfiguration.cs" />
+    <Compile Include="TdxTradingServer.cs" />
+    <Compile Include="TdxTradingServerSimulator.cs" />
     <Compile Include="TradingHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="DataCategory.cs" />

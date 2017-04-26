@@ -83,7 +83,7 @@ namespace TradingClient
 
             while (retryCount > 0)
             {
-                if (!CtpSimulator.GetInstance().Initialize(enableSinaQuote, "202.108.253.186", 7708, "8.19", 1, "42000042387", 8, "42000042387", "789012", string.Empty, out error))
+                if (!CtpSimulator.GetInstance().Initialize(true, enableSinaQuote, "202.108.253.186", 7708, "8.19", 1, "42000042387", 8, "42000042387", "789012", string.Empty, out error))
 //                if (!CtpSimulator.GetInstance().Initialize(enableSinaQuote, "wt5.foundersc.com", 7708, "6.19", 1, "13003470", 9, "13003470", "789012", string.Empty, out error))
                 {
                     string errorLog = string.Format("Initialize CtpSimulator failed, error: {0}", error);

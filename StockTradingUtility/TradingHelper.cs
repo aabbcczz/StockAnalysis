@@ -5,12 +5,16 @@ using System.Text;
 using System.Threading.Tasks;
 
 using StockAnalysis.Share;
+using System.Runtime.InteropServices;
 
 namespace StockTrading.Utility
 {
     public static class TradingHelper
     {
         public const int InvalidOrderNo = -1;
+        public const int InvalidClientId = -1;
+        public const int MaxErrorStringSize = 1024;
+        public const int MaxResultStringSize = 128 * 1024;
 
         /// <summary>
         /// 按万分之2.5佣金算，每笔最低5元，所以最低交易金额是20000.00元
@@ -35,6 +39,38 @@ namespace StockTrading.Utility
                     { "部成", OrderStatus.PartiallySucceeded },
                     { "已成", OrderStatus.CompletelySucceeded },
                 };
+
+        public static IntPtr[] AllocateStringBuffers(int count, int bufferSize)
+        {
+            IntPtr[] ptrs = new IntPtr[count];
+
+            for (int i = 0; i < count; ++i)
+            {
+                ptrs[i] = Marshal.AllocHGlobal(bufferSize);
+            }
+
+            return ptrs;
+        }
+
+        public static string[] ConvertStringBufferToString(IntPtr[] ptrs)
+        {
+            string[] strings = new string[ptrs.Length];
+
+            for (int i = 0; i < strings.Length; ++i)
+            {
+                strings[i] = Marshal.PtrToStringAnsi(ptrs[i]);
+            }
+
+            return strings;
+        }
+
+        public static void FreeStringBuffers(IntPtr[] ptrs)
+        {
+            foreach (var ptr in ptrs)
+            {
+                Marshal.FreeHGlobal(ptr);
+            }
+        }
 
         public static bool IsValidPrice(float price)
         {
@@ -331,6 +367,18 @@ namespace StockTrading.Utility
 
                     return Math.Max(sellPrice, (float)quote.GetDownLimitPrice());
                 }
+            }
+        }
+
+        public static ITradingServer CreateTradingServer(bool simulating)
+        {
+            if (simulating)
+            {
+                return new TdxTradingServerSimulator();
+            }
+            else
+            {
+                return new TdxTradingServer();
             }
         }
     }
