@@ -22,7 +22,19 @@ namespace StockTrading.Utility
 
         public void CancelOrders(int clientId, string[] exchangeIds, string[] orderNoes, int orderCount, out string[] results, out string[] errors)
         {
-            throw new NotImplementedException();
+            results = new string[orderCount];
+            errors = new string[orderCount];
+
+            for (int i = 0; i < orderCount; ++i)
+            {
+                string result;
+                string error;
+
+                CancelOrder(clientId, exchangeIds[i], orderNoes[i], out result, out error);
+
+                results[i] = result;
+                errors[i] = error;
+            }
         }
 
         public void GetQuote(int clientId, string securityCode, out string result, out string error)
@@ -52,7 +64,19 @@ namespace StockTrading.Utility
 
         public void QueryData(int clientId, int[] categories, int categoryCount, out string[] results, out string[] errors)
         {
-            throw new NotImplementedException();
+            results = new string[categoryCount];
+            errors = new string[categoryCount];
+
+            for (int i = 0; i < categoryCount; ++i)
+            {
+                string result;
+                string error;
+
+                QueryData(clientId, categories[i], out result, out error);
+
+                results[i] = result;
+                errors[i] = error;
+            }
         }
 
         public void QueryHistoryData(int clientId, int category, string startDate, string endDate, out string result, out string error)
@@ -62,12 +86,35 @@ namespace StockTrading.Utility
 
         public void SendOrder(int clientId, int category, int priceType, string shareholderCode, string securityCode, float price, int quantity, out string result, out string error)
         {
-            throw new NotImplementedException();
+            result = string.Empty;
+            error = string.Empty;
+
+            OrderCategory orderCategory = (OrderCategory)category;
+
+            if (orderCategory != OrderCategory.Buy && orderCategory != OrderCategory.Sell)
+            {
+                error = string.Format("Unsupported order category {0}", orderCategory);
+                return;
+            }
+
+
         }
 
         public void SendOrders(int clientId, int[] categories, int[] priceTypes, string[] shareholderCodes, string[] securityCodes, float[] prices, int[] quantities, int orderCount, out string[] results, out string[] errors)
         {
-            throw new NotImplementedException();
+            results = new string[orderCount];
+            errors = new string[orderCount];
+
+            for (int i = 0; i < orderCount; ++i)
+            {
+                string result;
+                string error;
+
+                SendOrder(clientId, categories[i], priceTypes[i], shareholderCodes[i], securityCodes[i], prices[i], quantities[i], out result, out error);
+
+                results[i] = result;
+                errors[i] = error;
+            }
         }
     }
 }

@@ -93,6 +93,8 @@
     <Compile Include="SellOrder.cs" />
     <Compile Include="StoplossOrder.cs" />
     <Compile Include="TdxConfiguration.cs" />
+    <Compile Include="TdxOrder.cs" />
+    <Compile Include="TdxOrderManager.cs" />
     <Compile Include="TdxTradingServer.cs" />
     <Compile Include="TdxTradingServerSimulator.cs" />
     <Compile Include="TradingHelper.cs" />

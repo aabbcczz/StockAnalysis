@@ -175,6 +175,21 @@ namespace StockTrading.Utility
             return true;
         }
 
+        public override string ToString()
+        {
+            StringBuilder builder = new StringBuilder();
+
+            builder.Append(string.Join("\t", _columns));
+
+            foreach(var row in _rows)
+            {
+                builder.Append("\n");
+                builder.Append(string.Join("\t", row));
+            }
+
+            return builder.ToString();
+        }
+
         public static bool TryParse(string s, out TabulateData result)
         {
             if (string.IsNullOrEmpty(s))
