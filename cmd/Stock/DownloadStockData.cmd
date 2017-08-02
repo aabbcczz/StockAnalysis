@@ -1,5 +1,8 @@
 CALL SetEnvironment.cmd
 
+REM remove all previously exported data
+del /F /Q %TDXROOT%\T0002\export\*.txt
+
 %BINROOT%\AutoExportStockData.exe %TDXROOT%\tdxw.exe
 
 IF %ERRORLEVEL% NEQ 0 (

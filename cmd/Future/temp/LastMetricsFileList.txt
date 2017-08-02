@@ -1,0 +1,15 @@
+D:\StockAnalysis\Future\ProcessedData\Daily\IncludeRightMetrics\AG1712.day.metric.csv
+D:\StockAnalysis\Future\ProcessedData\Daily\IncludeRightMetrics\AL1709.day.metric.csv
+D:\StockAnalysis\Future\ProcessedData\Daily\IncludeRightMetrics\CU1709.day.metric.csv
+D:\StockAnalysis\Future\ProcessedData\Daily\IncludeRightMetrics\HC1801.day.metric.csv
+D:\StockAnalysis\Future\ProcessedData\Daily\IncludeRightMetrics\RB1801.day.metric.csv
+D:\StockAnalysis\Future\ProcessedData\Daily\IncludeRightMetrics\I1801.day.metric.csv
+D:\StockAnalysis\Future\ProcessedData\Daily\IncludeRightMetrics\RU1801.day.metric.csv
+D:\StockAnalysis\Future\ProcessedData\Daily\IncludeRightMetrics\JM1801.day.metric.csv
+D:\StockAnalysis\Future\ProcessedData\Daily\IncludeRightMetrics\J1801.day.metric.csv
+D:\StockAnalysis\Future\ProcessedData\Daily\IncludeRightMetrics\ZC1801.day.metric.csv
+D:\StockAnalysis\Future\ProcessedData\Daily\IncludeRightMetrics\PP1709.day.metric.csv
+D:\StockAnalysis\Future\ProcessedData\Daily\IncludeRightMetrics\TA1801.day.metric.csv
+D:\StockAnalysis\Future\ProcessedData\Daily\IncludeRightMetrics\CF1801.day.metric.csv
+D:\StockAnalysis\Future\ProcessedData\Daily\IncludeRightMetrics\SM1709.day.metric.csv
+
