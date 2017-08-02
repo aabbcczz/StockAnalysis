@@ -23,7 +23,7 @@ namespace AutoExportStockData
                 throw new InvalidOperationException("failed to activate main window");
             }
 
-            IntPtr buttonQuoteHandle = AutoItX.ControlGetHandle(hwnd, "[ClassNN:AfxWnd428]");
+            IntPtr buttonQuoteHandle = AutoItX.ControlGetHandle(hwnd, "[ClassNN:AfxWnd4211]");
             if (buttonQuoteHandle == IntPtr.Zero)
             {
                 throw new InvalidOperationException("failed to find 行情 button");
@@ -41,7 +41,7 @@ namespace AutoExportStockData
         void ExportData(IntPtr hwndMain)
         {
             // find out main menu entry
-            IntPtr hwndMenu = AutoItX.ControlGetHandle(hwndMain, "[CLASSNN:AfxWnd422]");
+            IntPtr hwndMenu = AutoItX.ControlGetHandle(hwndMain, "[CLASSNN:AfxWnd425]");
 
             if (hwndMenu == IntPtr.Zero)
             {
@@ -134,6 +134,11 @@ namespace AutoExportStockData
             // begin export
             AutoItX.WinActivate(hwnd);
             AutoItX.ControlClick(hwnd, buttonBeginExport);
+
+            int confirmationDialogHandle = AutoItX.WinWait("TdxW");
+            AutoItX.WinClose("TdxW");
+
+            AutoItX.Sleep(1000);
 
             int finishDialogHandle = AutoItX.WinWait("TdxW");
             AutoItX.WinClose("TdxW");
@@ -294,7 +299,7 @@ namespace AutoExportStockData
         void DownloadQuote(IntPtr hwndMain)
         {
             // find out main menu entry
-            IntPtr hwndMenu = AutoItX.ControlGetHandle(hwndMain, "[CLASSNN:AfxWnd422]");
+            IntPtr hwndMenu = AutoItX.ControlGetHandle(hwndMain, "[CLASSNN:AfxWnd425]");
 
             if (hwndMenu == IntPtr.Zero)
             {
