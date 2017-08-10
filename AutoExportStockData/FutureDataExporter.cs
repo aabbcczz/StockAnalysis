@@ -168,8 +168,12 @@ namespace AutoExportStockData
             IntPtr listView = AutoItX.ControlGetHandle(hwnd, "[CLASSNN:SysListView321]");
 
             // select 扩展市场行情
-            AutoItX.ControlClick(hwnd, tabControl, "left", 1, 534, 10);
-            AutoItX.Sleep(1000);
+            for (int i = 0; i < 8; ++i)
+            {
+                AutoItX.ControlCommand(hwnd, tabControl, "TabRight", "");
+                AutoItX.Sleep(1000);
+            }
+
 
             string itemIdStr = null;
 
@@ -237,12 +241,12 @@ namespace AutoExportStockData
             AutoItX.WinActivate(hwnd);
 
             IntPtr tabControl = AutoItX.ControlGetHandle(hwnd, "[CLASSNN:SysTabControl321]");
-            AutoItX.ControlCommand(hwnd, tabControl, "TabRight", "");
-            AutoItX.Sleep(1000);
-            AutoItX.ControlCommand(hwnd, tabControl, "TabRight", "");
-            AutoItX.Sleep(1000);
-            AutoItX.ControlCommand(hwnd, tabControl, "TabRight", "");
-            AutoItX.Sleep(1000);
+            for (int i = 0; i < 3; ++i)
+            {
+                AutoItX.ControlCommand(hwnd, tabControl, "TabRight", "");
+                AutoItX.Sleep(1000);
+            }
+
 
             // wait for a dialog "连接扩展行情" to disappear
             string title1 = "连接扩展市场行情主站";
