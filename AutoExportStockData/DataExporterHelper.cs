@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Runtime.InteropServices;
 
 using AutoIt;
+using System.Configuration;
 
 namespace AutoExportStockData
 {
@@ -17,9 +18,9 @@ namespace AutoExportStockData
             AutoItX.WinClose("消息标题");
             //            AutoItX.WinClose("消息标题:交易提示");
 
-            string title = "[TITLE:中信证券金融终端; CLASS:TdxW_MainFrame_Class]";
+            string title = string.Format("[TITLE:{0}; CLASS:{1}]", ConfigurationManager.AppSettings["MainWindowTitle"], ConfigurationManager.AppSettings["MainWindowClass"]);
 
-            int handle = AutoItX.WinWait(title, "", 120);
+            int handle = AutoItX.WinWait(title, "", 300);
 
             if (handle == 0)
             {
@@ -76,6 +77,34 @@ namespace AutoExportStockData
                 rectClient.Y + rectControl.Y,
                 rectControl.Width,
                 rectControl.Height);
+        }
+
+        public static void SelectListViewItem(IntPtr hwnd, IntPtr listView, string item)
+        {
+            string itemIdStr = AutoItX.ControlListView(hwnd, listView, "FindItem", item, "");
+
+            bool succeeded = false;
+
+            if (!string.IsNullOrEmpty(itemIdStr))
+            {
+                int itemId;
+                if (int.TryParse(itemIdStr, out itemId))
+                {
+                    if (itemId >= 0)
+                    {
+                        AutoItX.ControlListView(hwnd, listView, "Select", itemId.ToString(), "");
+                        AutoItX.Sleep(500);
+
+                        succeeded = true;
+                    }
+                }
+            }
+
+            if (!succeeded)
+            {
+                throw new InvalidOperationException(
+                    string.Format("failed to find item id for {0}", item));
+            }
         }
     }
 }

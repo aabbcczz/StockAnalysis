@@ -103,7 +103,7 @@ namespace AutoExportStockData
 
         static void Login(string account, string password)
         {
-            string title = "中信证券金融终端";
+            string title = ConfigurationManager.AppSettings["MainWindowTitle"];
 
             int handle = AutoItX.WinWait(title, "", 10);
 
@@ -129,7 +129,7 @@ namespace AutoExportStockData
 
         static bool ExistsMainWindow()
         {
-            string title = "[TITLE:中信证券金融终端; CLASS:TdxW_MainFrame_Class]";
+            string title = string.Format("[TITLE:{0}; CLASS:{1}]", ConfigurationManager.AppSettings["MainWindowTitle"], ConfigurationManager.AppSettings["MainWindowClass"]);
 
             int handle = AutoItX.WinWait(title, "", 2);
 

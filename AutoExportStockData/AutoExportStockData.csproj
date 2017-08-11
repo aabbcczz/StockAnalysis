@@ -47,6 +47,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DataExporterBase.cs" />
     <Compile Include="DataExporterHelper.cs" />
     <Compile Include="IDataExporter.cs" />
     <Compile Include="Program.cs" />
