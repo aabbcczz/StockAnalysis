@@ -23,7 +23,7 @@ namespace AutoExportStockData
                 throw new InvalidOperationException("failed to activate main window");
             }
 
-            IntPtr buttonQuoteHandle = AutoItX.ControlGetHandle(hwnd, "[ClassNN:AfxWnd4211]");
+            IntPtr buttonQuoteHandle = AutoItX.ControlGetHandle(hwnd, "[ClassNN:AfxWnd428]");
             if (buttonQuoteHandle == IntPtr.Zero)
             {
                 throw new InvalidOperationException("failed to find 行情 button");
@@ -41,7 +41,7 @@ namespace AutoExportStockData
         void ExportData(IntPtr hwndMain)
         {
             // find out main menu entry
-            IntPtr hwndMenu = AutoItX.ControlGetHandle(hwndMain, "[CLASSNN:AfxWnd425]");
+            IntPtr hwndMenu = AutoItX.ControlGetHandle(hwndMain, "[CLASSNN:AfxWnd422]");
 
             if (hwndMenu == IntPtr.Zero)
             {
@@ -263,7 +263,19 @@ namespace AutoExportStockData
             var rectControlInScreen = DataExporterHelper.GetControlPosInScreen(hwnd, tabControl);
 
             // select the "日线数据" checkbox
-            AutoItX.MouseClick("left", rectControlInScreen.X + 46, rectControlInScreen.Y + 66);
+            IntPtr buttonDailyDataHandle = AutoItX.ControlGetHandle(hwnd, "[ID:1427]"); //0x593
+            if (buttonDailyDataHandle != IntPtr.Zero)
+            {
+                AutoItX.ControlClick(hwnd, buttonDailyDataHandle);
+            }
+            else
+            {
+                throw new InvalidOperationException("failed to find 日线数据 button");
+            }
+
+            AutoItX.ControlCommand(hwnd, buttonDailyDataHandle, "Check", "");
+
+            //AutoItX.MouseClick("left", rectControlInScreen.X + 46, rectControlInScreen.Y + 66);
             AutoItX.Sleep(1000);
 
             // select the "下载所有扩展行情数据" checkbox
@@ -303,7 +315,7 @@ namespace AutoExportStockData
         void DownloadQuote(IntPtr hwndMain)
         {
             // find out main menu entry
-            IntPtr hwndMenu = AutoItX.ControlGetHandle(hwndMain, "[CLASSNN:AfxWnd425]");
+            IntPtr hwndMenu = AutoItX.ControlGetHandle(hwndMain, "[CLASSNN:AfxWnd422]");
 
             if (hwndMenu == IntPtr.Zero)
             {
