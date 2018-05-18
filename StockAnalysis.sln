@@ -58,6 +58,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CorrelationCalculator", "Co
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConvertEncoding", "ConvertEncoding\ConvertEncoding.csproj", "{5FA30381-05CE-4FDE-9043-5453D9EFED77}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConvertTsvToCsv", "ConvertTsvToCsv\ConvertTsvToCsv.csproj", "{7CAE3456-B4E3-4542-AC7D-5AA67CB80A22}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -230,6 +232,14 @@ Global
 		{5FA30381-05CE-4FDE-9043-5453D9EFED77}.Release|Any CPU.Build.0 = Release|Any CPU
 		{5FA30381-05CE-4FDE-9043-5453D9EFED77}.Release|x86.ActiveCfg = Release|Any CPU
 		{5FA30381-05CE-4FDE-9043-5453D9EFED77}.Release|x86.Build.0 = Release|Any CPU
+		{7CAE3456-B4E3-4542-AC7D-5AA67CB80A22}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7CAE3456-B4E3-4542-AC7D-5AA67CB80A22}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7CAE3456-B4E3-4542-AC7D-5AA67CB80A22}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{7CAE3456-B4E3-4542-AC7D-5AA67CB80A22}.Debug|x86.Build.0 = Debug|Any CPU
+		{7CAE3456-B4E3-4542-AC7D-5AA67CB80A22}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7CAE3456-B4E3-4542-AC7D-5AA67CB80A22}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7CAE3456-B4E3-4542-AC7D-5AA67CB80A22}.Release|x86.ActiveCfg = Release|Any CPU
+		{7CAE3456-B4E3-4542-AC7D-5AA67CB80A22}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
