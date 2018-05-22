@@ -164,7 +164,13 @@ namespace DataStatistic
         private static IEnumerable<IBarCounter> CreateBarCounters()
         {
             //yield return new PossibilityOfRaisingHighCounter();
-            yield return new GapDownBounceCounter(10, 0.0, 0.0, 0.0);
+            //yield return new GapDownBounceCounter(10, 0.0, 0.0, 0.0);
+            yield return new ContinueUpLimitCounter(1, 10, 3);
+            yield return new ContinueUpLimitCounter(2, 10, 3);
+            yield return new ContinueUpLimitCounter(3, 10, 3);
+            yield return new ContinueUpLimitCounter(4, 10, 3);
+            yield return new ContinueUpLimitCounter(5, 10, 3);
+            yield return new ContinueUpLimitCounter(6, 10, 3);
         }
     }
 }

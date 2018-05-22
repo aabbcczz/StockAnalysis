@@ -49,6 +49,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ContinueUpLimitCounter.cs" />
     <Compile Include="GapDownBounceCounter.cs" />
     <Compile Include="IBarCounter.cs" />
     <Compile Include="Options.cs" />
