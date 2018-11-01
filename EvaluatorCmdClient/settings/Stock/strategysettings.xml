@@ -560,7 +560,7 @@
         </ParameterSettings>
       </ComponentParameterSettings>
     </TradingStrategyComponentSettings>
-    <TradingStrategyComponentSettings Enabled="false" Name="单移动平均入市">
+    <TradingStrategyComponentSettings Enabled="true" Name="单移动平均入市">
       <ClassType>TradingStrategy.Strategy.SingleMovingAverageMarketEntering, TradingStrategy, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</ClassType>
       <Description>当收盘价和移动平均值满足触发条件时允许入市</Description>
       <ImplementedInterfaces>ITradingStrategyComponent;IMarketEnteringComponent</ImplementedInterfaces>
@@ -570,14 +570,14 @@
           <Description>移动平均指标名</Description>
           <ValueType>System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
           <DefaultValue xsi:type="xsd:string">AMA</DefaultValue>
-          <Values>AMA</Values>
+          <Values>MA</Values>
         </ParameterSettings>
         <ParameterSettings>
           <Name>MovingAveragePeriod</Name>
           <Description>移动平均周期</Description>
           <ValueType>System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
           <DefaultValue xsi:type="xsd:int">10</DefaultValue>
-          <Values>10</Values>
+          <Values>10/60/5</Values>
         </ParameterSettings>
         <ParameterSettings>
           <Name>Argument1</Name>
@@ -1246,7 +1246,7 @@
           <Description>权益利用率，[0.0..1.0], 0.0代表恒定权益利用率为1.0</Description>
           <ValueType>System.Double, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</ValueType>
           <DefaultValue xsi:type="xsd:double">1</DefaultValue>
-          <Values>0.0</Values>
+          <Values>0.3</Values>
         </ParameterSettings>
         <ParameterSettings>
           <Name>LimitNewPositionCountAsParts</Name>

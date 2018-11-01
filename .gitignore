@@ -226,3 +226,15 @@ RealTrading/RefDlls/trade.dll
 EvaluatorCmdClient/settings/Stock/gen.stockdatasettings.xml
 EvaluatorCmdClient/settings/Stock/gen.strategysettings.xml
 EvaluatorCmdClient/settings/Stock/gen.tradingsettings.xml
+EvaluatorCmdClient/settings/Stock/code.eval.0.txt
+EvaluatorCmdClient/settings/Stock/code.eval.1.txt
+EvaluatorCmdClient/settings/Stock/code.eval.2.txt
+EvaluatorCmdClient/settings/Stock/code.eval.3.txt
+EvaluatorCmdClient/settings/Stock/code.eval.4.txt
+EvaluatorCmdClient/settings/Stock/code.test.0.txt
+EvaluatorCmdClient/settings/Stock/code.test.1.txt
+EvaluatorCmdClient/settings/Stock/code.test.2.txt
+EvaluatorCmdClient/settings/Stock/code.test.3.txt
+EvaluatorCmdClient/settings/Stock/code.test.4.txt
+EvaluatorCmdClient/settings/Stock/code.txt
+EvaluatorCmdClient/settings/Stock/name.txt

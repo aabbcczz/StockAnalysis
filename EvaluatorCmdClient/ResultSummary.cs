@@ -15,7 +15,7 @@ namespace EvaluatorCmdClient
         private const int MaxParameterCount = 80;
         private const int MaxERatioCount = 40;
 
-        public sealed class ResultSummaryMap : CsvClassMap<ResultSummary>
+        public sealed class ResultSummaryMap : ClassMap<ResultSummary>
         {
             public ResultSummaryMap()
             {
