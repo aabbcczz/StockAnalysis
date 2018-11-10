@@ -10,7 +10,7 @@ namespace StockTrading.Utility
 {
     public sealed class TradingClient : IDisposable
     {
-        private Dictionary<StockExchange, string> _shareholderCodes = new Dictionary<StockExchange, string>();
+        private Dictionary<IExchange, string> _shareholderCodes = new Dictionary<IExchange, string>();
 
         public int ClientId { get; private set; }
 
@@ -344,7 +344,7 @@ namespace StockTrading.Utility
             return succeeds;
         }
 
-        public string GetShareholderCode(StockExchange exchange)
+        public string GetShareholderCode(IExchange exchange)
         {
             CheckLoggedOn();
 
@@ -360,7 +360,7 @@ namespace StockTrading.Utility
 
         public string GetShareholderCode(string securityCode)
         {
-            StockExchange exchange = StockExchange.GetTradingExchangeForSecurity(securityCode);
+            IExchange exchange = ExchangeFactory.GetTradingExchangeForSecurity(securityCode);
             if (exchange == null)
             {
                 return string.Empty;
@@ -508,7 +508,7 @@ namespace StockTrading.Utility
 
             string resultString;
 
-            StockExchange exchange = StockExchange.GetTradingExchangeForSecurity(code);
+            IExchange exchange = ExchangeFactory.GetTradingExchangeForSecurity(code);
             if (exchange == null)
             {
                 result = null;
@@ -549,7 +549,7 @@ namespace StockTrading.Utility
             string[] resultStrings;
 
 
-            var exchangeIds = codes.Select(c => StockExchange.GetTradingExchangeForSecurity(c))
+            var exchangeIds = codes.Select(c => ExchangeFactory.GetTradingExchangeForSecurity(c))
                 .Select(e => e == null ? string.Empty : e.ExchangeId.ToString())
                 .ToArray();
             var orderNoStrings = orderNos.Select(id => id.ToString()).ToArray();

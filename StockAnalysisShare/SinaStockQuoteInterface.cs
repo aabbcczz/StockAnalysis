@@ -17,9 +17,9 @@ namespace StockAnalysis.Share
 
         private static string NormalizeCode(string code)
         {
-            var exchange = StockExchange.GetExchangeById(StockName.GetExchangeId(code));
+            var exchange = ExchangeFactory.CreateExchangeById(StockName.GetExchangeId(code));
 
-            string prefix = exchange.CapitalizedAbbreviation.ToLowerInvariant();
+            string prefix = exchange.CapitalizedSymbolPrefix.ToLowerInvariant();
 
             return prefix + code;
         }

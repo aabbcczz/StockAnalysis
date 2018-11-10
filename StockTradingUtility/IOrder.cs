@@ -31,7 +31,7 @@ namespace StockTrading.Utility
         /// <summary>
         /// 所属交易所
         /// </summary>
-        StockExchange Exchange { get; }
+        IExchange Exchange { get; }
 
         /// <summary>
         /// 期待执行数量

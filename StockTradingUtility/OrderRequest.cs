@@ -22,7 +22,7 @@ namespace StockTrading.Utility
         /// <summary>
         /// 委托价格类型
         /// </summary>
-        public StockOrderPricingType PricingType { get; set; }
+        public OrderPricingType PricingType { get; set; }
 
         /// <summary>
         /// 证券代码

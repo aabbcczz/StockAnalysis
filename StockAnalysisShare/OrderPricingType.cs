@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace StockAnalysis.Share
 {
-    public enum StockOrderPricingType : int
+    public enum OrderPricingType : int
     {
         /// <summary>
         /// 限价委托

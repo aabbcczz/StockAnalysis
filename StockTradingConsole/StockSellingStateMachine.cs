@@ -263,7 +263,7 @@ namespace StockTradingConsole
             {
                 Category = OrderCategory.Sell,
                 Price = sellingPrice,
-                PricingType = StockOrderPricingType.LimitPrice,
+                PricingType = OrderPricingType.LimitPrice,
                 Volume = ChinaStockHelper.ConvertHandToVolume(volumeInHand),
                 SecurityCode = _stock.Name.RawCode,
                 SecurityName = _stock.Name.Names[0]
@@ -280,7 +280,7 @@ namespace StockTradingConsole
             {
                 Category = OrderCategory.Sell,
                 Price = 0.01f,
-                PricingType = StockOrderPricingType.MarketPriceMakeDealInFiveGradesThenCancel,
+                PricingType = OrderPricingType.MarketPriceMakeDealInFiveGradesThenCancel,
                 Volume = ChinaStockHelper.ConvertHandToVolume(volumeInHand),
                 SecurityCode = _stock.Name.RawCode,
                 SecurityName = _stock.Name.Names[0]
@@ -382,7 +382,7 @@ namespace StockTradingConsole
                 return false;
             }
 
-            if (_stock.Name.ExchangeId != StockExchange.StockExchangeId.ShenzhenExchange)
+            if (_stock.Name.ExchangeId != ExchangeId.ShenzhenSecurityExchange)
             {
                 return false;
             }
@@ -416,7 +416,7 @@ namespace StockTradingConsole
                 return false;
             }
 
-            if (_stock.Name.ExchangeId != StockExchange.StockExchangeId.ShanghaiExchange)
+            if (_stock.Name.ExchangeId != ExchangeId.ShanghaiSecurityExchange)
             {
                 return false;
             }

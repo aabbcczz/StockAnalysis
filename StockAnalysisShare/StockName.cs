@@ -8,7 +8,7 @@ namespace StockAnalysis.Share
         public static string CanonicalNameSeparator = ".";
         public static string[] CanonicalNameSeparators = new string[] { "." };
 
-        public StockExchange.StockExchangeId ExchangeId { get; private set; }
+        public ExchangeId ExchangeId { get; private set; }
 
         public StockBoard Board { get; private set; }
 
@@ -42,15 +42,15 @@ namespace StockAnalysis.Share
 
             if (fields.Length == 1)
             {
-                var abbreviations = StockExchange.GetExchangeCapitalizedAbbrevations();
+                var prefixes = ExchangeFactory.GetAllExchangeCapitalizedSymbolPrefixes();
 
-                foreach (var abbr in abbreviations)
+                foreach (var prefix in prefixes)
                 {
-                    if (code.StartsWith(abbr))
+                    if (code.StartsWith(prefix))
                     {
-                        StockExchange exchange;
+                        IExchange exchange;
 
-                        return StockExchange.TryGetExchangeByAbbreviation(abbr, out exchange);
+                        return ExchangeFactory.TryCreateExchange(prefix, out exchange);
                     }
                 }
 
@@ -58,9 +58,9 @@ namespace StockAnalysis.Share
             }
             else
             {
-                StockExchange exchange;
+                IExchange exchange;
 
-                return StockExchange.TryGetExchangeByAbbreviation(fields[0], out exchange);
+                return ExchangeFactory.TryCreateExchange(fields[0], out exchange);
             }
         }
 
@@ -74,12 +74,12 @@ namespace StockAnalysis.Share
             return new StockName(code).RawCode;
         }
 
-        public static StockExchange.StockExchangeId GetExchangeId(string code)
+        public static ExchangeId GetExchangeId(string code)
         {
             return new StockName(code).ExchangeId;
         }
 
-        private static StockExchange.StockExchangeId GetExchangeIdForRawCode(string code)
+        private static ExchangeId GetExchangeIdForRawCode(string code)
         {
             switch (code[0])
             {
@@ -87,12 +87,12 @@ namespace StockAnalysis.Share
                 case '1':
                 case '2':
                 case '3':
-                    return StockExchange.StockExchangeId.ShenzhenExchange;
+                    return ExchangeId.ShenzhenSecurityExchange;
                 case '5':
                 case '6':
                 case '7':
                 case '9':
-                    return StockExchange.StockExchangeId.ShanghaiExchange;
+                    return ExchangeId.ShanghaiSecurityExchange;
                 default:
                     throw new InvalidOperationException(string.Format("unsupported code {0}", code));
             }
@@ -128,15 +128,15 @@ namespace StockAnalysis.Share
         {
         }
 
-        private void SetValues(StockExchange exchange, string rawCode)
+        private void SetValues(IExchange exchange, string rawCode)
         {
             RawCode = rawCode;
-            CanonicalCode = exchange.CapitalizedAbbreviation + CanonicalNameSeparator + rawCode;
-            ExchangeId = exchange.ExchangeId;
+            CanonicalCode = exchange.CapitalizedSymbolPrefix + CanonicalNameSeparator + rawCode;
+            ExchangeId = ExchangeId;
             Board = GetBoard(rawCode);
         }
 
-        private StockName(string code, StockExchange exchange = null)
+        private StockName(string code, IExchange exchange = null)
         {
             code = SkipOldLeading(code);
 
@@ -151,14 +151,14 @@ namespace StockAnalysis.Share
             {
                 if (exchange == null)
                 {
-                    var abbreviations = StockExchange.GetExchangeCapitalizedAbbrevations();
+                    var prefixes = ExchangeFactory.GetAllExchangeCapitalizedSymbolPrefixes();
 
-                    foreach (var abbr in abbreviations)
+                    foreach (var prefix in prefixes)
                     {
-                        if (code.StartsWith(abbr))
+                        if (code.StartsWith(prefix))
                         {
-                            exchange = StockExchange.GetExchangeByAbbreviation(abbr);
-                            var rawCode = code.Substring(abbr.Length);
+                            exchange = ExchangeFactory.CreateExchangeBySymbolPrefix(prefix);
+                            var rawCode = code.Substring(prefix.Length);
 
                             SetValues(exchange, rawCode);
                             return;
@@ -166,7 +166,7 @@ namespace StockAnalysis.Share
                     }
 
                     {
-                        exchange = StockExchange.GetExchangeById(GetExchangeIdForRawCode(code));
+                        exchange = ExchangeFactory.CreateExchangeById(GetExchangeIdForRawCode(code));
                         SetValues(exchange, code);
                     }
                 }
@@ -177,8 +177,8 @@ namespace StockAnalysis.Share
             }
             else
             {
-                var exchangeDerivedFromCode = StockExchange.GetExchangeByAbbreviation(fields[0]);
-                if (exchange != null && exchangeDerivedFromCode.ExchangeId != exchange.ExchangeId)
+                var exchangeDerivedFromCode = ExchangeFactory.CreateExchangeBySymbolPrefix(fields[0]);
+                if (exchange != null && exchangeDerivedFromCode.ExchangeId != ExchangeId)
                 {
                     throw new InvalidOperationException("Exchange derived from code is not the exchange specified in arguments");
                 }
@@ -194,7 +194,7 @@ namespace StockAnalysis.Share
             Names = new[] { name };
         }
 
-        public StockName(StockExchange exchange, string code, string name)
+        public StockName(IExchange exchange, string code, string name)
             : this(code, exchange)
         {
             Names = new[] { name };
@@ -206,7 +206,7 @@ namespace StockAnalysis.Share
             Names = names;
         }
 
-        public StockName(StockExchange exchange, string code, string[] names)
+        public StockName(IExchange exchange, string code, string[] names)
             : this(code, exchange)
         {
             Names = names;

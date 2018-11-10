@@ -39,7 +39,7 @@ namespace GetFinanceReports
                 throw new ArgumentNullException("outputFile");
             }
 
-            var address = ReportServerAddressFormatter.Format(FinanceReportServerAddress, stock, ReportServerAddressFormatter.DefaultAbbrevationMarketFormatter);
+            var address = ReportServerAddressFormatter.Format(FinanceReportServerAddress, stock, ReportServerAddressFormatter.DefaultAbbreviationMarketFormatter);
 
             return FetchReport(address, outputFile, out errorMessage);
         }

@@ -67,6 +67,6 @@ namespace StockTrading.Utility
         /// <summary>
         /// 报价方式
         /// </summary>
-        public StockOrderPricingType PricingType { get; set; }
+        public OrderPricingType PricingType { get; set; }
     }
 }

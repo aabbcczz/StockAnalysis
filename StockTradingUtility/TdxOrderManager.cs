@@ -19,7 +19,7 @@ namespace StockTrading.Utility
             return ++_nextOrderNo;
         }
 
-        public void SendOrder(OrderCategory category, StockOrderPricingType priceType, string shareholderCode, string securityCode, float price, int quantity, out string result, out string error)
+        public void SendOrder(OrderCategory category, OrderPricingType priceType, string shareholderCode, string securityCode, float price, int quantity, out string result, out string error)
         {
             result = string.Empty;
             error = string.Empty;

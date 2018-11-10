@@ -390,7 +390,7 @@ namespace StockTradingConsole
             {
                 Category = OrderCategory.Buy,
                 Price = buyingPrice,
-                PricingType = StockOrderPricingType.LimitPrice,
+                PricingType = OrderPricingType.LimitPrice,
                 Volume = ChinaStockHelper.ConvertHandToVolume(volumeInHand),
                 SecurityCode = _stock.Name.RawCode,
                 SecurityName = _stock.Name.Names[0]

@@ -35,7 +35,7 @@ namespace StockTrading.Utility
         /// <summary>
         /// 所属交易所
         /// </summary>
-        public StockExchange Exchange { get; private set; }
+        public IExchange Exchange { get; private set; }
 
         /// <summary>
         /// 资金账号
@@ -73,7 +73,10 @@ namespace StockTrading.Utility
                 int index = 0;
                 result.ShareholderCode = row[index++];
                 result.ShareholderName = row[index++];
-                result.Exchange = row[index] == "0" ? StockExchange.ShenzhenExchange : (row[index] == "1" ? StockExchange.ShanghaiExchange : null); 
+                result.Exchange = 
+                    row[index] == "0" 
+                    ? ExchangeFactory.CreateExchangeById(ExchangeId.ShenzhenSecurityExchange) 
+                    : (row[index] == "1" ? ExchangeFactory.CreateExchangeById(ExchangeId.ShanghaiSecurityExchange) : null); 
                 index++;
 
                 result.CapitalAccount = row[index++];

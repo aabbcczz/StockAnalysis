@@ -109,7 +109,7 @@ namespace StockTrading.Utility
                 SecurityName = this.SecurityName,
                 Category = OrderCategory.Sell,
                 Price = this.StoplossPrice,
-                PricingType = StockOrderPricingType.MarketPriceMakeDealInFiveGradesThenCancel,
+                PricingType = OrderPricingType.MarketPriceMakeDealInFiveGradesThenCancel,
                 Volume = this.RemainingVolume,
             };
 
