@@ -39,7 +39,7 @@ namespace ImportTable
             options.Print(Console.Out);
 
             var tableName = Path.GetFileNameWithoutExtension(options.CsvFile);
-            var csv = Csv.Load(options.CsvFile, Encoding.UTF8, options.Separator);
+            var csv = CsvTable.Load(options.CsvFile, Encoding.UTF8, options.Separator);
 
             using (var connection = new SqlConnection(Settings.Default.stockConnectionString))
             {

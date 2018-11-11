@@ -36,8 +36,8 @@ namespace CalcMarketValue
         {
             options.Print(Console.Out);
 
-            var shareInfo = Csv.Load(options.ShareFile, Encoding.GetEncoding("gb2312"), "\t", StringSplitOptions.RemoveEmptyEntries);
-            var priceInfo = Csv.Load(options.PriceFile, Encoding.GetEncoding("gb2312"), "\t", StringSplitOptions.RemoveEmptyEntries);
+            var shareInfo = CsvTable.Load(options.ShareFile, Encoding.GetEncoding("gb2312"), "\t", StringSplitOptions.RemoveEmptyEntries);
+            var priceInfo = CsvTable.Load(options.PriceFile, Encoding.GetEncoding("gb2312"), "\t", StringSplitOptions.RemoveEmptyEntries);
 
             var codeColumnIndexInShareInfo = Array.IndexOf(shareInfo.Header, "代码");
             var totalShareNumberColumnIndex = Array.IndexOf(shareInfo.Header, "总股数");
@@ -76,7 +76,7 @@ namespace CalcMarketValue
                 "MarketPrice"
             };
 
-            var marketValues = new Csv(header);
+            var marketValues = new CsvTable(header);
             foreach (var code in codes)
             {
                 var row = new[]
@@ -90,7 +90,7 @@ namespace CalcMarketValue
                 marketValues.AddRow(row);
             }
 
-            Csv.Save(marketValues, options.OutputFile, Encoding.UTF8, ",");
+            CsvTable.Save(marketValues, options.OutputFile, Encoding.UTF8, ",");
 
             Console.WriteLine("Done.");
         }

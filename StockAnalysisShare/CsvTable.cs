@@ -6,7 +6,7 @@ using System.IO;
 
 namespace StockAnalysis.Share
 {
-    public sealed class Csv
+    public sealed class CsvTable
     {
         private readonly string[] _header;
         private readonly List<string[]> _rows = new List<string[]>();
@@ -29,7 +29,7 @@ namespace StockAnalysis.Share
 
         public int ColumnCount { get { return _header.Length; }}
 
-        public Csv(string[] header)
+        public CsvTable(string[] header)
         {
             if (header == null)
             {
@@ -56,7 +56,7 @@ namespace StockAnalysis.Share
             return _rows.Count - 1;
         }
 
-        public static Csv Load(string file, Encoding encoding, string separator, StringSplitOptions options = StringSplitOptions.None, int skipLineCount = 0, bool skipInvalidLine = true)
+        public static CsvTable Load(string file, Encoding encoding, string separator, StringSplitOptions options = StringSplitOptions.None, int skipLineCount = 0, bool skipInvalidLine = true)
         {
             using (var reader = new StreamReader(file, encoding))
             {
@@ -80,7 +80,7 @@ namespace StockAnalysis.Share
 
                 var header = headerLine.Split(splitter, options).Select(s => s.Trim()).ToArray();
 
-                var csv = new Csv(header);
+                var csv = new CsvTable(header);
 
                 string line;
                 while ((line = reader.ReadLine()) != null)
@@ -109,7 +109,7 @@ namespace StockAnalysis.Share
             }
         }
 
-        public static void Save(Csv csv, string file, Encoding encoding, string separator)
+        public static void Save(CsvTable csv, string file, Encoding encoding, string separator)
         {
             if (csv == null)
             {

@@ -37,7 +37,7 @@ namespace StockAnalysis.Share
                 throw new ArgumentNullException();
             }
 
-            var inputData = Csv.Load(file, Encoding.UTF8, ",");
+            var inputData = CsvTable.Load(file, Encoding.UTF8, ",");
 
             if (inputData.RowCount == 0)
             {
@@ -122,7 +122,7 @@ namespace StockAnalysis.Share
                 throw new ArgumentNullException();
             }
 
-            var inputData = Csv.Load(file, Encoding.UTF8, ",");
+            var inputData = CsvTable.Load(file, Encoding.UTF8, ",");
 
             if (inputData.RowCount == 0)
             {

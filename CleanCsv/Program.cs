@@ -15,7 +15,7 @@ namespace CleanCsv
                 Environment.Exit(-2);
             }
 
-            var input = Csv.Load(args[0], Encoding.GetEncoding("gb2312"), "\t", StringSplitOptions.RemoveEmptyEntries);
+            var input = CsvTable.Load(args[0], Encoding.GetEncoding("gb2312"), "\t", StringSplitOptions.RemoveEmptyEntries);
 
             for (var i = 0; i < input.Header.Length; ++i)
             {
@@ -43,7 +43,7 @@ namespace CleanCsv
                 }
             }
 
-            Csv.Save(input, args[1], Encoding.UTF8, ",");
+            CsvTable.Save(input, args[1], Encoding.UTF8, ",");
 
             Console.WriteLine("Done.");
         }

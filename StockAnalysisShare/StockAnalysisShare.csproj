@@ -80,7 +80,7 @@
     <Compile Include="ChinaStockHelper.cs" />
     <Compile Include="ChinaStockTick.cs" />
     <Compile Include="Country.cs" />
-    <Compile Include="Csv.cs" />
+    <Compile Include="CsvTable.cs" />
     <Compile Include="DataDictionary.cs" />
     <Compile Include="ExchangeBase.cs" />
     <Compile Include="ExchangeFactory.cs" />

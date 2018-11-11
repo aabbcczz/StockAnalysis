@@ -181,10 +181,10 @@ namespace ProcessDailyStockData
                 return;
             }
 
-            var fullData = Csv.Load(fullDataFile, Encoding.UTF8, ",");
-            var deltaData = Csv.Load(deltaDataFile, Encoding.UTF8, ",");
+            var fullData = CsvTable.Load(fullDataFile, Encoding.UTF8, ",");
+            var deltaData = CsvTable.Load(deltaDataFile, Encoding.UTF8, ",");
 
-            var mergedData = new Csv(fullData.Header);
+            var mergedData = new CsvTable(fullData.Header);
 
 
             var orderedFullData = fullData.Rows
@@ -261,7 +261,7 @@ namespace ProcessDailyStockData
             }
 
             // save merged file to full data file
-            Csv.Save(mergedData, fullDataFile, Encoding.UTF8, ",");
+            CsvTable.Save(mergedData, fullDataFile, Encoding.UTF8, ",");
 
             // remove delta file after merging
             File.Delete(deltaDataFile);
