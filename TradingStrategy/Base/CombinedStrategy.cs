@@ -343,9 +343,9 @@ namespace TradingStrategy.Base
 
                 Position[] positions;
 
-                if (_context.ExistsPosition(tradingObject.Code))
+                if (_context.ExistsPosition(tradingObject.Symbol))
                 {
-                    var temp = _context.GetPositionDetails(tradingObject.Code);
+                    var temp = _context.GetPositionDetails(tradingObject.Symbol);
                     positions = temp as Position[] ?? temp.ToArray();
                 }
                 else
@@ -588,11 +588,11 @@ namespace TradingStrategy.Base
                     var randomizedInstructions = instructions.OrderBy(instruction => _random.Next());
                     return randomizedInstructions;
 
-                case InstructionSortMode.SortByCodeAscending:
-                    return instructions.OrderBy(instruction => instruction.TradingObject.Code);
+                case InstructionSortMode.SortBySymbolAscending:
+                    return instructions.OrderBy(instruction => instruction.TradingObject.Symbol);
 
-                case InstructionSortMode.SortByCodeDescending:
-                    return instructions.OrderBy(instruction => instruction.TradingObject.Code).Reverse();
+                case InstructionSortMode.SortBySymbolDescending:
+                    return instructions.OrderBy(instruction => instruction.TradingObject.Symbol).Reverse();
 
                 case InstructionSortMode.SortByInstructionIdAscending:
                     return instructions.OrderBy(instruction => instruction.Id);
@@ -627,12 +627,12 @@ namespace TradingStrategy.Base
 
             var IncreasePositionInstructions = _instructionsInCurrentPeriod
                 .Where(instruction => instruction.Action == TradingAction.OpenLong
-                     && _context.ExistsPosition(instruction.TradingObject.Code))
+                     && _context.ExistsPosition(instruction.TradingObject.Symbol))
                 .ToList();
 
             var NewPositionInstructions = _instructionsInCurrentPeriod
                 .Where(instruction => instruction.Action == TradingAction.OpenLong
-                    && !_context.ExistsPosition(instruction.TradingObject.Code))
+                    && !_context.ExistsPosition(instruction.TradingObject.Symbol))
                 .ToList();
 
             // sort instructions
@@ -681,17 +681,17 @@ namespace TradingStrategy.Base
         private void AdjustInstructions()
         {
             // it is possible the open long instruction conflicts with close long instruction, and we always put close long as top priority
-            var closeLongCodes = _instructionsInCurrentPeriod
+            var closeLongSymbols = _instructionsInCurrentPeriod
                 .Where(instruction => instruction.Action == TradingAction.CloseLong)
-                .Select(instruction => instruction.TradingObject.Code)
-                .GroupBy(code => code)
+                .Select(instruction => instruction.TradingObject.Symbol)
+                .GroupBy(symbol => symbol)
                 .Select(g => g.Key)
-                .ToDictionary(code => code);
+                .ToDictionary(symbol => symbol);
 
             _instructionsInCurrentPeriod = _instructionsInCurrentPeriod
                 .Where(instruction => instruction.Action == TradingAction.CloseLong 
                     || (instruction.Action == TradingAction.OpenLong 
-                        && !closeLongCodes.ContainsKey(instruction.TradingObject.Code)))
+                        && !closeLongSymbols.ContainsKey(instruction.TradingObject.Symbol)))
                 .ToList();
 
             // randomly remove instruction
@@ -751,14 +751,14 @@ namespace TradingStrategy.Base
                 if (transaction.Succeeded)
                 {
                     // update the stop loss and risk for new positions
-                    var code = transaction.Code;
-                    if (!_context.ExistsPosition(code))
+                    var symbol = transaction.Symbol;
+                    if (!_context.ExistsPosition(symbol))
                     {
                         throw new InvalidOperationException(
-                            string.Format("There is no position for {0} when calling this function", code));
+                            string.Format("There is no position for {0} when calling this function", symbol));
                     }
 
-                    var positions = _context.GetPositionDetails(code);
+                    var positions = _context.GetPositionDetails(symbol);
 
                     if (!positions.Any())
                     {
@@ -779,7 +779,7 @@ namespace TradingStrategy.Base
                                 string.Format(
                                     "Set stop loss for position {0}/{1} as {2:0.000}",
                                     position.Id,
-                                    position.Code,
+                                    position.Symbol,
                                     openInstruction.StopLossPriceForBuying));
                         }
                     }
@@ -803,7 +803,7 @@ namespace TradingStrategy.Base
                                         string.Format(
                                             "PositionAdjusting:IncreaseStopLoss: Set stop loss for position {0}/{1} as {2:0.000}",
                                             position.Id,
-                                            position.Code,
+                                            position.Symbol,
                                             newStopLossPrice));
                                 }
                             }

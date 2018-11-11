@@ -41,7 +41,7 @@ namespace StockTrading.Utility
         /// <summary>
         /// 证券代码
         /// </summary>
-        public string SecurityCode { get; private set; }
+        public string SecuritySymbol { get; private set; }
 
         /// <summary>
         /// 证券名称
@@ -86,7 +86,7 @@ namespace StockTrading.Utility
                 result.OrderNo = int.Parse(row[index++]);
                 result.DealNo = int.Parse(row[index++]);
                 result.DealTime = row[index++];
-                result.SecurityCode = row[index++];
+                result.SecuritySymbol = row[index++];
                 result.SecurityName = row[index++];
                 result.BuySellFlag = row[index++];
                 result.DealPrice = TradingHelper.SafeParseFloat(row[index++], 0.0f);

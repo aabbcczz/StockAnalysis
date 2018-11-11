@@ -14,11 +14,11 @@ namespace StockAnalysis.Share
 
         public int Count { get { return _names.Count; } }
 
-        public T this[string code]
+        public T this[string symbol]
         {
             get 
             {
-                return _names[code];
+                return _names[symbol];
             }
         }
 
@@ -28,12 +28,12 @@ namespace StockAnalysis.Share
 
         public void AddName(T name)
         {
-            _names.Add(name.NormalizedCode, name);
+            _names.Add(name.NormalizedSymbol, name);
         }
 
-        public bool ContainsObject(string code)
+        public bool ContainsObject(string symbol)
         {
-            return _names.ContainsKey(code);
+            return _names.ContainsKey(symbol);
         }
 
         /// <summary>
@@ -41,7 +41,7 @@ namespace StockAnalysis.Share
         /// </summary>
         /// <param name="fileName">file that contains the stock names. 
         /// The file must be UTF-8 encoded, and each line is formated as:
-        /// code|name1|name2|...
+        /// symbol|name1|name2|...
         /// </param>
         /// <param name="onError">function to handle invalid input line in the file. default value is null.
         /// if the value is null, exception will be thrown out when invalid input line is encounted, 
@@ -70,8 +70,8 @@ namespace StockAnalysis.Share
                     {
                         T name = (T)(new T().ParseFromString(line));
 
-                        // avoid duplicated stock name (two stocks are treated as duplicated iff. their code are the same)
-                        if (!ContainsObject(name.NormalizedCode))
+                        // avoid duplicated stock name (two stocks are treated as duplicated iff. their symbol are the same)
+                        if (!ContainsObject(name.NormalizedSymbol))
                         {
                             AddName(name);
                         }

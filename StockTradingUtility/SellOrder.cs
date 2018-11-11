@@ -15,8 +15,8 @@ namespace StockTrading.Utility
         public int RemainingVolume { get; private set; }
 
 
-        public SellOrder(string securityCode, string securityName, float sellPrice, int volume, WaitableConcurrentQueue<OrderExecutedMessage> orderExecutedMessageReceiver)
-            : base(securityCode, securityName, volume, orderExecutedMessageReceiver)
+        public SellOrder(string securitySymbol, string securityName, float sellPrice, int volume, WaitableConcurrentQueue<OrderExecutedMessage> orderExecutedMessageReceiver)
+            : base(securitySymbol, securityName, volume, orderExecutedMessageReceiver)
         {
             if (sellPrice < 0.0)
             {
@@ -43,7 +43,7 @@ namespace StockTrading.Utility
         {
             OrderRequest request = new OrderRequest(this);
 
-            request.SecurityCode = SecurityCode;
+            request.SecuritySymbol = SecuritySymbol;
             request.SecurityName = SecurityName;
             request.Category = OrderCategory.Sell;
             request.Price = SellPrice;

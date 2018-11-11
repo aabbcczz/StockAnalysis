@@ -9,18 +9,18 @@ namespace StockTrading.Utility
 {
     public sealed class QuoteSubscription
     {
-        public string SecurityCode { get; private set; }
+        public string SecuritySymbol { get; private set; }
 
         public WaitableConcurrentQueue<QuoteResult> ResultQueue { get; private set; }
 
-        public QuoteSubscription(string code, WaitableConcurrentQueue<QuoteResult> receiver)
+        public QuoteSubscription(string symbol, WaitableConcurrentQueue<QuoteResult> receiver)
         {
-            if (string.IsNullOrEmpty(code) || receiver == null)
+            if (string.IsNullOrEmpty(symbol) || receiver == null)
             {
                 throw new ArgumentNullException();
             }
 
-            SecurityCode = code;
+            SecuritySymbol = symbol;
             ResultQueue = receiver;
         }
     }

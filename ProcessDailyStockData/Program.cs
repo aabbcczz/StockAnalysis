@@ -113,14 +113,14 @@ namespace ProcessDailyStockData
                     Encoding.UTF8);
             }
 
-            if (!string.IsNullOrEmpty(options.CodeFile))
+            if (!string.IsNullOrEmpty(options.SymbolFile))
             {
                 Console.WriteLine();
-                Console.WriteLine("Output code file: {0}", options.CodeFile);
+                Console.WriteLine("Output symbol file: {0}", options.SymbolFile);
 
                 File.WriteAllLines(
-                    options.CodeFile,
-                    table.Names.Select(sn => sn.NormalizedCode).ToArray(),
+                    options.SymbolFile,
+                    table.Names.Select(sn => sn.NormalizedSymbol).ToArray(),
                     Encoding.UTF8);
             }
 
@@ -151,8 +151,8 @@ namespace ProcessDailyStockData
                     return null;
                 }
 
-                var fullDataFile = Path.Combine(outputFileFolder, name.NormalizedCode + ".day.csv");
-                var deltaDataFile = Path.Combine(outputFileFolder, name.NormalizedCode + ".day.delta.csv");
+                var fullDataFile = Path.Combine(outputFileFolder, name.NormalizedSymbol + ".day.csv");
+                var deltaDataFile = Path.Combine(outputFileFolder, name.NormalizedSymbol + ".day.delta.csv");
 
                 var generateDeltaFile = File.Exists(fullDataFile);
 

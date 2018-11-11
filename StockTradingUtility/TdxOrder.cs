@@ -22,7 +22,7 @@ namespace StockTrading.Utility
         /// <summary>
         /// 证券代码
         /// </summary>
-        public string SecurityCode { get; set; }
+        public string SecuritySymbol { get; set; }
 
         /// <summary>
         /// 证券名称

@@ -108,7 +108,7 @@ namespace CorrelationCalculator
             // begin to calculate pearson correlation coefficient
 
             // get names 
-            var codeAndNames = allData.Select(d => d.Name.NormalizedCode + " " + d.Name.Names[0]).ToArray();
+            var symbolAndNames = allData.Select(d => d.Name.NormalizedSymbol + " " + d.Name.Names[0]).ToArray();
 
             // align data and fill missed data
             // 1. select all distince date
@@ -212,14 +212,14 @@ namespace CorrelationCalculator
                     string separator = ",";
 
                     // write header
-                    string header = "N/A" + separator + string.Join(separator, codeAndNames);
+                    string header = "N/A" + separator + string.Join(separator, symbolAndNames);
                     outputWriter.WriteLine(header);
                     intersectionWriter.WriteLine(header);
 
                     // write metric
                     for (int i = 0; i < coefficientMatrix.RowCount; ++i)
                     {
-                        string content = codeAndNames[i] + separator
+                        string content = symbolAndNames[i] + separator
                             + string.Join(
                                 separator,
                                 Enumerable
@@ -228,7 +228,7 @@ namespace CorrelationCalculator
 
                         outputWriter.WriteLine(content);
 
-                        string intersection = codeAndNames[i] + separator
+                        string intersection = symbolAndNames[i] + separator
                             + string.Join(
                                 separator,
                                 Enumerable

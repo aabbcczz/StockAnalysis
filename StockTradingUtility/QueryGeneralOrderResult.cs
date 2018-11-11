@@ -39,7 +39,7 @@ namespace StockTrading.Utility
         /// <summary>
         /// 证券代码
         /// </summary>
-        public string SecurityCode { get; private set; }
+        public string SecuritySymbol { get; private set; }
 
         /// <summary>
         /// 证券名称
@@ -107,7 +107,7 @@ namespace StockTrading.Utility
                 int index = 0;
                 result.OrderNo = int.Parse(row[index++]);
                 result.SubmissionTime = row[index++];
-                result.SecurityCode = row[index++];
+                result.SecuritySymbol = row[index++];
                 result.SecurityName = row[index++];
                 result.BuySellFlag = row[index++];
                 result.StatusString = row[index++];

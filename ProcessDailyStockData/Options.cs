@@ -22,8 +22,8 @@ namespace ProcessDailyStockData
         [Option('n', "NameFile", HelpText = "The output file that stores stock names")]
         public string NameFile { get; set; }
 
-        [Option('c', "CodeFile", HelpText = "The code file that stores stock codes")]
-        public string CodeFile { get; set; }
+        [Option('c', "SymbolFile", HelpText = "The symbol file that stores stock symbols")]
+        public string SymbolFile { get; set; }
 
         [Option('s', "StartDate", HelpText = "The start date of data being processed")]
         public DateTime StartDate { get; set; }

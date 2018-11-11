@@ -24,12 +24,12 @@ namespace TradingStrategy.Strategy
 
         public override IEnumerable<Instruction> AdjustPositions()
         {
-            var codes = Context.GetAllPositionCodes().ToArray();
+            var symbols = Context.GetAllPositionSymbols().ToArray();
             var instructions = new List<Instruction>();
 
-            foreach (var code in codes)
+            foreach (var symbol in symbols)
             {
-                var positions = Context.GetPositionDetails(code);
+                var positions = Context.GetPositionDetails(symbol);
                 if (positions.Count() != 1)
                 {
                     continue;
@@ -41,7 +41,7 @@ namespace TradingStrategy.Strategy
                     continue;
                 }
 
-                var tradingObject = Context.GetTradingObject(code);
+                var tradingObject = Context.GetTradingObject(symbol);
                 var todayBar = Context.GetBarOfTradingObjectForCurrentPeriod(tradingObject);
                 var dropPercentage = (todayBar.OpenPrice - todayBar.ClosePrice) / todayBar.OpenPrice * 100.0;
 

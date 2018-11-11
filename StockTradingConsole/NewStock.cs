@@ -23,7 +23,7 @@ namespace StockTradingConsole
         public NewStock(NewStockForSerialization nss)
         {
             DateToBuy = nss.DateToBuy;
-            Name = new StockName(nss.SecurityCode, nss.SecurityName);
+            Name = new StockName(nss.SecuritySymbol, nss.SecurityName);
             BuyPriceUpLimitInclusive = nss.BuyPriceUpLimitInclusive;
             BuyPriceDownLimitInclusive = nss.BuyPriceDownLimitInclusive;
             TotalCapitalUsedToBuy = nss.TotalCapitalUsedToBuy;

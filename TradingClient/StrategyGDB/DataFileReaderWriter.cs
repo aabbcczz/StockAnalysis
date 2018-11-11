@@ -48,11 +48,11 @@ namespace TradingClient.StrategyGDB
             List<NewStock> newStocks = ReadNewStocks();
             List<ExistingStock> existingStocks = ReadExistingStocks();
 
-            if (newStocks.Select(s => s.SecurityCode)
-                .Intersect(existingStocks.Select(s => s.SecurityCode))
+            if (newStocks.Select(s => s.SecuritySymbol)
+                .Intersect(existingStocks.Select(s => s.SecuritySymbol))
                 .Count() != 0)
             {
-                throw new InvalidDataException("There is duplicate code in NewStocks and ExistingStocks");
+                throw new InvalidDataException("There is duplicate symbol in NewStocks and ExistingStocks");
             }
 
             _newStocks = newStocks;
@@ -81,7 +81,7 @@ namespace TradingClient.StrategyGDB
 
                     foreach (var stock in stocks)
                     {
-                        stock.SecurityCode = StockName.GetRawCode(stock.SecurityCode);
+                        stock.SecuritySymbol = StockName.GetRawSymbol(stock.SecuritySymbol);
                         stock.ActualOpenPrice = float.NaN;
                         stock.ActualMaxBuyPrice = float.NaN;
                         stock.ActualOpenPriceDownLimit = float.NaN;
@@ -91,9 +91,9 @@ namespace TradingClient.StrategyGDB
                         stock.IsBuyable = false;
                     }
 
-                    if (stocks.GroupBy(s => s.SecurityCode).Count() < stocks.Count)
+                    if (stocks.GroupBy(s => s.SecuritySymbol).Count() < stocks.Count)
                     {
-                        throw new InvalidDataException("There is duplicate stock code");
+                        throw new InvalidDataException("There is duplicate stock symbol");
                     }
 
                     return stocks;
@@ -117,12 +117,12 @@ namespace TradingClient.StrategyGDB
 
                     foreach (var stock in stocks)
                     {
-                        stock.SecurityCode = StockName.GetRawCode(stock.SecurityCode);
+                        stock.SecuritySymbol = StockName.GetRawSymbol(stock.SecuritySymbol);
                     }
 
-                    if (stocks.GroupBy(s => s.SecurityCode).Count() < stocks.Count)
+                    if (stocks.GroupBy(s => s.SecuritySymbol).Count() < stocks.Count)
                     {
-                        throw new InvalidDataException("There is duplicate stock code");
+                        throw new InvalidDataException("There is duplicate stock symbol");
                     }
 
                     return stocks;
@@ -139,7 +139,7 @@ namespace TradingClient.StrategyGDB
                     List<NewStock> newStocks = new List<NewStock>(_newStocks);
                     foreach (var s in newStocks)
                     {
-                        s.SecurityCode = StockName.GetNormalizedCode(s.SecurityCode);
+                        s.SecuritySymbol = StockName.GetNormalizedSymbol(s.SecuritySymbol);
                     }
 
                     csvWriter.WriteRecords(newStocks);
@@ -156,7 +156,7 @@ namespace TradingClient.StrategyGDB
                     List<ExistingStock> existingStocks = new List<ExistingStock>(_existingStocks);
                     foreach (var s in existingStocks)
                     {
-                        s.SecurityCode = StockName.GetNormalizedCode(s.SecurityCode);
+                        s.SecuritySymbol = StockName.GetNormalizedSymbol(s.SecuritySymbol);
                     }
 
                     csvWriter.WriteRecords(existingStocks);

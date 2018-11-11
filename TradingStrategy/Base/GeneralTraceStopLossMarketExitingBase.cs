@@ -21,7 +21,7 @@ namespace TradingStrategy.Base
         {
             base.EvaluateSingleObject(tradingObject, bar);
 
-            if (Context.ExistsPosition(tradingObject.Code))
+            if (Context.ExistsPosition(tradingObject.Symbol))
             {
                 double maxPrice = Math.Max(_maxPrices[tradingObject.Index], bar.ClosePrice);
                 if (maxPrice == bar.ClosePrice)
@@ -35,7 +35,7 @@ namespace TradingStrategy.Base
                 string comments;
                 var stopLossPrice = CalculateStopLossPrice(tradingObject, maxPrice, out comments);
 
-                foreach (var position in Context.GetPositionDetails(tradingObject.Code))
+                foreach (var position in Context.GetPositionDetails(tradingObject.Symbol))
                 {
                     if (position.IsStopLossPriceInitialized())
                     {
@@ -48,7 +48,7 @@ namespace TradingStrategy.Base
                                 string.Format(
                                     "TraceStopLoss: Set stop loss for position {0}/{1} as {2:0.000}, {3}",
                                     position.Id,
-                                    position.Code,
+                                    position.Symbol,
                                     stopLossPrice,
                                     comments));
                         }

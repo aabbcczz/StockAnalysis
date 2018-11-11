@@ -11,7 +11,7 @@ namespace StockAnalysis.Share
 {
     public sealed class StockBlockRelationship
     {
-        public string StockCode { get; set; }
+        public string StockSymbol { get; set; }
         public string BlockName { get; set; }
 
         public static void SaveToFile(string file, IEnumerable<StockBlockRelationship> records)

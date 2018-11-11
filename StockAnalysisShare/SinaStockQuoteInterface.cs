@@ -15,27 +15,27 @@ namespace StockAnalysis.Share
 
         private static char[] lineSplitter = new char[] { '\n' };
 
-        private static string NormalizeCode(string code)
+        private static string NormalizeSymbol(string symbol)
         {
-            var exchange = ExchangeFactory.CreateExchangeById(StockName.GetExchangeId(code));
+            var exchange = ExchangeFactory.CreateExchangeById(StockName.GetExchangeId(symbol));
 
             string prefix = exchange.CapitalizedSymbolPrefix.ToLowerInvariant();
 
-            return prefix + code;
+            return prefix + symbol;
         }
 
-        private static string CreateUriString(string code)
+        private static string CreateUriString(string symbol)
         {
-            return SinaQuoteWebServiceUriPrefix + NormalizeCode(code);
+            return SinaQuoteWebServiceUriPrefix + NormalizeSymbol(symbol);
         }
 
-        private static string CreateUriString(IEnumerable<string> codes)
+        private static string CreateUriString(IEnumerable<string> symbols)
         {
             StringBuilder builder = new StringBuilder();
 
-            foreach (var code in codes)
+            foreach (var symbol in symbols)
             {
-                if (string.IsNullOrWhiteSpace(code))
+                if (string.IsNullOrWhiteSpace(symbol))
                 {
                     throw new ArgumentException("Empty string in input");
                 }
@@ -45,13 +45,13 @@ namespace StockAnalysis.Share
                     builder.Append(",");
                 }
 
-                builder.Append(NormalizeCode(code));
+                builder.Append(NormalizeSymbol(symbol));
             }
 
             return SinaQuoteWebServiceUriPrefix + builder.ToString();
         }
 
-        private static SinaStockQuote ParseSingleResponseString(string code, string responseString)
+        private static SinaStockQuote ParseSingleResponseString(string symbol, string responseString)
         {
             if (string.IsNullOrEmpty(responseString))
             {
@@ -72,7 +72,7 @@ namespace StockAnalysis.Share
                 return null;
             }
 
-            return new SinaStockQuote(code, trimedString);
+            return new SinaStockQuote(symbol, trimedString);
         }
 
         private static async Task<string> GetResponseString(string uriString)
@@ -106,42 +106,42 @@ namespace StockAnalysis.Share
             //return responseString;
         }
 
-        public static async Task<SinaStockQuote> GetQuote(string code)
+        public static async Task<SinaStockQuote> GetQuote(string symbol)
         {
-            if (string.IsNullOrWhiteSpace(code))
+            if (string.IsNullOrWhiteSpace(symbol))
             {
                 throw new ArgumentNullException();
             }
 
-            string uriString = CreateUriString(code);
+            string uriString = CreateUriString(symbol);
 
             string responseString = await GetResponseString(uriString);
 
-            return ParseSingleResponseString(code, responseString);
+            return ParseSingleResponseString(symbol, responseString);
         }
 
-        public static async Task<List<SinaStockQuote>> GetQuote(IEnumerable<string> codes)
+        public static async Task<List<SinaStockQuote>> GetQuote(IEnumerable<string> symbols)
         {
-            if (codes == null)
+            if (symbols == null)
             {
                 throw new ArgumentNullException();
             }
 
-            string uriString = CreateUriString(codes);
+            string uriString = CreateUriString(symbols);
 
             string responseString = await GetResponseString(uriString);
 
             string[] subStrings = responseString.Split(lineSplitter, StringSplitOptions.RemoveEmptyEntries);
-            if (subStrings.Length != codes.Count())
+            if (subStrings.Length != symbols.Count())
             {
                 throw new InvalidOperationException("the number of responses does not match the number of requests");
             }
 
             int index = 0;
             List<SinaStockQuote> quotes = new List<SinaStockQuote>();
-            foreach (var code in codes)
+            foreach (var symbol in symbols)
             {
-                quotes.Add(ParseSingleResponseString(code, subStrings[index++]));
+                quotes.Add(ParseSingleResponseString(symbol, subStrings[index++]));
             }
 
             return quotes;

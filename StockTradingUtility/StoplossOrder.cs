@@ -13,8 +13,8 @@ namespace StockTrading.Utility
 
         public int RemainingVolume { get; private set; }
 
-        public StoplossOrder(string securityCode, string securityName, float stoplossPrice, int volume, WaitableConcurrentQueue<OrderExecutedMessage> orderExecutedMessageReceiver)
-            : base(securityCode, securityName, volume, orderExecutedMessageReceiver)
+        public StoplossOrder(string securitySymbol, string securityName, float stoplossPrice, int volume, WaitableConcurrentQueue<OrderExecutedMessage> orderExecutedMessageReceiver)
+            : base(securitySymbol, securityName, volume, orderExecutedMessageReceiver)
         {
             if (stoplossPrice < 0.0)
             {
@@ -105,7 +105,7 @@ namespace StockTrading.Utility
         {
             OrderRequest request = new OrderRequest(this)
             {
-                SecurityCode = this.SecurityCode,
+                SecuritySymbol = this.SecuritySymbol,
                 SecurityName = this.SecurityName,
                 Category = OrderCategory.Sell,
                 Price = this.StoplossPrice,

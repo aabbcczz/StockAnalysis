@@ -4,7 +4,7 @@ namespace SelectStocksBasedOnMetrics
 {
     sealed class StockMetricRecord
     {
-        public string Code { get; set; }
+        public string Symbol { get; set; }
         public DateTime Date { get; set; }
 
         public string[] MetricNames { get; set; }

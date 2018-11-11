@@ -42,7 +42,7 @@
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle7 = new System.Windows.Forms.DataGridViewCellStyle();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
-            this.labelCode = new System.Windows.Forms.Label();
+            this.labelSymbol = new System.Windows.Forms.Label();
             this.buttonDecreaseShownBars = new System.Windows.Forms.Button();
             this.buttonIncreaseShowedBars = new System.Windows.Forms.Button();
             this.chartData = new System.Windows.Forms.DataVisualization.Charting.Chart();
@@ -52,11 +52,11 @@
             this.loadClosedPositionFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.splitContainer2 = new System.Windows.Forms.SplitContainer();
             this.splitContainer3 = new System.Windows.Forms.SplitContainer();
-            this.dataGridViewCodes = new System.Windows.Forms.DataGridView();
-            this.ColumnCodesCode = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.ColumnCodesName = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.dataGridViewSymbols = new System.Windows.Forms.DataGridView();
+            this.ColumnSymbolsSymbol = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.ColumnSymbolsName = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dataGridViewClosedPosition = new System.Windows.Forms.DataGridView();
-            this.ColumnPositionCode = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.ColumnPositionSymbol = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.ColumnPositionName = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.ColumnPositionBuyTime = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.ColumnPositionBuyPrice = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -81,7 +81,7 @@
             this.splitContainer3.Panel1.SuspendLayout();
             this.splitContainer3.Panel2.SuspendLayout();
             this.splitContainer3.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.dataGridViewCodes)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridViewSymbols)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewClosedPosition)).BeginInit();
             this.SuspendLayout();
             // 
@@ -94,7 +94,7 @@
             // 
             // splitContainer1.Panel1
             // 
-            this.splitContainer1.Panel1.Controls.Add(this.labelCode);
+            this.splitContainer1.Panel1.Controls.Add(this.labelSymbol);
             this.splitContainer1.Panel1.Controls.Add(this.buttonDecreaseShownBars);
             this.splitContainer1.Panel1.Controls.Add(this.buttonIncreaseShowedBars);
             this.splitContainer1.Panel1.Controls.Add(this.chartData);
@@ -107,13 +107,13 @@
             this.splitContainer1.SplitterDistance = 465;
             this.splitContainer1.TabIndex = 0;
             // 
-            // labelCode
+            // labelSymbol
             // 
-            this.labelCode.AutoSize = true;
-            this.labelCode.Location = new System.Drawing.Point(24, 161);
-            this.labelCode.Name = "labelCode";
-            this.labelCode.Size = new System.Drawing.Size(0, 13);
-            this.labelCode.TabIndex = 6;
+            this.labelSymbol.AutoSize = true;
+            this.labelSymbol.Location = new System.Drawing.Point(24, 161);
+            this.labelSymbol.Name = "labelSymbol";
+            this.labelSymbol.Size = new System.Drawing.Size(0, 13);
+            this.labelSymbol.TabIndex = 6;
             // 
             // buttonDecreaseShownBars
             // 
@@ -254,7 +254,7 @@
             // 
             // splitContainer3.Panel1
             // 
-            this.splitContainer3.Panel1.Controls.Add(this.dataGridViewCodes);
+            this.splitContainer3.Panel1.Controls.Add(this.dataGridViewSymbols);
             // 
             // splitContainer3.Panel2
             // 
@@ -263,44 +263,44 @@
             this.splitContainer3.SplitterDistance = 257;
             this.splitContainer3.TabIndex = 1;
             // 
-            // dataGridViewCodes
+            // dataGridViewSymbols
             // 
-            this.dataGridViewCodes.AllowUserToResizeRows = false;
-            this.dataGridViewCodes.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dataGridViewCodes.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
-            this.ColumnCodesCode,
-            this.ColumnCodesName});
-            this.dataGridViewCodes.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.dataGridViewCodes.Location = new System.Drawing.Point(0, 0);
-            this.dataGridViewCodes.MultiSelect = false;
-            this.dataGridViewCodes.Name = "dataGridViewCodes";
-            this.dataGridViewCodes.ReadOnly = true;
-            this.dataGridViewCodes.RowHeadersVisible = false;
-            this.dataGridViewCodes.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dataGridViewCodes.Size = new System.Drawing.Size(257, 196);
-            this.dataGridViewCodes.TabIndex = 0;
-            this.dataGridViewCodes.SelectionChanged += new System.EventHandler(this.dataGridViewCodes_SelectionChanged);
+            this.dataGridViewSymbols.AllowUserToResizeRows = false;
+            this.dataGridViewSymbols.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dataGridViewSymbols.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.ColumnSymbolsSymbol,
+            this.ColumnSymbolsName});
+            this.dataGridViewSymbols.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.dataGridViewSymbols.Location = new System.Drawing.Point(0, 0);
+            this.dataGridViewSymbols.MultiSelect = false;
+            this.dataGridViewSymbols.Name = "dataGridViewSymbols";
+            this.dataGridViewSymbols.ReadOnly = true;
+            this.dataGridViewSymbols.RowHeadersVisible = false;
+            this.dataGridViewSymbols.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
+            this.dataGridViewSymbols.Size = new System.Drawing.Size(257, 196);
+            this.dataGridViewSymbols.TabIndex = 0;
+            this.dataGridViewSymbols.SelectionChanged += new System.EventHandler(this.dataGridViewSymbols_SelectionChanged);
             // 
-            // ColumnCodesCode
+            // ColumnSymbolsSymbol
             // 
-            this.ColumnCodesCode.HeaderText = "Code";
-            this.ColumnCodesCode.Name = "ColumnCodesCode";
-            this.ColumnCodesCode.ReadOnly = true;
-            this.ColumnCodesCode.Width = 60;
+            this.ColumnSymbolsSymbol.HeaderText = "Symbol";
+            this.ColumnSymbolsSymbol.Name = "ColumnSymbolsSymbol";
+            this.ColumnSymbolsSymbol.ReadOnly = true;
+            this.ColumnSymbolsSymbol.Width = 60;
             // 
-            // ColumnCodesName
+            // ColumnSymbolsName
             // 
-            this.ColumnCodesName.HeaderText = "Name";
-            this.ColumnCodesName.Name = "ColumnCodesName";
-            this.ColumnCodesName.ReadOnly = true;
-            this.ColumnCodesName.Width = 150;
+            this.ColumnSymbolsName.HeaderText = "Name";
+            this.ColumnSymbolsName.Name = "ColumnSymbolsName";
+            this.ColumnSymbolsName.ReadOnly = true;
+            this.ColumnSymbolsName.Width = 150;
             // 
             // dataGridViewClosedPosition
             // 
             this.dataGridViewClosedPosition.AllowUserToResizeRows = false;
             this.dataGridViewClosedPosition.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dataGridViewClosedPosition.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
-            this.ColumnPositionCode,
+            this.ColumnPositionSymbol,
             this.ColumnPositionName,
             this.ColumnPositionBuyTime,
             this.ColumnPositionBuyPrice,
@@ -320,12 +320,12 @@
             this.dataGridViewClosedPosition.TabIndex = 1;
             this.dataGridViewClosedPosition.SelectionChanged += new System.EventHandler(this.dataGridViewClosedPosition_SelectionChanged);
             // 
-            // ColumnPositionCode
+            // ColumnPositionSymbol
             // 
-            this.ColumnPositionCode.HeaderText = "Code";
-            this.ColumnPositionCode.Name = "ColumnPositionCode";
-            this.ColumnPositionCode.ReadOnly = true;
-            this.ColumnPositionCode.Width = 60;
+            this.ColumnPositionSymbol.HeaderText = "Symbol";
+            this.ColumnPositionSymbol.Name = "ColumnPositionSymbol";
+            this.ColumnPositionSymbol.ReadOnly = true;
+            this.ColumnPositionSymbol.Width = 60;
             // 
             // ColumnPositionName
             // 
@@ -443,7 +443,7 @@
             this.splitContainer3.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer3)).EndInit();
             this.splitContainer3.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.dataGridViewCodes)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridViewSymbols)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewClosedPosition)).EndInit();
             this.ResumeLayout(false);
 
@@ -461,14 +461,14 @@
         private System.Windows.Forms.TextBox textBoxDetails;
         private System.Windows.Forms.OpenFileDialog openFileDialog1;
         private System.Windows.Forms.SplitContainer splitContainer3;
-        private System.Windows.Forms.DataGridView dataGridViewCodes;
+        private System.Windows.Forms.DataGridView dataGridViewSymbols;
         private System.Windows.Forms.DataGridView dataGridViewClosedPosition;
-        private System.Windows.Forms.DataGridViewTextBoxColumn ColumnCodesCode;
-        private System.Windows.Forms.DataGridViewTextBoxColumn ColumnCodesName;
+        private System.Windows.Forms.DataGridViewTextBoxColumn ColumnSymbolsSymbol;
+        private System.Windows.Forms.DataGridViewTextBoxColumn ColumnSymbolsName;
         private System.Windows.Forms.Button buttonDecreaseShownBars;
         private System.Windows.Forms.Button buttonIncreaseShowedBars;
-        private System.Windows.Forms.Label labelCode;
-        private System.Windows.Forms.DataGridViewTextBoxColumn ColumnPositionCode;
+        private System.Windows.Forms.Label labelSymbol;
+        private System.Windows.Forms.DataGridViewTextBoxColumn ColumnPositionSymbol;
         private System.Windows.Forms.DataGridViewTextBoxColumn ColumnPositionName;
         private System.Windows.Forms.DataGridViewTextBoxColumn ColumnPositionBuyTime;
         private System.Windows.Forms.DataGridViewTextBoxColumn ColumnPositionBuyPrice;

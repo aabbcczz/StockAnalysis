@@ -60,7 +60,7 @@ namespace TradingStrategy.Strategy
         {
             base.Initialize(context, parameterValues);
 
-            _allTradingObjects = context.GetAllTradingObjects().ToDictionary(o => o.Code);
+            _allTradingObjects = context.GetAllTradingObjects().ToDictionary(o => o.Symbol);
         }
 
         public override void EvaluateSingleObject(ITradingObject tradingObject, Bar bar)
@@ -69,51 +69,51 @@ namespace TradingStrategy.Strategy
 
             // record highest price.
             double highestPrice;
-            if (_highestPrices.TryGetValue(tradingObject.Code, out highestPrice))
+            if (_highestPrices.TryGetValue(tradingObject.Symbol, out highestPrice))
             {
                 if (highestPrice < bar.ClosePrice)
                 {
-                    _highestPrices[tradingObject.Code] = bar.ClosePrice;
+                    _highestPrices[tradingObject.Symbol] = bar.ClosePrice;
                 }
             }
         }
 
         public override IEnumerable<Instruction> AdjustPositions()
         {
-            var codes = Context.GetAllPositionCodes().ToArray();
+            var symbols = Context.GetAllPositionSymbols().ToArray();
 
-            // remove all codes, which had been sold out, from stored last position risk and highest price.
-            var codesToBeRemoved = _lastPositionInitialRisks.Keys.Except(codes).ToList();
-            foreach (var code in codesToBeRemoved)
+            // remove all symbols, which had been sold out, from stored last position risk and highest price.
+            var symbolsToBeRemoved = _lastPositionInitialRisks.Keys.Except(symbols).ToList();
+            foreach (var symbol in symbolsToBeRemoved)
             {
-                _lastPositionInitialRisks.Remove(code);
-                _highestPrices.Remove(code);
+                _lastPositionInitialRisks.Remove(symbol);
+                _highestPrices.Remove(symbol);
             }
 
-            // add new codes in
-            foreach (var code in codes)
+            // add new symbol in
+            foreach (var symbol in symbols)
             {
-                if (!_lastPositionInitialRisks.ContainsKey(code))
+                if (!_lastPositionInitialRisks.ContainsKey(symbol))
                 {
-                    var position = Context.GetPositionDetails(code).OrderBy(p => p.BuyTime).Last();
+                    var position = Context.GetPositionDetails(symbol).OrderBy(p => p.BuyTime).Last();
 
                     if (position.IsStopLossPriceInitialized())
                     {
-                        _lastPositionInitialRisks.Add(code, position.InitialRisk);
-                        _highestPrices.Add(code, position.BuyPrice);
+                        _lastPositionInitialRisks.Add(symbol, position.InitialRisk);
+                        _highestPrices.Add(symbol, position.BuyPrice);
                     }
                 }
             }
 
             List<Instruction> instructions = new List<Instruction>();
 
-            // now check all codes if new position is required
+            // now check all symbols if new position is required
             foreach (var kvp in _lastPositionInitialRisks)
             {
-                var code = kvp.Key;
+                var symbol = kvp.Key;
                 var initialRisk = kvp.Value;
 
-                var positions = Context.GetPositionDetails(code).OrderBy(p => p.BuyTime);
+                var positions = Context.GetPositionDetails(symbol).OrderBy(p => p.BuyTime);
 
                 // do not exceed limit for each object.
                 if (positions.Count() >= MaxPositionCountOfEachObject)
@@ -132,7 +132,7 @@ namespace TradingStrategy.Strategy
                     }
                 }
 
-                var tradingObject = _allTradingObjects[code];
+                var tradingObject = _allTradingObjects[symbol];
 
                 var bar = Context.GetBarOfTradingObjectForCurrentPeriod(tradingObject);
 
@@ -142,7 +142,7 @@ namespace TradingStrategy.Strategy
                 }
 
                 // ensure we increase position only in up trends
-                if (AddPositionInUpTrendOnly && bar.ClosePrice < _highestPrices[code])
+                if (AddPositionInUpTrendOnly && bar.ClosePrice < _highestPrices[symbol])
                 {
                     continue;
                 }
@@ -165,7 +165,7 @@ namespace TradingStrategy.Strategy
                 }
             }
 
-            instructions = instructions.OrderBy(instruction => instruction.TradingObject.Code).ToList();
+            instructions = instructions.OrderBy(instruction => instruction.TradingObject.Symbol).ToList();
 
             return instructions;
         }

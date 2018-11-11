@@ -131,9 +131,9 @@ namespace ImportTable
         {
             //CREATE TABLE [dbo].[Table]
             //(
-            //    [code] NVARCHAR(50) NOT NULL , 
+            //    [symbol] NVARCHAR(50) NOT NULL , 
             //    [column] NCHAR(50) NOT NULL, 
-            //    PRIMARY KEY ([code], [column])
+            //    PRIMARY KEY ([symbol], [column])
             //)
 
             var builder = new StringBuilder();
@@ -177,7 +177,7 @@ namespace ImportTable
 
         private static bool IsColumnNullable(string column)
         {
-            if (column.ToLower() == "code"
+            if (column.ToLower() == "symbol"
                 || column.ToLower() == "periodorcolumn")
             {
                 return false;
@@ -192,9 +192,9 @@ namespace ImportTable
 
             columns = columns.Select(s => s.ToLower()).ToArray();
 
-            if (Array.IndexOf(columns, "code") >= 0)
+            if (Array.IndexOf(columns, "symbol") >= 0)
             {
-                primaryKeys.Add("code");
+                primaryKeys.Add("symbol");
             }
             
             if (Array.IndexOf(columns, "periodorcolumn") >= 0)

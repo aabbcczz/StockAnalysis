@@ -77,7 +77,7 @@ namespace TradingStrategyEvaluation
 
             foreach (var board in boards)
             {
-                string boardIndex = StockName.GetBoardIndexName(board).NormalizedCode;
+                string boardIndex = StockName.GetBoardIndexName(board).NormalizedSymbol;
                 ITradingObject tradingObject = GetTradingObject(boardIndex);
                 _boardIndexTradingObjects.Add(boardIndex, tradingObject);
             }
@@ -105,9 +105,9 @@ namespace TradingStrategyEvaluation
             return _provider.GetAllTradingObjects().Length;
         }
 
-        public ITradingObject GetTradingObject(string code)
+        public ITradingObject GetTradingObject(string symbol)
         {
-            int index = _provider.GetIndexOfTradingObject(code);
+            int index = _provider.GetIndexOfTradingObject(symbol);
             if (index < 0)
             {
                 return null;
@@ -130,28 +130,28 @@ namespace TradingStrategyEvaluation
                 return null;
             }
 
-            return _boardIndexTradingObjects[stockName.GetBoardIndexName().NormalizedCode];
+            return _boardIndexTradingObjects[stockName.GetBoardIndexName().NormalizedSymbol];
         }
 
         public ITradingObject GetBoardIndexTradingObject(StockBoard board)
         {
-            return _boardIndexTradingObjects[StockName.GetBoardIndexName(board).NormalizedCode];
+            return _boardIndexTradingObjects[StockName.GetBoardIndexName(board).NormalizedSymbol];
         }
 
 
-        public IEnumerable<string> GetAllPositionCodes()
+        public IEnumerable<string> GetAllPositionSymbols()
         {
-            return _equityManager.GetAllPositionCodes();
+            return _equityManager.GetAllPositionSymbols();
         }
 
-        public bool ExistsPosition(string code)
+        public bool ExistsPosition(string symbol)
         {
-            return _equityManager.ExistsPosition(code);
+            return _equityManager.ExistsPosition(symbol);
         }
 
-        public IEnumerable<Position> GetPositionDetails(string code)
+        public IEnumerable<Position> GetPositionDetails(string symbol)
         {
-            return _equityManager.GetPositionDetails(code);
+            return _equityManager.GetPositionDetails(symbol);
         }
 
         public Bar GetBarOfTradingObjectForCurrentPeriod(ITradingObject tradingObject)

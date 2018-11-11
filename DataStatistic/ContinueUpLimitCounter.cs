@@ -96,7 +96,7 @@ namespace DataStatistic
 
                     lock (_results)
                     {
-                        _results.Add(Tuple.Create(tradingObject.Code, succBars));
+                        _results.Add(Tuple.Create(tradingObject.Symbol, succBars));
                     }
                 }
             }
@@ -108,7 +108,7 @@ namespace DataStatistic
             {
                 if (_results.Count > 0)
                 {
-                    writer.Write("Time,Code,");
+                    writer.Write("Time,Symbol,");
                     for (int i = 0; i <= _outputBarCount; ++i)
                     {
                         writer.Write("Bar{0}.Close,Bar{0}.Open,Bar{0}.High,Bar{0}.Low,", i);
@@ -119,9 +119,9 @@ namespace DataStatistic
                     foreach (var tuple in _results)
                     {
                         var sequence = tuple.Item2;
-                        var code = tuple.Item1;
+                        var symbol = tuple.Item1;
 
-                        writer.Write("{0:yyyy-MM-dd},{1},", sequence.First().Time, code);
+                        writer.Write("{0:yyyy-MM-dd},{1},", sequence.First().Time, symbol);
                         foreach (var bar in sequence)
                         {
                             // C, O, H, L

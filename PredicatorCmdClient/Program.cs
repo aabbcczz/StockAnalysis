@@ -67,9 +67,9 @@ namespace PredicatorCmdClient
                 ErrorExit("Combined strategy settings file is empty string");
             }
 
-            if (string.IsNullOrWhiteSpace(options.CodeFile))
+            if (string.IsNullOrWhiteSpace(options.SymbolFile))
             {
-                ErrorExit("Code file is empty string");
+                ErrorExit("Symbol file is empty string");
             }
         }
 
@@ -79,11 +79,11 @@ namespace PredicatorCmdClient
             return Path.Combine(Path.GetDirectoryName(fileName), trueFileName);
         }
 
-        static IEnumerable<string> LoadCodeOfStocks(string codeFile)
+        static IEnumerable<string> LoadSymbolOfStocks(string symbolFile)
         {
-            var codes = File.ReadAllLines(codeFile).Where(s => !string.IsNullOrWhiteSpace(s)).ToArray();
+            var symbols = File.ReadAllLines(symbolFile).Where(s => !string.IsNullOrWhiteSpace(s)).ToArray();
 
-            return codes;
+            return symbols;
         }
 
         static StockBlockRelationshipManager LoadStockBlockRelationship(string relationshipFile)
@@ -141,24 +141,24 @@ namespace PredicatorCmdClient
             var stockDataSettings = ChinaStockDataSettings.LoadFromFile(options.StockDataSettingsFile);
             var positions = LoadPositions(options.PositionFile);
 
-            // load codes and stock name table
+            // load symbols and stock name table
             var stockNameTable = new TradingObjectNameTable<StockName>(stockDataSettings.StockNameTableFile);
-            var codes = LoadCodeOfStocks(options.CodeFile);
+            var symbols = LoadSymbolOfStocks(options.SymbolFile);
 
-            // load stock block relationship if necessary, and filter codes
+            // load stock block relationship if necessary, and filter symbols
             StockBlockRelationshipManager stockBlockRelationshipManager = null;
             if (!string.IsNullOrWhiteSpace(options.StockBlockRelationshipFile))
             {
                 stockBlockRelationshipManager = LoadStockBlockRelationship(options.StockBlockRelationshipFile);
 
-                // filter stock block relationship for loaded codes only
-                stockBlockRelationshipManager = stockBlockRelationshipManager.CreateSubsetForStocks(codes);
+                // filter stock block relationship for loaded symbols only
+                stockBlockRelationshipManager = stockBlockRelationshipManager.CreateSubsetForStocks(symbols);
 
-                // codes will be updated according to stock-block relationships
-                codes = stockBlockRelationshipManager.Stocks;
+                // symbols will be updated according to stock-block relationships
+                symbols = stockBlockRelationshipManager.Stocks;
             }
 
-            var allDataFiles = codes
+            var allDataFiles = symbols
                 .Select(stockDataSettings.BuildActualDataFilePathAndName)
                 .ToArray();
 
@@ -171,20 +171,20 @@ namespace PredicatorCmdClient
                     options.EndDate,
                     options.WarmupPeriods);
 
-            var finalCodes = dataProvider.GetAllTradingObjects().Select(to => to.Code);
+            var finalSymbols = dataProvider.GetAllTradingObjects().Select(to => to.Symbol);
             var filteredStockBlockRelationshipManager = stockBlockRelationshipManager == null
                 ? null
-                : stockBlockRelationshipManager.CreateSubsetForStocks(finalCodes);
+                : stockBlockRelationshipManager.CreateSubsetForStocks(finalSymbols);
 
             if (filteredStockBlockRelationshipManager != null)
             {
-                var filteredCodes = filteredStockBlockRelationshipManager.Stocks;
+                var filteredSymbols = filteredStockBlockRelationshipManager.Stocks;
 
-                var filteredDataFiles = filteredCodes
+                var filteredDataFiles = filteredSymbols
                     .Select(stockDataSettings.BuildActualDataFilePathAndName)
                     .ToArray();
 
-                // rebuild data provider according to filtered codes
+                // rebuild data provider according to filtered symbols
                 dataProvider = new ChinaStockDataProvider(
                     stockNameTable,
                     filteredDataFiles,
@@ -268,10 +268,10 @@ namespace PredicatorCmdClient
                     .Select(
                         transaction =>
                         {
-                            var codeIndex = dataProvider.GetIndexOfTradingObject(transaction.Code);
+                            var symbolIndex = dataProvider.GetIndexOfTradingObject(transaction.Symbol);
                             Bar lastBar;
                             
-                            if (!dataProvider.GetLastEffectiveBar(codeIndex, transaction.SubmissionTime, out lastBar))
+                            if (!dataProvider.GetLastEffectiveBar(symbolIndex, transaction.SubmissionTime, out lastBar))
                             {
                                 lastBar.OpenPrice = 0.0;
                                 lastBar.HighestPrice = 0.0;
@@ -281,7 +281,7 @@ namespace PredicatorCmdClient
 
                             return new AuxiliaryData()
                             {
-                                Code = transaction.Code,
+                                Symbol = transaction.Symbol,
                                 Name = transaction.Name,
                                 OpenPrice = lastBar.OpenPrice,
                                 ClosePrice = lastBar.ClosePrice,

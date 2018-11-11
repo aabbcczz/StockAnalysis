@@ -58,9 +58,9 @@ namespace DataStatistic
                 ErrorExit("Stock data settings file is empty string");
             }
 
-            if (string.IsNullOrWhiteSpace(options.CodeFile))
+            if (string.IsNullOrWhiteSpace(options.SymbolFile))
             {
-                ErrorExit("Code file is empty string");
+                ErrorExit("Symbol file is empty string");
             }
 
             if (string.IsNullOrWhiteSpace(options.OutputFile))
@@ -69,15 +69,15 @@ namespace DataStatistic
             }
         }
 
-        static IEnumerable<string> LoadCodeOfStocks(string codeFile)
+        static IEnumerable<string> LoadSymbolOfStocks(string symbolFile)
         {
-            var codes = File.ReadAllLines(codeFile)
+            var symbols = File.ReadAllLines(symbolFile)
                 .Where(s => !string.IsNullOrWhiteSpace(s))
-                .Select(s => StockName.GetCanonicalCode(s))
+                .Select(s => StockName.GetNormalizedSymbol(s))
                 .OrderBy(s => s)
                 .ToArray();
 
-            return codes;
+            return symbols;
         }
 
         static void Run(Options options)
@@ -91,11 +91,11 @@ namespace DataStatistic
             // load settings from files
             var stockDataSettings = ChinaStockDataSettings.LoadFromFile(options.StockDataSettingsFile);
 
-            // load codes and stock name table
+            // load symbols and stock name table
             var stockNameTable = new TradingObjectNameTable<StockName>(stockDataSettings.StockNameTableFile);
-            var codes = LoadCodeOfStocks(options.CodeFile);
+            var symbols = LoadSymbolOfStocks(options.SymbolFile);
 
-            var allDataFiles = codes
+            var allDataFiles = symbols
                 .Select(stockDataSettings.BuildActualDataFilePathAndName)
                 .ToArray();
 

@@ -44,14 +44,14 @@ namespace StockAnalysis.Share
                 return null;
             }
 
-            var code = new StockName(inputData[0][0], string.Empty).NormalizedCode;
+            var normalizedSymbol = new StockName(inputData[0][0], string.Empty).NormalizedSymbol;
 
             var name = 
-                nameTable != null && nameTable.ContainsObject(code)
-                ? nameTable[code] 
-                : new StockName(code, string.Empty);
+                nameTable != null && nameTable.ContainsObject(normalizedSymbol)
+                ? nameTable[normalizedSymbol] 
+                : new StockName(normalizedSymbol, string.Empty);
 
-            // header is code,date,open,highest,lowest,close,volume,amount
+            // header is symbol,date,open,highest,lowest,close,volume,amount
 
             var data = new List<Bar>(inputData.RowCount);
 
@@ -129,14 +129,14 @@ namespace StockAnalysis.Share
                 return null;
             }
 
-            var code = inputData[0][0];
+            var symbol = inputData[0][0];
 
             var name =
-                nameTable != null && nameTable.ContainsObject(code)
-                ? nameTable[code]
-                : new FutureName(code, string.Empty);
+                nameTable != null && nameTable.ContainsObject(symbol)
+                ? nameTable[symbol]
+                : new FutureName(symbol, string.Empty);
 
-            // header is code,date,open,highest,lowest,close,volume,openInterest,settlementPrice
+            // header is symbol,date,open,highest,lowest,close,volume,openInterest,settlementPrice
 
             var data = new List<Bar>(inputData.RowCount);
 

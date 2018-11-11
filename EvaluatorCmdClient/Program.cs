@@ -85,9 +85,9 @@ namespace EvaluatorCmdClient
                 ErrorExit("Trading settings file is empty string");
             }
 
-            if (string.IsNullOrWhiteSpace(options.CodeFile))
+            if (string.IsNullOrWhiteSpace(options.SymbolFile))
             {
-                ErrorExit("Code file is empty string");
+                ErrorExit("Symbol file is empty string");
             }
         }
 
@@ -111,15 +111,15 @@ namespace EvaluatorCmdClient
             stockDataSettings.SaveToFile(AddPrefixToFileName(options.StockDataSettingsFile, prefix));
         }
 
-        static IEnumerable<string> LoadCodeOfStocks(string codeFile)
+        static IEnumerable<string> LoadSymbolOfStocks(string symbolFile)
         {
-            var codes = File.ReadAllLines(codeFile)
+            var symbols = File.ReadAllLines(symbolFile)
                 .Where(s => !string.IsNullOrWhiteSpace(s))
-                .Select(s => StockName.GetNormalizedCode(s))
+                .Select(s => StockName.GetNormalizedSymbol(s))
                 .OrderBy(s => s)
                 .ToArray();
 
-            return codes;
+            return symbols;
         }
 
         static StockBlockRelationshipManager LoadStockBlockRelationship(string relationshipFile)
@@ -186,9 +186,9 @@ namespace EvaluatorCmdClient
 
             using (var writer = new StreamWriter(outputFileName, false, System.Text.Encoding.UTF8))
             {
-                var codes = provider.GetAllTradingObjects().Select(o => o.Code).ToArray();
+                var symbols = provider.GetAllTradingObjects().Select(o => o.Symbol).ToArray();
 
-                writer.WriteLine(string.Join(",", codes));
+                writer.WriteLine(string.Join(",", symbols));
 
                 foreach (var period in provider.GetAllPeriodsOrdered())
                 {
@@ -220,24 +220,24 @@ namespace EvaluatorCmdClient
             var combinedStrategySettings = CombinedStrategySettings.LoadFromFile(options.CombinedStrategySettingsFile);
             var stockDataSettings = ChinaStockDataSettings.LoadFromFile(options.StockDataSettingsFile);
 
-            // load codes and stock name table
+            // load symbols and stock name table
             var stockNameTable = new TradingObjectNameTable<StockName>(stockDataSettings.StockNameTableFile);
-            var codes = LoadCodeOfStocks(options.CodeFile);
+            var symbols = LoadSymbolOfStocks(options.SymbolFile);
 
-            // load stock block relationship if necessary, and filter codes
+            // load stock block relationship if necessary, and filter symbols
             StockBlockRelationshipManager stockBlockRelationshipManager = null;
             if (!string.IsNullOrWhiteSpace(options.StockBlockRelationshipFile))
             {
                 stockBlockRelationshipManager = LoadStockBlockRelationship(options.StockBlockRelationshipFile);
 
-                // filter stock block relationship for loaded codes only
-                stockBlockRelationshipManager = stockBlockRelationshipManager.CreateSubsetForStocks(codes);
+                // filter stock block relationship for loaded symbols only
+                stockBlockRelationshipManager = stockBlockRelationshipManager.CreateSubsetForStocks(symbols);
 
-                // codes will be updated according to stock-block relationships
-                codes = stockBlockRelationshipManager.Stocks;
+                // symbols will be updated according to stock-block relationships
+                symbols = stockBlockRelationshipManager.Stocks;
             }
 
-            var allDataFiles = codes
+            var allDataFiles = symbols
                 .Select(stockDataSettings.BuildActualDataFilePathAndName)
                 .ToArray();
 
@@ -272,7 +272,7 @@ namespace EvaluatorCmdClient
                     StartTime = options.StartDate,
                     EndTime = options.EndDate,
                     YearInterval = options.YearInterval,
-                    ObjectNames = codes
+                    ObjectNames = symbols
                         .Select(c => stockNameTable.ContainsObject(c)
                             ? c + '|' + stockNameTable[c].Names[0]
                             : c)
@@ -298,10 +298,10 @@ namespace EvaluatorCmdClient
                                 interval.Item2, // interval end date
                                 options.WarmupPeriods);
 
-                        var finalCodes = dataProvider.GetAllTradingObjects().Select(to => to.Code);
+                        var finalSymbols = dataProvider.GetAllTradingObjects().Select(to => to.Symbol);
                         var filteredStockBlockRelationshipManager = stockBlockRelationshipManager == null 
                             ? null 
-                            : stockBlockRelationshipManager.CreateSubsetForStocks(finalCodes);
+                            : stockBlockRelationshipManager.CreateSubsetForStocks(finalSymbols);
 
                         // initialize combined strategy assembler
                         var combinedStrategyAssembler = new CombinedStrategyAssembler(combinedStrategySettings, true);
@@ -495,7 +495,7 @@ namespace EvaluatorCmdClient
 
                 // get the overall metric
                 var tradeMetrics = metrics as TradeMetric[] ?? metrics.ToArray();
-                var overallMetric = tradeMetrics.First(m => m.Code == TradeMetric.CodeForAll);
+                var overallMetric = tradeMetrics.First(m => m.Symbol == TradeMetric.SymbolForAll);
 
                 // summarize block related data
                 BlockTradingDetailSummarizer summarizer = new BlockTradingDetailSummarizer(evaluator.Tracker, dataProvider);

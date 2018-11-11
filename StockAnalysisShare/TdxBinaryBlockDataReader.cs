@@ -15,7 +15,7 @@ namespace StockAnalysis.Share
     {
         private const int HeaderSize = 0x180;
         private const int BlockNameSize = 0x9; // 4 chinese character + \0
-        private const int StockCodeSize = 0x7; // 6 digits + \0
+        private const int StockSymbolSize = 0x7; // 6 digits + \0
         private const int MaxNumberOfStockInBlock = 400;
 
         private static Encoding _stringEncoding = Encoding.GetEncoding("GB2312");
@@ -63,16 +63,16 @@ namespace StockAnalysis.Share
                     // skip the block level
                     reader.ReadInt16();
 
-                    // now read stock code
+                    // now read stock symbol
                     for (int stockIndex = 0; stockIndex < stockNumber; ++stockIndex)
                     {
-                        var rawCodes = reader.ReadBytes(StockCodeSize);
-                        var stockCode = ConvertRawBytesToString(rawCodes);
+                        var rawSymbols = reader.ReadBytes(StockSymbolSize);
+                        var stockSymbol = ConvertRawBytesToString(rawSymbols);
 
                         _relationships.Add(
                             new StockBlockRelationship()
                             {
-                                StockCode = StockName.GetNormalizedCode(stockCode),
+                                StockSymbol = StockName.GetNormalizedSymbol(stockSymbol),
                                 BlockName = blockName
                             });
                     }
@@ -80,7 +80,7 @@ namespace StockAnalysis.Share
                     // skip empty spaces
                     if (stockNumber < MaxNumberOfStockInBlock)
                     {
-                        reader.ReadBytes(StockCodeSize * (MaxNumberOfStockInBlock - stockNumber));
+                        reader.ReadBytes(StockSymbolSize * (MaxNumberOfStockInBlock - stockNumber));
                     }
                 }
             }

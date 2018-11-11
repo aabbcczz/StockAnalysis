@@ -6,7 +6,7 @@ namespace StockAnalysis.Share
 {
     public class FinanceReport
     {
-        public string CompanyCode { get; set; }
+        public string CompanySymbol { get; set; }
         public string CompanyName { get; set; }
         public string Annotations { get; set; }
 

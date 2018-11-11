@@ -63,7 +63,7 @@ namespace StockAnalysis.Share
 
             return new StockBlockRelationship
             {
-                StockCode = StockName.GetNormalizedCode(fields[1]),
+                StockSymbol = StockName.GetNormalizedSymbol(fields[1]),
                 BlockName = block.Name
             };
         }

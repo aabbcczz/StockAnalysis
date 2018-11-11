@@ -27,7 +27,7 @@ namespace StockTrading.Utility
         /// <summary>
         /// 证券代码
         /// </summary>
-        public string SecurityCode { get; set; }
+        public string SecuritySymbol { get; set; }
 
         /// <summary>
         /// 证券名称
@@ -60,7 +60,7 @@ namespace StockTrading.Utility
         {
             return string.Format(
                 "{0}/{1}, RequestId: {2}, Category: {3}, PricingType: {4}, Price: {5:0.000}, Volume: {6}",
-                SecurityCode,
+                SecuritySymbol,
                 SecurityName,
                 RequestId,
                 Category,

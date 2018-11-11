@@ -41,12 +41,12 @@ namespace TradingStrategy.Strategy
         {
             comments = string.Empty;
 
-            if (!Context.ExistsPosition(tradingObject.Code))
+            if (!Context.ExistsPosition(tradingObject.Symbol))
             {
                 return 0.0;
             }
 
-            var temp = Context.GetPositionDetails(tradingObject.Code);
+            var temp = Context.GetPositionDetails(tradingObject.Symbol);
             var positions = temp as Position[] ?? temp.ToArray();
 
             double totalVolume = positions.Sum(p => p.Volume);

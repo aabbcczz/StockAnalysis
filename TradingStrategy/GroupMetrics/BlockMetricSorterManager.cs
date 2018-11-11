@@ -24,7 +24,7 @@ namespace TradingStrategy.GroupMetrics
             _comparer = comparer;
 
             // create sorter for blocks
-            var allTradingObjects = context.GetAllTradingObjects().ToDictionary(o => o.Code);
+            var allTradingObjects = context.GetAllTradingObjects().ToDictionary(o => o.Symbol);
             var blocks = context.RelationshipManager.Blocks.ToArray();
 
             var metricSorterPerBlock = blocks

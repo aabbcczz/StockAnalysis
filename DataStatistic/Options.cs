@@ -10,8 +10,8 @@ namespace DataStatistic
         [Option('s', "StockDataSettingsFile", Required = true, HelpText = "The file that contains the stock data settings")]
         public string StockDataSettingsFile { get; set; }
 
-        [Option('c', "CodeFile", Required = true, HelpText = "The file that contains the code of stocks")]
-        public string CodeFile { get; set; }
+        [Option('c', "SymbolFile", Required = true, HelpText = "The file that contains the symbol of stocks")]
+        public string SymbolFile { get; set; }
 
         [Option('o', "OutputFile", Required = true, HelpText = "output file for statistical result")]
         public string OutputFile { get; set; }
@@ -30,7 +30,7 @@ namespace DataStatistic
             if (VerboseLevel == 2)
             {
                 writer.WriteLine("Stock data settings file: {0}", StockDataSettingsFile);
-                writer.WriteLine("Code file: {0}", CodeFile);
+                writer.WriteLine("Symbol file: {0}", SymbolFile);
                 writer.WriteLine("Start date: {0}", StartDate);
                 writer.WriteLine("End date: {0}", EndDate);
                 writer.WriteLine("Output file: {0}", OutputFile);

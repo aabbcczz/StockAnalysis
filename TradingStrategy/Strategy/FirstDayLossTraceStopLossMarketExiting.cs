@@ -39,10 +39,10 @@ namespace TradingStrategy.Strategy
         {
             comments = string.Empty;
 
-            if (Context.ExistsPosition(tradingObject.Code))
+            if (Context.ExistsPosition(tradingObject.Symbol))
             {
                 var currentBar = Context.GetBarOfTradingObjectForCurrentPeriod(tradingObject);
-                var position = Context.GetPositionDetails(tradingObject.Code).First();
+                var position = Context.GetPositionDetails(tradingObject.Symbol).First();
                 if (position.LastedPeriodCount > 0)
                 {
                     var previousBar = _previousBarProxy.GetMetricValues(tradingObject);

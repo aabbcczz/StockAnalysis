@@ -8,7 +8,7 @@ namespace StockAnalysis.Share
 {
     public sealed class FutureName : TradingObjectName
     {
-        private static Dictionary<string, string> ProductCodeNameMap = new Dictionary<string, string>()
+        private static Dictionary<string, string> ProductSymbolNameMap = new Dictionary<string, string>()
         {
             { "A","豆一" },
             { "AG","白银" },
@@ -265,42 +265,42 @@ namespace StockAnalysis.Share
         {
         }
 
-        private void SetValues(string rawCode)
+        private void SetValues(string rawSymbol)
         {
-            RawCode = rawCode;
-            NormalizedCode = rawCode;
+            RawSymbol = rawSymbol;
+            NormalizedSymbol = rawSymbol;
         }
 
-        private FutureName(string code)
+        private FutureName(string symbol)
         {
-            if (string.IsNullOrWhiteSpace(code))
+            if (string.IsNullOrWhiteSpace(symbol))
             {
                 throw new ArgumentNullException();
             }
 
-            SetValues(code);
+            SetValues(symbol);
         }
 
-        public FutureName(string code, string name)
-            : this(code)
+        public FutureName(string symbol, string name)
+            : this(symbol)
         {
             Names = new[] { name };
 
             if (string.IsNullOrEmpty(name))
             {
-                Names[0] = FutureName.GetNameForProductCode(NormalizedCode);
+                Names[0] = FutureName.GetNameForProductSymbol(NormalizedSymbol);
             }
         }
 
-        public FutureName(string code, string[] names)
-            : this(code)
+        public FutureName(string symbol, string[] names)
+            : this(symbol)
         {
             Names = names;
         }
 
         public override string SaveToString()
         {
-            return NormalizedCode + "|" + String.Join("|", Names);
+            return NormalizedSymbol + "|" + String.Join("|", Names);
         }
 
         public override TradingObjectName ParseFromString(string s)
@@ -327,43 +327,43 @@ namespace StockAnalysis.Share
             return name;
         }
 
-        public static string GetNameForProductCode(string productCode)
+        public static string GetNameForProductSymbol(string productSymbol)
         {
-            string originalProductCode = productCode;
+            string originalProductSymbol = productSymbol;
 
-            productCode = productCode.ToUpperInvariant();
+            productSymbol = productSymbol.ToUpperInvariant();
 
-            if (ProductCodeNameMap.ContainsKey(productCode))
+            if (ProductSymbolNameMap.ContainsKey(productSymbol))
             {
-                return ProductCodeNameMap[productCode];
+                return ProductSymbolNameMap[productSymbol];
             }
             else
             {
                 // try to remove numbers at the end.
                 string numberString = string.Empty;
-                string subProductCode = productCode;
+                string subProductSymbol = productSymbol;
 
 
-                for (int i = productCode.Length - 1; i >= 0; --i)
+                for (int i = productSymbol.Length - 1; i >= 0; --i)
                 {
-                    char ch = productCode[i];
+                    char ch = productSymbol[i];
 
                     if (!Char.IsDigit(ch))
                     {
-                        numberString = productCode.Substring(i + 1, productCode.Length - i - 1);
-                        subProductCode = productCode.Substring(0, i + 1);
+                        numberString = productSymbol.Substring(i + 1, productSymbol.Length - i - 1);
+                        subProductSymbol = productSymbol.Substring(0, i + 1);
                         break;
                     }
                 }
 
 
-                if (ProductCodeNameMap.ContainsKey(subProductCode))
+                if (ProductSymbolNameMap.ContainsKey(subProductSymbol))
                 {
-                    return ProductCodeNameMap[subProductCode] + numberString;
+                    return ProductSymbolNameMap[subProductSymbol] + numberString;
                 }
                 else // still can't find 
                 {
-                    return originalProductCode;
+                    return originalProductSymbol;
                 }
             }
         }

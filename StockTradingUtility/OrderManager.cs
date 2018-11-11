@@ -197,7 +197,7 @@ namespace StockTrading.Utility
             lock (_orderLockObj)
             {
                 List<IOrder> orders;
-                if (!_activeOrders.TryGetValue(quote.SecurityCode, out orders))
+                if (!_activeOrders.TryGetValue(quote.SecuritySymbol, out orders))
                 {
                     return;
                 }
@@ -273,9 +273,9 @@ namespace StockTrading.Utility
                     if (TradingHelper.IsFinalStatus(dispatchedOrder.LastStatus))
                     {
                         AppLogger.Default.InfoFormat(
-                             "Order executed:  id {0} code {1} status {2} deal volume {3} average deal price {4}.",
+                             "Order executed:  id {0} symbol {1} status {2} deal volume {3} average deal price {4}.",
                              order.OrderId,
-                             order.SecurityCode,
+                             order.SecuritySymbol,
                              dispatchedOrder.LastStatus,
                              dispatchedOrder.LastTotalDealVolume,
                              dispatchedOrder.LastAverageDealPrice);
@@ -343,29 +343,29 @@ namespace StockTrading.Utility
 
         private void AddActiveOrder(IOrder order)
         {
-            if (!_activeOrders.ContainsKey(order.SecurityCode))
+            if (!_activeOrders.ContainsKey(order.SecuritySymbol))
             {
-                _activeOrders.Add(order.SecurityCode, new List<IOrder>());
+                _activeOrders.Add(order.SecuritySymbol, new List<IOrder>());
 
-                CtpSimulator.GetInstance().SubscribeQuote(new QuoteSubscription(order.SecurityCode, _quotes));
+                CtpSimulator.GetInstance().SubscribeQuote(new QuoteSubscription(order.SecuritySymbol, _quotes));
             }
 
-            _activeOrders[order.SecurityCode].Add(order);
+            _activeOrders[order.SecuritySymbol].Add(order);
         }
 
         private bool RemoveActiveOrder(IOrder order, bool shouldCancelOrder)
         {
             List<IOrder> orders;
             bool removeSucceeded = false;
-            if (_activeOrders.TryGetValue(order.SecurityCode, out orders))
+            if (_activeOrders.TryGetValue(order.SecuritySymbol, out orders))
             {
                 removeSucceeded = orders.Remove(order);
 
                 if (orders.Count == 0)
                 {
-                    _activeOrders.Remove(order.SecurityCode);
+                    _activeOrders.Remove(order.SecuritySymbol);
 
-                    CtpSimulator.GetInstance().UnsubscribeQuote(new QuoteSubscription(order.SecurityCode, _quotes));
+                    CtpSimulator.GetInstance().UnsubscribeQuote(new QuoteSubscription(order.SecuritySymbol, _quotes));
                 }
             }
 

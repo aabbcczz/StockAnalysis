@@ -55,12 +55,12 @@ namespace TradingStrategyEvaluation
 
         private void AddPosition(Position position)
         {
-            if (!_activePositions.ContainsKey(position.Code))
+            if (!_activePositions.ContainsKey(position.Symbol))
             {
-                _activePositions.Add(position.Code, new List<Position>());
+                _activePositions.Add(position.Symbol, new List<Position>());
             }
 
-            _activePositions[position.Code].Add(position);
+            _activePositions[position.Symbol].Add(position);
         }
 
         public void ManualAddPosition(Position position)
@@ -83,7 +83,7 @@ namespace TradingStrategyEvaluation
                 var charge = transaction.Price * transaction.Volume + transaction.Commission;
 
                 // try to allocate capital
-                bool isFirstPosition = !ExistsPosition(transaction.Code);
+                bool isFirstPosition = !ExistsPosition(transaction.Symbol);
                 if (!_capitalManager.AllocateCapital(charge, isFirstPosition, allowNegativeCapital))
                 {
                     error = "No enough capital for the transaction";
@@ -99,15 +99,15 @@ namespace TradingStrategyEvaluation
 
             if (transaction.Action == TradingAction.CloseLong)
             {
-                var code = transaction.Code;
+                var symbol = transaction.Symbol;
 
-                if (!ExistsPosition(code))
+                if (!ExistsPosition(symbol))
                 {
-                    error = string.Format("There is no position for trading object {0}", code);
+                    error = string.Format("There is no position for trading object {0}", symbol);
                     return false;
                 }
 
-                var positions = _activePositions[code].ToArray();
+                var positions = _activePositions[symbol].ToArray();
 
                 var positionsToBeSold = IdentifyPositionToBeSold(positions, transaction).ToArray();
 
@@ -162,7 +162,7 @@ namespace TradingStrategyEvaluation
                     var newTransaction = new Transaction
                         {
                             Action = transaction.Action,
-                            Code = transaction.Code,
+                            Symbol = transaction.Symbol,
                             Name = transaction.Name,
                             Comments = transaction.Comments,
                             Commission = transaction.Commission / transaction.Volume * position.Volume,
@@ -189,22 +189,22 @@ namespace TradingStrategyEvaluation
                     _capitalManager.FreeCapital(earn, ptbs.Index == 0);
                 }
 
-                // update positions for given code
+                // update positions for given symbol
                 var remainingPositions = positions.Where(e => e != null).ToList();
 
                 if (remainingPositions == null || remainingPositions.Count == 0)
                 {
-                    _activePositions.Remove(code);
+                    _activePositions.Remove(symbol);
                 }
                 else
                 {
-                    _activePositions[code] = remainingPositions;
+                    _activePositions[symbol] = remainingPositions;
                 }
 
                 // create completed transaction object
                 completedTransaction = new CompletedTransaction
                 {
-                    Code = code,
+                    Symbol = symbol,
                     Name = transaction.Name,
                     ExecutionTime = transaction.ExecutionTime,
                     Volume = transaction.Volume,
@@ -299,19 +299,19 @@ namespace TradingStrategyEvaluation
 
         public int PositionCount { get { return _activePositions.Count; } }
 
-        public IEnumerable<Position> GetPositionDetails(string code)
+        public IEnumerable<Position> GetPositionDetails(string symbol)
         {
-            return _activePositions[code];
+            return _activePositions[symbol];
         }
 
-        public IEnumerable<string> GetAllPositionCodes()
+        public IEnumerable<string> GetAllPositionSymbols()
         {
             return _activePositions.Keys.ToArray();
         }
 
-        public bool ExistsPosition(string code)
+        public bool ExistsPosition(string symbol)
         {
-            return _activePositions.ContainsKey(code);
+            return _activePositions.ContainsKey(symbol);
         }
 
         public double GetTotalEquity(
@@ -340,20 +340,20 @@ namespace TradingStrategyEvaluation
 
             foreach (var kvp in _activePositions)
             {
-                var code = kvp.Key;
+                var symbol = kvp.Key;
 
                 Bar bar;
 
-                var index = provider.GetIndexOfTradingObject(code);
+                var index = provider.GetIndexOfTradingObject(symbol);
                 if (index < 0)
                 {
-                    throw new InvalidOperationException(string.Format("Can't get index for code {0}", code));
+                    throw new InvalidOperationException(string.Format("Can't get index for symbol {0}", symbol));
                 }
 
                 if (!provider.GetLastEffectiveBar(index, period, out bar))
                 {
                     throw new InvalidOperationException(
-                        string.Format("Can't get data from data provider for code {0}, time {1}", code, period));
+                        string.Format("Can't get data from data provider for symbol {0}, time {1}", symbol, period));
                 }
 
                 if (method == EquityEvaluationMethod.TotalEquity
@@ -399,7 +399,7 @@ namespace TradingStrategyEvaluation
             }
         }
 
-        public double GetPositionMarketValue(ITradingDataProvider provider, string code, DateTime time)
+        public double GetPositionMarketValue(ITradingDataProvider provider, string symbol, DateTime time)
         {
             if (provider == null)
             {
@@ -408,17 +408,17 @@ namespace TradingStrategyEvaluation
 
             double equity = 0;
 
-            if (_activePositions.ContainsKey(code))
+            if (_activePositions.ContainsKey(symbol))
             { 
-                var volume = _activePositions[code].Sum(e => e.Volume);
+                var volume = _activePositions[symbol].Sum(e => e.Volume);
 
                 Bar bar;
 
-                var index = provider.GetIndexOfTradingObject(code);
+                var index = provider.GetIndexOfTradingObject(symbol);
                 if (!provider.GetLastEffectiveBar(index, time, out bar))
                 {
                     throw new InvalidOperationException(
-                        string.Format("Can't get data from data provider for code {0}, time {1}", code, time));
+                        string.Format("Can't get data from data provider for symbol {0}, time {1}", symbol, time));
                 }
 
                 equity += volume * bar.ClosePrice;

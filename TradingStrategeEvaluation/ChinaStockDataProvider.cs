@@ -33,11 +33,11 @@ namespace TradingStrategyEvaluation
             return _stocks;
         }
 
-        public int GetIndexOfTradingObject(string code)
+        public int GetIndexOfTradingObject(string symbol)
         {
             int index;
 
-            if (_stockIndices.TryGetValue(code, out index))
+            if (_stockIndices.TryGetValue(symbol, out index))
             {
                 return index;
             }
@@ -225,7 +225,7 @@ namespace TradingStrategyEvaluation
                         //        //    bar.HighestPrice,
                         //        //    bar.LowestPrice,
                         //        //    lastBar.ClosePrice,
-                        //        //    data.Name.Code,
+                        //        //    data.Name.Symbol,
                         //        //    data.Name.Names.Last());
 
                         //        return;
@@ -236,7 +236,7 @@ namespace TradingStrategyEvaluation
 
                         lock (allFirstNonWarmupDataPeriods)
                         {
-                            allFirstNonWarmupDataPeriods.Add(data.Name.NormalizedCode, firstNonWarmupDataPeriod);
+                            allFirstNonWarmupDataPeriods.Add(data.Name.NormalizedSymbol, firstNonWarmupDataPeriod);
                         }
 
                         lock (allTradingData)
@@ -267,7 +267,7 @@ namespace TradingStrategyEvaluation
             }
 
             // build trading objects
-            var tempTradingData = allTradingData.OrderBy(t => t.Name.NormalizedCode).ToArray();
+            var tempTradingData = allTradingData.OrderBy(t => t.Name.NormalizedSymbol).ToArray();
 
             _stocks = Enumerable.Range(0, tempTradingData.Length)
                 .Select(i => (ITradingObject)new ChinaStock(i, (StockName)tempTradingData[i].Name))
@@ -275,15 +275,15 @@ namespace TradingStrategyEvaluation
 
             for (var i = 0; i < _stocks.Length; ++i) 
             {
-                _stockIndices.Add(_stocks[i].Code, i);
+                _stockIndices.Add(_stocks[i].Symbol, i);
             }
             
             // prepare first non-warmup data periods
             _firstNonWarmupDataPeriods = new DateTime[_stocks.Length];
             for (var i = 0; i < _firstNonWarmupDataPeriods.Length; ++i)
             {
-                _firstNonWarmupDataPeriods[i] = allFirstNonWarmupDataPeriods.ContainsKey(_stocks[i].Code)
-                    ? allFirstNonWarmupDataPeriods[_stocks[i].Code] 
+                _firstNonWarmupDataPeriods[i] = allFirstNonWarmupDataPeriods.ContainsKey(_stocks[i].Symbol)
+                    ? allFirstNonWarmupDataPeriods[_stocks[i].Symbol] 
                     : DateTime.MaxValue;
             }
 
@@ -296,7 +296,7 @@ namespace TradingStrategyEvaluation
 
             foreach (var historyData in allTradingData)
             {
-                var stockIndex = GetIndexOfTradingObject(historyData.Name.NormalizedCode);
+                var stockIndex = GetIndexOfTradingObject(historyData.Name.NormalizedSymbol);
 
                 var data = historyData.DataOrderedByTime;
                 var dataIndex = 0;

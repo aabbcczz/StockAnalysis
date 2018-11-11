@@ -39,12 +39,12 @@ namespace StockTrading.Utility
             error = errorBuilder.ToString();
         }
 
-        public void SendOrder(int clientId, int category, int priceType, string shareholderCode, string securityCode, float price, int quantity, out string result, out string error)
+        public void SendOrder(int clientId, int category, int priceType, string shareholderCode, string securitySymbol, float price, int quantity, out string result, out string error)
         {
             StringBuilder resultBuilder = new StringBuilder(TradingHelper.MaxResultStringSize);
             StringBuilder errorBuilder = new StringBuilder(TradingHelper.MaxErrorStringSize);
 
-            TdxWrapper.SendOrder(clientId, category, priceType, shareholderCode, securityCode, price, quantity, resultBuilder, errorBuilder);
+            TdxWrapper.SendOrder(clientId, category, priceType, shareholderCode, securitySymbol, price, quantity, resultBuilder, errorBuilder);
 
             result = resultBuilder.ToString();
             error = errorBuilder.ToString();
@@ -61,12 +61,12 @@ namespace StockTrading.Utility
             error = errorBuilder.ToString();
         }
 
-        public void GetQuote(int clientId, string securityCode, out string result, out string error)
+        public void GetQuote(int clientId, string securitySymbol, out string result, out string error)
         {
             StringBuilder resultBuilder = new StringBuilder(TradingHelper.MaxResultStringSize);
             StringBuilder errorBuilder = new StringBuilder(TradingHelper.MaxErrorStringSize);
 
-            TdxWrapper.GetQuote(clientId, securityCode, resultBuilder, errorBuilder);
+            TdxWrapper.GetQuote(clientId, securitySymbol, resultBuilder, errorBuilder);
 
             result = resultBuilder.ToString();
             error = errorBuilder.ToString();
@@ -113,7 +113,7 @@ namespace StockTrading.Utility
             }
         }
 
-        public void SendOrders(int clientId, int[] categories, int[] priceTypes, string[] shareholderCodes, string[] securityCodes, float[] prices, int[] quantities, int orderCount, out string[] results, out string[] errors)
+        public void SendOrders(int clientId, int[] categories, int[] priceTypes, string[] shareholderCodes, string[] securitySymbols, float[] prices, int[] quantities, int orderCount, out string[] results, out string[] errors)
         {
             IntPtr[] resultPtrs = null;
             IntPtr[] errorPtrs = null;
@@ -123,7 +123,7 @@ namespace StockTrading.Utility
                 resultPtrs = TradingHelper.AllocateStringBuffers(orderCount, TradingHelper.MaxResultStringSize);
                 errorPtrs = TradingHelper.AllocateStringBuffers(orderCount, TradingHelper.MaxErrorStringSize);
 
-                TdxWrapper.SendOrders(clientId, categories, priceTypes, shareholderCodes, securityCodes, prices, quantities, orderCount, resultPtrs, errorPtrs);
+                TdxWrapper.SendOrders(clientId, categories, priceTypes, shareholderCodes, securitySymbols, prices, quantities, orderCount, resultPtrs, errorPtrs);
 
                 results = TradingHelper.ConvertStringBufferToString(resultPtrs);
                 errors = TradingHelper.ConvertStringBufferToString(errorPtrs);
@@ -171,7 +171,7 @@ namespace StockTrading.Utility
             }
         }
 
-        public void GetQuotes(int clientId, string[] securityCodes, int securityCount, out string[] results, out string[] errors)
+        public void GetQuotes(int clientId, string[] securitySymbols, int securityCount, out string[] results, out string[] errors)
         {
             IntPtr[] resultPtrs = null;
             IntPtr[] errorPtrs = null;
@@ -181,7 +181,7 @@ namespace StockTrading.Utility
                 resultPtrs = TradingHelper.AllocateStringBuffers(securityCount, TradingHelper.MaxResultStringSize);
                 errorPtrs = TradingHelper.AllocateStringBuffers(securityCount, TradingHelper.MaxErrorStringSize);
 
-                TdxWrapper.GetQuotes(clientId, securityCodes, securityCount, resultPtrs, errorPtrs);
+                TdxWrapper.GetQuotes(clientId, securitySymbols, securityCount, resultPtrs, errorPtrs);
 
                 results = TradingHelper.ConvertStringBufferToString(resultPtrs);
                 errors = TradingHelper.ConvertStringBufferToString(errorPtrs);

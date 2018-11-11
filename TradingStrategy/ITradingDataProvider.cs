@@ -12,9 +12,9 @@ namespace TradingStrategy
         /// <summary>
         /// Get index of trading object
         /// </summary>
-        /// <param name="code">code of trading object</param>
+        /// <param name="symbol">symbol of trading object</param>
         /// <returns>index of trading object. if the trading object does not exist, -1 will be returned</returns>
-        int GetIndexOfTradingObject(string code);
+        int GetIndexOfTradingObject(string symbol);
 
         /// <summary>
         /// Get the first non-warmup data periods for all trading objects. Data time equals or exceeds the limit should be 
@@ -36,7 +36,7 @@ namespace TradingStrategy
         Bar[] GetDataOfPeriod(DateTime period);
 
         /// <summary>
-        /// Get the last effective bar before or equal given period for a given trading object that identified by code
+        /// Get the last effective bar before or equal given period for a given trading object that identified by symbol
         /// </summary>
         /// <param name="index">the index of trading object</param>
         /// <param name="period">time of period that the data should not exceed</param>

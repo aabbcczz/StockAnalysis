@@ -174,13 +174,13 @@ namespace TradingStrategyEvaluation
                 _context.MetricManager.EndUpdateMetrics();
 
                 // update position lasted period count
-                foreach (var code in _context.GetAllPositionCodes())
+                foreach (var symbol in _context.GetAllPositionSymbols())
                 {
-                    int tradingObjectIndex = _provider.GetIndexOfTradingObject(code);
+                    int tradingObjectIndex = _provider.GetIndexOfTradingObject(symbol);
 
                     if (thisPeriodData[tradingObjectIndex].Time != Bar.InvalidTime)
                     {
-                        foreach (var position in _context.GetPositionDetails(code))
+                        foreach (var position in _context.GetPositionDetails(symbol))
                         {
                             if (position.BuyTime < thisPeriodTime)
                             {
@@ -271,10 +271,10 @@ namespace TradingStrategyEvaluation
 
         private void ClearEquityForcibly(DateTime lastPeriodTime)
         {
-            var codes = _equityManager.GetAllPositionCodes();
-            foreach (var code in codes)
+            var symbols = _equityManager.GetAllPositionSymbols();
+            foreach (var symbol in symbols)
             {
-                var equities = _equityManager.GetPositionDetails(code);
+                var equities = _equityManager.GetPositionDetails(symbol);
                 var totalVolume = equities.Sum(e => e.Volume);
 
                 if (totalVolume <= 0)
@@ -283,12 +283,12 @@ namespace TradingStrategyEvaluation
                 }
 
                 Bar bar;
-                var index = _provider.GetIndexOfTradingObject(code);
+                var index = _provider.GetIndexOfTradingObject(symbol);
 
                 if (!_provider.GetLastEffectiveBar(index, lastPeriodTime, out bar))
                 {
                     throw new InvalidOperationException(
-                        string.Format("failed to get last data for code {0}, logic error", code));
+                        string.Format("failed to get last data for symbol {0}, logic error", symbol));
                 }
 
                 var transaction = new Transaction
@@ -297,7 +297,7 @@ namespace TradingStrategyEvaluation
                     Commission = 0.0,
                     ExecutionTime = lastPeriodTime,
                     InstructionId = long.MaxValue,
-                    Code = code,
+                    Symbol = symbol,
                     Name = _allTradingObjects[index].Name,
                     Price = bar.ClosePrice,
                     SellingType = SellingType.ByVolume,
@@ -312,7 +312,7 @@ namespace TradingStrategyEvaluation
                 if (!ExecuteTransaction(transaction, false, true))
                 {
                     throw new InvalidOperationException(
-                        string.Format("failed to execute transaction, logic error", code));
+                        string.Format("failed to execute transaction, logic error", symbol));
                 }
             }
         }
@@ -331,7 +331,7 @@ namespace TradingStrategyEvaluation
 
                 if (currentBarOfObject.Time == Bar.InvalidTime)
                 {
-                    _context.Log(string.Format("the data for trading object {0} is invalid, can't execute instruction", instruction.TradingObject.Code));
+                    _context.Log(string.Format("the data for trading object {0} is invalid, can't execute instruction", instruction.TradingObject.Symbol));
                     continue;
                 }
 
@@ -357,7 +357,7 @@ namespace TradingStrategyEvaluation
                             _context.Log(
                                 string.Format(
                                     "{0} price {1:0.0000} hit limit up in {2:yyyy-MM-dd}, failed to execute transaction",
-                                    instruction.TradingObject.Code,
+                                    instruction.TradingObject.Symbol,
                                     currentBarOfObject.OpenPrice,
                                     time));
 
@@ -370,7 +370,7 @@ namespace TradingStrategyEvaluation
                             _context.Log(
                                 string.Format(
                                     "{0} price {1:0.0000} hit limit down in {2:yyyy-MM-dd}, failed to execute transaction",
-                                    instruction.TradingObject.Code,
+                                    instruction.TradingObject.Symbol,
                                     currentBarOfObject.OpenPrice,
                                     time));
 
@@ -389,7 +389,7 @@ namespace TradingStrategyEvaluation
                     _context.Log(
                         string.Format(
                             "{0} price is locked down in {1:yyyy-MM-dd}, failed to execute transaction",
-                            instruction.TradingObject.Code,
+                            instruction.TradingObject.Symbol,
                             time));
 
                     continue;
@@ -434,7 +434,7 @@ namespace TradingStrategyEvaluation
                         _context.Log(
                             string.Format(
                                 "{0} price {1:0.000} in {2:yyyy-MM-dd} is not achievable",
-                                instruction.TradingObject.Code,
+                                instruction.TradingObject.Symbol,
                                 price,
                                 time));
 
@@ -460,7 +460,7 @@ namespace TradingStrategyEvaluation
                     {
                         _context.Log(string.Format(
                             "Max new position count reached, ignore this instruction: {0}/{1}. //{2}",
-                            instruction.TradingObject.Code,
+                            instruction.TradingObject.Symbol,
                             instruction.TradingObject.Name,
                             instruction.Comments));
 
@@ -476,7 +476,7 @@ namespace TradingStrategyEvaluation
                     {
                         _context.Log(string.Format(
                             "Estimate stoploss failed for {0}/{1}. price is {2:0.000}",
-                            instruction.TradingObject.Code,
+                            instruction.TradingObject.Symbol,
                             instruction.TradingObject.Name,
                             price));
 
@@ -487,7 +487,7 @@ namespace TradingStrategyEvaluation
                     {
                         _context.Log(string.Format(
                             "The volume of instruction for {0}/{1} is 0. //{2}",
-                            instruction.TradingObject.Code,
+                            instruction.TradingObject.Symbol,
                             instruction.TradingObject.Name,
                             instruction.Comments));
 
@@ -659,9 +659,9 @@ namespace TradingStrategyEvaluation
 
         private void UpdateTransactionCommission(Transaction transaction, ITradingObject tradingObject)
         {
-            if (tradingObject.Code != transaction.Code)
+            if (tradingObject.Symbol != transaction.Symbol)
             {
-                throw new ArgumentException("Code in transaction and trading object are different");
+                throw new ArgumentException("Symbol in transaction and trading object are different");
             }
 
             CommissionSettings commission;

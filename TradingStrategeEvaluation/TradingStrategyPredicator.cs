@@ -29,7 +29,7 @@ namespace TradingStrategyEvaluation
 
         public IEnumerable<Position> ActivePositions
         {
-            get { return _equityManager.GetAllPositionCodes()
+            get { return _equityManager.GetAllPositionSymbols()
                 .SelectMany(_equityManager.GetPositionDetails); }
         }
 

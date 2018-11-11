@@ -204,16 +204,16 @@
         /// <summary>
         /// Determine which exchange a given security can be traded in
         /// </summary>
-        /// <param name="code">the code of security to be checked</param>
+        /// <param name="symbol">the symbol of security to be checked</param>
         /// <returns>true if the security can be exchanged, otherwise false</returns>
-        public static IExchange GetTradingExchangeForSecurity(string code)
+        public static IExchange GetTradingExchangeForSecurity(string symbol)
         {
-            if (string.IsNullOrWhiteSpace(code))
+            if (string.IsNullOrWhiteSpace(symbol))
             {
                 throw new ArgumentNullException();
             }
 
-            return CreateExchangeById(StockName.GetExchangeId(code));
+            return CreateExchangeById(StockName.GetExchangeId(symbol));
         }
 
         public static string[] GetAllExchangeCapitalizedSymbolPrefixes()

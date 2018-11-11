@@ -23,17 +23,17 @@ namespace TradingStrategy
 
         double GetCurrentEquity(DateTime period, EquityEvaluationMethod method);
 
-        IEnumerable<string> GetAllPositionCodes();
+        IEnumerable<string> GetAllPositionSymbols();
 
-        bool ExistsPosition(string code);
+        bool ExistsPosition(string symbol);
 
-        IEnumerable<Position> GetPositionDetails(string code);
+        IEnumerable<Position> GetPositionDetails(string symbol);
 
         IEnumerable<ITradingObject> GetAllTradingObjects();
 
         int GetCountOfTradingObjects();
 
-        ITradingObject GetTradingObject(string code);
+        ITradingObject GetTradingObject(string symbol);
 
         ITradingObject GetBoardIndexTradingObject(ITradingObject tradingObject);
 

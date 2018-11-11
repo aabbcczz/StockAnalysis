@@ -45,12 +45,12 @@ namespace StockTrading.Utility
         /// <param name="category">表示委托的种类，0买入 1卖出  2融资买入  3融券卖出   4买券还券   5卖券还款  6现券还券</param>
         /// <param name="priceType">表示报价方式 0上海限价委托 深圳限价委托 1(市价委托)深圳对方最优价格  2(市价委托)深圳本方最优价格  3(市价委托)深圳即时成交剩余撤销  4(市价委托)上海五档即成剩撤 深圳五档即成剩撤 5(市价委托)深圳全额成交或撤销 6(市价委托)上海五档即成转限价
         /// <param name="shareholderCode">股东代码, 交易上海股票填上海的股东代码；交易深圳的股票填入深圳的股东代码</param>
-        /// <param name="securityCode">证券代码</param>
+        /// <param name="securitySymbol">证券代码</param>
         /// <param name="price">委托价格</param>
         /// <param name="quantity">委托数量</param>
         /// <param name="result">同上,其中含有委托编号数据</param>
         /// <param name="error">同上</param>
-        void SendOrder(int clientId, int category, int priceType, string shareholderCode, string securityCode, float price, int quantity, out string result, out string error);
+        void SendOrder(int clientId, int category, int priceType, string shareholderCode, string securitySymbol, float price, int quantity, out string result, out string error);
 
         /// <summary>
         /// 撤委托
@@ -66,10 +66,10 @@ namespace StockTrading.Utility
         /// 获取证券的实时五档行情
         /// </summary>
         /// <param name="clientId">客户端ID</param>
-        /// <param name="securityCode">证券代码</param>
+        /// <param name="securitySymbol">证券代码</param>
         /// <param name="result">同上</param>
         /// <param name="error">同上</param>
-        void GetQuote(int clientId, string securityCode, out string result, out string error);
+        void GetQuote(int clientId, string securitySymbol, out string result, out string error);
 
         ///普通批量版
         /// <summary>
@@ -93,13 +93,13 @@ namespace StockTrading.Utility
         /// <param name="categories">委托种类的数组，第i个元素表示第i个委托的种类，0买入 1卖出  2融资买入  3融券卖出   4买券还券   5卖券还款  6现券还券</param>
         /// <param name="priceTypes">表示报价方式的数组,  第i个元素表示第i个委托的报价方式, 0上海限价委托 深圳限价委托 1(市价委托)深圳对方最优价格  2(市价委托)深圳本方最优价格  3(市价委托)深圳即时成交剩余撤销  4(市价委托)上海五档即成剩撤 深圳五档即成剩撤 5(市价委托)深圳全额成交或撤销 6(市价委托)上海五档即成转限价
         /// <param name="shareholderCodes">股东代码数组，第i个元素表示第i个委托的股东代码，交易上海股票填上海的股东代码；交易深圳的股票填入深圳的股东代码</param>
-        /// <param name="securityCodes">证券代码数组，第i个元素表示第i个委托的证券代码</param>
+        /// <param name="securitySymbols">证券代码数组，第i个元素表示第i个委托的证券代码</param>
         /// <param name="prices">委托价格数组，第i个元素表示第i个委托的委托价格</param>
         /// <param name="quantities">委托数量数组，第i个元素表示第i个委托的委托数量</param>
         /// <param name="orderCount">委托的个数，即数组的长度</param>
         /// <param name="results">同上</param>
         /// <param name="errors">同上</param>
-        void SendOrders(int clientId, int[] categories, int[] priceTypes, string[] shareholderCodes, string[] securityCodes, float[] prices, int[] quantities, int orderCount, out string[] results, out string[] errors);
+        void SendOrders(int clientId, int[] categories, int[] priceTypes, string[] shareholderCodes, string[] securitySymbols, float[] prices, int[] quantities, int orderCount, out string[] results, out string[] errors);
 
         /// <summary>
         /// 属于普通批量版功能,批量撤委托, 用数组传入每个委托的参数，数组第i个元素表示第i个撤委托的相应参数
@@ -116,10 +116,10 @@ namespace StockTrading.Utility
         /// 属于普通批量版功能,批量获取证券的实时五档行情
         /// </summary>
         /// <param name="clientId">客户端ID</param>
-        /// <param name="securityCodes">证券代码</param>
+        /// <param name="securitySymbols">证券代码</param>
         /// <param name="result">同上</param>
         /// <param name="errors">同上</param>
-        void GetQuotes(int clientId, string[] securityCodes, int securityCount, out string[] results, out string[] errors);
+        void GetQuotes(int clientId, string[] securitySymbols, int securityCount, out string[] results, out string[] errors);
 
         /// <summary>
         /// 属于普通批量版功能,查询各种历史数据

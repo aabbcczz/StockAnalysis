@@ -9,7 +9,7 @@ namespace StockTradingConsole
     public sealed class NewStockForSerialization
     {
         public DateTime DateToBuy { get; set; }
-        public string SecurityCode { get; set; }
+        public string SecuritySymbol { get; set; }
         public string SecurityName { get; set; }
         public float BuyPriceUpLimitInclusive { get; set; }
         public float BuyPriceDownLimitInclusive { get; set; }
@@ -22,7 +22,7 @@ namespace StockTradingConsole
         public NewStockForSerialization(NewStock ns)
         {
             DateToBuy = ns.DateToBuy;
-            SecurityCode = ns.Name.NormalizedCode;
+            SecuritySymbol = ns.Name.NormalizedSymbol;
             SecurityName = ns.Name.Names[0];
             BuyPriceUpLimitInclusive = ns.BuyPriceUpLimitInclusive;
             BuyPriceDownLimitInclusive = ns.BuyPriceDownLimitInclusive;

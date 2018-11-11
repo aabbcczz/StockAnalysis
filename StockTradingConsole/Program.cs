@@ -130,7 +130,7 @@ namespace StockTradingConsole
             TimeSpan marketOpenTime = new TimeSpan(9, 15, 30);
             TimeSpan marketCloseTime = new TimeSpan(15, 00, 30);
 
-            var codes = stateMachines.Select(m => m.Name.RawCode).ToArray();
+            var symbols = stateMachines.Select(m => m.Name.RawSymbol).ToArray();
 
             while (!token.IsCancellationRequested)
             {
@@ -151,14 +151,14 @@ namespace StockTradingConsole
 
                 // get quote for each stock
                 string[] errors;
-                FiveLevelQuote[] quotes = client.GetQuote(codes, out errors);
+                FiveLevelQuote[] quotes = client.GetQuote(symbols, out errors);
 
                 int activeMachineCount = 0;
                 for (int i = 0; i < quotes.Length; ++i)
                 {
                     if (quotes[i] == null)
                     {
-                        AppLogger.Default.ErrorFormat("Get quote for {0} failed. error: {1}", codes[i], errors[i]);
+                        AppLogger.Default.ErrorFormat("Get quote for {0} failed. error: {1}", symbols[i], errors[i]);
                         continue;
                     }
 

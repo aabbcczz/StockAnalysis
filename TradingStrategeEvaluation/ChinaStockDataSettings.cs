@@ -8,7 +8,7 @@ namespace TradingStrategyEvaluation
     [Serializable]
     public sealed class ChinaStockDataSettings
     {
-        public const string StockCodePattern = "%c";
+        public const string StockSymbolPattern = "%c";
 
         public string StockNameTableFile { get; set; }
 
@@ -39,7 +39,7 @@ namespace TradingStrategyEvaluation
                 throw new InvalidDataException("Empty field is not allowed");
             }
 
-            if (settings.StockDataFileNamePattern.IndexOf(StockCodePattern, StringComparison.Ordinal) < 0)
+            if (settings.StockDataFileNamePattern.IndexOf(StockSymbolPattern, StringComparison.Ordinal) < 0)
             {
                 throw new InvalidDataException("Stock data file name pattern is invalid");
             }
@@ -62,11 +62,11 @@ namespace TradingStrategyEvaluation
             }
         }
 
-        public string BuildActualDataFilePathAndName(string code)
+        public string BuildActualDataFilePathAndName(string symbol)
         {
             return Path.Combine(
                 StockDataFileDirectory,
-                StockDataFileNamePattern.Replace(StockCodePattern, StockName.GetNormalizedCode(code)));
+                StockDataFileNamePattern.Replace(StockSymbolPattern, StockName.GetNormalizedSymbol(symbol)));
         }
 
         public static ChinaStockDataSettings GenerateExampleSettings()

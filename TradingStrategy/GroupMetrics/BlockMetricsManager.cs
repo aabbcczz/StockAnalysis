@@ -34,7 +34,7 @@ namespace TradingStrategy.GroupMetrics
             _context = context;
             
             // create and register metric for blocks
-            var allTradingObjects = context.GetAllTradingObjects().ToDictionary(o => o.Code);
+            var allTradingObjects = context.GetAllTradingObjects().ToDictionary(o => o.Symbol);
             var blocks = context.RelationshipManager.Blocks.ToArray();
 
             var metricPerBlock = blocks

@@ -130,17 +130,17 @@ namespace StockTrading.Utility
                 return true;
             }
 
-            bool cancelSucceeded = _client.CancelOrder(order.Request.SecurityCode, order.OrderNo, out error);
+            bool cancelSucceeded = _client.CancelOrder(order.Request.SecuritySymbol, order.OrderNo, out error);
 
             return cancelSucceeded;
         }
 
         public bool[] CancelOrder(DispatchedOrder[] orders, out string[] errors)
         {
-            var codes = orders.Select(o => o.Request.SecurityCode).ToArray();
+            var symbols = orders.Select(o => o.Request.SecuritySymbol).ToArray();
             var orderNos = orders.Select(o => o.OrderNo).ToArray();
 
-            bool[] succeededFlags = _client.CancelOrder(codes, orderNos, out errors);
+            bool[] succeededFlags = _client.CancelOrder(symbols, orderNos, out errors);
 
             return succeededFlags;
         }

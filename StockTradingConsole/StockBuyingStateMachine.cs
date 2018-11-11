@@ -170,7 +170,7 @@ namespace StockTradingConsole
 
             string error;
             // try to cancel order
-            if (!input.Client.CancelOrder(_stock.Name.RawCode, _orderNo, out error))
+            if (!input.Client.CancelOrder(_stock.Name.RawSymbol, _orderNo, out error))
             {
                 AppLogger.Default.ErrorFormat("[{0}] Failed to cancel order {1}, Error: {2}", _stock.Name, _orderNo, error);
                 return false;
@@ -392,7 +392,7 @@ namespace StockTradingConsole
                 Price = buyingPrice,
                 PricingType = OrderPricingType.LimitPrice,
                 Volume = ChinaStockHelper.ConvertHandToVolume(volumeInHand),
-                SecurityCode = _stock.Name.RawCode,
+                SecuritySymbol = _stock.Name.RawSymbol,
                 SecurityName = _stock.Name.Names[0]
             };
 

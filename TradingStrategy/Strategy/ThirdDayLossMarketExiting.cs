@@ -47,9 +47,9 @@ namespace TradingStrategy.Strategy
         {
             var result = new MarketExitingComponentResult();
 
-            if(Context.ExistsPosition(tradingObject.Code))
+            if(Context.ExistsPosition(tradingObject.Symbol))
             {
-                var position = Context.GetPositionDetails(tradingObject.Code).First();
+                var position = Context.GetPositionDetails(tradingObject.Symbol).First();
                 if (position.LastedPeriodCount == 2)
                 {
                     var firstDayBar = _firstDayBarProxy.GetMetricValues(tradingObject);

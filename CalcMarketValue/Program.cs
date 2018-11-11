@@ -39,7 +39,7 @@ namespace CalcMarketValue
             var shareInfo = CsvTable.Load(options.ShareFile, Encoding.GetEncoding("gb2312"), "\t", StringSplitOptions.RemoveEmptyEntries);
             var priceInfo = CsvTable.Load(options.PriceFile, Encoding.GetEncoding("gb2312"), "\t", StringSplitOptions.RemoveEmptyEntries);
 
-            var codeColumnIndexInShareInfo = Array.IndexOf(shareInfo.Header, "代码");
+            var symbolColumnIndexInShareInfo = Array.IndexOf(shareInfo.Header, "代码");
             var totalShareNumberColumnIndex = Array.IndexOf(shareInfo.Header, "总股数");
             var marketPriceColumnIndex = Array.IndexOf(priceInfo.Header, "昨收");
             var nameColumnIndex = Array.IndexOf(priceInfo.Header, "名称");
@@ -48,43 +48,43 @@ namespace CalcMarketValue
 
             for (var i = 0; i < shareInfo.RowCount; ++i)
             {
-                var code = GetPureCode(shareInfo[i][codeColumnIndexInShareInfo]);
+                var symbol = GetRawSymbol(shareInfo[i][symbolColumnIndexInShareInfo]);
                 var totalShareNumber = decimal.Parse(shareInfo[i][totalShareNumberColumnIndex]);
 
-                shares.Add(code, totalShareNumber);
+                shares.Add(symbol, totalShareNumber);
             }
 
             var prices = new Dictionary<string, Tuple<string, decimal>>();
 
             for (var i = 0; i < priceInfo.RowCount; ++i)
             {
-                var code = GetPureCode(priceInfo[i][codeColumnIndexInShareInfo]);
+                var rawSymbol = GetRawSymbol(priceInfo[i][symbolColumnIndexInShareInfo]);
                 var marketPrice = decimal.Parse(priceInfo[i][marketPriceColumnIndex]);
                 var name = priceInfo[i][nameColumnIndex];
 
-                prices.Add(code, Tuple.Create(name, marketPrice));
+                prices.Add(rawSymbol, Tuple.Create(name, marketPrice));
             }
 
             // join the keys
-            var codes = shares.Keys.Union(prices.Keys).OrderBy(s => s);
+            var symbols = shares.Keys.Union(prices.Keys).OrderBy(s => s);
 
             var header = new[]
             {
-                "CODE",
+                "SYMBOL",
                 "NAME",
                 "TotalShare",
                 "MarketPrice"
             };
 
             var marketValues = new CsvTable(header);
-            foreach (var code in codes)
+            foreach (var symbol in symbols)
             {
                 var row = new[]
                 {
-                    NormalizeCode(code),
-                    prices.ContainsKey(code) ? prices[code].Item1 : "Unknown",
-                    shares.ContainsKey(code) ? shares[code].ToString(CultureInfo.InvariantCulture) : "0.0",
-                    prices.ContainsKey(code) ? prices[code].Item2.ToString(CultureInfo.InvariantCulture) : "0.0"
+                    NormalizeSymbol(symbol),
+                    prices.ContainsKey(symbol) ? prices[symbol].Item1 : "Unknown",
+                    shares.ContainsKey(symbol) ? shares[symbol].ToString(CultureInfo.InvariantCulture) : "0.0",
+                    prices.ContainsKey(symbol) ? prices[symbol].Item2.ToString(CultureInfo.InvariantCulture) : "0.0"
                 };
 
                 marketValues.AddRow(row);
@@ -95,22 +95,22 @@ namespace CalcMarketValue
             Console.WriteLine("Done.");
         }
 
-        private static string GetPureCode(string code)
+        private static string GetRawSymbol(string symbol)
         {
-            if (code.Length == 6)
+            if (symbol.Length == 6)
             {
-                return code;
+                return symbol;
             }
-            if (code.Length == 8)
+            if (symbol.Length == 8)
             {
-                return code.Substring(2);
+                return symbol.Substring(2);
             }
-            throw new InvalidOperationException(string.Format("code is not valid: {0}", code));
+            throw new InvalidOperationException(string.Format("symbol is not valid: {0}", symbol));
         }
 
-        private static string NormalizeCode(string code)
+        private static string NormalizeSymbol(string symbol)
         {
-            var name = StockName.Parse(code);
+            var name = StockName.Parse(symbol);
 
             var prefix = string.Empty;
             if (name.ExchangeId == ExchangeId.ShenzhenSecurityExchange ||
@@ -119,7 +119,7 @@ namespace CalcMarketValue
                 prefix = ExchangeFactory.CreateExchangeById(name.ExchangeId).CapitalizedSymbolPrefix;
             }
 
-            return prefix + code;
+            return prefix + symbol;
         }
     }
 }

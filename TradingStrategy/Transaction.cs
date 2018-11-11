@@ -14,7 +14,7 @@ namespace TradingStrategy
 
         public DateTime ExecutionTime { get; set; }
 
-        public string Code { get; set; }
+        public string Symbol { get; set; }
 
         public string Name { get; set; }
 
@@ -61,7 +61,7 @@ namespace TradingStrategy
                 ExecutionTime,
                 (int)Action,
                 (int)SellingType,
-                Code,
+                Symbol,
                 Name,
                 Price,
                 Volume,
@@ -81,7 +81,7 @@ namespace TradingStrategy
             Commission = 0.0;
             ExecutionTime = default(DateTime);
             InstructionId = instruction.Id;
-            Code = instruction.TradingObject.Code;
+            Symbol = instruction.TradingObject.Symbol;
             Name = instruction.TradingObject.Name;
             Succeeded = false;
             Price = price;

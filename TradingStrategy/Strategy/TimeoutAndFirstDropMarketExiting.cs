@@ -47,10 +47,10 @@ namespace TradingStrategy.Strategy
         {
             var result = new MarketExitingComponentResult();
 
-            var code = tradingObject.Code;
-            if (Context.ExistsPosition(code))
+            var symbol = tradingObject.Symbol;
+            if (Context.ExistsPosition(symbol))
             {
-                int periodCount = Context.GetPositionDetails(code).Last().LastedPeriodCount;
+                int periodCount = Context.GetPositionDetails(symbol).Last().LastedPeriodCount;
 
                 if (periodCount >= HoldingPeriods)
                 {

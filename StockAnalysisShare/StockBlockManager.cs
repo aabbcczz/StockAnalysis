@@ -50,7 +50,7 @@ namespace StockAnalysis.Share
                 {
                     yield return new StockBlockRelationship
                     {
-                        StockCode = relationship.StockCode,
+                        StockSymbol = relationship.StockSymbol,
                         BlockName = block.ParentBlock.Name
                     };
 

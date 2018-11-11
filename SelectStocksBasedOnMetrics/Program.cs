@@ -89,7 +89,7 @@ namespace SelectStocksBasedOnMetrics
                     {
                         var record = new StockMetricRecord
                         {
-                            Code = row[0],
+                            Symbol = row[0],
                             Date = DateTime.Parse(row[1]),
                             MetricNames = metricNames,
                             Metrics = new double[row.Length - 2]
@@ -135,7 +135,7 @@ namespace SelectStocksBasedOnMetrics
 
                     var expandedMetric = new StockMetricRecord
                     {
-                        Code = metrics[0].Code,
+                        Symbol = metrics[0].Symbol,
                         Date = metrics[0].Date,
                         MetricNames = Enumerable
                             .Range(0, metrics.Length)
@@ -158,13 +158,13 @@ namespace SelectStocksBasedOnMetrics
 
                 Console.WriteLine();
 
-                outputter.WriteLine("Code,Date,{0}", string.Join(",", records.First().MetricNames));
+                outputter.WriteLine("Symbol,Date,{0}", string.Join(",", records.First().MetricNames));
 
                 foreach (var record in records)
                 {
                     outputter.WriteLine(
                         "{0},{1:yyyy/MM/dd},{2}",
-                        record.Code,
+                        record.Symbol,
                         record.Date,
                         string.Join(",", record.Metrics.Select(v => string.Format("{0:0.00}", v)).ToArray()));
                 }

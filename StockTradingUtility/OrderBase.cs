@@ -21,7 +21,7 @@ namespace StockTrading.Utility
         /// <summary>
         /// 证券代码
         /// </summary>
-        public string SecurityCode { get; private set; }
+        public string SecuritySymbol { get; private set; }
 
         /// <summary>
         /// 证券名称
@@ -105,9 +105,9 @@ namespace StockTrading.Utility
         /// <returns>true if the order is fully completed, otherwise false.</returns>
         public abstract bool IsCompleted();
 
-        protected OrderBase(string securityCode, string securityName, int volume, WaitableConcurrentQueue<OrderExecutedMessage> orderExecutedMessageReceiver)
+        protected OrderBase(string securitySymbol, string securityName, int volume, WaitableConcurrentQueue<OrderExecutedMessage> orderExecutedMessageReceiver)
         {
-            if (string.IsNullOrWhiteSpace(securityCode))
+            if (string.IsNullOrWhiteSpace(securitySymbol))
             {
                 throw new ArgumentNullException();
             }
@@ -118,9 +118,9 @@ namespace StockTrading.Utility
             }
 
             OrderId = Interlocked.Increment(ref currentOrderId);
-            SecurityCode = securityCode;
+            SecuritySymbol = securitySymbol;
             SecurityName = securityName;
-            Exchange = ExchangeFactory.GetTradingExchangeForSecurity(SecurityCode);
+            Exchange = ExchangeFactory.GetTradingExchangeForSecurity(SecuritySymbol);
             ExpectedVolume = volume;
             ExecutedVolume = 0;
             ShouldCancelIfNotSucceeded = false;
@@ -132,7 +132,7 @@ namespace StockTrading.Utility
             return string.Format(
                 "Id: {0}, {1}/{2} expected volume: {3}, executed volume: {4}, average executed price: {5:0.000}",
                 OrderId,
-                SecurityCode,
+                SecuritySymbol,
                 SecurityName,
                 ExpectedVolume,
                 ExecutedVolume,

@@ -12,7 +12,7 @@ namespace TradingStrategy.Strategy
         private RuntimeMetricProxy _highestMetricProxy;
         private RuntimeMetricProxy _movingAverageMetricProxy;
 
-        private HashSet<string> _codesSwitchedToSingleMovingAverageMarketExiting = new HashSet<string>();
+        private HashSet<string> _symbolsSwitchedToSingleMovingAverageMarketExiting = new HashSet<string>();
 
  
         public override string Name
@@ -71,12 +71,12 @@ namespace TradingStrategy.Strategy
         {
             var result = new MarketExitingComponentResult();
 
-            var code = tradingObject.Code;
-            if (Context.ExistsPosition(code))
+            var symbol = tradingObject.Symbol;
+            if (Context.ExistsPosition(symbol))
             {
                 Bar todayBar = Context.GetBarOfTradingObjectForCurrentPeriod(tradingObject);
 
-                if (_codesSwitchedToSingleMovingAverageMarketExiting.Contains(code))
+                if (_symbolsSwitchedToSingleMovingAverageMarketExiting.Contains(symbol))
                 {
                     double movingAverage = _movingAverageMetricProxy.GetMetricValues(tradingObject)[0];
 
@@ -97,7 +97,7 @@ namespace TradingStrategy.Strategy
                 }
                 else
                 {
-                    int periodCount = Context.GetPositionDetails(code).Last().LastedPeriodCount;
+                    int periodCount = Context.GetPositionDetails(symbol).Last().LastedPeriodCount;
 
                     if (periodCount >= HoldingPeriods)
                     {
@@ -108,7 +108,7 @@ namespace TradingStrategy.Strategy
                             && todayBar.ClosePrice >= todayBar.OpenPrice)
                         {
                             // today is the highest price, switch to moving average exiting.
-                            _codesSwitchedToSingleMovingAverageMarketExiting.Add(code);
+                            _symbolsSwitchedToSingleMovingAverageMarketExiting.Add(symbol);
                         }
                         else
                         {
@@ -120,7 +120,7 @@ namespace TradingStrategy.Strategy
             }
             else
             {
-                _codesSwitchedToSingleMovingAverageMarketExiting.Remove(code);
+                _symbolsSwitchedToSingleMovingAverageMarketExiting.Remove(symbol);
             }
 
             return result;

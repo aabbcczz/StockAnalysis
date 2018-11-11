@@ -8,30 +8,30 @@ namespace StockAnalysis.Share
 {
     public sealed class UntradableObject
     {
-        private static string[] untradableCodes = new string[]
+        private static string[] untradableSymbols = new string[]
         {
-            StockBoardIndex.GrowingBoardIndexName.NormalizedCode,
-            StockBoardIndex.MainBoardIndexName.NormalizedCode,
-            StockBoardIndex.SmallMiddleBoardIndexName.NormalizedCode
+            StockBoardIndex.GrowingBoardIndexName.NormalizedSymbol,
+            StockBoardIndex.MainBoardIndexName.NormalizedSymbol,
+            StockBoardIndex.SmallMiddleBoardIndexName.NormalizedSymbol
         };
 
         private static Dictionary<string, UntradableObject> untradableObjects;
 
-        public string Code { get; private set; }
+        public string Symbol { get; private set; }
 
-        public UntradableObject(string code)
+        public UntradableObject(string symbol)
         {
-            Code = code;
+            Symbol = symbol;
         }
 
         static UntradableObject()
         {
-            untradableObjects = untradableCodes.ToDictionary(s => s, s => new UntradableObject(s));
+            untradableObjects = untradableSymbols.ToDictionary(s => s, s => new UntradableObject(s));
         }
 
-        public static bool IsUntradable(string normalizedCode)
+        public static bool IsUntradable(string normalizedSymbol)
         {
-            return untradableObjects.ContainsKey(normalizedCode);
+            return untradableObjects.ContainsKey(normalizedSymbol);
         }
     }
 }

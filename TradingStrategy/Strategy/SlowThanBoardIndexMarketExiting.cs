@@ -44,12 +44,12 @@ namespace TradingStrategy.Strategy
         {
             MarketExitingComponentResult result = new MarketExitingComponentResult();
 
-            if (!Context.ExistsPosition(tradingObject.Code))
+            if (!Context.ExistsPosition(tradingObject.Symbol))
             {
                 return result;
             }
 
-            Position position = Context.GetPositionDetails(tradingObject.Code).First();
+            Position position = Context.GetPositionDetails(tradingObject.Symbol).First();
             if (position.LastedPeriodCount < GrowthCalculationWindow - 1)
             {
                 return result;

@@ -17,7 +17,7 @@ namespace StockAnalysis.Share
         public StockBlockRelationshipManager(IEnumerable<StockBlockRelationship> relationships)
         {
             _stockToBlocksMap = relationships
-                .GroupBy(sbr => sbr.StockCode)
+                .GroupBy(sbr => sbr.StockSymbol)
                 .ToDictionary(
                     g => g.Key, 
                     g => g.Select(sbr => sbr.BlockName)
@@ -28,7 +28,7 @@ namespace StockAnalysis.Share
                 .GroupBy(sbr => sbr.BlockName)
                 .ToDictionary(
                     g => g.Key, 
-                    g => g.Select(sbr => sbr.StockCode)
+                    g => g.Select(sbr => sbr.StockSymbol)
                         .OrderBy(s => s)
                         .ToArray());
         }
@@ -62,7 +62,7 @@ namespace StockAnalysis.Share
                         .Select(
                             b => new StockBlockRelationship() 
                             { 
-                                StockCode = s, 
+                                StockSymbol = s, 
                                 BlockName = b 
                             }));
 
@@ -78,7 +78,7 @@ namespace StockAnalysis.Share
                         .Select(
                             s => new StockBlockRelationship()
                             {
-                                StockCode = s,
+                                StockSymbol = s,
                                 BlockName = b
                             }));
 

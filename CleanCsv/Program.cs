@@ -21,7 +21,7 @@ namespace CleanCsv
             {
                 if (input.Header[i] == "代码")
                 {
-                    input.Header[i] = "CODE";
+                    input.Header[i] = "SYMBOL";
                 }
             }
 

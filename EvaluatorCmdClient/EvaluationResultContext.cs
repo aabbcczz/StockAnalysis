@@ -104,7 +104,7 @@ namespace EvaluatorCmdClient
             }
 
             // get the overall metric
-            var overallMetric = tradeMetrics.First(m => m.Code == TradeMetric.CodeForAll);
+            var overallMetric = tradeMetrics.First(m => m.Symbol == TradeMetric.SymbolForAll);
             
             // save equities
             using (var writer = new StreamWriter(
@@ -151,7 +151,7 @@ namespace EvaluatorCmdClient
                 // write header
                 string header = string.Join(
                     ",",
-                    "CODE,TIME,BLOCK,UPRATE", 
+                    "SYMBOL,TIME,BLOCK,UPRATE", 
                     string.Join(",", TradeMetricsCalculator.ERatioWindowSizes.Select(i => string.Format("MFE{0}", i))),
                     string.Join(",", TradeMetricsCalculator.ERatioWindowSizes.Select(i => string.Format("MAE{0}", i))));
 
@@ -161,7 +161,7 @@ namespace EvaluatorCmdClient
                 {
                     string line = string.Join(
                         ",",
-                        detail.Code,
+                        detail.Symbol,
                         string.Format("{0:yyy-MM-dd}", detail.Time),
                         detail.Block,
                         string.Format("{0:0.00000}", detail.UpRateFromLowest),

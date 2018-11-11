@@ -44,12 +44,12 @@ namespace DTViewer
         {
             InitializeComponent();
 
-            dataGridViewCodes.AutoGenerateColumns = false;
-            ColumnCodesCode.DataPropertyName = "Code";
-            ColumnCodesName.DataPropertyName = "Name";
+            dataGridViewSymbols.AutoGenerateColumns = false;
+            ColumnSymbolsSymbol.DataPropertyName = "Symbol";
+            ColumnSymbolsName.DataPropertyName = "Name";
 
             dataGridViewClosedPosition.AutoGenerateColumns = false;
-            ColumnPositionCode.DataPropertyName = "Code";
+            ColumnPositionSymbol.DataPropertyName = "Symbol";
             ColumnPositionName.DataPropertyName = "Name";
             ColumnPositionBuyTime.DataPropertyName = "BuyTime";
             ColumnPositionBuyPrice.DataPropertyName = "BuyPrice";
@@ -107,17 +107,17 @@ namespace DTViewer
 
             _stockNameTable = new TradingObjectNameTable<StockName>(_stockDataSettings.StockNameTableFile);
 
-            // fill the codes and names to grid view
+            // fill the symbols and names to grid view
             var stockProperties = _stockNameTable.Names
                 .Select(sn => new StockProperty()
                         {
-                            Code = sn.NormalizedCode,
+                            Symbol = sn.NormalizedSymbol,
                             Name = string.Join("|", sn.Names)
                         })
-                .OrderBy(sp => sp.Code)
+                .OrderBy(sp => sp.Symbol)
                 .ToArray();
 
-            dataGridViewCodes.DataSource = new SortableBindingList<StockProperty>(stockProperties);
+            dataGridViewSymbols.DataSource = new SortableBindingList<StockProperty>(stockProperties);
 
             // reset data accessor (cache)
             ChinaStockDataAccessor.Reset();
@@ -231,7 +231,7 @@ namespace DTViewer
                 textBoxDetails.Text = positionSlim.Annotation;
 
                 // show stock data
-                ShowStockData(positionSlim.Code, positionSlim.BuyTime, positionSlim.SellTime, true);
+                ShowStockData(positionSlim.Symbol, positionSlim.BuyTime, positionSlim.SellTime, true);
             }
         }
 
@@ -255,9 +255,9 @@ namespace DTViewer
             return index;
         }
 
-        private void ShowStockData(string code, DateTime startTime, DateTime endTime, bool addAnnotation)
+        private void ShowStockData(string symbol, DateTime startTime, DateTime endTime, bool addAnnotation)
         {
-            string file = _stockDataSettings.BuildActualDataFilePathAndName(code);
+            string file = _stockDataSettings.BuildActualDataFilePathAndName(symbol);
 
             HistoryData data;
             try
@@ -270,8 +270,8 @@ namespace DTViewer
                 return;
             }
 
-            // update label of code
-            labelCode.Text = code;
+            // update label of symbol
+            labelSymbol.Text = symbol;
 
             var stockSeries = chartData.Series[StockSeriesIndex];
             var volumeSeries = chartData.Series[VolumeSeriesIndex];
@@ -374,19 +374,19 @@ namespace DTViewer
             chartData.Update();
         }
 
-        private void ShowStockData(string code)
+        private void ShowStockData(string symbol)
         {
-            ShowStockData(code, DateTime.MinValue, DateTime.MaxValue, false);
+            ShowStockData(symbol, DateTime.MinValue, DateTime.MaxValue, false);
         }
 
-        private void dataGridViewCodes_SelectionChanged(object sender, EventArgs e)
+        private void dataGridViewSymbols_SelectionChanged(object sender, EventArgs e)
         {
-            if (dataGridViewCodes.SelectedRows != null 
-                && dataGridViewCodes.SelectedRows.Count > 0)
+            if (dataGridViewSymbols.SelectedRows != null 
+                && dataGridViewSymbols.SelectedRows.Count > 0)
             {
-                string code = ((StockProperty)dataGridViewCodes.SelectedRows[0].DataBoundItem).Code;
+                string symbol = ((StockProperty)dataGridViewSymbols.SelectedRows[0].DataBoundItem).Symbol;
 
-                ShowStockData(code);
+                ShowStockData(symbol);
             }
         }
 

@@ -10,7 +10,7 @@ namespace TradingStrategy.Strategy
         : GeneralMarketExitingBase
     {
 
-        private readonly Dictionary<int, int> _codesShouldExit = new Dictionary<int, int>();
+        private readonly Dictionary<int, int> _symbolsShouldExit = new Dictionary<int, int>();
 
         private int[] _holdingPeriods;
 
@@ -52,11 +52,11 @@ namespace TradingStrategy.Strategy
                 return;
             }
 
-            var code = tradingObject.Code;
+            var symbol = tradingObject.Symbol;
 
-            if (Context.ExistsPosition(code))
+            if (Context.ExistsPosition(symbol))
             {
-                var temp = Context.GetPositionDetails(code);
+                var temp = Context.GetPositionDetails(symbol);
                 var positions = temp as Position[] ?? temp.ToArray();
 
                 if (positions.Count() == 1) // possible newly created position
@@ -71,7 +71,7 @@ namespace TradingStrategy.Strategy
                         {
                             if (positions.First().BuyPrice * (1.0 + ExpectedProfitPercentage / 100.0) >= bar.ClosePrice)
                             {
-                                _codesShouldExit.Add(tradingObject.Index, period);
+                                _symbolsShouldExit.Add(tradingObject.Index, period);
                                 break;
                             }
                         }
@@ -79,15 +79,15 @@ namespace TradingStrategy.Strategy
                 }
                 else
                 {
-                    // for those code that has more than one position, this market exiting strategy 
+                    // for those symbols that has more than one position, this market exiting strategy 
                     // will not be used anyway
-                    _codesShouldExit.Remove(tradingObject.Index);
+                    _symbolsShouldExit.Remove(tradingObject.Index);
                 }
             }
             else
             {
-                // remove all codes for non-existing positions
-                _codesShouldExit.Remove(tradingObject.Index);
+                // remove all symbols for non-existing positions
+                _symbolsShouldExit.Remove(tradingObject.Index);
             }
         }
 
@@ -98,9 +98,9 @@ namespace TradingStrategy.Strategy
             if (_holdingPeriods.Length != 0)
             {
                 int period;
-                if (_codesShouldExit.TryGetValue(tradingObject.Index, out period))
+                if (_symbolsShouldExit.TryGetValue(tradingObject.Index, out period))
                 {
-                    _codesShouldExit.Remove(tradingObject.Index);
+                    _symbolsShouldExit.Remove(tradingObject.Index);
 
                     result.Comments = string.Format("hold for {0} periods, but no profit", period);
                     result.ShouldExit = true;

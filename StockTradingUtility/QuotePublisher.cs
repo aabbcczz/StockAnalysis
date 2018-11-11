@@ -65,31 +65,31 @@ namespace StockTrading.Utility
 
         private void UnsafeSubscribe(QuoteSubscription subscription)
         {
-            if (!_subscriptions.ContainsKey(subscription.SecurityCode))
+            if (!_subscriptions.ContainsKey(subscription.SecuritySymbol))
             {
-                _subscriptions.Add(subscription.SecurityCode, new HashSet<WaitableConcurrentQueue<QuoteResult>>());
+                _subscriptions.Add(subscription.SecuritySymbol, new HashSet<WaitableConcurrentQueue<QuoteResult>>());
             }
  
-            _subscriptions[subscription.SecurityCode].Add(subscription.ResultQueue);
+            _subscriptions[subscription.SecuritySymbol].Add(subscription.ResultQueue);
 
             if (!_subscriptionIndex.ContainsKey(subscription.ResultQueue))
             {
                 _subscriptionIndex.Add(subscription.ResultQueue, new HashSet<string>());
             }
 
-            _subscriptionIndex[subscription.ResultQueue].Add(subscription.SecurityCode);
+            _subscriptionIndex[subscription.ResultQueue].Add(subscription.SecuritySymbol);
         }
 
         private void UnsafeUnsubscribe(QuoteSubscription subscription)
         {
-            if (_subscriptions.ContainsKey(subscription.SecurityCode))
+            if (_subscriptions.ContainsKey(subscription.SecuritySymbol))
             {
-                _subscriptions[subscription.SecurityCode].Remove(subscription.ResultQueue);
+                _subscriptions[subscription.SecuritySymbol].Remove(subscription.ResultQueue);
             }
 
             if (_subscriptionIndex.ContainsKey(subscription.ResultQueue))
             {
-                _subscriptionIndex[subscription.ResultQueue].Remove(subscription.SecurityCode);
+                _subscriptionIndex[subscription.ResultQueue].Remove(subscription.SecuritySymbol);
             }
         }
 
@@ -176,7 +176,7 @@ namespace StockTrading.Utility
                 }
 
                 // get a duplicate quote list to avoid lock quote list too long
-                List<string> codes = null;
+                List<string> symbols = null;
 
                 _subscriptionReadWriteLock.EnterReadLock();
 
@@ -187,25 +187,25 @@ namespace StockTrading.Utility
                         return;
                     }
 
-                    codes = new List<string>(_subscriptions.Keys);
+                    symbols = new List<string>(_subscriptions.Keys);
                 }
                 finally
                 {
                     _subscriptionReadWriteLock.ExitReadLock();
                 }
 
-                System.Diagnostics.Debug.Assert(codes.Count > 0);
+                System.Diagnostics.Debug.Assert(symbols.Count > 0);
 
                 List<string[]> subsets = new List<string[]>();
-                for (int index = 0; index < codes.Count; index += MaxBatchSize)
+                for (int index = 0; index < symbols.Count; index += MaxBatchSize)
                 {
-                    int count = Math.Min(codes.Count - index, MaxBatchSize);
+                    int count = Math.Min(symbols.Count - index, MaxBatchSize);
                     if (count == 0)
                     {
                         break;
                     }
 
-                    var subset = codes.GetRange(index, count).ToArray();
+                    var subset = symbols.GetRange(index, count).ToArray();
 
                     subsets.Add(subset);
                 }
@@ -266,7 +266,7 @@ namespace StockTrading.Utility
             }
         }
 
-        private void PublishQuotes(string[] codes, FiveLevelQuote[] quotes, string[] errors)
+        private void PublishQuotes(string[] symbols, FiveLevelQuote[] quotes, string[] errors)
         {
             List<QuoteResult> results = null;
             List<WaitableConcurrentQueue<QuoteResult>> resultQueues = null;
@@ -279,13 +279,13 @@ namespace StockTrading.Utility
                 // find all valid results
                 results = Enumerable
                     .Range(0, quotes.Length)
-                    .Where(i => _subscriptions.ContainsKey(codes[i]))
-                    .Select(i => new QuoteResult(codes[i], quotes[i], errors[i]))
+                    .Where(i => _subscriptions.ContainsKey(symbols[i]))
+                    .Select(i => new QuoteResult(symbols[i], quotes[i], errors[i]))
                     .ToList();
 
                 // get all distinct resultQueues
                 resultQueues = results
-                    .SelectMany(r => _subscriptions[r.SecurityCode])
+                    .SelectMany(r => _subscriptions[r.SecuritySymbol])
                     .Distinct()
                     .ToList();
 
@@ -298,7 +298,7 @@ namespace StockTrading.Utility
                     .ToDictionary(
                         r => r, 
                         r => results
-                                .Where(q => _subscriptionIndex[r].Contains(q.SecurityCode))
+                                .Where(q => _subscriptionIndex[r].Contains(q.SecuritySymbol))
                                 .ToList());
             }
             finally

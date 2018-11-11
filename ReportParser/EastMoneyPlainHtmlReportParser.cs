@@ -38,26 +38,26 @@ namespace ReportParser
             _dataDictionary = dataDictionary;
         }
 
-        public FinanceReport ParseReport(string code, string file)
+        public FinanceReport ParseReport(string symbol, string file)
         {
             // recursive descending analysis
-            return ParseReport(code, (from line in Parse(file) where !string.IsNullOrWhiteSpace(line) select line.Trim()).ToArray());
+            return ParseReport(symbol, (from line in Parse(file) where !string.IsNullOrWhiteSpace(line) select line.Trim()).ToArray());
         }
 
-        private FinanceReport ParseReport(string code, string[] lines)
+        private FinanceReport ParseReport(string symbol, string[] lines)
         {
             var report = new FinanceReport();
 
             var lineIndex = 0;
             
             string companyName;
-            if (!ParseHeader(code, lines, ref lineIndex, out companyName))
+            if (!ParseHeader(symbol, lines, ref lineIndex, out companyName))
             {
                 _errorWriter.WriteLine("Failed to parse report header");
                 return null;
             }
 
-            report.CompanyCode = code;
+            report.CompanySymbol = symbol;
             report.CompanyName = companyName;
 
             while (lineIndex < lines.Length)
@@ -115,7 +115,7 @@ namespace ReportParser
             return false;
         }
 
-        private bool ParseHeader(string code, string[] lines, ref int lineIndex, out string companyName)
+        private bool ParseHeader(string symbol, string[] lines, ref int lineIndex, out string companyName)
         {
             companyName = string.Empty;
 
@@ -123,10 +123,10 @@ namespace ReportParser
             {
                 var currentLine = lines[lineIndex];
 
-                var posOfCode = currentLine.IndexOf(code, StringComparison.Ordinal);
-                if (posOfCode >= 0)
+                var posOfSymbol = currentLine.IndexOf(symbol, StringComparison.Ordinal);
+                if (posOfSymbol >= 0)
                 {
-                    companyName = currentLine.Substring(0, posOfCode).Replace('≈', ' ').Trim();
+                    companyName = currentLine.Substring(0, posOfSymbol).Replace('≈', ' ').Trim();
                 }
                 else
                 {

@@ -8,15 +8,15 @@ namespace StockAnalysis.Share
 {
     public class TradingObjectName
     {
-        public string NormalizedCode { get; protected set; }
+        public string NormalizedSymbol { get; protected set; }
 
-        public string RawCode { get; protected set; }
+        public string RawSymbol { get; protected set; }
 
         public string[] Names { get; protected set; }
 
         public virtual string SaveToString()
         {
-            return NormalizedCode + "|" + String.Join("|", Names);
+            return NormalizedSymbol + "|" + String.Join("|", Names);
         }
 
         public virtual TradingObjectName ParseFromString(string s)

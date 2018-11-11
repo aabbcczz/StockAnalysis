@@ -15,9 +15,9 @@ namespace TradingStrategy.Strategy
     [DeprecatedStrategy]
     public sealed class BlockPriceIndexFilterMarketEntering : GeneralMarketEnteringBase
     {
-        public sealed class BlockUpRatesFromLowestForCode
+        public sealed class BlockUpRatesFromLowestForSymbol
         {
-            public string Code { get; set; }
+            public string Symbol { get; set; }
             public Dictionary<string, double> BlockUpRatesFromLowest { get; set; }
         };
 
@@ -138,7 +138,7 @@ namespace TradingStrategy.Strategy
                 return result;
             }
 
-            var blocks = Context.RelationshipManager.GetBlocksForStock(tradingObject.Code);
+            var blocks = Context.RelationshipManager.GetBlocksForStock(tradingObject.Symbol);
 
             // if the stock's blocks has no intersect with blocks in config, we ignore the stock.
             var intersectedBlocks = _blockConfigMap.Keys.Intersect(blocks);
@@ -171,9 +171,9 @@ namespace TradingStrategy.Strategy
                         block, 
                         indexRateOfChange);
 
-                    result.RelatedObject = new BlockUpRatesFromLowestForCode()
+                    result.RelatedObject = new BlockUpRatesFromLowestForSymbol()
                     {
-                        Code = tradingObject.Code,
+                        Symbol = tradingObject.Symbol,
                         BlockUpRatesFromLowest = blocks.ToDictionary(b => b, b => GetBlockUpRateFromLowest(b))
                     };
 

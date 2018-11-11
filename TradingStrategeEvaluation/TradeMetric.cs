@@ -8,10 +8,10 @@ namespace TradingStrategyEvaluation
 {
     public sealed class TradeMetric
     {
-        public const string CodeForAll = "-----";
+        public const string SymbolForAll = "-----";
         public const string NameForAll = "全部对象";
 
-        public string Code { get; set; } // if Code is CodeForAll, it represents all trading objects.
+        public string Symbol { get; set; } // if Symbol is SymbolForAll, it represents all trading objects.
         public string Name { get; set; }
         public DateTime StartDate { get; set; } // 统计起始日期
         public DateTime EndDate { get; set; }  // 统计结束日期
@@ -75,12 +75,12 @@ namespace TradingStrategyEvaluation
         public double Rise { get; set; } // 区间涨幅 = (EndPrice - StartPrice) / StartPrice 
 
         public EquityPoint[] OrderedEquitySequence { get; private set; } // 所有权益按周期排序
-        public CompletedTransaction[] OrderedCompletedTransactionSequence { get; private set; } // all completed transactions, ordered by execution time and code
+        public CompletedTransaction[] OrderedCompletedTransactionSequence { get; private set; } // all completed transactions, ordered by execution time and symbol
         public Transaction[] OrderedTransactionSequence { get; private set; }
         public double[] ERatios { get; private set; }
 
         public void Initialize(
-            string code,
+            string symbol,
             string name,
             DateTime startDate,
             DateTime endDate,
@@ -92,9 +92,9 @@ namespace TradingStrategyEvaluation
             double[] eRatios,
             bool exponentialEquity = true)
         {
-            if (code == null)
+            if (symbol == null)
             {
-                throw new ArgumentNullException("code");
+                throw new ArgumentNullException("symbol");
             }
 
             if (name == null)
@@ -152,7 +152,7 @@ namespace TradingStrategyEvaluation
                 throw new ArgumentOutOfRangeException("the largest time in equitySequence is later than endDate");
             }
 
-            Code = code;
+            Symbol = symbol;
             Name = name;
             StartDate = startDate;
             EndDate = endDate;

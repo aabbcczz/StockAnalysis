@@ -53,11 +53,11 @@ namespace StockTradingConsole
             List<NewStock> newStocks = ReadNewStocks();
             List<OldStock> oldStocks = ReadOldStocks();
 
-            if (newStocks.Select(s => s.Name.NormalizedCode)
-                .Intersect(oldStocks.Select(s => s.Name.NormalizedCode))
+            if (newStocks.Select(s => s.Name.NormalizedSymbol)
+                .Intersect(oldStocks.Select(s => s.Name.NormalizedSymbol))
                 .Count() != 0)
             {
-                throw new InvalidDataException("There is duplicate code in NewStocks and OldStocks");
+                throw new InvalidDataException("There is duplicate symbol in NewStocks and OldStocks");
             }
 
             _newStocks = newStocks;
@@ -85,9 +85,9 @@ namespace StockTradingConsole
                     List<NewStockForSerialization> stocks = csvReader.GetRecords<NewStockForSerialization>().ToList();
 
                     List<NewStock> newStocks = stocks.Select(s => new NewStock(s)).ToList();
-                    if (newStocks.GroupBy(s => s.Name.NormalizedCode).Count() < newStocks.Count)
+                    if (newStocks.GroupBy(s => s.Name.NormalizedSymbol).Count() < newStocks.Count)
                     {
-                        throw new InvalidDataException("There is duplicate stock code");
+                        throw new InvalidDataException("There is duplicate stock symbol");
                     }
 
                     return newStocks;
@@ -110,9 +110,9 @@ namespace StockTradingConsole
                     List<OldStockForSerialization> stocks = csvReader.GetRecords<OldStockForSerialization>().ToList();
                     List<OldStock> oldStocks = stocks.Select(s => new OldStock(s)).ToList();
 
-                    if (oldStocks.GroupBy(s => s.Name.NormalizedCode).Count() < oldStocks.Count)
+                    if (oldStocks.GroupBy(s => s.Name.NormalizedSymbol).Count() < oldStocks.Count)
                     {
-                        throw new InvalidDataException("There is duplicate stock code");
+                        throw new InvalidDataException("There is duplicate stock symbol");
                     }
 
                     return oldStocks;

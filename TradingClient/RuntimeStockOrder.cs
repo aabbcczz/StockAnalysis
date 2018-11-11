@@ -10,7 +10,7 @@ namespace TradingClient
 {
     sealed class RuntimeStockOrder
     {
-        public string SecurityCode { get; private set; }
+        public string SecuritySymbol { get; private set; }
 
         public string SecurityName { get; private set; }
 
@@ -24,9 +24,9 @@ namespace TradingClient
 
         public StoplossOrder AssociatedStoplossOrder { get; set; }
 
-        public RuntimeStockOrder(string code, string name)
+        public RuntimeStockOrder(string symbol, string name)
         {
-            SecurityCode = code;
+            SecuritySymbol = symbol;
             SecurityName = name;
         }
     }

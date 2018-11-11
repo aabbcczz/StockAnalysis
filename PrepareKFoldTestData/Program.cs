@@ -16,7 +16,7 @@ namespace PrepareKFoldTestData
         {
             if (args.Length == 0)
             {
-                Console.WriteLine("Usage: {0} code_file [fold count]", Process.GetCurrentProcess().MainModule.FileName);
+                Console.WriteLine("Usage: {0} symbol_file [fold count]", Process.GetCurrentProcess().MainModule.FileName);
                 Environment.Exit(1);
             }
 
@@ -35,19 +35,19 @@ namespace PrepareKFoldTestData
                     }
                 }
 
-                string codeFile = args[0];
+                string symbolFile = args[0];
 
-                string[] codes = File.ReadAllLines(codeFile, Encoding.UTF8);
+                string[] symbols = File.ReadAllLines(symbolFile, Encoding.UTF8);
 
-                codes = codes.Distinct().ToArray();
+                symbols = symbols.Distinct().ToArray();
 
-                Dictionary<string, int> assignedValues = codes.ToDictionary(s => s, s => rand.Next(foldCount));
+                Dictionary<string, int> assignedValues = symbols.ToDictionary(s => s, s => rand.Next(foldCount));
 
                 List<string> boardIndices = new List<string>()
                 {
-                    "T_399005",
-                    "T_399006",
-                    "T_399300",
+                    "SZ.399005",
+                    "SZ.399006",
+                    "SZ.399300",
                 };
 
                 var reversedAssignment = assignedValues
@@ -57,20 +57,20 @@ namespace PrepareKFoldTestData
 
                 for (int i = 0; i < reversedAssignment.Length; ++i)
                 {
-                    string testFile = string.Format("code.test.{0}.txt", i);
+                    string testFile = string.Format("symbol.test.{0}.txt", i);
 
                     File.WriteAllLines(testFile, reversedAssignment[i], Encoding.UTF8);
 
-                    string evaluationFile = string.Format("code.eval.{0}.txt", i);
+                    string evaluationFile = string.Format("symbol.eval.{0}.txt", i);
 
-                    var evaluationCodes = Enumerable
+                    var evaluationSymbols = Enumerable
                         .Range(0, reversedAssignment.Length)
                         .Where(index => index != i)
                         .SelectMany(index => reversedAssignment[index])
                         .Distinct()
                         .ToArray();
 
-                    File.WriteAllLines(evaluationFile, evaluationCodes, Encoding.UTF8);
+                    File.WriteAllLines(evaluationFile, evaluationSymbols, Encoding.UTF8);
                 }
                 
             }

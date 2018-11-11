@@ -11,7 +11,7 @@ namespace StockTrading.Utility
     {
         private int _nextOrderNo = 0;
         private Dictionary<int, TdxOrder> _orders = new Dictionary<int, TdxOrder>();
-        private Dictionary<string, List<TdxOrder>> _securityCodeToOrderIndex
+        private Dictionary<string, List<TdxOrder>> _securitySymbolToOrderIndex
             = new Dictionary<string, List<TdxOrder>>();
 
         private int GetNextOrderNo()
@@ -19,7 +19,7 @@ namespace StockTrading.Utility
             return ++_nextOrderNo;
         }
 
-        public void SendOrder(OrderCategory category, OrderPricingType priceType, string shareholderCode, string securityCode, float price, int quantity, out string result, out string error)
+        public void SendOrder(OrderCategory category, OrderPricingType priceType, string shareholderCode, string securitySymbol, float price, int quantity, out string result, out string error)
         {
             result = string.Empty;
             error = string.Empty;
@@ -41,20 +41,20 @@ namespace StockTrading.Utility
                 SubmissionVolume = quantity,
                 PricingType = priceType,
                 IsBuy = category == OrderCategory.Buy,
-                SecurityCode = securityCode,
-                SecurityName = securityCode,
+                SecuritySymbol = securitySymbol,
+                SecurityName = securitySymbol,
                 Status = OrderStatus.Submitted,
                 DealPrice = 0.0f,
                 DealVolume = 0,
             };
 
             _orders.Add(orderNo, order);
-            if (!_securityCodeToOrderIndex.ContainsKey(securityCode))
+            if (!_securitySymbolToOrderIndex.ContainsKey(securitySymbol))
             {
-                _securityCodeToOrderIndex.Add(securityCode, new List<TdxOrder>());
+                _securitySymbolToOrderIndex.Add(securitySymbol, new List<TdxOrder>());
             }
 
-            _securityCodeToOrderIndex[securityCode].Add(order);
+            _securitySymbolToOrderIndex[securitySymbol].Add(order);
 
             
         }

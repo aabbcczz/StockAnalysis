@@ -42,7 +42,7 @@ namespace TradingClient
         private List<StrategyGDB.NewStock> _newStocks = null;
         private List<StrategyGDB.ExistingStock> _existingStocks = null;
         
-        private HashSet<string> _allCodes = null;
+        private HashSet<string> _allSymbols = null;
         private Dictionary<string, StrategyGDB.NewStock> _activeNewStockIndex = null;
         private Dictionary<string, StrategyGDB.ExistingStock> _activeExistingStockIndex = null;
 
@@ -91,28 +91,28 @@ namespace TradingClient
             _newStocks = rw.NewStocks.ToList();
             _existingStocks = rw.ExistingStocks.ToList();
 
-            var allCodes = _newStocks
-                .Select(n => n.SecurityCode)
-                .Union(_existingStocks.Select(e => e.SecurityCode))
+            var allSymbols = _newStocks
+                .Select(n => n.SecuritySymbol)
+                .Union(_existingStocks.Select(e => e.SecuritySymbol))
                 .Distinct();
                 
 
-            _allCodes = new HashSet<string>(allCodes);
+            _allSymbols = new HashSet<string>(allSymbols);
 
             if (AppLogger.Default.IsDebugEnabled)
             {
                 AppLogger.Default.DebugFormat(
-                    "GDB strategy executer: loaded codes {0}",
-                    string.Join(",", _allCodes));
+                    "GDB strategy executer: loaded symbols {0}",
+                    string.Join(",", _allSymbols));
             }
 
-            _activeNewStockIndex = _newStocks.ToDictionary(s => s.SecurityCode, s => s);
-            _activeExistingStockIndex = _existingStocks.ToDictionary(s => s.SecurityCode, s => s);
+            _activeNewStockIndex = _newStocks.ToDictionary(s => s.SecuritySymbol, s => s);
+            _activeExistingStockIndex = _existingStocks.ToDictionary(s => s.SecuritySymbol, s => s);
         }
 
         public void Run()
         {
-            if (_allCodes.Count == 0)
+            if (_allSymbols.Count == 0)
             {
                 return;
             }
@@ -127,15 +127,15 @@ namespace TradingClient
             UpdateCurrentUseableCapital();
 
             // subscribe quote for all stocks
-            CtpSimulator.GetInstance().SubscribeQuote(_newStocks.Select(s => new QuoteSubscription(s.SecurityCode, _newStockQuotes)));
+            CtpSimulator.GetInstance().SubscribeQuote(_newStocks.Select(s => new QuoteSubscription(s.SecuritySymbol, _newStockQuotes)));
             AppLogger.Default.InfoFormat(
                 "Subscribe quote {0}", 
-                string.Join(",",_newStocks.Select(s => s.SecurityCode)));
+                string.Join(",",_newStocks.Select(s => s.SecuritySymbol)));
 
-            CtpSimulator.GetInstance().SubscribeQuote(_existingStocks.Select(s => new QuoteSubscription(s.SecurityCode, _existingStockQuotes)));
+            CtpSimulator.GetInstance().SubscribeQuote(_existingStocks.Select(s => new QuoteSubscription(s.SecuritySymbol, _existingStockQuotes)));
             AppLogger.Default.InfoFormat(
                 "Subscribe quote {0}",
-                string.Join(",", _existingStocks.Select(s => s.SecurityCode)));
+                string.Join(",", _existingStocks.Select(s => s.SecuritySymbol)));
 
             // run an asynchronous task for listening quotes
             new Task(QuoteListener).Start();
@@ -293,16 +293,16 @@ namespace TradingClient
             return (currentTime >= startTime && currentTime <= endTime);
         }
 
-        private void UnsubscribeNewStock(string code)
+        private void UnsubscribeNewStock(string symbol)
         {
-            CtpSimulator.GetInstance().UnsubscribeQuote(new QuoteSubscription(code, _newStockQuotes));
-            AppLogger.Default.InfoFormat("Unsubscribe quote {0}", code);
+            CtpSimulator.GetInstance().UnsubscribeQuote(new QuoteSubscription(symbol, _newStockQuotes));
+            AppLogger.Default.InfoFormat("Unsubscribe quote {0}", symbol);
         }
 
-        private void UnsubscribeExistingStock(string code)
+        private void UnsubscribeExistingStock(string symbol)
         {
-            CtpSimulator.GetInstance().UnsubscribeQuote(new QuoteSubscription(code, _existingStockQuotes));
-            AppLogger.Default.InfoFormat("Unsubscribe quote {0}", code);
+            CtpSimulator.GetInstance().UnsubscribeQuote(new QuoteSubscription(symbol, _existingStockQuotes));
+            AppLogger.Default.InfoFormat("Unsubscribe quote {0}", symbol);
         }
 
         private void Buy(FiveLevelQuote quote)
@@ -316,13 +316,13 @@ namespace TradingClient
                     return;
                 }
 
-                if (!_activeNewStockIndex.ContainsKey(quote.SecurityCode))
+                if (!_activeNewStockIndex.ContainsKey(quote.SecuritySymbol))
                 {
-                    UnsubscribeNewStock(quote.SecurityCode);
+                    UnsubscribeNewStock(quote.SecuritySymbol);
                     return;
                 }
 
-                var stock = _activeNewStockIndex[quote.SecurityCode];
+                var stock = _activeNewStockIndex[quote.SecuritySymbol];
 
                 // check if buy order has been created
                 if (_runtimeStockOrders.ContainsKey(stock))
@@ -338,7 +338,7 @@ namespace TradingClient
                 {
                     if (_boughtStock.Count >= StrategyGdbExecuter.MaxNumberOfNewStockCanBeBoughtInOneDay)
                     {
-                        UnsubscribeNewStock(quote.SecurityCode);
+                        UnsubscribeNewStock(quote.SecuritySymbol);
                         return;
                     }
                 }
@@ -346,12 +346,12 @@ namespace TradingClient
                 if (stock.DateToBuy.Date != DateTime.Today)
                 {
                     // remove from active new stock
-                    _activeNewStockIndex.Remove(quote.SecurityCode);
+                    _activeNewStockIndex.Remove(quote.SecuritySymbol);
 
                     AppLogger.Default.WarnFormat(
                         "The buy date of stock {0:yyyy-MM-dd} is not today. {1}/{2}",
                         stock.DateToBuy,
-                        stock.SecurityCode,
+                        stock.SecuritySymbol,
                         stock.SecurityName);
 
                     return;
@@ -375,11 +375,11 @@ namespace TradingClient
                         || quote.TodayOpenPrice < stock.StoplossPrice)
                     {
                         // remove from active new stock
-                        _activeNewStockIndex.Remove(quote.SecurityCode);
+                        _activeNewStockIndex.Remove(quote.SecuritySymbol);
 
                         AppLogger.Default.InfoFormat(
                             "Failed to buy stock because open price is out of range. {0}/{1} open {2:0.000} out of [{3:0.000}, {4:0.000}]",
-                            stock.SecurityCode,
+                            stock.SecuritySymbol,
                             stock.SecurityName,
                             quote.TodayOpenPrice,
                             downLimitPrice,
@@ -394,7 +394,7 @@ namespace TradingClient
                             quote.TodayOpenPrice,
                             stock.MaxBuyPriceIncreasePercentage,
                             2);
-                        stock.TodayDownLimitPrice = (float)ChinaStockHelper.CalculateDownLimit(stock.SecurityCode, stock.SecurityName, quote.YesterdayClosePrice, 2);
+                        stock.TodayDownLimitPrice = (float)ChinaStockHelper.CalculateDownLimit(stock.SecuritySymbol, stock.SecurityName, quote.YesterdayClosePrice, 2);
                         stock.ActualMinBuyPrice = Math.Max(stock.StoplossPrice, stock.TodayDownLimitPrice);
 
                     }
@@ -413,7 +413,7 @@ namespace TradingClient
                         CreateBuyOrder(stock);
 
                         // unsubscribe the quote because all conditions has been setup.
-                        UnsubscribeNewStock(quote.SecurityCode);
+                        UnsubscribeNewStock(quote.SecuritySymbol);
                     }
                 }
             }
@@ -446,7 +446,7 @@ namespace TradingClient
             int maxVolume = (int)(capital / stock.ActualMaxBuyPrice);
 
             BuyInstruction instruction = new BuyInstruction(
-                stock.SecurityCode,
+                stock.SecuritySymbol,
                 stock.SecurityName,
                 stock.ActualMinBuyPrice,
                 stock.ActualMaxBuyPrice,
@@ -462,7 +462,7 @@ namespace TradingClient
             }
             else
             {
-                var runtime = new RuntimeStockOrder(stock.SecurityCode, stock.SecurityName)
+                var runtime = new RuntimeStockOrder(stock.SecuritySymbol, stock.SecurityName)
                     {
                         ExpectedVolume = order.ExpectedVolume,
                         RemainingVolume = order.ExpectedVolume,
@@ -504,7 +504,7 @@ namespace TradingClient
                     return;
                 }
                  
-                _boughtStock.Add(_activeNewStockIndex[order.SecurityCode]);
+                _boughtStock.Add(_activeNewStockIndex[order.SecuritySymbol]);
 
                 if (_boughtStock.Count < StrategyGdbExecuter.MaxNumberOfNewStockCanBeBoughtInOneDay)
                 {
@@ -560,13 +560,13 @@ namespace TradingClient
                     if (!_runtimeStockOrders.ContainsKey(stock))
                     {
                         StoplossOrder order = new StoplossOrder(
-                            stock.SecurityCode,
+                            stock.SecuritySymbol,
                             stock.SecurityName,
                             stock.StoplossPrice,
                             stock.Volume,
                             _stoplossOrderExecutedMessageReceiver);
 
-                        RuntimeStockOrder runtime = new RuntimeStockOrder(stock.SecurityCode, stock.SecurityName)
+                        RuntimeStockOrder runtime = new RuntimeStockOrder(stock.SecuritySymbol, stock.SecurityName)
                         {
                             AssociatedStoplossOrder = order,
                             ExpectedVolume = stock.Volume,
@@ -584,7 +584,7 @@ namespace TradingClient
                         if (runtime.AssociatedSellOrder == null && runtime.AssociatedStoplossOrder == null)
                         {
                             StoplossOrder order = new StoplossOrder(
-                                stock.SecurityCode,
+                                stock.SecuritySymbol,
                                 stock.SecurityName,
                                 stock.StoplossPrice,
                                 runtime.RemainingVolume,
@@ -626,7 +626,7 @@ namespace TradingClient
             _runtimeReadWriteLock.EnterReadLock();
             try
             {
-                var stock = _activeExistingStockIndex[order.SecurityCode];
+                var stock = _activeExistingStockIndex[order.SecuritySymbol];
                 System.Diagnostics.Debug.Assert(stock != null);
 
                 var runtime = _runtimeStockOrders[stock];
@@ -677,24 +677,24 @@ namespace TradingClient
                 return;
             }
 
-            if (!_activeExistingStockIndex.ContainsKey(quote.SecurityCode))
+            if (!_activeExistingStockIndex.ContainsKey(quote.SecuritySymbol))
             {
-                CtpSimulator.GetInstance().UnsubscribeQuote(new QuoteSubscription(quote.SecurityCode, _existingStockQuotes));
+                CtpSimulator.GetInstance().UnsubscribeQuote(new QuoteSubscription(quote.SecuritySymbol, _existingStockQuotes));
 
-                AppLogger.Default.InfoFormat("Unsubscribe quote {0}", quote.SecurityCode);
+                AppLogger.Default.InfoFormat("Unsubscribe quote {0}", quote.SecuritySymbol);
                 return;
             }
 
             FiveLevelQuote currentQuote = quote.Quote;
 
             // check if we can issue buy order
-            if (_activeNewStockIndex.ContainsKey(currentQuote.SecurityCode))
+            if (_activeNewStockIndex.ContainsKey(currentQuote.SecuritySymbol))
             {
                 Buy(currentQuote);
             }
 
             // check if we can issue sell order
-            if (_activeExistingStockIndex.ContainsKey(currentQuote.SecurityCode))
+            if (_activeExistingStockIndex.ContainsKey(currentQuote.SecuritySymbol))
             {
                 TryPublishSellOrder(currentQuote);
             }
@@ -702,11 +702,11 @@ namespace TradingClient
 
         private void TryPublishSellOrder(FiveLevelQuote quote)
         {
-            var stock = _activeExistingStockIndex[quote.SecurityCode];
+            var stock = _activeExistingStockIndex[quote.SecuritySymbol];
 
             // for sell order, if current price is up limit, sell it immediately
             float upLimitPrice = (float)ChinaStockHelper.CalculateUpLimit(
-                    quote.SecurityCode, 
+                    quote.SecuritySymbol, 
                     quote.SecurityName, 
                     quote.YesterdayClosePrice, 
                     2);
@@ -716,7 +716,7 @@ namespace TradingClient
                 && stock.HoldDays > 1)
             {
                 // remove stop loss order if have
-               // var stoplossOrder = _stoplossOrders.FirstOrDefault(s => s.SecurityCode == stock.SecurityCode);
+                // var stoplossOrder = _stoplossOrders.FirstOrDefault(s => s.SecuritySymbol == stock.SecuritySymbol);
                 //if (stoplossOrder != default(StoplossOrder))
                 {
                     //_stoplossOrders.Remove(stoplossOrder);
@@ -731,7 +731,7 @@ namespace TradingClient
                 }
 
                 SellOrder order = new SellOrder(
-                    stock.SecurityCode, 
+                    stock.SecuritySymbol, 
                     stock.SecurityName, 
                     upLimitPrice, 
                     stock.Volume,
@@ -741,12 +741,12 @@ namespace TradingClient
 
                 OrderManager.GetInstance().RegisterOrder(order);
 
-                _activeExistingStockIndex.Remove(stock.SecurityCode);
+                _activeExistingStockIndex.Remove(stock.SecuritySymbol);
 
                 AppLogger.Default.InfoFormat(
                     "Sell on up limit. Id: {0}, {1}/{2} price {3:0.000}",
                     order.OrderId,
-                    order.SecurityCode,
+                    order.SecuritySymbol,
                     order.SecurityName,
                     order.SellPrice);
             }

@@ -8,7 +8,7 @@ namespace StockTradingConsole
 {
     public sealed class OldStockForSerialization
     {
-        public string SecurityCode { get; set; }
+        public string SecuritySymbol { get; set; }
         public string SecurityName { get; set; }
         public int Volume { get; set; }
 
@@ -18,7 +18,7 @@ namespace StockTradingConsole
 
         public OldStockForSerialization(OldStock os)
         {
-            SecurityCode = os.Name.NormalizedCode;
+            SecuritySymbol = os.Name.NormalizedSymbol;
             SecurityName = os.Name.Names[0];
             Volume = os.Volume;
         }

@@ -35,7 +35,7 @@ namespace StockAnalysis.Share
 
     public sealed class SinaStockQuote
     {
-        public string SecurityCode { get; set; }
+        public string SecuritySymbol { get; set; }
         public string SecurityName { get; set; }
         public float TodayOpenPrice { get; set; }
         public float YesterdayClosePrice { get; set; }
@@ -50,7 +50,7 @@ namespace StockAnalysis.Share
         public int[] SellVolumesInHand { get; set; }
         public DateTime QuoteTime { get; set; }
 
-        public SinaStockQuote(string code, string rawInput)
+        public SinaStockQuote(string symbol, string rawInput)
         {
             const int fieldCount = 33;
 
@@ -59,7 +59,7 @@ namespace StockAnalysis.Share
             SellPrices = new float[5];
             SellVolumesInHand = new int[5];
 
-            SecurityCode = code;
+            SecuritySymbol = symbol;
 
             string[] fields = rawInput.Split(',');
             if (fields.Length != fieldCount)

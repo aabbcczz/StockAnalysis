@@ -8,8 +8,8 @@
         // it will be the same in the same run and might change across different runs.
         int Index { get; }
 
-        // code, like 'SH600002', should be unique
-        string Code { get; }
+        // symbol, like 'SH600002', should be unique
+        string Symbol { get; }
 
         // name, like '中国平安'
         string Name { get; }

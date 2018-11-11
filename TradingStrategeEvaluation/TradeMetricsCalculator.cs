@@ -89,7 +89,7 @@ namespace TradingStrategyEvaluation
         {
             var metrics = new List<TradeMetric>();
 
-            var overallMetric = GetTradeMetric(TradeMetric.CodeForAll, TradeMetric.NameForAll, 0.0, 0.0);
+            var overallMetric = GetTradeMetric(TradeMetric.SymbolForAll, TradeMetric.NameForAll, 0.0, 0.0);
             if (overallMetric == null)
             {
                 return metrics;
@@ -97,18 +97,18 @@ namespace TradingStrategyEvaluation
 
             metrics.Add(overallMetric);
 
-            /* metrics for each code is not necessary now.
+            /* metrics for each symbol is not necessary now.
              * 
-            var codes = _orderedTransactionHistory
-                .Select(t => t.Code)
+            var symbols = _orderedTransactionHistory
+                .Select(t => t.Symbol)
                 .GroupBy(c => c)
                 .Select(g => g.Key);
 
             Parallel.ForEach(
-                codes,
-                (string code) =>
+                symbols,
+                (string symbol) =>
                 {
-                    int index = _dataProvider.GetIndexOfTradingObject(code);
+                    int index = _dataProvider.GetIndexOfTradingObject(symbol);
 
                     Bar[] bars = _dataProvider.GetAllBarsForTradingObject(index);
 
@@ -121,9 +121,9 @@ namespace TradingStrategyEvaluation
 
                     double endPrice = bars.Last().ClosePrice;
 
-                    string name = _nameTable.ContainsStock(code) ? _nameTable[code].Names[0] : string.Empty;
+                    string name = _nameTable.ContainsStock(symbol) ? _nameTable[symbol].Names[0] : string.Empty;
 
-                    var metric = GetTradeMetric(code, name, startPrice, endPrice);
+                    var metric = GetTradeMetric(symbol, name, startPrice, endPrice);
 
                     if (metric != null)
                     {
@@ -245,20 +245,20 @@ namespace TradingStrategyEvaluation
 
         private double[] CalculateERatio(IEnumerable<Transaction> orderedTransactions)
         {
-            var codes = orderedTransactions
-                .Select(t => t.Code)
+            var symbols = orderedTransactions
+                .Select(t => t.Symbol)
                 .GroupBy(c => c)
                 .Select(g => g.Key);
 
             List<double[]> mfes = new List<double[]>();
             List<double[]> maes = new List<double[]>();
 
-            foreach (var code in codes)
+            foreach (var symbol in symbols)
             {
-                var bars = _dataProvider.GetAllBarsForTradingObject(_dataProvider.GetIndexOfTradingObject(code))
+                var bars = _dataProvider.GetAllBarsForTradingObject(_dataProvider.GetIndexOfTradingObject(symbol))
                     .ToArray();
 
-                var subsetTransactions = orderedTransactions.Where(t => t.Code == code);
+                var subsetTransactions = orderedTransactions.Where(t => t.Symbol == symbol);
 
                 long volume = 0;
                 int barIndex = 0;
@@ -315,12 +315,12 @@ namespace TradingStrategyEvaluation
                 .ToArray();
         }
 
-        private TradeMetric GetTradeMetric(string code, string name, double startPrice, double endPrice)
+        private TradeMetric GetTradeMetric(string symbol, string name, double startPrice, double endPrice)
         {
             var completedTransactions =
-                code == TradeMetric.CodeForAll
+                symbol == TradeMetric.SymbolForAll
                 ? _completedTransactionHistory
-                : _completedTransactionHistory.Where(ct => ct.Code == code).ToArray();
+                : _completedTransactionHistory.Where(ct => ct.Symbol == symbol).ToArray();
 
             if (completedTransactions.Length == 0)
             {
@@ -328,9 +328,9 @@ namespace TradingStrategyEvaluation
             }
 
             var transactions = 
-                code == TradeMetric.CodeForAll 
+                symbol == TradeMetric.SymbolForAll 
                 ? _transactionHistory
-                : _transactionHistory.Where(t => t.Code == code).ToArray();
+                : _transactionHistory.Where(t => t.Symbol == symbol).ToArray();
 
             var requiredInitialCapital = EstimateRequiredInitialCapital(transactions, _initialCapital);
             var initialCapital = Math.Max(_initialCapital, requiredInitialCapital);
@@ -404,7 +404,7 @@ namespace TradingStrategyEvaluation
             var metric = new TradeMetric();
 
             metric.Initialize(
-                code,
+                symbol,
                 name,
                 _startDate,
                 _endDate,

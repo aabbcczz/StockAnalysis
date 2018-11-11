@@ -9,7 +9,7 @@ namespace TradingClient.StrategyGDB
     public sealed class NewStock
     {
         public DateTime DateToBuy { get; set; }
-        public string SecurityCode { get; set; }
+        public string SecuritySymbol { get; set; }
         public string SecurityName { get; set; }
         public float StoplossPrice { get; set; }
         public float ActualOpenPrice { get; set; }

@@ -8,15 +8,15 @@ namespace StockTrading.Utility
 {
     public sealed class QuoteResult
     {
-        public string SecurityCode { get; private set; }
+        public string SecuritySymbol { get; private set; }
 
         public string Error { get; private set; }
 
         public FiveLevelQuote Quote { get; private set; }
 
-        public QuoteResult(string code, FiveLevelQuote quote, string error)
+        public QuoteResult(string symbol, FiveLevelQuote quote, string error)
         {
-            SecurityCode = code;
+            SecuritySymbol = symbol;
             Quote = quote;
             Error = error;
         }

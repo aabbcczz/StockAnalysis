@@ -13,7 +13,7 @@ namespace TradingStrategyEvaluation
     {
         public sealed class BlockTradingDetail
         {
-            public string Code { get; set; }
+            public string Symbol { get; set; }
             public DateTime Time { get; set; }
             public string Block { get; set; }
             public double UpRateFromLowest { get; set; }
@@ -46,28 +46,28 @@ namespace TradingStrategyEvaluation
 
         public IEnumerable<BlockTradingDetail> Summarize()
         {
-            var codes = _transactionHistory
-                .Select(t => t.Code)
+            var symbols = _transactionHistory
+                .Select(t => t.Symbol)
                 .GroupBy(c => c)
                 .Select(g => g.Key);
 
-            foreach (var code in codes)
+            foreach (var symbol in symbols)
             {
-                var bars = _dataProvider.GetAllBarsForTradingObject(_dataProvider.GetIndexOfTradingObject(code))
+                var bars = _dataProvider.GetAllBarsForTradingObject(_dataProvider.GetIndexOfTradingObject(symbol))
                     .ToArray();
 
-                var subsetTransactions = _transactionHistory.Where(t => t.Code == code);
+                var subsetTransactions = _transactionHistory.Where(t => t.Symbol == symbol);
 
                 int barIndex = 0;
                 foreach (var transaction in subsetTransactions)
                 {
                     if (transaction.RelatedObjects != null 
-                        && transaction.RelatedObjects.Any(o => o is BlockPriceIndexFilterMarketEntering.BlockUpRatesFromLowestForCode))
+                        && transaction.RelatedObjects.Any(o => o is BlockPriceIndexFilterMarketEntering.BlockUpRatesFromLowestForSymbol))
                     {
                         // this transaction is for entering market and has block information.
-                        BlockPriceIndexFilterMarketEntering.BlockUpRatesFromLowestForCode obj =
-                            (BlockPriceIndexFilterMarketEntering.BlockUpRatesFromLowestForCode)
-                            transaction.RelatedObjects.First(o => o is BlockPriceIndexFilterMarketEntering.BlockUpRatesFromLowestForCode);
+                        BlockPriceIndexFilterMarketEntering.BlockUpRatesFromLowestForSymbol obj =
+                            (BlockPriceIndexFilterMarketEntering.BlockUpRatesFromLowestForSymbol)
+                            transaction.RelatedObjects.First(o => o is BlockPriceIndexFilterMarketEntering.BlockUpRatesFromLowestForSymbol);
 
                         // find the location of bar in bars for the transaction
                         while (barIndex < bars.Length)
@@ -96,7 +96,7 @@ namespace TradingStrategyEvaluation
                         {
                             yield return new BlockTradingDetail()
                             {
-                                Code = code,
+                                Symbol = symbol,
                                 Time = transaction.ExecutionTime,
                                 Block = kvp.Key,
                                 UpRateFromLowest = kvp.Value,

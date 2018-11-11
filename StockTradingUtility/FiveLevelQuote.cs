@@ -47,7 +47,7 @@ namespace StockTrading.Utility
         /// <summary>
         /// 证券代码
         /// </summary>
-        public string SecurityCode { get; private set; }
+        public string SecuritySymbol { get; private set; }
 
         /// <summary>
         /// 证券名称
@@ -116,7 +116,7 @@ namespace StockTrading.Utility
 S3:[{9:F2}, {10}] S4:[{11:F2} {12}] S5:[{13:F2} {14}] B2:[{15:F2} {16}] B3:[{17:F2} {18}]
 B4:[{19:F2} {20}] B5:[{21:F2} {22}] YC:{23:F2} TO:{24:F2} CP:{25:F2}",
                 Timestamp,
-                SecurityCode,
+                SecuritySymbol,
                 SecurityName,
                 SellPrices[0],
                 SellVolumesInHand[0],
@@ -162,7 +162,7 @@ B4:[{19:F2} {20}] B5:[{21:F2} {22}] YC:{23:F2} TO:{24:F2} CP:{25:F2}",
                 FiveLevelQuote quote = new FiveLevelQuote(timestamp);
 
                 int index = 0;
-                quote.SecurityCode = row[index++];
+                quote.SecuritySymbol = row[index++];
                 quote.SecurityName = row[index++];
                 quote.YesterdayClosePrice = TradingHelper.SafeParseFloat(row[index++], 0.0f);
                 quote.TodayOpenPrice = TradingHelper.SafeParseFloat(row[index++], 0.0f);

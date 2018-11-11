@@ -37,14 +37,14 @@ namespace StockTrading.Utility
             }
         }
 
-        public void GetQuote(int clientId, string securityCode, out string result, out string error)
+        public void GetQuote(int clientId, string securitySymbol, out string result, out string error)
         {
-            _trueServer.GetQuote(clientId, securityCode, out result, out error);
+            _trueServer.GetQuote(clientId, securitySymbol, out result, out error);
         }
 
-        public void GetQuotes(int clientId, string[] securityCodes, int securityCount, out string[] results, out string[] errors)
+        public void GetQuotes(int clientId, string[] securitySymbols, int securityCount, out string[] results, out string[] errors)
         {
-            _trueServer.GetQuotes(clientId, securityCodes, securityCount, out results, out errors);
+            _trueServer.GetQuotes(clientId, securitySymbols, securityCount, out results, out errors);
         }
 
         public void Logoff(int clientId)
@@ -84,7 +84,7 @@ namespace StockTrading.Utility
             _trueServer.QueryHistoryData(clientId, category, startDate, endDate, out result, out error);
         }
 
-        public void SendOrder(int clientId, int category, int priceType, string shareholderCode, string securityCode, float price, int quantity, out string result, out string error)
+        public void SendOrder(int clientId, int category, int priceType, string shareholderCode, string securitySymbol, float price, int quantity, out string result, out string error)
         {
             result = string.Empty;
             error = string.Empty;
@@ -100,7 +100,7 @@ namespace StockTrading.Utility
 
         }
 
-        public void SendOrders(int clientId, int[] categories, int[] priceTypes, string[] shareholderCodes, string[] securityCodes, float[] prices, int[] quantities, int orderCount, out string[] results, out string[] errors)
+        public void SendOrders(int clientId, int[] categories, int[] priceTypes, string[] shareholderCodes, string[] securitySymbols, float[] prices, int[] quantities, int orderCount, out string[] results, out string[] errors)
         {
             results = new string[orderCount];
             errors = new string[orderCount];
@@ -110,7 +110,7 @@ namespace StockTrading.Utility
                 string result;
                 string error;
 
-                SendOrder(clientId, categories[i], priceTypes[i], shareholderCodes[i], securityCodes[i], prices[i], quantities[i], out result, out error);
+                SendOrder(clientId, categories[i], priceTypes[i], shareholderCodes[i], securitySymbols[i], prices[i], quantities[i], out result, out error);
 
                 results[i] = result;
                 errors[i] = error;

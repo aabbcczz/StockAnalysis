@@ -19,8 +19,8 @@ namespace EvaluatorCmdClient
         [Option('s', "StockDataSettingsFile", Required = true, HelpText = "The file that contains the stock data settings")]
         public string StockDataSettingsFile { get; set; }
 
-        [Option('o', "CodeFile", Required = true, HelpText = "The file that contains the code of stocks")]
-        public string CodeFile { get; set; }
+        [Option('o', "SymbolFile", Required = true, HelpText = "The file that contains the symbol of stocks")]
+        public string SymbolFile { get; set; }
 
         [Option('v', "Verbose", HelpText = "Verbose level, Range: from 0 to 2.", DefaultValue = 0)]
         public int VerboseLevel { get; set; }
@@ -70,7 +70,7 @@ namespace EvaluatorCmdClient
                 writer.WriteLine("Combined strategy settings file: {0}", CombinedStrategySettingsFile);
                 writer.WriteLine("Stock data settings file: {0}", StockDataSettingsFile);
                 writer.WriteLine("Stock block relationship file: {0}", StockBlockRelationshipFile);
-                writer.WriteLine("Code file: {0}", CodeFile);
+                writer.WriteLine("Symbol file: {0}", SymbolFile);
                 writer.WriteLine("Start date: {0}", StartDate);
                 writer.WriteLine("End date: {0}", EndDate);
                 writer.WriteLine("Year interval: {0} years", YearInterval);

@@ -8,7 +8,7 @@ namespace TradingStrategyEvaluation
     {
         public int Index { get; private set; }
 
-        public string Code { get; private set; }
+        public string Symbol { get; private set; }
 
         public string Name { get; private set; }
 
@@ -39,9 +39,9 @@ namespace TradingStrategyEvaluation
             double limitDownRatio = 0.1)
         {
             Index = index;
-            Code = stockName.NormalizedCode;
+            Symbol = stockName.NormalizedSymbol;
             Name = stockName.Names.Last();
-            IsTradable = !UntradableObject.IsUntradable(stockName.NormalizedCode);
+            IsTradable = !UntradableObject.IsUntradable(stockName.NormalizedSymbol);
             Object = stockName;
             VolumePerHand = volumePerHand;
             VolumePerBuyingUnit = volumePerBuyingUnit;

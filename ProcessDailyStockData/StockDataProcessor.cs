@@ -21,13 +21,13 @@ namespace ProcessDailyStockData
 
             using (var outputter = new StreamWriter(outputFile, false, Encoding.UTF8))
             {
-                const string header = "code,date,open,highest,lowest,close,volume,amount";
+                const string header = "symbol,date,open,highest,lowest,close,volume,amount";
                 const int indexOfVolume = 6;
 
                 outputter.WriteLine(header);
 
                 var fields = header.Split(new[] { ',' });
-                var expectedFieldCount = fields.Length - 1; // remove the first column 'code' which does not exists in input file
+                var expectedFieldCount = fields.Length - 1; // remove the first column 'symbol' which does not exists in input file
 
                 for (var i = 2; i < lines.Length - 1; ++i)
                 {
@@ -58,7 +58,7 @@ namespace ProcessDailyStockData
                             }
                         }
 
-                        outputter.WriteLine("{0},{1}", name.NormalizedCode, lines[i]);
+                        outputter.WriteLine("{0},{1}", name.NormalizedSymbol, lines[i]);
                     }
                 }
             }
@@ -86,7 +86,7 @@ namespace ProcessDailyStockData
                 return null;
             }
 
-            // first line contains the stock code, name(can include ' '), '日线', '前复权'
+            // first line contains the stock symbol, name(can include ' '), '日线', '前复权'
             var fields = lines[0].Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
             if (fields.Length < 4)
             {
@@ -95,22 +95,22 @@ namespace ProcessDailyStockData
                 return null;
             }
 
-            var codeFromFileName = ExtractCodeFromFileName(file);
+            var symbolFromFileName = ExtractSymbolFromFileName(file);
 
-            var code = fields[0];
+            var symbol = fields[0];
             var name = string.Concat(fields.Skip(1).Take(fields.Length - 3));
 
-            if (codeFromFileName.Contains(code))
+            if (symbolFromFileName.Contains(symbol))
             {
-                code = codeFromFileName;
+                symbol = symbolFromFileName;
             }
 
-            var stockName = new StockName(code, name);
+            var stockName = new StockName(symbol, name);
 
             return stockName;
         }
 
-        static string ExtractCodeFromFileName(string file)
+        static string ExtractSymbolFromFileName(string file)
         {
             if (string.IsNullOrEmpty(file))
             {

@@ -246,10 +246,10 @@ namespace StockTrading.Utility
             return succeeds;
         }
 
-        public FiveLevelQuote GetQuote(string securityCode, out string error)
+        public FiveLevelQuote GetQuote(string securitySymbol, out string error)
         {
             TabulateData data;
-            if (!GetQuote(securityCode, out data, out error))
+            if (!GetQuote(securitySymbol, out data, out error))
             {
                 return null;
             }
@@ -265,13 +265,13 @@ namespace StockTrading.Utility
             return results.First();
         }
 
-        public bool GetQuote(string securityCode, out TabulateData result, out string error)
+        public bool GetQuote(string securitySymbol, out TabulateData result, out string error)
         {
             CheckLoggedOn();
 
             string resultString;
 
-            Server.GetQuote(ClientId, securityCode, out resultString, out error);
+            Server.GetQuote(ClientId, securitySymbol, out resultString, out error);
 
             result = null;
 
@@ -285,15 +285,15 @@ namespace StockTrading.Utility
             return succeeded;
         }
 
-        public FiveLevelQuote[] GetQuote(string[] securityCodes, out string[] errors)
+        public FiveLevelQuote[] GetQuote(string[] securitySymbols, out string[] errors)
         {
             TabulateData[] data;
-            bool[] succeeds = GetQuote(securityCodes, out data, out errors);
+            bool[] succeeds = GetQuote(securitySymbols, out data, out errors);
 
 
-            FiveLevelQuote[] quotes = new FiveLevelQuote[securityCodes.Length];
+            FiveLevelQuote[] quotes = new FiveLevelQuote[securitySymbols.Length];
 
-            for (int i = 0; i < securityCodes.Length; ++i)
+            for (int i = 0; i < securitySymbols.Length; ++i)
             {
                 if (!succeeds[i])
                 {
@@ -318,21 +318,21 @@ namespace StockTrading.Utility
             return quotes;
         }
 
-        public bool[] GetQuote(string[] securityCodes, out TabulateData[] results, out string[] errors)
+        public bool[] GetQuote(string[] securitySymbols, out TabulateData[] results, out string[] errors)
         {
             CheckLoggedOn();
 
-            if (securityCodes == null || securityCodes.Length == 0)
+            if (securitySymbols == null || securitySymbols.Length == 0)
             {
                 throw new ArgumentNullException();
             }
 
             string[] resultStrings;
 
-            Server.GetQuotes(ClientId, securityCodes, securityCodes.Length, out resultStrings, out errors);
+            Server.GetQuotes(ClientId, securitySymbols, securitySymbols.Length, out resultStrings, out errors);
 
-            bool[] succeeds = new bool[securityCodes.Length];
-            results = new TabulateData[securityCodes.Length];
+            bool[] succeeds = new bool[securitySymbols.Length];
+            results = new TabulateData[securitySymbols.Length];
 
             for (int i = 0; i < results.Length; ++i)
             {
@@ -358,9 +358,9 @@ namespace StockTrading.Utility
             }
         }
 
-        public string GetShareholderCode(string securityCode)
+        public string GetShareholderCode(string securitySymbol)
         {
-            IExchange exchange = ExchangeFactory.GetTradingExchangeForSecurity(securityCode);
+            IExchange exchange = ExchangeFactory.GetTradingExchangeForSecurity(securitySymbol);
             if (exchange == null)
             {
                 return string.Empty;
@@ -394,7 +394,7 @@ namespace StockTrading.Utility
         {
             CheckLoggedOn();
 
-            string shareholderCode = GetShareholderCode(request.SecurityCode);
+            string shareholderCode = GetShareholderCode(request.SecuritySymbol);
 
             result = null;
             string resultString;
@@ -404,7 +404,7 @@ namespace StockTrading.Utility
                 (int)request.Category,
                 (int)request.PricingType,
                 shareholderCode,
-                request.SecurityCode, 
+                request.SecuritySymbol, 
                 request.Price,
                 request.Volume,
                 out resultString, 
@@ -463,10 +463,10 @@ namespace StockTrading.Utility
 
             string[] resultStrings;
 
-            var shareholderCodes = requests.Select(req => GetShareholderCode(req.SecurityCode)).ToArray();
+            var shareholderCodes = requests.Select(req => GetShareholderCode(req.SecuritySymbol)).ToArray();
             var categories = requests.Select(req => (int)req.Category).ToArray();
             var priceTypes = requests.Select(req => (int)req.PricingType).ToArray();
-            var securityCodes = requests.Select(req => req.SecurityCode).ToArray();
+            var securitySymbols = requests.Select(req => req.SecuritySymbol).ToArray();
             var prices = requests.Select(req => req.Price).ToArray();
             var quantities = requests.Select(req => req.Volume).ToArray();
 
@@ -475,15 +475,15 @@ namespace StockTrading.Utility
                 categories,
                 priceTypes,
                 shareholderCodes,
-                securityCodes,
+                securitySymbols,
                 prices,
                 quantities,
                 requests.Count(),
                 out resultStrings,
                 out errors);
                     
-            bool[] succeeds = new bool[securityCodes.Length];
-            results = new TabulateData[securityCodes.Length];
+            bool[] succeeds = new bool[securitySymbols.Length];
+            results = new TabulateData[securitySymbols.Length];
 
             for (int i = 0; i < results.Length; ++i)
             {
@@ -495,24 +495,24 @@ namespace StockTrading.Utility
             return succeeds;
         }
 
-        public bool CancelOrder(string code, int orderNo, out string error)
+        public bool CancelOrder(string symbol, int orderNo, out string error)
         {
             TabulateData data;
 
-            return CancelOrder(code, orderNo, out data, out error);
+            return CancelOrder(symbol, orderNo, out data, out error);
         }
 
-        public bool CancelOrder(string code, int orderNo, out TabulateData result, out string error)
+        public bool CancelOrder(string symbol, int orderNo, out TabulateData result, out string error)
         {
             CheckLoggedOn();
 
             string resultString;
 
-            IExchange exchange = ExchangeFactory.GetTradingExchangeForSecurity(code);
+            IExchange exchange = ExchangeFactory.GetTradingExchangeForSecurity(symbol);
             if (exchange == null)
             {
                 result = null;
-                error = "Invalid code";
+                error = "Invalid symbol";
                 return false;
             }
 
@@ -530,18 +530,18 @@ namespace StockTrading.Utility
             return succeeded;
         }
 
-        public bool[] CancelOrder(string[] codes, int[] orderNos, out string[] errors)
+        public bool[] CancelOrder(string[] symbols, int[] orderNos, out string[] errors)
         {
             TabulateData[] data;
 
-            return CancelOrder(codes, orderNos, out data, out errors);
+            return CancelOrder(symbols, orderNos, out data, out errors);
         }
 
-        public bool[] CancelOrder(string[] codes, int[] orderNos, out TabulateData[] results, out string[] errors)
+        public bool[] CancelOrder(string[] symbols, int[] orderNos, out TabulateData[] results, out string[] errors)
         {
             CheckLoggedOn();
 
-            if (codes == null || codes.Length == 0 || orderNos == null || orderNos.Length != codes.Length)
+            if (symbols == null || symbols.Length == 0 || orderNos == null || orderNos.Length != symbols.Length)
             {
                 throw new ArgumentNullException();
             }
@@ -549,7 +549,7 @@ namespace StockTrading.Utility
             string[] resultStrings;
 
 
-            var exchangeIds = codes.Select(c => ExchangeFactory.GetTradingExchangeForSecurity(c))
+            var exchangeIds = symbols.Select(c => ExchangeFactory.GetTradingExchangeForSecurity(c))
                 .Select(e => e == null ? string.Empty : e.ExchangeId.ToString())
                 .ToArray();
             var orderNoStrings = orderNos.Select(id => id.ToString()).ToArray();
@@ -558,12 +558,12 @@ namespace StockTrading.Utility
                 ClientId,
                 exchangeIds,
                 orderNoStrings,
-                codes.Length,
+                symbols.Length,
                 out resultStrings,
                 out errors);
 
-            bool[] succeeds = new bool[codes.Length];
-            results = new TabulateData[codes.Length];
+            bool[] succeeds = new bool[symbols.Length];
+            results = new TabulateData[symbols.Length];
 
             for (int i = 0; i < results.Length; ++i)
             {
@@ -657,7 +657,7 @@ namespace StockTrading.Utility
             Dispose(false);
         }
 
-        // This code added to correctly implement the disposable pattern.
+        // This function added to correctly implement the disposable pattern.
         public void Dispose()
         {
             // Do not change this code. Put cleanup code in Dispose(bool disposing) above.

@@ -11,10 +11,10 @@ namespace StockAnalysis.Share.Tests
     public class FutureNameTests
     {
         [TestMethod()]
-        public void GetNameForProductCodeTest()
+        public void GetNameForProductSymbolTest()
         {
-            Assert.AreEqual(FutureName.GetNameForProductCode("AL8"), "豆一主连");
-            Assert.AreEqual(FutureName.GetNameForProductCode("A1611"), "豆一1611");
+            Assert.AreEqual(FutureName.GetNameForProductSymbol("AL8"), "豆一主连");
+            Assert.AreEqual(FutureName.GetNameForProductSymbol("A1611"), "豆一1611");
         }
     }
 }

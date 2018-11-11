@@ -10,7 +10,7 @@ namespace DTViewer
 {
     internal sealed class PositionSlim
     {
-        public string Code { get; private set; }
+        public string Symbol { get; private set; }
 
         public string Name { get; private set; }
 
@@ -32,7 +32,7 @@ namespace DTViewer
 
         public PositionSlim(Position position)
         {
-            Code = position.Code;
+            Symbol = position.Symbol;
             Name = position.Name;
             BuyTime = position.BuyTime;
             SellTime = position.SellTime;

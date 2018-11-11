@@ -35,7 +35,7 @@ namespace StockTrading.Utility
         public int RemainingVolumeCanBeBought { get; private set; }
 
         public BuyOrder(BuyInstruction instruction, WaitableConcurrentQueue<OrderExecutedMessage> orderExecutedMessageReceiver)
-            : base(instruction.SecurityCode, instruction.SecurityName, instruction.MaxVolumeCanBeBought, orderExecutedMessageReceiver)
+            : base(instruction.SecuritySymbol, instruction.SecurityName, instruction.MaxVolumeCanBeBought, orderExecutedMessageReceiver)
         {
             MinBuyPrice = instruction.MinBuyPrice;
             ExpectedPrice = instruction.ExpectedPrice;
@@ -94,7 +94,7 @@ namespace StockTrading.Utility
         {
             OrderRequest request = new OrderRequest(this);
 
-            request.SecurityCode = SecurityCode;
+            request.SecuritySymbol = SecuritySymbol;
             request.SecurityName = SecurityName;
             request.Category = OrderCategory.Buy;
             request.Price = MaxBidPrice;

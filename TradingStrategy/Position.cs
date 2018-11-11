@@ -10,7 +10,7 @@ namespace TradingStrategy
 
         public bool IsInitialized { get; set; }
 
-        public string Code { get; set; }
+        public string Symbol { get; set; }
 
         public string Name { get; set; }
 
@@ -66,7 +66,7 @@ namespace TradingStrategy
             {
                 case TradingAction.OpenLong:
                     BuyTime = transaction.ExecutionTime;
-                    Code = transaction.Code;
+                    Symbol = transaction.Symbol;
                     Name = transaction.Name;
                     BuyAction = transaction.Action;
                     Volume = transaction.Volume;
@@ -109,7 +109,7 @@ namespace TradingStrategy
             var newPosition = new Position
             {
                 IsInitialized = this.IsInitialized,
-                Code = this.Code,
+                Symbol = this.Symbol,
                 Name = this.Name,
                 BuyTime = this.BuyTime,
                 SellTime = this.SellTime,
@@ -147,9 +147,9 @@ namespace TradingStrategy
                 throw new ArgumentException("uninitialized position can't be closed");
             }
 
-            if (transaction.Code != Code)
+            if (transaction.Symbol != Symbol)
             {
-                throw new ArgumentException("code does not match");
+                throw new ArgumentException("symbol does not match");
             }
 
             switch (transaction.Action)

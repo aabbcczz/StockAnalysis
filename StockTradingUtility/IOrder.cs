@@ -21,7 +21,7 @@ namespace StockTrading.Utility
         /// <summary>
         /// 证券代码
         /// </summary>
-        string SecurityCode { get; }
+        string SecuritySymbol { get; }
 
         /// <summary>
         /// 证券名称

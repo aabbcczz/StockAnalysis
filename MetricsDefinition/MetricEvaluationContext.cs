@@ -84,7 +84,7 @@ namespace MetricsDefinition
                 }
                 else
                 {
-                    // should never be here because above code has checked metric is inherited 
+                    // should never be here because above code has checked if metric is inherited 
                     // from the expected base classes
                     throw new InvalidProgramException("Run to unexpected code");
                 }

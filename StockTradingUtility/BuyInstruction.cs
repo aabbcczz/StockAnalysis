@@ -38,16 +38,16 @@ namespace StockTrading.Utility
         /// <summary>
         /// 证券代码
         /// </summary>
-        public string SecurityCode { get; private set; }
+        public string SecuritySymbol { get; private set; }
 
         /// <summary>
         /// 证券名称
         /// </summary>
         public string SecurityName { get; private set; }
 
-        public BuyInstruction(string code, string name, float minBuyPrice, float expectedPrice, float maxBidPrice, float maxCapital, int maxVolume)
+        public BuyInstruction(string symbol, string name, float minBuyPrice, float expectedPrice, float maxBidPrice, float maxCapital, int maxVolume)
         {
-            if (string.IsNullOrEmpty(code) || string.IsNullOrEmpty(name))
+            if (string.IsNullOrEmpty(symbol) || string.IsNullOrEmpty(name))
             {
                 throw new ArgumentNullException();
             }
@@ -61,7 +61,7 @@ namespace StockTrading.Utility
                 throw new ArgumentOutOfRangeException();
             }
 
-            SecurityCode = code;
+            SecuritySymbol = symbol;
             SecurityName = name;
             MinBuyPrice = minBuyPrice;
             ExpectedPrice = expectedPrice;

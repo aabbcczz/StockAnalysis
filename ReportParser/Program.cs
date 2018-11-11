@@ -59,14 +59,14 @@ namespace ReportParser
 
             foreach (var file in Directory.EnumerateFiles(inputFolder))
             {
-                var code = Path.GetFileNameWithoutExtension(file);
+                var symbol = Path.GetFileNameWithoutExtension(file);
 
-                if (string.IsNullOrWhiteSpace(code))
+                if (string.IsNullOrWhiteSpace(symbol))
                 {
                     Console.WriteLine("The file name {0} is not expected", file);
                 }
 
-                var report = parser.ParseReport(code, file);
+                var report = parser.ParseReport(symbol, file);
 
                 if (report == null)
                 {
@@ -74,7 +74,7 @@ namespace ReportParser
                 }
                 else
                 {
-                    Console.WriteLine("Parse report for {0}:{1} succeeded.", report.CompanyCode, report.CompanyName);
+                    Console.WriteLine("Parse report for {0}:{1} succeeded.", report.CompanySymbol, report.CompanyName);
 
                     AddReportMetadataToDataDictionary(report, newDataDictionary);
 
@@ -225,7 +225,7 @@ namespace ReportParser
                         continue;
                     }
 
-                    var outputColumnsForHeader = new List<string> {"CODE", "PeriodOrColumn"};
+                    var outputColumnsForHeader = new List<string> {"SYMBOL", "PeriodOrColumn"};
                     outputColumnsForHeader.AddRange(financeReportTables.First().Rows.Select(r => r.Name));
 
                     // write header
@@ -233,7 +233,7 @@ namespace ReportParser
 
                     foreach (var report in financeReports)
                     {
-                        var code = GetNormalizedCode(report.CompanyCode);
+                        var normalizedSymbol = GetNormalizedSymbol(report.CompanySymbol);
 
                         string name = tableName;
                         foreach (var table in report.Tables.Where(t => t.Name == name))
@@ -250,7 +250,7 @@ namespace ReportParser
                                     continue;
                                 }
 
-                                var outputColumnsForRow = new List<string> {code, tableColumnNames[i]};
+                                var outputColumnsForRow = new List<string> {normalizedSymbol, tableColumnNames[i]};
 
                                 foreach (var row in table.Rows)
                                 {
@@ -271,11 +271,11 @@ namespace ReportParser
             }
         }
 
-        private static string GetNormalizedCode(string code)
+        private static string GetNormalizedSymbol(string symbol)
         {
-            var name = StockName.Parse(code);
+            var name = StockName.Parse(symbol);
 
-            return ExchangeFactory.CreateExchangeById(name.ExchangeId).CapitalizedSymbolPrefix + code;
+            return ExchangeFactory.CreateExchangeById(name.ExchangeId).CapitalizedSymbolPrefix + symbol;
         }
 
         private static void CreateRevenueTableForLast12Months(IEnumerable<FinanceReport> reports)
@@ -293,7 +293,7 @@ namespace ReportParser
                 if (financeReportTables.Count() > 1)
                 {
                     throw new InvalidOperationException(
-                        string.Format("there are more than one revenue table in the report for company {0}", report.CompanyCode));
+                        string.Format("there are more than one revenue table in the report for company {0}", report.CompanySymbol));
                 }
 
                 var table = financeReportTables.First();

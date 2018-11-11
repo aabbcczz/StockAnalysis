@@ -145,11 +145,11 @@ namespace GenerateMetrics
                     .ToArray())
                 .ToList();
 
-            var outputFile = Path.Combine(outputFileFolder, data.Name.NormalizedCode + ".day.metric.csv");
+            var outputFile = Path.Combine(outputFileFolder, data.Name.NormalizedSymbol + ".day.metric.csv");
 
             using (var outputter = new StreamWriter(outputFile, false, Encoding.UTF8))
             {
-                var header = "code,date," 
+                var header = "symbol,date," 
                     + string.Join(",", allFieldNames.Select(MetricHelper.ConvertMetricToCsvCompatibleHead));
 
                 outputter.WriteLine(header);
@@ -165,7 +165,7 @@ namespace GenerateMetrics
 
                     outputter.WriteLine(
                         "{0},{1:yyyy/MM/dd},{2}",
-                        data.Name.NormalizedCode,
+                        data.Name.NormalizedSymbol,
                         times[i],
                         value);
                 }

@@ -19,7 +19,7 @@ namespace StockTradingConsole
 
         public OldStock(OldStockForSerialization oss)
         {
-            Name = new StockName(oss.SecurityCode, oss.SecurityName);
+            Name = new StockName(oss.SecuritySymbol, oss.SecurityName);
             Volume = Volume;
         }
     }

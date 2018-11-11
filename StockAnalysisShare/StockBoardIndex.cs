@@ -8,15 +8,15 @@ namespace StockAnalysis.Share
 {
     public static class StockBoardIndex
     {
-        private const string GrowingBoardIndexCode = "SZ.399006";
+        private const string GrowingBoardIndexSymbol = "SZ.399006";
 
-        private const string SmallMiddleBoardIndexCode = "SZ.399005";
+        private const string SmallMiddleBoardIndexSymbol = "SZ.399005";
 
-        private const string MainBoardIndexCode = "SZ.399300";
+        private const string MainBoardIndexSymbol = "SZ.399300";
 
-        public static StockName GrowingBoardIndexName = new StockName(GrowingBoardIndexCode, "创业板指数");
-        public static StockName SmallMiddleBoardIndexName = new StockName(SmallMiddleBoardIndexCode, "中小板指数");
-        public static StockName MainBoardIndexName = new StockName(MainBoardIndexCode, "沪深300指数");
+        public static StockName GrowingBoardIndexName = new StockName(GrowingBoardIndexSymbol, "创业板指数");
+        public static StockName SmallMiddleBoardIndexName = new StockName(SmallMiddleBoardIndexSymbol, "中小板指数");
+        public static StockName MainBoardIndexName = new StockName(MainBoardIndexSymbol, "沪深300指数");
 
         public static StockName GetBoardIndexName(StockBoard board)
         {
