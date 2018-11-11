@@ -5,8 +5,8 @@ namespace StockAnalysis.Share
 {
     public sealed class StockName : TradingObjectName
     {
-        public static string CanonicalNameSeparator = ".";
-        public static string[] CanonicalNameSeparators = new string[] { "." };
+        public static string NormalizedNameSeparator = ".";
+        public static string[] NormalizedNameSeparators = new string[] { "." };
 
         public ExchangeId ExchangeId { get; private set; }
 
@@ -29,7 +29,7 @@ namespace StockAnalysis.Share
             }
         }
 
-        public static bool IsCanonicalCode(string code)
+        public static bool IsNormalizedCode(string code)
         {
             code = SkipOldLeading(code);
 
@@ -38,7 +38,7 @@ namespace StockAnalysis.Share
                 return false;
             }
 
-            var fields = code.Split(CanonicalNameSeparators, StringSplitOptions.None);
+            var fields = code.Split(NormalizedNameSeparators, StringSplitOptions.None);
 
             if (fields.Length == 1)
             {
@@ -64,9 +64,9 @@ namespace StockAnalysis.Share
             }
         }
 
-         public static string GetCanonicalCode(string code)
+         public static string GetNormalizedCode(string code)
         {
-            return new StockName(code).CanonicalCode;
+            return new StockName(code).NormalizedCode;
         }
 
         public static string GetRawCode(string code)
@@ -131,7 +131,7 @@ namespace StockAnalysis.Share
         private void SetValues(IExchange exchange, string rawCode)
         {
             RawCode = rawCode;
-            CanonicalCode = exchange.CapitalizedSymbolPrefix + CanonicalNameSeparator + rawCode;
+            NormalizedCode = exchange.CapitalizedSymbolPrefix + NormalizedNameSeparator + rawCode;
             ExchangeId = ExchangeId;
             Board = GetBoard(rawCode);
         }
@@ -145,7 +145,7 @@ namespace StockAnalysis.Share
                 throw new ArgumentNullException();
             }
 
-            var fields = code.Split(CanonicalNameSeparators, StringSplitOptions.None);
+            var fields = code.Split(NormalizedNameSeparators, StringSplitOptions.None);
 
             if (fields.Length == 1)
             {
@@ -183,7 +183,7 @@ namespace StockAnalysis.Share
                     throw new InvalidOperationException("Exchange derived from code is not the exchange specified in arguments");
                 }
 
-                var rawCode = string.Join(CanonicalNameSeparator, fields.Skip(1));
+                var rawCode = string.Join(NormalizedNameSeparator, fields.Skip(1));
                 SetValues(exchangeDerivedFromCode, rawCode);
             }
         }
@@ -224,7 +224,7 @@ namespace StockAnalysis.Share
 
         public override string SaveToString()
         {
-            return CanonicalCode + "|" + String.Join("|", Names);
+            return NormalizedCode + "|" + String.Join("|", Names);
         }
 
         public override TradingObjectName ParseFromString(string s)

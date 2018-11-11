@@ -108,7 +108,7 @@ namespace CorrelationCalculator
             // begin to calculate pearson correlation coefficient
 
             // get names 
-            var codeAndNames = allData.Select(d => d.Name.CanonicalCode + " " + d.Name.Names[0]).ToArray();
+            var codeAndNames = allData.Select(d => d.Name.NormalizedCode + " " + d.Name.Names[0]).ToArray();
 
             // align data and fill missed data
             // 1. select all distince date

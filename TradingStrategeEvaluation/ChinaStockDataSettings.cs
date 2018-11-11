@@ -66,7 +66,7 @@ namespace TradingStrategyEvaluation
         {
             return Path.Combine(
                 StockDataFileDirectory,
-                StockDataFileNamePattern.Replace(StockCodePattern, StockName.GetCanonicalCode(code)));
+                StockDataFileNamePattern.Replace(StockCodePattern, StockName.GetNormalizedCode(code)));
         }
 
         public static ChinaStockDataSettings GenerateExampleSettings()

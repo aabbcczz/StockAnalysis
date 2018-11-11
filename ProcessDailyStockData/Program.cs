@@ -120,7 +120,7 @@ namespace ProcessDailyStockData
 
                 File.WriteAllLines(
                     options.CodeFile,
-                    table.Names.Select(sn => sn.CanonicalCode).ToArray(),
+                    table.Names.Select(sn => sn.NormalizedCode).ToArray(),
                     Encoding.UTF8);
             }
 
@@ -151,8 +151,8 @@ namespace ProcessDailyStockData
                     return null;
                 }
 
-                var fullDataFile = Path.Combine(outputFileFolder, name.CanonicalCode + ".day.csv");
-                var deltaDataFile = Path.Combine(outputFileFolder, name.CanonicalCode + ".day.delta.csv");
+                var fullDataFile = Path.Combine(outputFileFolder, name.NormalizedCode + ".day.csv");
+                var deltaDataFile = Path.Combine(outputFileFolder, name.NormalizedCode + ".day.delta.csv");
 
                 var generateDeltaFile = File.Exists(fullDataFile);
 

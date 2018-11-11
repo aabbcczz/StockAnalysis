@@ -8,7 +8,7 @@ namespace StockAnalysis.Share
 {
     public class TradingObjectName
     {
-        public string CanonicalCode { get; protected set; }
+        public string NormalizedCode { get; protected set; }
 
         public string RawCode { get; protected set; }
 
@@ -16,7 +16,7 @@ namespace StockAnalysis.Share
 
         public virtual string SaveToString()
         {
-            return CanonicalCode + "|" + String.Join("|", Names);
+            return NormalizedCode + "|" + String.Join("|", Names);
         }
 
         public virtual TradingObjectName ParseFromString(string s)

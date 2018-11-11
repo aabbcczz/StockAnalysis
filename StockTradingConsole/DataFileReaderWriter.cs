@@ -53,8 +53,8 @@ namespace StockTradingConsole
             List<NewStock> newStocks = ReadNewStocks();
             List<OldStock> oldStocks = ReadOldStocks();
 
-            if (newStocks.Select(s => s.Name.CanonicalCode)
-                .Intersect(oldStocks.Select(s => s.Name.CanonicalCode))
+            if (newStocks.Select(s => s.Name.NormalizedCode)
+                .Intersect(oldStocks.Select(s => s.Name.NormalizedCode))
                 .Count() != 0)
             {
                 throw new InvalidDataException("There is duplicate code in NewStocks and OldStocks");
@@ -85,7 +85,7 @@ namespace StockTradingConsole
                     List<NewStockForSerialization> stocks = csvReader.GetRecords<NewStockForSerialization>().ToList();
 
                     List<NewStock> newStocks = stocks.Select(s => new NewStock(s)).ToList();
-                    if (newStocks.GroupBy(s => s.Name.CanonicalCode).Count() < newStocks.Count)
+                    if (newStocks.GroupBy(s => s.Name.NormalizedCode).Count() < newStocks.Count)
                     {
                         throw new InvalidDataException("There is duplicate stock code");
                     }
@@ -110,7 +110,7 @@ namespace StockTradingConsole
                     List<OldStockForSerialization> stocks = csvReader.GetRecords<OldStockForSerialization>().ToList();
                     List<OldStock> oldStocks = stocks.Select(s => new OldStock(s)).ToList();
 
-                    if (oldStocks.GroupBy(s => s.Name.CanonicalCode).Count() < oldStocks.Count)
+                    if (oldStocks.GroupBy(s => s.Name.NormalizedCode).Count() < oldStocks.Count)
                     {
                         throw new InvalidDataException("There is duplicate stock code");
                     }

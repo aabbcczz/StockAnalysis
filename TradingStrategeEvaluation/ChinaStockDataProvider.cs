@@ -236,7 +236,7 @@ namespace TradingStrategyEvaluation
 
                         lock (allFirstNonWarmupDataPeriods)
                         {
-                            allFirstNonWarmupDataPeriods.Add(data.Name.CanonicalCode, firstNonWarmupDataPeriod);
+                            allFirstNonWarmupDataPeriods.Add(data.Name.NormalizedCode, firstNonWarmupDataPeriod);
                         }
 
                         lock (allTradingData)
@@ -267,7 +267,7 @@ namespace TradingStrategyEvaluation
             }
 
             // build trading objects
-            var tempTradingData = allTradingData.OrderBy(t => t.Name.CanonicalCode).ToArray();
+            var tempTradingData = allTradingData.OrderBy(t => t.Name.NormalizedCode).ToArray();
 
             _stocks = Enumerable.Range(0, tempTradingData.Length)
                 .Select(i => (ITradingObject)new ChinaStock(i, (StockName)tempTradingData[i].Name))
@@ -296,7 +296,7 @@ namespace TradingStrategyEvaluation
 
             foreach (var historyData in allTradingData)
             {
-                var stockIndex = GetIndexOfTradingObject(historyData.Name.CanonicalCode);
+                var stockIndex = GetIndexOfTradingObject(historyData.Name.NormalizedCode);
 
                 var data = historyData.DataOrderedByTime;
                 var dataIndex = 0;

@@ -139,7 +139,7 @@ namespace TradingClient.StrategyGDB
                     List<NewStock> newStocks = new List<NewStock>(_newStocks);
                     foreach (var s in newStocks)
                     {
-                        s.SecurityCode = StockName.GetCanonicalCode(s.SecurityCode);
+                        s.SecurityCode = StockName.GetNormalizedCode(s.SecurityCode);
                     }
 
                     csvWriter.WriteRecords(newStocks);
@@ -156,7 +156,7 @@ namespace TradingClient.StrategyGDB
                     List<ExistingStock> existingStocks = new List<ExistingStock>(_existingStocks);
                     foreach (var s in existingStocks)
                     {
-                        s.SecurityCode = StockName.GetCanonicalCode(s.SecurityCode);
+                        s.SecurityCode = StockName.GetNormalizedCode(s.SecurityCode);
                     }
 
                     csvWriter.WriteRecords(existingStocks);

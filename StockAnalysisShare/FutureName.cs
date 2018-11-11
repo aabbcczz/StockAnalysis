@@ -268,7 +268,7 @@ namespace StockAnalysis.Share
         private void SetValues(string rawCode)
         {
             RawCode = rawCode;
-            CanonicalCode = rawCode;
+            NormalizedCode = rawCode;
         }
 
         private FutureName(string code)
@@ -288,7 +288,7 @@ namespace StockAnalysis.Share
 
             if (string.IsNullOrEmpty(name))
             {
-                Names[0] = FutureName.GetNameForProductCode(CanonicalCode);
+                Names[0] = FutureName.GetNameForProductCode(NormalizedCode);
             }
         }
 
@@ -300,7 +300,7 @@ namespace StockAnalysis.Share
 
         public override string SaveToString()
         {
-            return CanonicalCode + "|" + String.Join("|", Names);
+            return NormalizedCode + "|" + String.Join("|", Names);
         }
 
         public override TradingObjectName ParseFromString(string s)

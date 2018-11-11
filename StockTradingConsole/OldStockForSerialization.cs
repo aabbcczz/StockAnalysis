@@ -18,7 +18,7 @@ namespace StockTradingConsole
 
         public OldStockForSerialization(OldStock os)
         {
-            SecurityCode = os.Name.CanonicalCode;
+            SecurityCode = os.Name.NormalizedCode;
             SecurityName = os.Name.Names[0];
             Volume = os.Volume;
         }

@@ -111,7 +111,7 @@ namespace DTViewer
             var stockProperties = _stockNameTable.Names
                 .Select(sn => new StockProperty()
                         {
-                            Code = sn.CanonicalCode,
+                            Code = sn.NormalizedCode,
                             Name = string.Join("|", sn.Names)
                         })
                 .OrderBy(sp => sp.Code)

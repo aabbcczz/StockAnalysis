@@ -10,9 +10,9 @@ namespace StockAnalysis.Share
     {
         private static string[] untradableCodes = new string[]
         {
-            StockBoardIndex.GrowingBoardIndexName.CanonicalCode,
-            StockBoardIndex.MainBoardIndexName.CanonicalCode,
-            StockBoardIndex.SmallMiddleBoardIndexName.CanonicalCode
+            StockBoardIndex.GrowingBoardIndexName.NormalizedCode,
+            StockBoardIndex.MainBoardIndexName.NormalizedCode,
+            StockBoardIndex.SmallMiddleBoardIndexName.NormalizedCode
         };
 
         private static Dictionary<string, UntradableObject> untradableObjects;
@@ -29,9 +29,9 @@ namespace StockAnalysis.Share
             untradableObjects = untradableCodes.ToDictionary(s => s, s => new UntradableObject(s));
         }
 
-        public static bool IsUntradable(string canonicalCode)
+        public static bool IsUntradable(string normalizedCode)
         {
-            return untradableObjects.ContainsKey(canonicalCode);
+            return untradableObjects.ContainsKey(normalizedCode);
         }
     }
 }

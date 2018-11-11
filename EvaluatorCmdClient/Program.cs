@@ -115,7 +115,7 @@ namespace EvaluatorCmdClient
         {
             var codes = File.ReadAllLines(codeFile)
                 .Where(s => !string.IsNullOrWhiteSpace(s))
-                .Select(s => StockName.GetCanonicalCode(s))
+                .Select(s => StockName.GetNormalizedCode(s))
                 .OrderBy(s => s)
                 .ToArray();
 

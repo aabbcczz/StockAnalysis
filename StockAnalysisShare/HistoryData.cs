@@ -44,7 +44,7 @@ namespace StockAnalysis.Share
                 return null;
             }
 
-            var code = new StockName(inputData[0][0], string.Empty).CanonicalCode;
+            var code = new StockName(inputData[0][0], string.Empty).NormalizedCode;
 
             var name = 
                 nameTable != null && nameTable.ContainsObject(code)
