@@ -58,7 +58,7 @@ namespace ProcessDailyStockData
                             }
                         }
 
-                        outputter.WriteLine("{0},{1}", name.NormalizedSymbol, lines[i]);
+                        outputter.WriteLine("{0},{1}", name.Symbol.NormalizedSymbol, lines[i]);
                     }
                 }
             }

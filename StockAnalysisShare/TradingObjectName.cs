@@ -6,17 +6,24 @@ using System.Threading.Tasks;
 
 namespace StockAnalysis.Share
 {
+    /// <summary>
+    /// base class for describe the name of trading object. It can't be abstract class
+    /// because generic type TradingObjectNameTable need to used this class as type argument 
+    /// </summary>
     public class TradingObjectName
     {
-        public string NormalizedSymbol { get; protected set; }
-
-        public string RawSymbol { get; protected set; }
+        public  SecuritySymbol Symbol { get; protected set; }
 
         public string[] Names { get; protected set; }
 
+        public TradingObjectName()
+        {
+            // this non-parameter constructor must exists
+        }
+
         public virtual string SaveToString()
         {
-            return NormalizedSymbol + "|" + String.Join("|", Names);
+            throw new NotImplementedException();
         }
 
         public virtual TradingObjectName ParseFromString(string s)

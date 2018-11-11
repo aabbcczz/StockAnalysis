@@ -44,7 +44,7 @@ namespace StockAnalysis.Share
                 return null;
             }
 
-            var normalizedSymbol = new StockName(inputData[0][0], string.Empty).NormalizedSymbol;
+            var normalizedSymbol = new StockName(inputData[0][0], string.Empty).Symbol.NormalizedSymbol;
 
             var name = 
                 nameTable != null && nameTable.ContainsObject(normalizedSymbol)

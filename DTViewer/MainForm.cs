@@ -111,7 +111,7 @@ namespace DTViewer
             var stockProperties = _stockNameTable.Names
                 .Select(sn => new StockProperty()
                         {
-                            Symbol = sn.NormalizedSymbol,
+                            Symbol = sn.Symbol.NormalizedSymbol,
                             Name = string.Join("|", sn.Names)
                         })
                 .OrderBy(sp => sp.Symbol)

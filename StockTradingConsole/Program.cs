@@ -130,7 +130,7 @@ namespace StockTradingConsole
             TimeSpan marketOpenTime = new TimeSpan(9, 15, 30);
             TimeSpan marketCloseTime = new TimeSpan(15, 00, 30);
 
-            var symbols = stateMachines.Select(m => m.Name.RawSymbol).ToArray();
+            var symbols = stateMachines.Select(m => m.Name.Symbol.RawSymbol).ToArray();
 
             while (!token.IsCancellationRequested)
             {

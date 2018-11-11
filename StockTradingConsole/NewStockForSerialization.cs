@@ -22,7 +22,7 @@ namespace StockTradingConsole
         public NewStockForSerialization(NewStock ns)
         {
             DateToBuy = ns.DateToBuy;
-            SecuritySymbol = ns.Name.NormalizedSymbol;
+            SecuritySymbol = ns.Name.Symbol.NormalizedSymbol;
             SecurityName = ns.Name.Names[0];
             BuyPriceUpLimitInclusive = ns.BuyPriceUpLimitInclusive;
             BuyPriceDownLimitInclusive = ns.BuyPriceDownLimitInclusive;

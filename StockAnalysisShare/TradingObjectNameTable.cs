@@ -28,7 +28,7 @@ namespace StockAnalysis.Share
 
         public void AddName(T name)
         {
-            _names.Add(name.NormalizedSymbol, name);
+            _names.Add(name.Symbol.NormalizedSymbol, name);
         }
 
         public bool ContainsObject(string symbol)
@@ -71,7 +71,7 @@ namespace StockAnalysis.Share
                         T name = (T)(new T().ParseFromString(line));
 
                         // avoid duplicated stock name (two stocks are treated as duplicated iff. their symbol are the same)
-                        if (!ContainsObject(name.NormalizedSymbol))
+                        if (!ContainsObject(name.Symbol.NormalizedSymbol))
                         {
                             AddName(name);
                         }

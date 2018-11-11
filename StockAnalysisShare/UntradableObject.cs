@@ -10,9 +10,9 @@ namespace StockAnalysis.Share
     {
         private static string[] untradableSymbols = new string[]
         {
-            StockBoardIndex.GrowingBoardIndexName.NormalizedSymbol,
-            StockBoardIndex.MainBoardIndexName.NormalizedSymbol,
-            StockBoardIndex.SmallMiddleBoardIndexName.NormalizedSymbol
+            StockBoardIndex.GrowingBoardIndexName.Symbol.NormalizedSymbol,
+            StockBoardIndex.MainBoardIndexName.Symbol.NormalizedSymbol,
+            StockBoardIndex.SmallMiddleBoardIndexName.Symbol.NormalizedSymbol
         };
 
         private static Dictionary<string, UntradableObject> untradableObjects;

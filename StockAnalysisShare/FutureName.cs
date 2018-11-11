@@ -265,12 +265,6 @@ namespace StockAnalysis.Share
         {
         }
 
-        private void SetValues(string rawSymbol)
-        {
-            RawSymbol = rawSymbol;
-            NormalizedSymbol = rawSymbol;
-        }
-
         private FutureName(string symbol)
         {
             if (string.IsNullOrWhiteSpace(symbol))
@@ -278,7 +272,8 @@ namespace StockAnalysis.Share
                 throw new ArgumentNullException();
             }
 
-            SetValues(symbol);
+            // TODO: fix this
+            throw new NotImplementedException();
         }
 
         public FutureName(string symbol, string name)
@@ -288,7 +283,7 @@ namespace StockAnalysis.Share
 
             if (string.IsNullOrEmpty(name))
             {
-                Names[0] = FutureName.GetNameForProductSymbol(NormalizedSymbol);
+                Names[0] = FutureName.GetNameForProductSymbol(Symbol.NormalizedSymbol);
             }
         }
 
@@ -300,7 +295,7 @@ namespace StockAnalysis.Share
 
         public override string SaveToString()
         {
-            return NormalizedSymbol + "|" + String.Join("|", Names);
+            return Symbol.NormalizedSymbol + "|" + String.Join("|", Names);
         }
 
         public override TradingObjectName ParseFromString(string s)

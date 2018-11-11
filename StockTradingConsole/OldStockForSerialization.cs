@@ -18,7 +18,7 @@ namespace StockTradingConsole
 
         public OldStockForSerialization(OldStock os)
         {
-            SecuritySymbol = os.Name.NormalizedSymbol;
+            SecuritySymbol = os.Name.Symbol.NormalizedSymbol;
             SecurityName = os.Name.Names[0];
             Volume = os.Volume;
         }

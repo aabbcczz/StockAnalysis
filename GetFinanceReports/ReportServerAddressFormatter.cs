@@ -18,10 +18,10 @@ namespace GetFinanceReports
             }
 
             // replace %code%
-            format = format.Replace("%code%", stock.NormalizedSymbol);
+            format = format.Replace("%code%", stock.Symbol.NormalizedSymbol);
 
             // replace %market%
-            var market = marketFormatter == null ? stock.ExchangeId.ToString() : marketFormatter(stock.ExchangeId);
+            var market = marketFormatter == null ? stock.Symbol.ExchangeId.ToString() : marketFormatter(stock.Symbol.ExchangeId);
 
             format = format.Replace("%market%", market);
 

@@ -9,9 +9,9 @@
         NasdaqSecurityExchange = 102,
 
         // SSE
-        ShanghaiSecurityExchange = 861,
+        ShanghaiSecurityExchange = 8601,
 
         // SZSE
-        ShenzhenSecurityExchange = 862,
+        ShenzhenSecurityExchange = 8602,
     }
 }

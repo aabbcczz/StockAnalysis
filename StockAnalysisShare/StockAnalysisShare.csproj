@@ -78,6 +78,7 @@
     <Compile Include="BiddingMethod.cs" />
     <Compile Include="BiddingTimeRange.cs" />
     <Compile Include="ChinaStockHelper.cs" />
+    <Compile Include="ChinaStockSymbolNormalizer.cs" />
     <Compile Include="ChinaStockTick.cs" />
     <Compile Include="Country.cs" />
     <Compile Include="CsvTable.cs" />
@@ -115,6 +116,9 @@
     <Compile Include="HistoryData.cs" />
     <Compile Include="Bar.cs" />
     <Compile Include="StockName.cs" />
+    <Compile Include="SecuritySymbol.cs" />
+    <Compile Include="SymbolNormalizer.cs" />
+    <Compile Include="SymbolNormalizerBase.cs" />
     <Compile Include="TradingObjectNameTable.cs" />
     <Compile Include="StringHelper.cs" />
     <Compile Include="TdxBinaryBlockDataReader.cs" />

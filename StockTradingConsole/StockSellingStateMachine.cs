@@ -265,7 +265,7 @@ namespace StockTradingConsole
                 Price = sellingPrice,
                 PricingType = OrderPricingType.LimitPrice,
                 Volume = ChinaStockHelper.ConvertHandToVolume(volumeInHand),
-                SecuritySymbol = _stock.Name.RawSymbol,
+                SecuritySymbol = _stock.Name.Symbol.RawSymbol,
                 SecurityName = _stock.Name.Names[0]
             };
 
@@ -282,7 +282,7 @@ namespace StockTradingConsole
                 Price = 0.01f,
                 PricingType = OrderPricingType.MarketPriceMakeDealInFiveGradesThenCancel,
                 Volume = ChinaStockHelper.ConvertHandToVolume(volumeInHand),
-                SecuritySymbol = _stock.Name.RawSymbol,
+                SecuritySymbol = _stock.Name.Symbol.RawSymbol,
                 SecurityName = _stock.Name.Names[0]
             };
 
@@ -311,7 +311,7 @@ namespace StockTradingConsole
 
             string error;
             // try to cancel order
-            if (!input.Client.CancelOrder(_stock.Name.RawSymbol, _orderNo, out error))
+            if (!input.Client.CancelOrder(_stock.Name.Symbol.RawSymbol, _orderNo, out error))
             {
                 AppLogger.Default.ErrorFormat("[{0}] Failed to cancel order {1}, Error: {2}", _stock.Name, _orderNo, error);
                 return false;
@@ -382,7 +382,7 @@ namespace StockTradingConsole
                 return false;
             }
 
-            if (_stock.Name.ExchangeId != ExchangeId.ShenzhenSecurityExchange)
+            if (_stock.Name.Symbol.ExchangeId != ExchangeId.ShenzhenSecurityExchange)
             {
                 return false;
             }
@@ -416,7 +416,7 @@ namespace StockTradingConsole
                 return false;
             }
 
-            if (_stock.Name.ExchangeId != ExchangeId.ShanghaiSecurityExchange)
+            if (_stock.Name.Symbol.ExchangeId != ExchangeId.ShanghaiSecurityExchange)
             {
                 return false;
             }
