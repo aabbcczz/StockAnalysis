@@ -13,5 +13,20 @@
 
         // SZSE
         ShenzhenSecurityExchange = 8602,
+
+        // SHFE
+        ShanghaiFutureExchange = 8611,
+
+        // CZCE
+        ZhengzhouCommodityExchange = 8612,
+
+        // DCE
+        DalianCommodityExchange = 8613,
+
+        // CFFEX
+        ChinaFinancialFuturesExchange = 8614,
+
+        // INE
+        ShanghaiInternationalEnergyExchange = 8615
     }
 }
