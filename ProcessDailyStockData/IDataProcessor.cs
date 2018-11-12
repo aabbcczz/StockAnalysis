@@ -10,9 +10,9 @@ namespace ProcessDailyStockData
 {
     interface IDataProcessor
     {
-        TradingObjectName GetName(string file);
+        ITradingObjectName GetName(string file);
 
-        void ConvertToCsvFile(TradingObjectName name, string inputFile, string outputFile, DateTime startDate, DateTime endDate);
+        void ConvertToCsvFile(ITradingObjectName name, string inputFile, string outputFile, DateTime startDate, DateTime endDate);
 
         int GetColumnIndexOfDateInCsvFile();
     }

@@ -10,30 +10,12 @@ namespace StockAnalysis.Share
     /// base class for describe the name of trading object. It can't be abstract class
     /// because generic type TradingObjectNameTable need to used this class as type argument 
     /// </summary>
-    public class TradingObjectName
+    public interface ITradingObjectName
     {
-        public  SecuritySymbol Symbol { get; protected set; }
+        SecuritySymbol Symbol { get; }
 
-        public string[] Names { get; protected set; }
+        string[] Names { get; }
 
-        public TradingObjectName()
-        {
-            // this non-parameter constructor must exists
-        }
-
-        public virtual string SaveToString()
-        {
-            throw new NotImplementedException();
-        }
-
-        public virtual TradingObjectName ParseFromString(string s)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override string ToString()
-        {
-            return SaveToString();
-        }
+        string SaveToString();
     }
 }

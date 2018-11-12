@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace StockAnalysis.Share
 {
-    public sealed class FutureName : TradingObjectName
+    public sealed class FutureName : ITradingObjectName
     {
         private static Dictionary<string, string> ProductSymbolNameMap = new Dictionary<string, string>()
         {
@@ -261,9 +261,8 @@ namespace StockAnalysis.Share
             { "ZNL9","沪锌指数" },
         };
 
-        public FutureName()
-        {
-        }
+        public SecuritySymbol Symbol { get; private set; }
+        public string[] Names { get; private set; }
 
         private FutureName(string symbol)
         {
@@ -293,14 +292,14 @@ namespace StockAnalysis.Share
             Names = names;
         }
 
-        public override string SaveToString()
+        public string SaveToString()
         {
             return Symbol.NormalizedSymbol + "|" + String.Join("|", Names);
         }
 
-        public override TradingObjectName ParseFromString(string s)
+        public override string ToString()
         {
-            return FutureName.Parse(s);
+            return SaveToString();
         }
 
         public static FutureName Parse(string s)

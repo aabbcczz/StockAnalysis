@@ -358,9 +358,10 @@ namespace StockTrading.Utility
             }
         }
 
-        public string GetShareholderCode(string securitySymbol)
+        public string GetShareholderCode(string symbol)
         {
-            IExchange exchange = ExchangeFactory.GetTradingExchangeForSecurity(securitySymbol);
+            IExchange exchange = ExchangeFactory.CreateExchangeBySymbol(symbol, ChinaStockSymbolNormalizer.Instance);
+            
             if (exchange == null)
             {
                 return string.Empty;
@@ -508,7 +509,7 @@ namespace StockTrading.Utility
 
             string resultString;
 
-            IExchange exchange = ExchangeFactory.GetTradingExchangeForSecurity(symbol);
+            IExchange exchange = ExchangeFactory.CreateExchangeBySymbol(symbol, ChinaStockSymbolNormalizer.Instance);
             if (exchange == null)
             {
                 result = null;
@@ -549,7 +550,7 @@ namespace StockTrading.Utility
             string[] resultStrings;
 
 
-            var exchangeIds = symbols.Select(c => ExchangeFactory.GetTradingExchangeForSecurity(c))
+            var exchangeIds = symbols.Select(c => ExchangeFactory.CreateExchangeBySymbol(c, ChinaStockSymbolNormalizer.Instance))
                 .Select(e => e == null ? string.Empty : e.ExchangeId.ToString())
                 .ToArray();
             var orderNoStrings = orderNos.Select(id => id.ToString()).ToArray();

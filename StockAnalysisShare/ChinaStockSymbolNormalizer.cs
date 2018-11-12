@@ -3,7 +3,7 @@
     using System;
     using System.Collections.Generic;
 
-    internal sealed class ChinaStockSymbolNormalizer : SymbolNormalizerBase
+    public sealed class ChinaStockSymbolNormalizer : SymbolNormalizerBase
     {
         protected override char SplitterChar
         {

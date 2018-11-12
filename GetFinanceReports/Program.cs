@@ -42,7 +42,7 @@ namespace GetFinanceReports
 
             // create stock name table
             var stockNameTable
-                = new TradingObjectNameTable<StockName>
+                = TradingObjectNameTable<StockName>.LoadFromFile
                     (
                         options.StockNameTable, 
                         invalidLine => 

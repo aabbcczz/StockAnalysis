@@ -6,7 +6,7 @@ using System.IO;
 namespace StockAnalysis.Share
 {
     public sealed class TradingObjectNameTable<T>
-        where T : TradingObjectName, new()
+        where T : ITradingObjectName
     {
         private readonly Dictionary<string, T> _names = new Dictionary<string, T>();
 
@@ -49,12 +49,14 @@ namespace StockAnalysis.Share
         /// 
         /// if the function returns false, no more input lines will be read from file.
         /// </param>
-        public TradingObjectNameTable(string fileName, Func<string, bool> onError = null)
+        public static TradingObjectNameTable<T> LoadFromFile(string fileName, Func<string, bool> onError = null)
         {
             if (string.IsNullOrEmpty(fileName))
             {
                 throw new ArgumentNullException("fileName");
             }
+
+            TradingObjectNameTable<T> table = new TradingObjectNameTable<T>();
 
             using (var reader = new StreamReader(fileName, Encoding.UTF8))
             {
@@ -68,12 +70,12 @@ namespace StockAnalysis.Share
 
                     try
                     {
-                        T name = (T)(new T().ParseFromString(line));
+                        T name = (T)TradingObjectNameFactory.ParseFromString(typeof(T), line);
 
                         // avoid duplicated stock name (two stocks are treated as duplicated iff. their symbol are the same)
-                        if (!ContainsObject(name.Symbol.NormalizedSymbol))
+                        if (!table.ContainsObject(name.Symbol.NormalizedSymbol))
                         {
-                            AddName(name);
+                            table.AddName(name);
                         }
                     }
                     catch
@@ -91,6 +93,8 @@ namespace StockAnalysis.Share
                     }
                 }
             }
+
+            return table;
         }
     }
 }

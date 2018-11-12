@@ -3,8 +3,10 @@ using System.Linq;
 
 namespace StockAnalysis.Share
 {
-    public sealed class StockName : TradingObjectName
+    public sealed class StockName : ITradingObjectName
     {
+        public SecuritySymbol Symbol { get; private set; }
+        public string[] Names { get; private set; }
         public StockBoard Board { get; private set; }
 
         public static string GetNormalizedSymbol(string symbol)
@@ -47,10 +49,6 @@ namespace StockAnalysis.Share
             return StockBoard.Unknown;
         }
 
-        public StockName()
-        {
-        }
-
         private StockName(string symbol)
         {
             SecuritySymbol securitySymbol = null;
@@ -85,14 +83,14 @@ namespace StockAnalysis.Share
             return StockBoardIndex.GetBoardIndexName(board);
         }
 
-        public override string SaveToString()
+        public string SaveToString()
         {
             return Symbol.NormalizedSymbol + "|" + String.Join("|", Names);
         }
 
-        public override TradingObjectName ParseFromString(string s)
+        public override string ToString()
         {
-            return StockName.Parse(s);
+            return SaveToString();
         }
 
         public static StockName Parse(string s)

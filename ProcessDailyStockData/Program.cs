@@ -84,13 +84,13 @@ namespace ProcessDailyStockData
                 processor = new StockDataProcessor();
             }
 
-            TradingObjectNameTable<TradingObjectName> table;
+            TradingObjectNameTable<ITradingObjectName> table;
 
             if (!string.IsNullOrEmpty(options.InputFile))
             {
                 // single input file
-                TradingObjectName name = ProcessOneFile(processor, options.InputFile, options.StartDate, options.EndDate, folder);
-                table = new TradingObjectNameTable<TradingObjectName>();
+                ITradingObjectName name = ProcessOneFile(processor, options.InputFile, options.StartDate, options.EndDate, folder);
+                table = new TradingObjectNameTable<ITradingObjectName>();
 
                 if (name != null)
                 {
@@ -130,7 +130,7 @@ namespace ProcessDailyStockData
         }
 
 
-        static TradingObjectName ProcessOneFile(IDataProcessor processor, string file, DateTime startDate, DateTime endDate, string outputFileFolder)
+        static ITradingObjectName ProcessOneFile(IDataProcessor processor, string file, DateTime startDate, DateTime endDate, string outputFileFolder)
         {
             if (processor == null)
             {
@@ -267,7 +267,7 @@ namespace ProcessDailyStockData
             File.Delete(deltaDataFile);
         }
 
-        static TradingObjectNameTable<TradingObjectName> ProcessListOfFiles(IDataProcessor processor, string listFile, DateTime startDate, DateTime endDate, string outputFileFolder)
+        static TradingObjectNameTable<ITradingObjectName> ProcessListOfFiles(IDataProcessor processor, string listFile, DateTime startDate, DateTime endDate, string outputFileFolder)
         {
             if (processor == null)
             {
@@ -279,7 +279,7 @@ namespace ProcessDailyStockData
                 throw new ArgumentNullException();
             }
 
-            var table = new TradingObjectNameTable<TradingObjectName>();
+            var table = new TradingObjectNameTable<ITradingObjectName>();
 
             // Get all input files from list file
             var files = File.ReadAllLines(listFile, Encoding.UTF8);

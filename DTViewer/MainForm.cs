@@ -105,7 +105,7 @@ namespace DTViewer
         {
             _stockDataSettings = ChinaStockDataSettings.LoadFromFile(fileName);
 
-            _stockNameTable = new TradingObjectNameTable<StockName>(_stockDataSettings.StockNameTableFile);
+            _stockNameTable = TradingObjectNameTable<StockName>.LoadFromFile(_stockDataSettings.StockNameTableFile);
 
             // fill the symbols and names to grid view
             var stockProperties = _stockNameTable.Names

@@ -92,7 +92,7 @@ namespace DataStatistic
             var stockDataSettings = ChinaStockDataSettings.LoadFromFile(options.StockDataSettingsFile);
 
             // load symbols and stock name table
-            var stockNameTable = new TradingObjectNameTable<StockName>(stockDataSettings.StockNameTableFile);
+            var stockNameTable = TradingObjectNameTable<StockName>.LoadFromFile(stockDataSettings.StockNameTableFile);
             var symbols = LoadSymbolOfStocks(options.SymbolFile);
 
             var allDataFiles = symbols

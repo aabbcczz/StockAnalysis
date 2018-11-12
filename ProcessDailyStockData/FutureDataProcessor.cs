@@ -10,7 +10,7 @@ namespace ProcessDailyStockData
 {
     sealed class FutureDataProcessor : IDataProcessor
     {
-        public void ConvertToCsvFile(TradingObjectName name, string inputFile, string outputFile, DateTime startDate, DateTime endDate)
+        public void ConvertToCsvFile(ITradingObjectName name, string inputFile, string outputFile, DateTime startDate, DateTime endDate)
         {
             if (string.IsNullOrWhiteSpace(inputFile) || string.IsNullOrWhiteSpace(outputFile))
             {
@@ -69,7 +69,7 @@ namespace ProcessDailyStockData
             return 1;
         }
 
-        public TradingObjectName GetName(string file)
+        public ITradingObjectName GetName(string file)
         {
             if (string.IsNullOrEmpty(file))
             {

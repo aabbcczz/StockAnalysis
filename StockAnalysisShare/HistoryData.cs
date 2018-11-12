@@ -8,17 +8,17 @@ namespace StockAnalysis.Share
     public class HistoryData
     {
         private readonly Bar[] _dataOrderedByTime;
-        private readonly TradingObjectName _name;
+        private readonly ITradingObjectName _name;
         private readonly long _intervalInSecond;
 
-        public TradingObjectName Name { get{ return _name; } }
+        public ITradingObjectName Name { get{ return _name; } }
 
         // ordered by time
         public Bar[] DataOrderedByTime { get { return _dataOrderedByTime; } }
 
         public long IntervalInSecond { get { return _intervalInSecond; } }
 
-        public HistoryData(TradingObjectName name, long intervalInSecond, Bar[] dataOrderByTime)
+        public HistoryData(ITradingObjectName name, long intervalInSecond, Bar[] dataOrderByTime)
         {
             _name = name;
             _intervalInSecond = intervalInSecond;

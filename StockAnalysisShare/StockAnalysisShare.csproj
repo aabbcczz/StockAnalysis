@@ -82,6 +82,7 @@
     <Compile Include="ChinaStockTick.cs" />
     <Compile Include="Country.cs" />
     <Compile Include="CsvTable.cs" />
+    <Compile Include="ChinaFinancialFuturesExchange.cs" />
     <Compile Include="DataDictionary.cs" />
     <Compile Include="ExchangeBase.cs" />
     <Compile Include="ExchangeFactory.cs" />
@@ -89,6 +90,10 @@
     <Compile Include="FutureName.cs" />
     <Compile Include="NasdaqSecurityExchange.cs" />
     <Compile Include="NewYorkSecurityExchange.cs" />
+    <Compile Include="DalianCommodityExchange.cs" />
+    <Compile Include="ZhengzhouCommodityExchange.cs" />
+    <Compile Include="ShanghaiFutureExchange.cs" />
+    <Compile Include="ShanghaiInternationalEnergyExchange.cs" />
     <Compile Include="ShanghaiSecurityExchange.cs" />
     <Compile Include="OrderPricingType.cs" />
     <Compile Include="Exchange.cs" />
@@ -119,6 +124,7 @@
     <Compile Include="SecuritySymbol.cs" />
     <Compile Include="SymbolNormalizer.cs" />
     <Compile Include="SymbolNormalizerBase.cs" />
+    <Compile Include="TradingObjectNameFactory.cs" />
     <Compile Include="TradingObjectNameTable.cs" />
     <Compile Include="StringHelper.cs" />
     <Compile Include="TdxBinaryBlockDataReader.cs" />

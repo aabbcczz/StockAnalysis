@@ -165,6 +165,11 @@
                 { ExchangeId.ShenzhenSecurityExchange, new ShenzhenSecurityExchange() },
                 { ExchangeId.NewYorkSecurityExchange, new NewYorkSecurityExchange() },
                 { ExchangeId.NasdaqSecurityExchange, new NasdaqSecurityExchange() },
+                { ExchangeId.ChinaFinancialFuturesExchange, new ChinaFinancialFuturesExchange() },
+                { ExchangeId.DalianCommodityExchange, new DalianCommodityExchange() },
+                { ExchangeId.ShanghaiFutureExchange, new ShanghaiFutureExchange() },
+                { ExchangeId.ShanghaiInternationalEnergyExchange, new ShanghaiInternationalEnergyExchange() },
+                { ExchangeId.ZhengzhouCommodityExchange, new ZhengzhouCommodityExchange() },
             };
 
 
@@ -172,53 +177,22 @@
         {
             return Exchanges[id];
         }
-        
-        public static IExchange CreateExchangeBySymbolPrefix(string prefix)
+
+        public static IExchange CreateExchangeBySymbol(string symbol, ISymbolNormalizer normalizer)
         {
-            IExchange exchange;
-
-            if (TryCreateExchange(prefix, out exchange))
-            {
-                return exchange;
-            }
-
-            return null;
-        }
-
-        public static bool TryCreateExchange(string prefix, out IExchange exchange)
-        {
-            exchange = null;
-
-            foreach (var value in Exchanges.Values)
-            {
-                if (string.Compare(value.CapitalizedSymbolPrefix, prefix, true) == 0)
-                {
-                    exchange = value;
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
-        /// <summary>
-        /// Determine which exchange a given security can be traded in
-        /// </summary>
-        /// <param name="symbol">the symbol of security to be checked</param>
-        /// <returns>true if the security can be exchanged, otherwise false</returns>
-        public static IExchange GetTradingExchangeForSecurity(string symbol)
-        {
-            if (string.IsNullOrWhiteSpace(symbol))
+            if (string.IsNullOrWhiteSpace(symbol) || normalizer == null)
             {
                 throw new ArgumentNullException();
             }
 
-            return CreateExchangeById(StockName.GetExchangeId(symbol));
-        }
+            SecuritySymbol securitySymbol;
 
-        public static string[] GetAllExchangeCapitalizedSymbolPrefixes()
-        {
-            return Exchanges.Values.Select(v => v.CapitalizedSymbolPrefix).ToArray();
+            if (!normalizer.TryNormalizeSymbol(symbol, out securitySymbol))
+            {
+                return null;
+            }
+
+            return CreateExchangeById(securitySymbol.ExchangeId);
         }
     }
 }
