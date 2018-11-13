@@ -120,7 +120,7 @@ namespace StockTrading.Utility
             OrderId = Interlocked.Increment(ref currentOrderId);
             SecuritySymbol = securitySymbol;
             SecurityName = securityName;
-            Exchange = ExchangeFactory.GetExchangeForSecurity(SecuritySymbol);
+            Exchange = SymbolTable.GetInstance().FindExchangeForRawSymbol(securitySymbol, null, Country.CreateCountryByCode("CN"));
             ExpectedVolume = volume;
             ExecutedVolume = 0;
             ShouldCancelIfNotSucceeded = false;

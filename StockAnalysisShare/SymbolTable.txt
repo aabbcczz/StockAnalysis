@@ -1,0 +1,12 @@
+# Symbol table
+# format: regularexpression <tab> exchange_abbreviation
+# example: a\d* <tab> CZCE
+# additional <tab> character will be ignored
+
+^[0123]\w{5}$	SSE
+^[5679]\w{5}$	SZSE
+^(cu|al|zn|pb|ni|sn|au|ag|rb|wr|hc|fu|bu|ru)\d{4}$	SHFE
+^(a|b|c|m|y|p|l|v|j|jm|i|jd|fb|bb|pp|cs)\d{4}$	DCE
+^(PM|WH|SR|CF|TA|OI|RI|MA|FG|RS|RM|ZC|JR|LR|SF|SM|CY|AP)\d{4}$	CZCE
+^(IF|IH|IC|TF|T|TS)\d{4}$	CFFEX
+^(sc)\d{4}$	SIEE

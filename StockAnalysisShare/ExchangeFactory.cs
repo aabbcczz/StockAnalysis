@@ -173,26 +173,35 @@
             };
 
 
-        public static IExchange CreateExchangeById(ExchangeId id)
+        public static IExchange GetExchangeById(ExchangeId id)
         {
             return Exchanges[id];
         }
 
-        public static IExchange CreateExchangeBySymbol(string symbol, ISymbolNormalizer normalizer)
+        public static IExchange GetExchangeByName(string abbreviation)
         {
-            if (string.IsNullOrWhiteSpace(symbol) || normalizer == null)
+            foreach (var exchange in Exchanges.Values)
             {
-                throw new ArgumentNullException();
+                if (string.Compare(exchange.CapitalizedAbbreviation, abbreviation, true) == 0)
+                {
+                    return exchange;
+                }
             }
 
-            SecuritySymbol securitySymbol;
+            return null;
+        }
 
-            if (!normalizer.TryNormalizeSymbol(symbol, out securitySymbol))
+        public static IExchange GetExchangeBySymbolPrefix(string prefix)
+        {
+            foreach (var exchange in Exchanges.Values)
             {
-                return null;
+                if (string.Compare(exchange.CapitalizedSymbolPrefix, prefix, true) == 0)
+                {
+                    return exchange;
+                }
             }
 
-            return CreateExchangeById(securitySymbol.ExchangeId);
+            return null;
         }
     }
 }

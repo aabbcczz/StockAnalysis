@@ -14,6 +14,16 @@
         /// </summary>
         public RegionInfo RegionInformation { get; private set; }
 
+        public static bool IsSameCountry(Country c1, Country c2)
+        {
+            if (c1 == null || c2 == null)
+            {
+                throw new ArgumentNullException();
+            }
+
+            return c1.RegionInformation.ThreeLetterISORegionName == c2.RegionInformation.ThreeLetterISORegionName;
+        }
+
         private Country(string countryCode)
         {
             if (!IsCountryCodeValid(countryCode))

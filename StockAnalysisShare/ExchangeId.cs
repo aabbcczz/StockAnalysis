@@ -26,7 +26,7 @@
         // CFFEX
         ChinaFinancialFuturesExchange = 8614,
 
-        // INE
+        // SIEE/INE
         ShanghaiInternationalEnergyExchange = 8615
     }
 }

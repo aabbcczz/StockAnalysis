@@ -275,7 +275,7 @@ namespace ReportParser
         {
             var name = StockName.Parse(symbol);
 
-            return ExchangeFactory.CreateExchangeById(name.Symbol.ExchangeId).CapitalizedSymbolPrefix + symbol;
+            return ExchangeFactory.GetExchangeById(name.Symbol.ExchangeId).CapitalizedSymbolPrefix + symbol;
         }
 
         private static void CreateRevenueTableForLast12Months(IEnumerable<FinanceReport> reports)

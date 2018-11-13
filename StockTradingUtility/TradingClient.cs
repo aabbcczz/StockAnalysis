@@ -360,8 +360,8 @@ namespace StockTrading.Utility
 
         public string GetShareholderCode(string symbol)
         {
-            IExchange exchange = ExchangeFactory.CreateExchangeBySymbol(symbol, ChinaStockSymbolNormalizer.Instance);
-            
+            IExchange exchange = SymbolTable.GetInstance().FindExchangeForRawSymbol(symbol, null, Country.CreateCountryByCode("CN"));
+
             if (exchange == null)
             {
                 return string.Empty;
@@ -509,7 +509,8 @@ namespace StockTrading.Utility
 
             string resultString;
 
-            IExchange exchange = ExchangeFactory.CreateExchangeBySymbol(symbol, ChinaStockSymbolNormalizer.Instance);
+            IExchange exchange = SymbolTable.GetInstance().FindExchangeForRawSymbol(symbol, null, Country.CreateCountryByCode("CN"));
+
             if (exchange == null)
             {
                 result = null;
@@ -550,7 +551,7 @@ namespace StockTrading.Utility
             string[] resultStrings;
 
 
-            var exchangeIds = symbols.Select(c => ExchangeFactory.CreateExchangeBySymbol(c, ChinaStockSymbolNormalizer.Instance))
+            var exchangeIds = symbols.Select(c => SymbolTable.GetInstance().FindExchangeForRawSymbol(c, null, Country.CreateCountryByCode("CN")))
                 .Select(e => e == null ? string.Empty : e.ExchangeId.ToString())
                 .ToArray();
             var orderNoStrings = orderNos.Select(id => id.ToString()).ToArray();

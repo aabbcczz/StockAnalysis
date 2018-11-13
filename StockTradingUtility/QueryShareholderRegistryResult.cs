@@ -75,8 +75,8 @@ namespace StockTrading.Utility
                 result.ShareholderName = row[index++];
                 result.Exchange = 
                     row[index] == "0" 
-                    ? ExchangeFactory.CreateExchangeById(ExchangeId.ShenzhenSecurityExchange) 
-                    : (row[index] == "1" ? ExchangeFactory.CreateExchangeById(ExchangeId.ShanghaiSecurityExchange) : null); 
+                    ? ExchangeFactory.GetExchangeById(ExchangeId.ShenzhenSecurityExchange) 
+                    : (row[index] == "1" ? ExchangeFactory.GetExchangeById(ExchangeId.ShanghaiSecurityExchange) : null); 
                 index++;
 
                 result.CapitalAccount = row[index++];

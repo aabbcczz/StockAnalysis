@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace StockAnalysis.Share
+﻿namespace StockAnalysis.Share
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+
     public sealed class FutureName : ITradingObjectName
     {
         private static Dictionary<string, string> ProductSymbolNameMap = new Dictionary<string, string>()
@@ -271,8 +269,14 @@ namespace StockAnalysis.Share
                 throw new ArgumentNullException();
             }
 
-            // TODO: fix this
-            throw new NotImplementedException();
+            SecuritySymbol securitySymbol;
+
+            if (!SymbolNormalizer.TryNormalizeSymbol(symbol, Country.CreateCountryByCode("CN"), out securitySymbol))
+            {
+                throw new ArgumentException($"{symbol} is not a valid future name");
+            }
+
+            Symbol = securitySymbol;
         }
 
         public FutureName(string symbol, string name)

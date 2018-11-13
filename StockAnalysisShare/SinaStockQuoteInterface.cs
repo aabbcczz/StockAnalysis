@@ -17,7 +17,7 @@ namespace StockAnalysis.Share
 
         private static string NormalizeSymbol(string symbol)
         {
-            var exchange = ExchangeFactory.CreateExchangeById(StockName.GetExchangeId(symbol));
+            var exchange = ExchangeFactory.GetExchangeById(StockName.GetExchangeId(symbol));
 
             string prefix = exchange.CapitalizedSymbolPrefix.ToLowerInvariant();
 

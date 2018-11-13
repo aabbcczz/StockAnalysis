@@ -30,7 +30,7 @@ namespace GetFinanceReports
 
         public static string DefaultAbbreviationMarketFormatter(ExchangeId market)
         {
-            return ExchangeFactory.CreateExchangeById(market).CapitalizedSymbolPrefix.ToLowerInvariant();
+            return ExchangeFactory.GetExchangeById(market).CapitalizedSymbolPrefix.ToLowerInvariant();
         }
     }
 }

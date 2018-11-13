@@ -53,7 +53,7 @@ namespace StockAnalysis.Share
         {
             SecuritySymbol securitySymbol = null;
 
-            if (!ChinaStockSymbolNormalizer.Instance.TryNormalizeSymbol(symbol, out securitySymbol))
+            if (!SymbolNormalizer.TryNormalizeSymbol(symbol, Country.CreateCountryByCode("CN"), out securitySymbol))
             {
                 throw new ArgumentException($"{symbol} is not a valid stock name");
             }

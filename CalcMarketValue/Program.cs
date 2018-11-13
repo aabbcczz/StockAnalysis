@@ -116,7 +116,7 @@ namespace CalcMarketValue
             if (name.Symbol.ExchangeId == ExchangeId.ShenzhenSecurityExchange ||
                 name.Symbol.ExchangeId == ExchangeId.ShanghaiSecurityExchange)
             {
-                prefix = ExchangeFactory.CreateExchangeById(name.Symbol.ExchangeId).CapitalizedSymbolPrefix;
+                prefix = ExchangeFactory.GetExchangeById(name.Symbol.ExchangeId).CapitalizedSymbolPrefix;
             }
 
             return prefix + symbol;
