@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace StockAnalysis.Share
 {
-    public struct Bar
+    public struct Bar : ITimeSeriesData
     {
         public static DateTime InvalidTime = DateTime.MinValue;
         public static Bar DefaultValue = new Bar
@@ -17,7 +17,7 @@ namespace StockAnalysis.Share
             Amount = 0.0
         };
 
-        public DateTime Time;  // transaction time
+        public DateTime Time { get; set; }  // transaction time
         public double OpenPrice; // price when openning market
         public double ClosePrice; // price when closing market
         public double HighestPrice; // highest price in the whole day

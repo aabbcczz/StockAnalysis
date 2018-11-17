@@ -91,6 +91,7 @@
     <Compile Include="NewYorkSecurityExchange.cs" />
     <Compile Include="DalianCommodityExchange.cs" />
     <Compile Include="SymbolTable.cs" />
+    <Compile Include="TimeSeriesData.cs" />
     <Compile Include="ZhengzhouCommodityExchange.cs" />
     <Compile Include="ShanghaiFutureExchange.cs" />
     <Compile Include="ShanghaiInternationalEnergyExchange.cs" />
