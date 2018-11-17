@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using StockTrading.Utility;
-using StockAnalysis.Share;
+using StockAnalysis.Common.SymbolName;
 
 namespace StockTradingConsole
 {

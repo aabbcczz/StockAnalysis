@@ -1,12 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 using TradingStrategy;
-using MetricsDefinition;
-using StockAnalysis.Share;
+using StockAnalysis.Common.Data;
 
 namespace TradingStrategyEvaluation
 {
@@ -101,7 +96,7 @@ namespace TradingStrategyEvaluation
             }
 
         }
-        public void UpdateMetrics(ITradingObject[] tradingObjects, StockAnalysis.Share.Bar[] bars)
+        public void UpdateMetrics(ITradingObject[] tradingObjects, Bar[] bars)
         {
             if (tradingObjects.Length != bars.Length
                 || tradingObjects.Length != _maxTradingObjectNumber)

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Xml.Serialization;
 using System.IO;
-using StockAnalysis.Share;
+using StockAnalysis.Common.SymbolName;
 
 namespace TradingStrategyEvaluation
 {

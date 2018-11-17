@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.IO;
 
 using CsvHelper;
-using StockAnalysis.Share;
+using StockAnalysis.Common.SymbolName;
+using StockAnalysis.Common.Utility;
 
 namespace TradingClient.StrategyGDB
 {

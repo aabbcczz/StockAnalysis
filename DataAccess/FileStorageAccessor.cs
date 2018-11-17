@@ -2,11 +2,8 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
-    using System.Text;
-    using System.Threading.Tasks;
-
-    using StockAnalysis.Share;
+    using StockAnalysis.Common.Data;
+    using StockAnalysis.Common.SymbolName;
 
     internal class FileStorageAccessor<T> : IDataAccessor<T>
         where T : ITimeSeriesData
@@ -20,5 +17,6 @@
         {
             throw new NotImplementedException();
         }
+
     }
 }

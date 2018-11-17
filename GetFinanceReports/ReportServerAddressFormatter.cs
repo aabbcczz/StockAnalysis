@@ -1,8 +1,10 @@
 ﻿using System;
-using StockAnalysis.Share;
 
 namespace GetFinanceReports
 {
+    using StockAnalysis.Common.SymbolName;
+    using StockAnalysis.Common.Exchange;
+
     static class ReportServerAddressFormatter
     {
         public static string Format(string format, StockName stock, Func<ExchangeId, string> marketFormatter = null)

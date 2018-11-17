@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Globalization;
 using System.Text;
-using StockAnalysis.Share;
+using StockAnalysis.Common.Utility;
 
 namespace CleanCsv
 {

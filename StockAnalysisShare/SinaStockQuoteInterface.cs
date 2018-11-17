@@ -9,6 +9,9 @@ using System.IO;
 
 namespace StockAnalysis.Share
 {
+    using Common.Exchange;
+    using Common.SymbolName;
+
     public static class SinaStockQuoteInterface
     {
         private const string SinaQuoteWebServiceUriPrefix = "http://hq.sinajs.cn/list=";

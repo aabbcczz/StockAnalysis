@@ -2,7 +2,7 @@
 using System.Linq;
 using TradingStrategy;
 
-using StockAnalysis.Share;
+using StockAnalysis.Common.Math;
 
 namespace TradingStrategyEvaluation
 {

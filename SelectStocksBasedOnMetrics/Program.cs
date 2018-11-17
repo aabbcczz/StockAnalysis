@@ -4,9 +4,8 @@ using System.Globalization;
 using System.Linq;
 using System.IO;
 using System.Text;
-using System.Threading.Tasks;
 using CommandLine;
-using StockAnalysis.Share;
+using StockAnalysis.Common.Utility;
 
 namespace SelectStocksBasedOnMetrics
 {

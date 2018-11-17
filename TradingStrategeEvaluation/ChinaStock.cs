@@ -1,6 +1,7 @@
 ﻿using TradingStrategy;
 using StockAnalysis.Share;
 using System.Linq;
+using StockAnalysis.Common.SymbolName;
 
 namespace TradingStrategyEvaluation
 {

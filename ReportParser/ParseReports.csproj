@@ -56,8 +56,8 @@
       <HintPath>..\packages\CommandLineParser21.2.1.0.0\lib\net40\CommandLine.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="HtmlAgilityPack, Version=1.8.9.0, Culture=neutral, PublicKeyToken=bd319b19eaf3b43a, processorArchitecture=MSIL">
-      <HintPath>..\packages\HtmlAgilityPack.1.8.9\lib\Net45\HtmlAgilityPack.dll</HintPath>
+    <Reference Include="HtmlAgilityPack, Version=1.8.10.0, Culture=neutral, PublicKeyToken=bd319b19eaf3b43a, processorArchitecture=MSIL">
+      <HintPath>..\packages\HtmlAgilityPack.1.8.10\lib\Net45\HtmlAgilityPack.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
@@ -86,6 +86,10 @@
     <Content Include="datadictionary.xml" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Common\Common.csproj">
+      <Project>{c03c9704-b9de-4a43-8b94-6fe14a84680c}</Project>
+      <Name>Common</Name>
+    </ProjectReference>
     <ProjectReference Include="..\StockAnalysisShare\StockAnalysisShare.csproj">
       <Project>{46eebd03-e7d2-4958-a782-d22435cbc2bb}</Project>
       <Name>StockAnalysisShare</Name>

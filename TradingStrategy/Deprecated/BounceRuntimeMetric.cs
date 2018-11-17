@@ -1,7 +1,6 @@
 ﻿using System;
 using MetricsDefinition.Metrics;
-using StockAnalysis.Share;
-using TradingStrategy.Base;
+using StockAnalysis.Common.Data;
 
 namespace TradingStrategy.Strategy
 {
@@ -109,7 +108,7 @@ namespace TradingStrategy.Strategy
             _values[0] = _state == PriceState.Bounce ? 1.0 : 0.0;
         }
 
-        public void Update(StockAnalysis.Share.Bar bar)
+        public void Update(Bar bar)
         {
             UpdateState(bar);
         }

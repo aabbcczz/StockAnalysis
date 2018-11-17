@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using StockAnalysis.Share;
+using StockAnalysis.Common.Data;
+using StockAnalysis.Common.ChineseMarket;
 using TradingStrategy;
 
 namespace TradingStrategyEvaluation

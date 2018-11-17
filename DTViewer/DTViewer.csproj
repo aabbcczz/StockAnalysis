@@ -50,8 +50,8 @@
     <ApplicationIcon>DTViewer.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="CsvHelper, Version=7.0.0.0, Culture=neutral, PublicKeyToken=8c4959082be5c823, processorArchitecture=MSIL">
-      <HintPath>..\packages\CsvHelper.7.1.1\lib\net45\CsvHelper.dll</HintPath>
+    <Reference Include="CsvHelper, Version=9.0.0.0, Culture=neutral, PublicKeyToken=8c4959082be5c823, processorArchitecture=MSIL">
+      <HintPath>..\packages\CsvHelper.9.1.0\lib\net45\CsvHelper.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
@@ -106,6 +106,10 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Common\Common.csproj">
+      <Project>{c03c9704-b9de-4a43-8b94-6fe14a84680c}</Project>
+      <Name>Common</Name>
+    </ProjectReference>
     <ProjectReference Include="..\StockAnalysisShare\StockAnalysisShare.csproj">
       <Project>{46eebd03-e7d2-4958-a782-d22435cbc2bb}</Project>
       <Name>StockAnalysisShare</Name>

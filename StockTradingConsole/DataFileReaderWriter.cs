@@ -7,6 +7,7 @@ using System.IO;
 
 using CsvHelper;
 using StockAnalysis.Share;
+using StockAnalysis.Common.Utility;
 
 namespace StockTradingConsole
 {

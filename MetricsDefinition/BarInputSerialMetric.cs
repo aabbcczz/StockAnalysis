@@ -1,7 +1,7 @@
-﻿using StockAnalysis.Share;
-
-namespace MetricsDefinition
+﻿namespace MetricsDefinition
 {
+    using StockAnalysis.Common.Data;
+
     public abstract class BarInputSerialMetric : SerialMetric
     {
         private readonly CirculatedArray<Bar> _data;

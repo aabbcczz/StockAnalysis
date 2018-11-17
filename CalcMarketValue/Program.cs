@@ -4,7 +4,9 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using CommandLine;
-using StockAnalysis.Share;
+using StockAnalysis.Common.Utility;
+using StockAnalysis.Common.SymbolName;
+using StockAnalysis.Common.Exchange;
 
 namespace CalcMarketValue
 {

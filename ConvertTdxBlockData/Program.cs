@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.IO;
-using System.Threading.Tasks;
 
 using CommandLine;
-using StockAnalysis.Share;
+using StockAnalysis.Common.ChineseMarket;
+using StockAnalysis.TdxHelper;
 
 namespace ConvertTdxBlockData
 {

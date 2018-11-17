@@ -8,7 +8,7 @@
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>StockAnalysis.Share</RootNamespace>
-    <AssemblyName>StockAnalysisShare</AssemblyName>
+    <AssemblyName>StockAnalysis.Share</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -52,8 +52,8 @@
       <HintPath>..\packages\CommandLineParser21.2.1.0.0\lib\net40\CommandLine.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="CsvHelper, Version=7.0.0.0, Culture=neutral, PublicKeyToken=8c4959082be5c823, processorArchitecture=MSIL">
-      <HintPath>..\packages\CsvHelper.7.1.1\lib\net45\CsvHelper.dll</HintPath>
+    <Reference Include="CsvHelper, Version=9.0.0.0, Culture=neutral, PublicKeyToken=8c4959082be5c823, processorArchitecture=MSIL">
+      <HintPath>..\packages\CsvHelper.9.1.0\lib\net45\CsvHelper.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="log4net, Version=2.0.8.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
@@ -75,67 +75,29 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AliasNameMapping.cs" />
-    <Compile Include="BiddingMethod.cs" />
-    <Compile Include="BiddingTimeRange.cs" />
     <Compile Include="ChinaStockHelper.cs" />
     <Compile Include="ChinaStockTick.cs" />
-    <Compile Include="Country.cs" />
-    <Compile Include="CsvTable.cs" />
-    <Compile Include="ChinaFinancialFuturesExchange.cs" />
     <Compile Include="DataDictionary.cs" />
-    <Compile Include="ExchangeBase.cs" />
-    <Compile Include="ExchangeFactory.cs" />
-    <Compile Include="ExchangeId.cs" />
-    <Compile Include="FutureName.cs" />
-    <Compile Include="NasdaqSecurityExchange.cs" />
-    <Compile Include="NewYorkSecurityExchange.cs" />
-    <Compile Include="DalianCommodityExchange.cs" />
-    <Compile Include="SymbolTable.cs" />
-    <Compile Include="TimeSeriesData.cs" />
-    <Compile Include="ZhengzhouCommodityExchange.cs" />
-    <Compile Include="ShanghaiFutureExchange.cs" />
-    <Compile Include="ShanghaiInternationalEnergyExchange.cs" />
-    <Compile Include="ShanghaiSecurityExchange.cs" />
-    <Compile Include="OrderPricingType.cs" />
-    <Compile Include="Exchange.cs" />
     <Compile Include="FinanceReport.cs" />
     <Compile Include="FinanceReportCell.cs" />
     <Compile Include="FinanceReportColumnDefinition.cs" />
     <Compile Include="FinanceReportHelper.cs" />
     <Compile Include="FinanceReportRow.cs" />
     <Compile Include="FinanceReportTable.cs" />
-    <Compile Include="LinearRegression.cs" />
-    <Compile Include="Logger.cs" />
-    <Compile Include="MetricHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="PropertyComparer.cs" />
-    <Compile Include="ShenzhenSecurityExchange.cs" />
     <Compile Include="SinaStockQuote.cs" />
     <Compile Include="SinaStockQuoteInterface.cs" />
-    <Compile Include="SortableBindingList.cs" />
-    <Compile Include="StockBlock.cs" />
-    <Compile Include="StockBlockManager.cs" />
-    <Compile Include="StockBlockRelationship.cs" />
-    <Compile Include="StockBlockRelationshipManager.cs" />
-    <Compile Include="StockBoard.cs" />
-    <Compile Include="StockBoardIndex.cs" />
     <Compile Include="HistoryData.cs" />
-    <Compile Include="Bar.cs" />
-    <Compile Include="StockName.cs" />
-    <Compile Include="SecuritySymbol.cs" />
-    <Compile Include="SymbolNormalizer.cs" />
-    <Compile Include="TradingObjectNameFactory.cs" />
-    <Compile Include="TradingObjectNameTable.cs" />
-    <Compile Include="StringHelper.cs" />
-    <Compile Include="TdxBinaryBlockDataReader.cs" />
-    <Compile Include="TdxHangYeBlockDataReader.cs" />
-    <Compile Include="TdxStockBlockConfigReader.cs" />
-    <Compile Include="TradingObjectName.cs" />
     <Compile Include="UntradableObject.cs" />
-    <Compile Include="WaitableConcurrentQueue.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Common\Common.csproj">
+      <Project>{c03c9704-b9de-4a43-8b94-6fe14a84680c}</Project>
+      <Name>Common</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

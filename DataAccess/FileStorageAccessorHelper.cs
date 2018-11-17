@@ -5,6 +5,8 @@
     using System.IO;
     using System.Linq;
     using System.Text;
+    using StockAnalysis.Common.Utility;
+    using StockAnalysis.Common.SymbolName;
 
     internal static class FileStorageAccessorHelper
     {

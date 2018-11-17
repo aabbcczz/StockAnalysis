@@ -6,7 +6,7 @@ using System.IO;
 using System.Data.SqlClient;
 using CommandLine;
 using ImportTable.Properties;
-using StockAnalysis.Share;
+using StockAnalysis.Common.Utility;
 
 namespace ImportTable
 {

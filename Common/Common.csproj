@@ -1,0 +1,106 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{C03C9704-B9DE-4A43-8B94-6FE14A84680C}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>StockAnalysis.Common</RootNamespace>
+    <AssemblyName>StockAnalysis.Common</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="CsvHelper, Version=9.0.0.0, Culture=neutral, PublicKeyToken=8c4959082be5c823, processorArchitecture=MSIL">
+      <HintPath>..\packages\CsvHelper.9.1.0\lib\net45\CsvHelper.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="log4net, Version=2.0.8.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
+      <HintPath>..\packages\log4net.2.0.8\lib\net45-full\log4net.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="ChineseMarket\StockBlock.cs" />
+    <Compile Include="ChineseMarket\StockBlockManager.cs" />
+    <Compile Include="ChineseMarket\StockBlockRelationship.cs" />
+    <Compile Include="ChineseMarket\StockBlockRelationshipManager.cs" />
+    <Compile Include="Data\Bar.cs" />
+    <Compile Include="Data\TimeSeriesData.cs" />
+    <Compile Include="Exchange\BiddingMethod.cs" />
+    <Compile Include="Exchange\BiddingTimeRange.cs" />
+    <Compile Include="Exchange\ChinaFinancialFuturesExchange.cs" />
+    <Compile Include="ChineseMarket\StockBoardIndex.cs" />
+    <Compile Include="Math\LinearRegression.cs" />
+    <Compile Include="SymbolName\TradingObjectName.cs" />
+    <Compile Include="SymbolName\TradingObjectNameFactory.cs" />
+    <Compile Include="SymbolName\TradingObjectNameTable.cs" />
+    <Compile Include="Utility\Country.cs" />
+    <Compile Include="Exchange\DalianCommodityExchange.cs" />
+    <Compile Include="Exchange\Exchange.cs" />
+    <Compile Include="Exchange\ExchangeBase.cs" />
+    <Compile Include="Exchange\ExchangeFactory.cs" />
+    <Compile Include="Exchange\ExchangeId.cs" />
+    <Compile Include="SymbolName\FutureName.cs" />
+    <Compile Include="Exchange\NasdaqSecurityExchange.cs" />
+    <Compile Include="Exchange\NewYorkSecurityExchange.cs" />
+    <Compile Include="Exchange\OrderPricingType.cs" />
+    <Compile Include="SymbolName\SecuritySymbol.cs" />
+    <Compile Include="Exchange\ShanghaiFutureExchange.cs" />
+    <Compile Include="Exchange\ShanghaiInternationalEnergyExchange.cs" />
+    <Compile Include="Exchange\ShanghaiSecurityExchange.cs" />
+    <Compile Include="Exchange\ShenzhenSecurityExchange.cs" />
+    <Compile Include="ChineseMarket\StockBoard.cs" />
+    <Compile Include="SymbolName\StockName.cs" />
+    <Compile Include="SymbolName\SymbolNormalizer.cs" />
+    <Compile Include="SymbolName\SymbolTable.cs" />
+    <Compile Include="Exchange\ZhengzhouCommodityExchange.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Utility\CsvTable.cs" />
+    <Compile Include="Utility\Logger.cs" />
+    <Compile Include="Utility\CsvStringExtension.cs" />
+    <Compile Include="Utility\MD5Hash.cs" />
+    <Compile Include="Utility\PropertyComparer.cs" />
+    <Compile Include="Utility\SortableBindingList.cs" />
+    <Compile Include="Utility\WaitableConcurrentQueue.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

@@ -3,17 +3,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.IO;
-using System.Text;
 
 using CommandLine;
-using StockAnalysis.Share;
+
 using TradingStrategy;
-using TradingStrategy.Strategy;
 using TradingStrategyEvaluation;
 using TradingStrategy.Base;
 
 using System.Threading;
-using CsvHelper;
+using StockAnalysis.Common.ChineseMarket;
+using StockAnalysis.Common.SymbolName;
 
 namespace EvaluatorCmdClient
 {

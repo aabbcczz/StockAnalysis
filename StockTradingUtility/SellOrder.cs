@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+using StockAnalysis.Common.Utility;
 using StockAnalysis.Share;
+using StockAnalysis.Common.Exchange;
 
 namespace StockTrading.Utility
 {

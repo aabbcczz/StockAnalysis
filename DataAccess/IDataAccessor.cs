@@ -1,6 +1,8 @@
 ﻿namespace DataAccess
 {
-    using StockAnalysis.Share;
+    using StockAnalysis.Common.Data;
+    using StockAnalysis.Common.SymbolName;
+
     using System.Collections.Generic;
     using System;
 

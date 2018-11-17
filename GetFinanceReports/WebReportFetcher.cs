@@ -2,7 +2,7 @@
 using System.Text;
 using System.Net;
 using System.IO;
-using StockAnalysis.Share;
+using StockAnalysis.Common.SymbolName;
 
 namespace GetFinanceReports
 {

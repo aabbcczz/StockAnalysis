@@ -10,6 +10,9 @@ using StockAnalysis.Share;
 
 namespace GenerateMetrics
 {
+    using StockAnalysis.Common.Utility;
+    using StockAnalysis.Common.Data;
+
     static class Program
     {
         static void Main(string[] args)
@@ -150,7 +153,7 @@ namespace GenerateMetrics
             using (var outputter = new StreamWriter(outputFile, false, Encoding.UTF8))
             {
                 var header = "symbol,date," 
-                    + string.Join(",", allFieldNames.Select(MetricHelper.ConvertMetricToCsvCompatibleHead));
+                    + string.Join(",", allFieldNames.Select(s => s.ConvertMetricToCsvCompatibleHead()));
 
                 outputter.WriteLine(header);
 

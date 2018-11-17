@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TradingStrategy.Base;
+using StockAnalysis.Common.Data;
 
 namespace TradingStrategy.Strategy
 {
@@ -27,7 +23,7 @@ namespace TradingStrategy.Strategy
             return selector >= 0 && selector <= 3;
         }
 
-        public static double Select(StockAnalysis.Share.Bar bar, int selector)
+        public static double Select(Bar bar, int selector)
         {
             switch (selector)
             {

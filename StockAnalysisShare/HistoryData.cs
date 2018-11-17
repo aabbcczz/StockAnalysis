@@ -1,10 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace StockAnalysis.Share
+﻿namespace StockAnalysis.Share
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text;
+
+    using Common.Data;
+    using Common.SymbolName;
+    using Common.Utility;
+
     public class HistoryData
     {
         private readonly Bar[] _dataOrderedByTime;

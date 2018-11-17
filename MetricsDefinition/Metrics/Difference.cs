@@ -1,5 +1,4 @@
-﻿using MetricsDefinition;
-using StockAnalysis.Share;
+﻿using StockAnalysis.Common.Data;
 
 namespace MetricsDefinition.Metrics
 {

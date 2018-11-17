@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Threading;
 
-using log4net;
-using log4net.Core;
+using StockAnalysis.Common.Utility;
+
 using StockAnalysis.Share;
 
 namespace StockTrading.Utility

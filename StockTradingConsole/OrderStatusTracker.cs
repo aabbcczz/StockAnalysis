@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using StockAnalysis.Share;
 using StockTrading.Utility;
+using StockAnalysis.Common.Utility;
 
 namespace StockTradingConsole
 {

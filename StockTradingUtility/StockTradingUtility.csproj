@@ -110,6 +110,10 @@
     <Compile Include="TradingEnvironment.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Common\Common.csproj">
+      <Project>{c03c9704-b9de-4a43-8b94-6fe14a84680c}</Project>
+      <Name>Common</Name>
+    </ProjectReference>
     <ProjectReference Include="..\StockAnalysisShare\StockAnalysisShare.csproj">
       <Project>{46eebd03-e7d2-4958-a782-d22435cbc2bb}</Project>
       <Name>StockAnalysisShare</Name>

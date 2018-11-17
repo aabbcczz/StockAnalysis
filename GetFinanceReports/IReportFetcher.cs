@@ -1,4 +1,4 @@
-﻿using StockAnalysis.Share;
+﻿using StockAnalysis.Common.SymbolName;
 
 namespace GetFinanceReports
 {

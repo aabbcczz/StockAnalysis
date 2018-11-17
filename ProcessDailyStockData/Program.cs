@@ -4,7 +4,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.IO;
 using CommandLine;
-using StockAnalysis.Share;
+using StockAnalysis.Common.SymbolName;
+using StockAnalysis.Common.Utility;
 
 namespace ProcessDailyStockData
 {

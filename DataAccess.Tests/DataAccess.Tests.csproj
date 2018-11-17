@@ -43,6 +43,10 @@
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Common\Common.csproj">
+      <Project>{c03c9704-b9de-4a43-8b94-6fe14a84680c}</Project>
+      <Name>Common</Name>
+    </ProjectReference>
     <ProjectReference Include="..\DataAccess\DataAccess.csproj">
       <Project>{5267DF43-BFA0-4E95-8BF8-E627647D0D61}</Project>
       <Name>DataAccess</Name>
@@ -79,13 +83,6 @@
     </Compile>
     <Compile Include="FileStorageAccessorHelperTest.GetSymbolHashPrefixTest.g.cs">
       <DependentUpon>FileStorageAccessorHelperTest.cs</DependentUpon>
-    </Compile>
-    <Compile Include="MD5HashTest.cs" />
-    <Compile Include="MD5HashTest.GetHashStringTest.g.cs">
-      <DependentUpon>MD5HashTest.cs</DependentUpon>
-    </Compile>
-    <Compile Include="MD5HashTest.GetHashTest.g.cs">
-      <DependentUpon>MD5HashTest.cs</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\PexAssemblyInfo.cs" />

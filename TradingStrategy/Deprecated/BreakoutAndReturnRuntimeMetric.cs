@@ -1,7 +1,6 @@
 ﻿using System;
 using MetricsDefinition.Metrics;
-using StockAnalysis.Share;
-using TradingStrategy.Base;
+using StockAnalysis.Common.Data;
 
 namespace TradingStrategy.Strategy
 {
@@ -111,7 +110,7 @@ namespace TradingStrategy.Strategy
             }
         }
 
-        public void Update(StockAnalysis.Share.Bar bar)
+        public void Update(Bar bar)
         {
             UpdateState(bar);
         }

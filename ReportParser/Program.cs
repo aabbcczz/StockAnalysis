@@ -8,6 +8,9 @@ using StockAnalysis.Share;
 
 namespace ReportParser
 {
+    using StockAnalysis.Common.SymbolName;
+    using StockAnalysis.Common.Exchange;
+
     static class Program
     {
         static void Main(string[] args)

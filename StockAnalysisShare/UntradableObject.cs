@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace StockAnalysis.Share
+﻿namespace StockAnalysis.Share
 {
+    using System.Collections.Generic;
+    using System.Linq;
+    using Common.ChineseMarket;
+
     public sealed class UntradableObject
     {
         private static string[] untradableSymbols = new string[]

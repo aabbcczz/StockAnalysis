@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+using StockAnalysis.Common.Data;
 using MetricsDefinition;
 using TradingStrategy;
 
@@ -32,7 +28,7 @@ namespace TradingStrategyEvaluation
             _expression = MetricEvaluationContext.ParseExpression(metricName);
         }
 
-        public void Update(StockAnalysis.Share.Bar bar)
+        public void Update(Bar bar)
         {
             _expression.MultipleOutputUpdate(bar);
         }

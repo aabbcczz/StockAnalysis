@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.Concurrent;
 using StockAnalysis.Share;
+using StockAnalysis.Common.SymbolName;
 
 
 namespace TradingStrategyEvaluation

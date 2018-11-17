@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using StockAnalysis.Share;
+using StockAnalysis.Common.Data;
 
 namespace TradingStrategy.Base
 {

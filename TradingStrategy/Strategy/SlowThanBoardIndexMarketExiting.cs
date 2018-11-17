@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 using TradingStrategy.Base;
-using StockAnalysis.Share;
+using StockAnalysis.Common.ChineseMarket;
 
 namespace TradingStrategy.Strategy
 {

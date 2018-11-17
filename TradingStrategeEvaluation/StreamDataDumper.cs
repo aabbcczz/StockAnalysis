@@ -2,12 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.IO;
-using System.Text;
-using System.Threading.Tasks;
 
-using StockAnalysis.Share;
+using StockAnalysis.Common.Data;
+using StockAnalysis.Common.Utility;
+
 using TradingStrategy;
-using MetricsDefinition;
 
 namespace TradingStrategyEvaluation
 {
@@ -76,7 +75,7 @@ namespace TradingStrategyEvaluation
             {
                 for (int j = 0; j < _metricProxies.Length; ++j)
                 {
-                    _writer.Write("{0},", StringHelper.EscapeForCsv(_metricNames[j]));
+                    _writer.Write("{0},", _metricNames[j].EscapeForCsv());
                 }
             }
 

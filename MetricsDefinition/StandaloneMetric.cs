@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Reflection;
-using StockAnalysis.Share;
+using StockAnalysis.Common.Data;
 
 namespace MetricsDefinition
 {

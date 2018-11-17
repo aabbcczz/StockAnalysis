@@ -1,6 +1,6 @@
 ﻿using System;
 using MetricsDefinition.Metrics;
-using TradingStrategy.Base;
+using StockAnalysis.Common.Data;
 
 namespace TradingStrategy.Strategy
 {
@@ -36,7 +36,7 @@ namespace TradingStrategy.Strategy
             Rebreakout = false;
         }
 
-        public void Update(StockAnalysis.Share.Bar bar)
+        public void Update(Bar bar)
         {
             double price = BarPriceSelector.Select(bar, _priceSelector);
 

@@ -10,6 +10,7 @@ using StockTrading.Utility;
 using StockAnalysis.Share;
 using System.Configuration;
 using System.Threading;
+using StockAnalysis.Common.Utility;
 
 namespace StockTradingConsole
 {

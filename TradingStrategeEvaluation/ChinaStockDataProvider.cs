@@ -4,8 +4,10 @@ using System.Linq;
 using System.IO;
 using System.Threading.Tasks;
 
-using StockAnalysis.Share;
+using StockAnalysis.Common.Data;
+using StockAnalysis.Common.SymbolName;
 using TradingStrategy;
+using StockAnalysis.Share;
 
 namespace TradingStrategyEvaluation
 {

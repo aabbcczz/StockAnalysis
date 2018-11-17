@@ -1,18 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Threading;
 using System.Windows.Forms;
 
 using StockTrading.Utility;
-using StockAnalysis.Share;
-using log4net;
-using log4net.Repository.Hierarchy;
+using StockAnalysis.Common.Utility;
+
+
 
 namespace TradingClient
 {

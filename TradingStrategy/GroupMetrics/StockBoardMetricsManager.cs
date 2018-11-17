@@ -1,11 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using TradingStrategy;
-using StockAnalysis.Share;
+using StockAnalysis.Common.ChineseMarket;
+using StockAnalysis.Common.SymbolName;
 
 namespace TradingStrategy.GroupMetrics
 {

@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.IO;
 using TradingStrategy;
-using StockAnalysis.Share;
+using StockAnalysis.Common.ChineseMarket;
+using StockAnalysis.Common.Data;
+using StockAnalysis.Common.SymbolName;
 using TradingStrategy.Base;
 
 namespace TradingStrategyEvaluation
