@@ -1,7 +1,7 @@
 ﻿namespace StockAnalysis.FinancialReportUtility
 {
     using System;
-    public sealed class FinanceReportCell
+    public sealed class FinancialReportCell
     {
         public enum CellType
         {
@@ -42,7 +42,7 @@
             }
         }
 
-        public FinanceReportCell()
+        public FinancialReportCell()
         {
             Type = CellType.NotApplicable;
         }
@@ -66,13 +66,13 @@
             }
         }
 
-        public void Copy(FinanceReportCell cell)
+        public void Copy(FinancialReportCell cell)
         {
             Type = cell.Type;
             _value = cell._value;
         }
 
-        public void Merge(FinanceReportCell cell)
+        public void Merge(FinancialReportCell cell)
         {
             if (Type == CellType.NotApplicable)
             {

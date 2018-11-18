@@ -4,19 +4,19 @@
     using System.Collections.Generic;
     using System.Linq;
 
-    public sealed class FinanceReportTable
+    public sealed class FinancialReportTable
     {
-        private readonly FinanceReportColumnDefinition[] _columnDefinitions;
+        private readonly FinancialReportColumnDefinition[] _columnDefinitions;
 
-        private List<FinanceReportRow> _rows = new List<FinanceReportRow>();
+        private List<FinancialReportRow> _rows = new List<FinancialReportRow>();
 
         public int RowCount { get { return _rows.Count; } }
 
-        public IEnumerable<FinanceReportRow> Rows { get { return _rows; } }
+        public IEnumerable<FinancialReportRow> Rows { get { return _rows; } }
 
         public int ColumnCount { get { return _columnDefinitions.Length; } }
 
-        public IEnumerable<FinanceReportColumnDefinition> ColumnDefinitions
+        public IEnumerable<FinancialReportColumnDefinition> ColumnDefinitions
         {
             get { return _columnDefinitions; }
         }
@@ -28,7 +28,7 @@
         /// </summary>
         public string RowDefinition { get; private set; }
 
-        public FinanceReportRow this[int index]
+        public FinancialReportRow this[int index]
         {
             get
             {
@@ -43,7 +43,7 @@
 
         public decimal Unit { get; private set; }
 
-        public FinanceReportTable(string name, string rowDefinition, decimal unit, FinanceReportColumnDefinition[] columnDefinitions)
+        public FinancialReportTable(string name, string rowDefinition, decimal unit, FinancialReportColumnDefinition[] columnDefinitions)
         {
             if (columnDefinitions == null || columnDefinitions.Length == 0)
             {
@@ -57,17 +57,17 @@
             _columnDefinitions = columnDefinitions;
         }
 
-        public FinanceReportTable(string name, string rowDefinition, string[] columnDefinitions)
+        public FinancialReportTable(string name, string rowDefinition, string[] columnDefinitions)
         {
             if (columnDefinitions == null || columnDefinitions.Length == 0)
             {
                 throw new ArgumentNullException("columnDefinitions");
             }
 
-            _columnDefinitions = new FinanceReportColumnDefinition[columnDefinitions.Length];
+            _columnDefinitions = new FinancialReportColumnDefinition[columnDefinitions.Length];
             for (var i = 0; i < _columnDefinitions.Length; ++i)
             {
-                _columnDefinitions[i] = new FinanceReportColumnDefinition(columnDefinitions[i]);
+                _columnDefinitions[i] = new FinancialReportColumnDefinition(columnDefinitions[i]);
             }
 
             Name = name;
@@ -75,7 +75,7 @@
             string cleanedRowDefinition;
             decimal unit;
 
-            FinanceReportHelper.ParseDefinitionAndUnit(rowDefinition, 1.0M, out cleanedRowDefinition, out unit);
+            FinancialReportHelper.ParseDefinitionAndUnit(rowDefinition, 1.0M, out cleanedRowDefinition, out unit);
 
             Unit = unit;
             RowDefinition = cleanedRowDefinition;
@@ -93,7 +93,7 @@
 
         public int AddRow(string name)
         {
-            var row = new FinanceReportRow(name, _columnDefinitions, Unit);
+            var row = new FinancialReportRow(name, _columnDefinitions, Unit);
             _rows.Add(row);
 
             return _rows.Count - 1;
@@ -114,28 +114,28 @@
             }
         }
 
-        public FinanceReportTable Expand(IList<string> orderedRowNames, IList<string> orderedColumnText, IList<DateTime> orderedColumnDate)
+        public FinancialReportTable Expand(IList<string> orderedRowNames, IList<string> orderedColumnText, IList<DateTime> orderedColumnDate)
         {
-            var columnDefinitions = new FinanceReportColumnDefinition[orderedColumnDate.Count + orderedColumnText.Count];
+            var columnDefinitions = new FinancialReportColumnDefinition[orderedColumnDate.Count + orderedColumnText.Count];
 
             for (var i = 0; i < orderedColumnDate.Count; ++i)
             {
-                columnDefinitions[i] = new FinanceReportColumnDefinition(orderedColumnDate[i]);
+                columnDefinitions[i] = new FinancialReportColumnDefinition(orderedColumnDate[i]);
             }
 
             for (var i = 0; i < orderedColumnText.Count; ++i)
             {
-                columnDefinitions[i + orderedColumnDate.Count] = new FinanceReportColumnDefinition(orderedColumnText[i]);
+                columnDefinitions[i + orderedColumnDate.Count] = new FinancialReportColumnDefinition(orderedColumnText[i]);
             }
 
-            var table = new FinanceReportTable(Name, RowDefinition, Unit, columnDefinitions)
+            var table = new FinancialReportTable(Name, RowDefinition, Unit, columnDefinitions)
             {
-                _rows = new List<FinanceReportRow>()
+                _rows = new List<FinancialReportRow>()
             };
 
             foreach (string t in orderedRowNames)
             {
-                table._rows.Add(new FinanceReportRow(t, table._columnDefinitions, table.Unit));
+                table._rows.Add(new FinancialReportRow(t, table._columnDefinitions, table.Unit));
             }
 
             // build old row index to new row index map and old column index to new column index
@@ -148,7 +148,7 @@
             var columnMap = new int[_columnDefinitions.Length];
             for (var i = 0; i < _columnDefinitions.Length; ++i)
             {
-                if (_columnDefinitions[i].Type == FinanceReportColumnDefinition.ColumnType.Date)
+                if (_columnDefinitions[i].Type == FinancialReportColumnDefinition.ColumnType.Date)
                 {
                     columnMap[i] = orderedColumnDate.IndexOf(_columnDefinitions[i].Date);
                 }
@@ -174,7 +174,7 @@
             return table;
         }
 
-        public void Merge(FinanceReportTable table)
+        public void Merge(FinancialReportTable table)
         {
             if (table == null)
             {
@@ -200,13 +200,13 @@
             }
         }
 
-        private sealed class ColumnDefinitionEqualityComparer : EqualityComparer<FinanceReportColumnDefinition>
+        private sealed class ColumnDefinitionEqualityComparer : EqualityComparer<FinancialReportColumnDefinition>
         {
-            public override bool Equals(FinanceReportColumnDefinition x, FinanceReportColumnDefinition y)
+            public override bool Equals(FinancialReportColumnDefinition x, FinancialReportColumnDefinition y)
             {
                 if (x.Type == y.Type)
                 {
-                    if (x.Type == FinanceReportColumnDefinition.ColumnType.Text)
+                    if (x.Type == FinancialReportColumnDefinition.ColumnType.Text)
                     {
                         return x.Text == y.Text;
                     }
@@ -216,7 +216,7 @@
                 return false;
             }
 
-            public override int GetHashCode(FinanceReportColumnDefinition obj)
+            public override int GetHashCode(FinancialReportColumnDefinition obj)
             {
                 return obj.GetHashCode();
             }

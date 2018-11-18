@@ -42,12 +42,12 @@
   <ItemGroup>
     <Compile Include="AliasNameMapping.cs" />
     <Compile Include="DataDictionary.cs" />
-    <Compile Include="FinanceReport.cs" />
-    <Compile Include="FinanceReportCell.cs" />
-    <Compile Include="FinanceReportColumnDefinition.cs" />
-    <Compile Include="FinanceReportHelper.cs" />
-    <Compile Include="FinanceReportRow.cs" />
-    <Compile Include="FinanceReportTable.cs" />
+    <Compile Include="FinancialReport.cs" />
+    <Compile Include="FinancialReportCell.cs" />
+    <Compile Include="FinancialReportColumnDefinition.cs" />
+    <Compile Include="FinancialReportHelper.cs" />
+    <Compile Include="FinancialReportRow.cs" />
+    <Compile Include="FinancialReportTable.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

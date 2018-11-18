@@ -37,15 +37,15 @@
             _dataDictionary = dataDictionary;
         }
 
-        public FinanceReport ParseReport(string symbol, string file)
+        public FinancialReport ParseReport(string symbol, string file)
         {
             // recursive descending analysis
             return ParseReport(symbol, (from line in Parse(file) where !string.IsNullOrWhiteSpace(line) select line.Trim()).ToArray());
         }
 
-        private FinanceReport ParseReport(string symbol, string[] lines)
+        private FinancialReport ParseReport(string symbol, string[] lines)
         {
-            var report = new FinanceReport();
+            var report = new FinancialReport();
 
             var lineIndex = 0;
             
@@ -281,7 +281,7 @@
             return cleanedCells.ToArray();
         }
 
-        private FinanceReportTable ParseTable(string[] lines, ref int lineIndex)
+        private FinancialReportTable ParseTable(string[] lines, ref int lineIndex)
         {
             const string unknownTableName = "<unknown table name>";
 
@@ -316,7 +316,7 @@
             // get normalized column definitions
             columnDefinitions = columnDefinitions.Select(s => _dataDictionary.GetNormalizedColumnName(tableName, s)).ToArray();
 
-            var table = new FinanceReportTable(tableName, rowDefinition, columnDefinitions);
+            var table = new FinancialReportTable(tableName, rowDefinition, columnDefinitions);
 
             // find out all possible rows
             startLineIndex = lineIndex;
@@ -440,7 +440,7 @@
             string cleanedName;
             decimal unit;
 
-            FinanceReportHelper.ParseDefinitionAndUnit(rowName, 1.0M, out cleanedName, out unit);
+            FinancialReportHelper.ParseDefinitionAndUnit(rowName, 1.0M, out cleanedName, out unit);
 
             return cleanedName;
         }

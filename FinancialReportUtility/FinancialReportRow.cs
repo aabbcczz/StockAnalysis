@@ -3,11 +3,11 @@
     using System;
     using System.Collections.Generic;
 
-    public sealed class FinanceReportRow
+    public sealed class FinancialReportRow
     {
-        private readonly FinanceReportCell[] _cells;
+        private readonly FinancialReportCell[] _cells;
 
-        public FinanceReportCell this[int index]
+        public FinancialReportCell this[int index]
         {
             get
             {
@@ -26,23 +26,23 @@
 
         public decimal Unit { get; private set; }
 
-        public FinanceReportRow(string name, ICollection<FinanceReportColumnDefinition> columnDefinitions, decimal defaultUnit)
+        public FinancialReportRow(string name, ICollection<FinancialReportColumnDefinition> columnDefinitions, decimal defaultUnit)
         {
             if (columnDefinitions == null || columnDefinitions.Count == 0)
             {
                 throw new ArgumentNullException("columnDefinitions");
             }
 
-            _cells = new FinanceReportCell[columnDefinitions.Count];
+            _cells = new FinancialReportCell[columnDefinitions.Count];
             for (var i = 0; i < _cells.Length; ++i)
             {
-                _cells[i] = new FinanceReportCell();
+                _cells[i] = new FinancialReportCell();
             }
 
             string cleanedName;
             decimal unit;
 
-            FinanceReportHelper.ParseDefinitionAndUnit(name, defaultUnit, out cleanedName, out unit);
+            FinancialReportHelper.ParseDefinitionAndUnit(name, defaultUnit, out cleanedName, out unit);
 
             Unit = unit;
             Name = cleanedName;

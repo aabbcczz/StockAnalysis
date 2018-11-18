@@ -1,7 +1,7 @@
 ﻿namespace StockAnalysis.FinancialReportUtility
 {
     using System;
-    public sealed class FinanceReportColumnDefinition
+    public sealed class FinancialReportColumnDefinition
     {
         public enum ColumnType
         {
@@ -44,7 +44,7 @@
             get { return (string)_columnDefinition; }
         }
 
-        public FinanceReportColumnDefinition(string columnDefinition)
+        public FinancialReportColumnDefinition(string columnDefinition)
         {
             if (columnDefinition == null)
             {
@@ -64,13 +64,13 @@
                 Type = ColumnType.Text;
 
                 string cleanedColumnDefinition;
-                HasUnit = FinanceReportHelper.ParseDefinitionAndUnit(columnDefinition, 1.0M, out cleanedColumnDefinition, out _unit);
+                HasUnit = FinancialReportHelper.ParseDefinitionAndUnit(columnDefinition, 1.0M, out cleanedColumnDefinition, out _unit);
 
                 _columnDefinition = cleanedColumnDefinition;
             }
         }
 
-        public FinanceReportColumnDefinition(DateTime date)
+        public FinancialReportColumnDefinition(DateTime date)
         {
             Type = ColumnType.Date;
             _columnDefinition = date;

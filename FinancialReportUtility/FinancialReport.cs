@@ -3,20 +3,20 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    public class FinanceReport
+    public class FinancialReport
     {
         public string CompanySymbol { get; set; }
         public string CompanyName { get; set; }
         public string Annotations { get; set; }
 
-        public IEnumerable<FinanceReportTable> Tables
+        public IEnumerable<FinancialReportTable> Tables
         {
             get { return _tables; }
         }
 
-        private readonly List<FinanceReportTable> _tables = new List<FinanceReportTable>();
+        private readonly List<FinancialReportTable> _tables = new List<FinancialReportTable>();
 
-        public void AddTable(FinanceReportTable table)
+        public void AddTable(FinancialReportTable table)
         {
             if (table == null)
             {
@@ -54,7 +54,7 @@
             var expandedTables = tables.Select(t => t.Expand(orderedRowNames, orderedColumnText, orderedColumnDate));
 
             // merge expanded tables
-            var financeReportTables = expandedTables as FinanceReportTable[] ?? expandedTables.ToArray();
+            var financeReportTables = expandedTables as FinancialReportTable[] ?? expandedTables.ToArray();
             var firstTable = financeReportTables.First();
             foreach (var table in financeReportTables.Skip(1))
             {

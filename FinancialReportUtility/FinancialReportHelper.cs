@@ -2,7 +2,7 @@
 {
     using System.Collections.Generic;
     using System.Text.RegularExpressions;
-    public static class FinanceReportHelper
+    public static class FinancialReportHelper
     {
         private static readonly Dictionary<string, decimal> Units = new Dictionary<string, decimal>
         {
