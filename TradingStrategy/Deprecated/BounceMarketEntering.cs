@@ -1,7 +1,7 @@
 ﻿using System;
-using TradingStrategy.Base;
+using StockAnalysis.TradingStrategy.Base;
 
-namespace TradingStrategy.Strategy
+namespace StockAnalysis.TradingStrategy.Strategy
 {
     [DeprecatedStrategy]
     public sealed class BounceMarketEntering

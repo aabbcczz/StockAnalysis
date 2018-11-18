@@ -1,6 +1,6 @@
-﻿namespace TradingStrategyEvaluation
+﻿namespace StockAnalysis.TradingStrategy.Evaluation
 {
-    using TradingStrategy;
+    using StockAnalysis.TradingStrategy;
     using System.Linq;
     using StockAnalysis.Common.SymbolName;
     using StockAnalysis.Common.ChineseMarket;

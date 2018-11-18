@@ -3,7 +3,7 @@ using System.Xml.Serialization;
 using System.IO;
 using StockAnalysis.Common.SymbolName;
 
-namespace TradingStrategyEvaluation
+namespace StockAnalysis.TradingStrategy.Evaluation
 {
     [Serializable]
     public sealed class ChineseStockDataSettings

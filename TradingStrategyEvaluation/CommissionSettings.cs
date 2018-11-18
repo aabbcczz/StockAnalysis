@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace TradingStrategyEvaluation
+namespace StockAnalysis.TradingStrategy.Evaluation
 {
     [Serializable]
     public sealed class CommissionSettings

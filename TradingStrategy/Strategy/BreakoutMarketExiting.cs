@@ -1,8 +1,8 @@
 ﻿using System;
-using TradingStrategy.Base;
-using TradingStrategy.MetricBooleanExpression;
+using StockAnalysis.TradingStrategy.Base;
+using StockAnalysis.TradingStrategy.MetricBooleanExpression;
 
-namespace TradingStrategy.Strategy
+namespace StockAnalysis.TradingStrategy.Strategy
 {
     public sealed class BreakoutMarketExiting
         : MetricBasedMarketExiting

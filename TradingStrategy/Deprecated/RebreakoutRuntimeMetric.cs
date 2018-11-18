@@ -2,7 +2,7 @@
 using MetricsDefinition.Metrics;
 using StockAnalysis.Common.Data;
 
-namespace TradingStrategy.Strategy
+namespace StockAnalysis.TradingStrategy.Strategy
 {
     public sealed class RebreakoutRuntimeMetric : IRuntimeMetric
     {

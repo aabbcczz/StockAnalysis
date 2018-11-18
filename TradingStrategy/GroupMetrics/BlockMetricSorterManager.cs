@@ -4,8 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using TradingStrategy;
-namespace TradingStrategy.GroupMetrics
+using StockAnalysis.TradingStrategy;
+namespace StockAnalysis.TradingStrategy.GroupMetrics
 {
     public sealed class BlockMetricSorterManager : IRuntimeMetricManagerObserver
     {

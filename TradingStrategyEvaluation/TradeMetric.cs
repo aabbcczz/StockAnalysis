@@ -1,8 +1,8 @@
-﻿namespace TradingStrategyEvaluation
+﻿namespace StockAnalysis.TradingStrategy.Evaluation
 {
     using System;
     using System.Linq;
-    using TradingStrategy;
+    using StockAnalysis.TradingStrategy;
 
     using MathNet.Numerics;
     using MathNet.Numerics.Statistics;

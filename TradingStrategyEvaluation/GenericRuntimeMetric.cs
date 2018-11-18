@@ -1,9 +1,9 @@
 ﻿using System;
 using StockAnalysis.Common.Data;
 using MetricsDefinition;
-using TradingStrategy;
+using StockAnalysis.TradingStrategy;
 
-namespace TradingStrategyEvaluation
+namespace StockAnalysis.TradingStrategy.Evaluation
 {
     public sealed class GenericRuntimeMetric : IRuntimeMetric
     {

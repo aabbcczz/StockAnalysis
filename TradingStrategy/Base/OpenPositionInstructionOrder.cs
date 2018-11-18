@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TradingStrategy.Base
+namespace StockAnalysis.TradingStrategy.Base
 {
     public enum OpenPositionInstructionOrder
     {

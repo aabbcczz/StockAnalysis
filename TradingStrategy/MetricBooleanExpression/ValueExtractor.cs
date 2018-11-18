@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TradingStrategy.MetricBooleanExpression
+namespace StockAnalysis.TradingStrategy.MetricBooleanExpression
 {
     internal class ValueExtractor
     {

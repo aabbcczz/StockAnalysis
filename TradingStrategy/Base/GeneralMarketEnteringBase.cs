@@ -1,4 +1,4 @@
-﻿namespace TradingStrategy.Base
+﻿namespace StockAnalysis.TradingStrategy.Base
 {
     public abstract class GeneralMarketEnteringBase 
         : GeneralTradingStrategyComponentBase

@@ -7,8 +7,8 @@
     <ProjectGuid>{1AD439B8-C393-45CD-A68A-EF6153138E03}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>TradingStrategyEvaluation</RootNamespace>
-    <AssemblyName>TradingStrategyEvaluation</AssemblyName>
+    <RootNamespace>StockAnalysis.TradingStrategy.Evaluation</RootNamespace>
+    <AssemblyName>StockAnalysis.TradingStrategy.Evaluation</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>

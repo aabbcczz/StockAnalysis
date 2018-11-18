@@ -1,4 +1,4 @@
-﻿using TradingStrategy;
+﻿using StockAnalysis.TradingStrategy;
 using StockAnalysis.Common.Data;
 
 namespace DataStatistic

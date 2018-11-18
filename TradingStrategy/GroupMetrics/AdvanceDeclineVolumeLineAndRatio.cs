@@ -5,9 +5,9 @@ using System.Text;
 using System.Threading.Tasks;
 
 using MetricsDefinition.Metrics;
-using TradingStrategy;
+using StockAnalysis.TradingStrategy;
 
-namespace TradingStrategy.GroupMetrics
+namespace StockAnalysis.TradingStrategy.GroupMetrics
 {
     /// <summary>
     /// 成交量腾落指标（ADVL/ADVR). 与通常定义不同，此指标可作用于任意原始指标上，当原始指标为ROC[1]时即还原为腾落指标的初始定义

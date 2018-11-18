@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using StockAnalysis.Common.Data;
 
-namespace TradingStrategy.Base
+namespace StockAnalysis.TradingStrategy.Base
 {
     internal sealed class CloseInstructionPriceComparer : IComparer<CloseInstruction>
     {

@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using TradingStrategy;
+using StockAnalysis.TradingStrategy;
 
-namespace TradingStrategy.GroupMetrics
+namespace StockAnalysis.TradingStrategy.GroupMetrics
 {
     public abstract class GeneralGroupRuntimeMetricBase : IGroupRuntimeMetric
     {

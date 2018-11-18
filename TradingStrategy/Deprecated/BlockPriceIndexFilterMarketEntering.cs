@@ -5,12 +5,12 @@ using System.Text;
 using System.IO;
 using System.Threading.Tasks;
 
-using TradingStrategy.GroupMetrics;
+using StockAnalysis.TradingStrategy.GroupMetrics;
 using MetricsDefinition.Metrics;
-using TradingStrategy.Base;
+using StockAnalysis.TradingStrategy.Base;
 using CsvHelper;
 
-namespace TradingStrategy.Strategy
+namespace StockAnalysis.TradingStrategy.Strategy
 {
     [DeprecatedStrategy]
     public sealed class BlockPriceIndexFilterMarketEntering : GeneralMarketEnteringBase

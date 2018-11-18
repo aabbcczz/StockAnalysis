@@ -1,7 +1,7 @@
 ﻿using System;
 using StockAnalysis.Common.ChineseMarket;
 
-namespace TradingStrategy
+namespace StockAnalysis.TradingStrategy
 {
     public sealed class UnifiedMetricProxy
     {

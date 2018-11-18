@@ -1,6 +1,6 @@
-﻿using TradingStrategy.Base;
+﻿using StockAnalysis.TradingStrategy.Base;
 
-namespace TradingStrategy.Strategy
+namespace StockAnalysis.TradingStrategy.Strategy
 {
     public sealed class NeverMarketExiting 
         : GeneralMarketExitingBase

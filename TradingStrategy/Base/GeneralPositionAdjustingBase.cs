@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace TradingStrategy.Base
+namespace StockAnalysis.TradingStrategy.Base
 {
     public abstract class GeneralPositionAdjustingBase 
         : GeneralTradingStrategyComponentBase

@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using StockAnalysis.Common.Data;
 using StockAnalysis.Common.ChineseMarket;
-using TradingStrategy;
+using StockAnalysis.TradingStrategy;
 
-namespace TradingStrategyEvaluation
+namespace StockAnalysis.TradingStrategy.Evaluation
 {
     /// <summary>
     /// Predicate the action according to latest data and strategy

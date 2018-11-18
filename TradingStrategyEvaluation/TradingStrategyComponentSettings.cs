@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Linq;
-using TradingStrategy;
+using StockAnalysis.TradingStrategy;
 using System.Xml.Serialization;
 
-namespace TradingStrategyEvaluation
+namespace StockAnalysis.TradingStrategy.Evaluation
 {
     [Serializable]
     public sealed class TradingStrategyComponentSettings

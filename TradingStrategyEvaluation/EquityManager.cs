@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using StockAnalysis.Common.Data;
 
-using TradingStrategy;
+using StockAnalysis.TradingStrategy;
 
-namespace TradingStrategyEvaluation
+namespace StockAnalysis.TradingStrategy.Evaluation
 {
     public sealed class EquityManager
     {

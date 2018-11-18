@@ -1,4 +1,4 @@
-﻿namespace TradingStrategy
+﻿namespace StockAnalysis.TradingStrategy
 {
     public interface IDataDumper
     {

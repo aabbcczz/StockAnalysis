@@ -1,7 +1,7 @@
 ﻿using System;
 using StockAnalysis.Common.Utility;
 
-namespace TradingStrategy
+namespace StockAnalysis.TradingStrategy
 {
     public sealed class Transaction
     {

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using StockAnalysis.Common.Data;
 
 
-namespace TradingStrategy
+namespace StockAnalysis.TradingStrategy
 {
     public interface ITradingStrategy : ITradingStrategyComponent
     {

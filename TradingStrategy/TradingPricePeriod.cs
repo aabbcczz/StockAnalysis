@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace TradingStrategy
+namespace StockAnalysis.TradingStrategy
 {
     [Serializable]
     public enum TradingPricePeriod

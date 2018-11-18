@@ -9,8 +9,8 @@
 
     using System.Windows.Forms;
 
-    using TradingStrategy;
-    using TradingStrategyEvaluation;
+    using StockAnalysis.TradingStrategy;
+    using StockAnalysis.TradingStrategy.Evaluation;
     using CsvHelper;
     using StockAnalysis.Common.SymbolName;
     using StockAnalysis.Common.Data;

@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using StockAnalysis.Common.Data;
-using TradingStrategy.Base;
+using StockAnalysis.TradingStrategy.Base;
 
-namespace TradingStrategy.Strategy
+namespace StockAnalysis.TradingStrategy.Strategy
 {
     public sealed class NoEnoughProfitMarketExiting 
         : GeneralMarketExitingBase

@@ -1,5 +1,5 @@
 ﻿
-namespace TradingStrategy.Base
+namespace StockAnalysis.TradingStrategy.Base
 {
     public enum InstructionSortMode
     {

@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
-using TradingStrategy;
+using StockAnalysis.TradingStrategy;
 
-namespace TradingStrategyEvaluation
+namespace StockAnalysis.TradingStrategy.Evaluation
 {
     public sealed class MemoryLogger : ILogger
     {

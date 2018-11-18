@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using TradingStrategy.Base;
-using TradingStrategy;
+using StockAnalysis.TradingStrategy.Base;
+using StockAnalysis.TradingStrategy;
 
-namespace TradingStrategy.Strategy
+namespace StockAnalysis.TradingStrategy.Strategy
 {
     public sealed class EqualValuePositionSizing : GeneralPositionSizingBase
     {

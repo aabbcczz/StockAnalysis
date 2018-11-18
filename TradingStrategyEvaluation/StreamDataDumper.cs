@@ -6,9 +6,9 @@ using System.IO;
 using StockAnalysis.Common.Data;
 using StockAnalysis.Common.Utility;
 
-using TradingStrategy;
+using StockAnalysis.TradingStrategy;
 
-namespace TradingStrategyEvaluation
+namespace StockAnalysis.TradingStrategy.Evaluation
 {
     public sealed class StreamDataDumper : IDataDumper
     {

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TradingStrategy
+namespace StockAnalysis.TradingStrategy
 {
     /// <summary>
     /// Proxy for accessing runtime metric in metric manager

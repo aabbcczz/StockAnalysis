@@ -6,10 +6,10 @@ using System.Text;
 
 using CommandLine;
 
-using TradingStrategy;
+using StockAnalysis.TradingStrategy;
 
-using TradingStrategy.Base;
-using TradingStrategyEvaluation;
+using StockAnalysis.TradingStrategy.Base;
+using StockAnalysis.TradingStrategy.Evaluation;
 
 using CsvHelper;
 using StockAnalysis.Common.ChineseMarket;

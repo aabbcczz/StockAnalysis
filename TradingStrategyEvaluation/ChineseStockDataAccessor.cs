@@ -1,4 +1,4 @@
-﻿namespace TradingStrategyEvaluation
+﻿namespace StockAnalysis.TradingStrategy.Evaluation
 {
     using System;
     using System.Collections.Concurrent;

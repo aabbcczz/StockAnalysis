@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Reflection;
 
-namespace TradingStrategy
+namespace StockAnalysis.TradingStrategy
 {
     [AttributeUsage(AttributeTargets.Class)]
     public class DeprecatedStrategyAttribute : Attribute

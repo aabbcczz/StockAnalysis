@@ -3,6 +3,7 @@ using System.Text;
 using System.IO;
 using System.Threading;
 using StockAnalysis.Common.Data;
+using StockAnalysis.TradingStrategy;
 
 namespace DataStatistic
 {
@@ -89,7 +90,7 @@ namespace DataStatistic
             get { return "PossibilityOfRaisingHigh"; }
         }
 
-        public void Count(Bar[] bars, TradingStrategy.ITradingObject tradingObject)
+        public void Count(Bar[] bars, ITradingObject tradingObject)
         {
             Results results = new Results();
             foreach (var bar in bars)

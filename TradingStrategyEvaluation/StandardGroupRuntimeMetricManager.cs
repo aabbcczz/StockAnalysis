@@ -4,8 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using TradingStrategy;
-namespace TradingStrategyEvaluation
+using StockAnalysis.TradingStrategy;
+namespace StockAnalysis.TradingStrategy.Evaluation
 {
     internal sealed class StandardGroupRuntimeMetricManager 
         : IGroupRuntimeMetricManager

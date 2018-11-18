@@ -1,7 +1,7 @@
 ﻿using System;
 using StockAnalysis.Common.ChineseMarket;
 
-namespace TradingStrategy.Strategy
+namespace StockAnalysis.TradingStrategy.Strategy
 {
     sealed class BoardIndexBasedEquityUtilizationCalculator
     {

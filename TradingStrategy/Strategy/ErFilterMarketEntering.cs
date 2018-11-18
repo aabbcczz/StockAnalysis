@@ -1,9 +1,9 @@
 ﻿using System;
 using MetricsDefinition;
-using TradingStrategy.Base;
-using TradingStrategy.MetricBooleanExpression;
+using StockAnalysis.TradingStrategy.Base;
+using StockAnalysis.TradingStrategy.MetricBooleanExpression;
 
-namespace TradingStrategy.Strategy
+namespace StockAnalysis.TradingStrategy.Strategy
 {
     public sealed class ErFilterMarketEntering 
         : MetricBasedMarketEntering

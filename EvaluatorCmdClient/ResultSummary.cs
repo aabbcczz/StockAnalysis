@@ -4,8 +4,8 @@ using System.Linq;
 using System.Linq.Dynamic;
 using System.Reflection;
 
-using TradingStrategy;
-using TradingStrategyEvaluation;
+using StockAnalysis.TradingStrategy;
+using StockAnalysis.TradingStrategy.Evaluation;
 using CsvHelper.Configuration;
 
 namespace EvaluatorCmdClient

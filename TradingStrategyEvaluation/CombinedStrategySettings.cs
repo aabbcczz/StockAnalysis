@@ -2,11 +2,11 @@
 using System.Linq;
 using System.IO;
 using System.Xml.Serialization;
-using TradingStrategy;
-using TradingStrategy.Strategy;
-using TradingStrategy.Base;
+using StockAnalysis.TradingStrategy;
+using StockAnalysis.TradingStrategy.Strategy;
+using StockAnalysis.TradingStrategy.Base;
 
-namespace TradingStrategyEvaluation
+namespace StockAnalysis.TradingStrategy.Evaluation
 {
     [Serializable]
     public sealed class CombinedStrategySettings

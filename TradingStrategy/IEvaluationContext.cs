@@ -4,9 +4,9 @@ using System.Collections.Generic;
 using StockAnalysis.Common.Data;
 using StockAnalysis.Common.ChineseMarket;
 
-using TradingStrategy.Base;
+using StockAnalysis.TradingStrategy.Base;
 
-namespace TradingStrategy
+namespace StockAnalysis.TradingStrategy
 {
     public interface IEvaluationContext
     {

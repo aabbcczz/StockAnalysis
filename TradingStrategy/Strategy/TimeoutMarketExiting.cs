@@ -1,4 +1,4 @@
-﻿namespace TradingStrategy.Strategy
+﻿namespace StockAnalysis.TradingStrategy.Strategy
 {
     using System;
     using System.Linq;

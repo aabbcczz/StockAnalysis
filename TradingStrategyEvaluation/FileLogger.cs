@@ -2,9 +2,9 @@
 using System.Text;
 using System.IO;
 
-using TradingStrategy;
+using StockAnalysis.TradingStrategy;
 
-namespace TradingStrategyEvaluation
+namespace StockAnalysis.TradingStrategy.Evaluation
 {
     public sealed class FileLogger : ILogger, IDisposable
     {

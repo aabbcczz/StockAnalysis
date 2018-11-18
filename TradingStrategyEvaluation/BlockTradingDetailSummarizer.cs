@@ -4,10 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using TradingStrategy;
-using TradingStrategy.Strategy;
+using StockAnalysis.TradingStrategy;
+using StockAnalysis.TradingStrategy.Strategy;
 
-namespace TradingStrategyEvaluation
+namespace StockAnalysis.TradingStrategy.Evaluation
 {
     public sealed class BlockTradingDetailSummarizer
     {

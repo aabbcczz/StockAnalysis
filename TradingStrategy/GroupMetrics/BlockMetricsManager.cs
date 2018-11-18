@@ -1,4 +1,4 @@
-﻿namespace TradingStrategy.GroupMetrics
+﻿namespace StockAnalysis.TradingStrategy.GroupMetrics
 {
     using System;
     using System.Collections.Generic;

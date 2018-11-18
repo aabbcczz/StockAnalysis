@@ -5,9 +5,9 @@ using System.Text;
 using System.Threading.Tasks;
 
 using MetricsDefinition.Metrics;
-using TradingStrategy;
+using StockAnalysis.TradingStrategy;
 
-namespace TradingStrategy.GroupMetrics
+namespace StockAnalysis.TradingStrategy.GroupMetrics
 {
     /// <summary>
     /// sum of group of raw metrics

@@ -1,6 +1,6 @@
 ﻿using System.Threading;
 
-namespace TradingStrategy
+namespace StockAnalysis.TradingStrategy
 {
     public static class IdGenerator
     {

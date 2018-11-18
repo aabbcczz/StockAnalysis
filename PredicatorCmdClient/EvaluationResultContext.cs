@@ -6,8 +6,8 @@
     using System.IO;
     using System.Xml.Serialization;
 
-    using TradingStrategy;
-    using TradingStrategyEvaluation;
+    using StockAnalysis.TradingStrategy;
+    using StockAnalysis.TradingStrategy.Evaluation;
     using CsvHelper;
 
     public sealed class PredicationContext : IDisposable

@@ -4,7 +4,7 @@ using System.Linq;
 using StockAnalysis.Common.ChineseMarket;
 using StockAnalysis.Common.SymbolName;
 
-namespace TradingStrategy.GroupMetrics
+namespace StockAnalysis.TradingStrategy.GroupMetrics
 {
     public sealed class StockBoardMetricsManager : IGroupRuntimeMetricManagerObserver
     {

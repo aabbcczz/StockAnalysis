@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Linq;
-using TradingStrategy.Base;
+using StockAnalysis.TradingStrategy.Base;
 using StockAnalysis.Common.ChineseMarket;
 
-namespace TradingStrategy.Strategy
+namespace StockAnalysis.TradingStrategy.Strategy
 {
     public sealed class SlowThanBoardIndexMarketExiting
         : GeneralMarketExitingBase

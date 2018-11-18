@@ -6,9 +6,9 @@ using System.IO;
 
 using CommandLine;
 
-using TradingStrategy;
-using TradingStrategyEvaluation;
-using TradingStrategy.Base;
+using StockAnalysis.TradingStrategy;
+using StockAnalysis.TradingStrategy.Evaluation;
+using StockAnalysis.TradingStrategy.Base;
 
 using System.Threading;
 using StockAnalysis.Common.ChineseMarket;

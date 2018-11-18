@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using TradingStrategy;
-using TradingStrategy.Strategy;
-using TradingStrategy.Base;
+using StockAnalysis.TradingStrategy;
+using StockAnalysis.TradingStrategy.Strategy;
+using StockAnalysis.TradingStrategy.Base;
 
-namespace TradingStrategyEvaluation
+namespace StockAnalysis.TradingStrategy.Evaluation
 {
     public class CombinedStrategyAssembler
     {

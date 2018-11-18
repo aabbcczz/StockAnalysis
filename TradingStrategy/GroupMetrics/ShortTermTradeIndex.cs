@@ -5,9 +5,9 @@ using System.Text;
 using System.Threading.Tasks;
 
 using MetricsDefinition.Metrics;
-using TradingStrategy;
+using StockAnalysis.TradingStrategy;
 
-namespace TradingStrategy.GroupMetrics
+namespace StockAnalysis.TradingStrategy.GroupMetrics
 {
     /// <summary>
     /// TRIN (short term TRade INdex), or ARMS

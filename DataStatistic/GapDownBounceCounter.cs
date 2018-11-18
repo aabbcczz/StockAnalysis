@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.IO;
-using TradingStrategy;
-using TradingStrategyEvaluation;
+using StockAnalysis.TradingStrategy;
+using StockAnalysis.TradingStrategy.Evaluation;
 
 using StockAnalysis.Common.Data;
 

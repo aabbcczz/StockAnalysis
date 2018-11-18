@@ -1,6 +1,6 @@
 ﻿using StockAnalysis.Common.Data;
 
-namespace TradingStrategy
+namespace StockAnalysis.TradingStrategy
 {
     public interface IRuntimeMetric
     {

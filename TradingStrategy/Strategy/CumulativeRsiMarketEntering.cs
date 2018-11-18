@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using TradingStrategy.Base;
-using TradingStrategy.MetricBooleanExpression;
+using StockAnalysis.TradingStrategy.Base;
+using StockAnalysis.TradingStrategy.MetricBooleanExpression;
 
-namespace TradingStrategy.Strategy
+namespace StockAnalysis.TradingStrategy.Strategy
 {
     public sealed class CumulativeRsiMarketEntering
         : MetricBasedMarketEntering

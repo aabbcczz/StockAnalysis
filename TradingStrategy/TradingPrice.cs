@@ -1,7 +1,7 @@
 ﻿using System;
 using StockAnalysis.Common.Data;
 
-namespace TradingStrategy
+namespace StockAnalysis.TradingStrategy
 {
     public sealed class TradingPrice
     {

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using StockAnalysis.Common.Data;
 
-namespace TradingStrategy.Base
+namespace StockAnalysis.TradingStrategy.Base
 {
     public abstract class GeneralTraceStopLossMarketExitingBase 
         : GeneralMarketExitingBase

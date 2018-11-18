@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using TradingStrategy;
+using StockAnalysis.TradingStrategy;
 using StockAnalysis.Common.ChineseMarket;
 using StockAnalysis.Common.Data;
 using StockAnalysis.Common.SymbolName;
-using TradingStrategy.Base;
+using StockAnalysis.TradingStrategy.Base;
 
-namespace TradingStrategyEvaluation
+namespace StockAnalysis.TradingStrategy.Evaluation
 {
     internal sealed class StandardEvaluationContext : IEvaluationContext
     {

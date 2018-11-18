@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using System.IO;
 
 using CommandLine;
-using TradingStrategyEvaluation;
+using StockAnalysis.TradingStrategy.Evaluation;
 
 using StockAnalysis.Common.SymbolName;
 

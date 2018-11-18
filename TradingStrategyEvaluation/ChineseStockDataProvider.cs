@@ -1,4 +1,4 @@
-﻿namespace TradingStrategyEvaluation
+﻿namespace StockAnalysis.TradingStrategy.Evaluation
 {
     using System;
     using System.Collections.Generic;
@@ -8,7 +8,7 @@
 
     using StockAnalysis.Common.Data;
     using StockAnalysis.Common.SymbolName;
-    using TradingStrategy;
+    using StockAnalysis.TradingStrategy;
     using StockAnalysis.Common.ChineseMarket;
 
     public sealed class ChineseStockDataProvider : ITradingDataProvider

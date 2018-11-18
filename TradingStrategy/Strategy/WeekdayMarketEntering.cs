@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 
 using MetricsDefinition;
-using TradingStrategy.Base;
-using TradingStrategy.MetricBooleanExpression;
-using TradingStrategy.GroupMetrics;
+using StockAnalysis.TradingStrategy.Base;
+using StockAnalysis.TradingStrategy.MetricBooleanExpression;
+using StockAnalysis.TradingStrategy.GroupMetrics;
 
-namespace TradingStrategy.Strategy
+namespace StockAnalysis.TradingStrategy.Strategy
 {
     public sealed class WeekdayMarketEntering
         : GeneralMarketEnteringBase

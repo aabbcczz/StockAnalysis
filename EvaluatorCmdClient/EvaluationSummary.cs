@@ -1,5 +1,5 @@
 ﻿using System;
-using TradingStrategyEvaluation;
+using StockAnalysis.TradingStrategy.Evaluation;
 
 namespace EvaluatorCmdClient
 {

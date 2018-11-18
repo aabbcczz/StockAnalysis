@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace TradingStrategy
+namespace StockAnalysis.TradingStrategy
 {
     public sealed class CompletedTransaction
     {
