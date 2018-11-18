@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace MetricsDefinition.Metrics
+namespace StockAnalysis.MetricsDefinition.Metrics
 {
     [Metric("EXPRISK")]
     public sealed class ExpectedRisk : SingleOutputRawInputSerialMetric

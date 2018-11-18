@@ -1,4 +1,4 @@
-﻿namespace MetricsDefinition.Metrics
+﻿namespace StockAnalysis.MetricsDefinition.Metrics
 {
     [Metric("HI_PERIOD")]
     public sealed class HighestPeriod : SingleOutputRawInputSerialMetric

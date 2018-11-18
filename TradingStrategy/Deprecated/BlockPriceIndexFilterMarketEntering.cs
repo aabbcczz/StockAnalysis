@@ -6,7 +6,7 @@ using System.IO;
 using System.Threading.Tasks;
 
 using StockAnalysis.TradingStrategy.GroupMetrics;
-using MetricsDefinition.Metrics;
+using StockAnalysis.MetricsDefinition.Metrics;
 using StockAnalysis.TradingStrategy.Base;
 using CsvHelper;
 

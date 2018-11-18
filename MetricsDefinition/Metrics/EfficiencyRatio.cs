@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace MetricsDefinition.Metrics
+namespace StockAnalysis.MetricsDefinition.Metrics
 {
     [Metric("ER")]
     public sealed class EfficiencyRatio : SingleOutputRawInputSerialMetric

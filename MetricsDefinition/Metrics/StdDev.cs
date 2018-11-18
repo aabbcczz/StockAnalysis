@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace MetricsDefinition.Metrics
+namespace StockAnalysis.MetricsDefinition.Metrics
 {
     [Metric("SD")]
     public sealed class StdDev : SingleOutputRawInputSerialMetric

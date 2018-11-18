@@ -34,7 +34,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MetricsDefinitionTest", "Me
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TradingStrategy", "TradingStrategy\TradingStrategy.csproj", "{A02B6B9C-D37A-4C58-8F3D-79FC8749219A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TradingStrategyEvaluation", "TradingStrategyEvaluation\TradingStrategyEvaluation.csproj", "{1AD439B8-C393-45CD-A68A-EF6153138E03}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TradingStrategy.Evaluation", "TradingStrategyEvaluation\TradingStrategy.Evaluation.csproj", "{1AD439B8-C393-45CD-A68A-EF6153138E03}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EvaluatorCmdClient", "EvaluatorCmdClient\EvaluatorCmdClient.csproj", "{1598105B-1F0F-47BD-8B67-7DEC9D777E54}"
 EndProject
@@ -46,7 +46,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PredicatorCmdClient", "Pred
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataStatistic", "DataStatistic\DataStatistic.csproj", "{EE25B2EC-3CEA-425B-9A05-EEA2205E1748}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StockTradingUtility", "StockTradingUtility\StockTradingUtility.csproj", "{BBD0E400-69E5-4167-AECF-5BD5ED7CC273}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StockTrading.Utility", "StockTradingUtility\StockTrading.Utility.csproj", "{BBD0E400-69E5-4167-AECF-5BD5ED7CC273}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TradingClient", "TradingClient\TradingClient.csproj", "{D317E35D-1AB0-469F-A552-137F2D4B1BC6}"
 EndProject

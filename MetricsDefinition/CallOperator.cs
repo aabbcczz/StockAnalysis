@@ -1,7 +1,7 @@
 ﻿using System;
 using StockAnalysis.Common.Data;
 
-namespace MetricsDefinition
+namespace StockAnalysis.MetricsDefinition
 {
     sealed class CallOperator : MetricBinaryOperator
     {

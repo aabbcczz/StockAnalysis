@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace MetricsDefinition
+namespace StockAnalysis.MetricsDefinition
 {
     public sealed class CirculatedArray<T> 
         where T : struct

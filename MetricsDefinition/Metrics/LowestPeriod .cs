@@ -1,4 +1,4 @@
-﻿namespace MetricsDefinition.Metrics
+﻿namespace StockAnalysis.MetricsDefinition.Metrics
 {
     [Metric("LO_PERIOD")]
     public sealed class LowestPeriod : SingleOutputRawInputSerialMetric

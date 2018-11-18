@@ -1,6 +1,6 @@
 ﻿using StockAnalysis.Common.Data;
 
-namespace MetricsDefinition
+namespace StockAnalysis.MetricsDefinition
 {
     public abstract class SingleOutputBarInputSerialMetric : BarInputSerialMetric
     {

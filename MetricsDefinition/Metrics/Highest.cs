@@ -1,4 +1,4 @@
-﻿namespace MetricsDefinition.Metrics
+﻿namespace StockAnalysis.MetricsDefinition.Metrics
 {
     [Metric("HI", "VALUE,INDEX")]
     public sealed class Highest : MultipleOutputRawInputSerialMetric

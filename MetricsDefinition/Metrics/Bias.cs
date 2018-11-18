@@ -1,4 +1,4 @@
-﻿namespace MetricsDefinition.Metrics
+﻿namespace StockAnalysis.MetricsDefinition.Metrics
 {
     [Metric("BIAS")]
     public sealed class Bias : SingleOutputRawInputSerialMetric

@@ -1,7 +1,7 @@
 ﻿using System;
 using StockAnalysis.Common.Data;
 
-namespace MetricsDefinition.Metrics
+namespace StockAnalysis.MetricsDefinition.Metrics
 {
     [Metric("ABCR", "AR,BR,CR")]
     public sealed class ArBrCr : MultipleOutputBarInputSerialMetric

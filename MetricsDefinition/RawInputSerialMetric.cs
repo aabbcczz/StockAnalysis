@@ -1,4 +1,4 @@
-﻿namespace MetricsDefinition
+﻿namespace StockAnalysis.MetricsDefinition
 {
     public abstract class RawInputSerialMetric : SerialMetric
     {

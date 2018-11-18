@@ -1,6 +1,6 @@
 ﻿using StockAnalysis.Common.Data;
 
-namespace MetricsDefinition.Metrics
+namespace StockAnalysis.MetricsDefinition.Metrics
 {
     // please refer to http://etfhq.com/blog/2010/09/30/fractal-adaptive-moving-average-frama/
     // for more details and understand the algorithm

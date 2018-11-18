@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Text.RegularExpressions;
 
-namespace MetricsDefinition
+namespace StockAnalysis.MetricsDefinition
 {
     sealed class Tokenizer
     {

@@ -1,4 +1,4 @@
-﻿namespace MetricsDefinition
+﻿namespace StockAnalysis.MetricsDefinition
 {
     using StockAnalysis.Common.Data;
 

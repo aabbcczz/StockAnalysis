@@ -1,5 +1,5 @@
 ﻿using System;
-using MetricsDefinition;
+using StockAnalysis.MetricsDefinition;
 using StockAnalysis.TradingStrategy.Base;
 
 namespace StockAnalysis.TradingStrategy.Strategy

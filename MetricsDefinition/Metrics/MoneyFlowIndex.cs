@@ -1,6 +1,6 @@
 ﻿using StockAnalysis.Common.Data;
 
-namespace MetricsDefinition.Metrics
+namespace StockAnalysis.MetricsDefinition.Metrics
 {
     [Metric("MFI")]
     public sealed class MoneyFlowIndex : SingleOutputBarInputSerialMetric

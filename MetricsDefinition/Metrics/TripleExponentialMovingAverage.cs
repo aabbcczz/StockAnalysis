@@ -1,4 +1,4 @@
-﻿namespace MetricsDefinition.Metrics
+﻿namespace StockAnalysis.MetricsDefinition.Metrics
 {
     [Metric("TRIX,TEMA")]
     public sealed class TripleExponentialMovingAverage : SingleOutputRawInputSerialMetric

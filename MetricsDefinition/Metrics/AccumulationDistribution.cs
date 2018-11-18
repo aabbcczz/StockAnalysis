@@ -1,6 +1,6 @@
 ﻿using StockAnalysis.Common.Data;
 
-namespace MetricsDefinition.Metrics
+namespace StockAnalysis.MetricsDefinition.Metrics
 {
     [Metric("AD")]
     public sealed class AccumulationDistribution : SingleOutputBarInputSerialMetric

@@ -95,9 +95,9 @@
       <Project>{c03c9704-b9de-4a43-8b94-6fe14a84680c}</Project>
       <Name>Common</Name>
     </ProjectReference>
-    <ProjectReference Include="..\TradingStrategyEvaluation\TradingStrategyEvaluation.csproj">
+    <ProjectReference Include="..\TradingStrategyEvaluation\TradingStrategy.Evaluation.csproj">
       <Project>{1ad439b8-c393-45cd-a68a-ef6153138e03}</Project>
-      <Name>TradingStrategyEvaluation</Name>
+      <Name>TradingStrategy.Evaluation</Name>
     </ProjectReference>
     <ProjectReference Include="..\TradingStrategy\TradingStrategy.csproj">
       <Project>{a02b6b9c-d37a-4c58-8f3d-79fc8749219a}</Project>

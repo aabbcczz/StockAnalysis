@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace MetricsDefinition.Metrics
+namespace StockAnalysis.MetricsDefinition.Metrics
 {
     [Metric("COV")]
     public sealed class CoefficientOfVariance : SingleOutputRawInputSerialMetric

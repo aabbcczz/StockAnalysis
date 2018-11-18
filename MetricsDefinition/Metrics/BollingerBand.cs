@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace MetricsDefinition.Metrics
+namespace StockAnalysis.MetricsDefinition.Metrics
 {
     [Metric("BOLL", "UB,MA,LB")]
     public sealed class BollingerBand : MultipleOutputRawInputSerialMetric

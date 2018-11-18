@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-using MetricsDefinition;
+using StockAnalysis.MetricsDefinition;
 using StockAnalysis.TradingStrategy.Base;
 using StockAnalysis.TradingStrategy.MetricBooleanExpression;
 using StockAnalysis.TradingStrategy.GroupMetrics;

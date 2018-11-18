@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using MetricsDefinition.Metrics;
+using StockAnalysis.MetricsDefinition.Metrics;
 using StockAnalysis.TradingStrategy;
 
 namespace StockAnalysis.TradingStrategy.GroupMetrics

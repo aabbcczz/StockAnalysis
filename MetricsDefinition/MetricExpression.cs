@@ -1,7 +1,7 @@
 ﻿using System;
 using StockAnalysis.Common.Data;
 
-namespace MetricsDefinition
+namespace StockAnalysis.MetricsDefinition
 {
     public abstract class MetricExpression
     {

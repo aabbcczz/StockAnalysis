@@ -1,4 +1,4 @@
-﻿namespace MetricsDefinition.Metrics
+﻿namespace StockAnalysis.MetricsDefinition.Metrics
 {
     [Metric("OSC")]
     public sealed class Oscillator : SingleOutputRawInputSerialMetric

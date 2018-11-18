@@ -1,4 +1,4 @@
-﻿namespace MetricsDefinition.Metrics
+﻿namespace StockAnalysis.MetricsDefinition.Metrics
 {
     [Metric("MA")]
     public sealed class MovingAverage : SingleOutputRawInputSerialMetric

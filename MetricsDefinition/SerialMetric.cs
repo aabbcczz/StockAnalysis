@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace MetricsDefinition
+namespace StockAnalysis.MetricsDefinition
 {
     public abstract class SerialMetric
     {

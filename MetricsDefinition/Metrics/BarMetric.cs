@@ -1,7 +1,7 @@
 ﻿using System;
 using StockAnalysis.Common.Data;
 
-namespace MetricsDefinition.Metrics
+namespace StockAnalysis.MetricsDefinition.Metrics
 {
     [Metric("BARM", "UPSHADOW,DOWNSHADOW,CHANGERATIO,CHANGERATIOOVERPREVLOWEST,UPFORCE")]
     public sealed class BarMetric : MultipleOutputBarInputSerialMetric

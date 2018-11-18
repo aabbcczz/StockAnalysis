@@ -1,4 +1,4 @@
-﻿namespace MetricsDefinition
+﻿namespace StockAnalysis.MetricsDefinition
 {
     abstract class MetricUnaryOperator : MetricExpression
     {

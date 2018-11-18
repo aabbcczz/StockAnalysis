@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace MetricsDefinition.Metrics
+namespace StockAnalysis.MetricsDefinition.Metrics
 {
     [Metric("AMA")]
     public sealed class AdaptiveMovingAverage : SingleOutputRawInputSerialMetric

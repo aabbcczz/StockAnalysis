@@ -1,4 +1,4 @@
-﻿namespace MetricsDefinition.Metrics
+﻿namespace StockAnalysis.MetricsDefinition.Metrics
 {
     [Metric("PSY")]
     public sealed class PsychologicalLine : SingleOutputRawInputSerialMetric

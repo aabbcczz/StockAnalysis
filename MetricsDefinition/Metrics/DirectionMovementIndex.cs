@@ -1,7 +1,7 @@
 ﻿using System;
 using StockAnalysis.Common.Data;
 
-namespace MetricsDefinition.Metrics
+namespace StockAnalysis.MetricsDefinition.Metrics
 {
     [Metric("DMI", "PDI,NDI,ADX,ADXR")]
     public sealed class DirectionMovementIndex : MultipleOutputBarInputSerialMetric

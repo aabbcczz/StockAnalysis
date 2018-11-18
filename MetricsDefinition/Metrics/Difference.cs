@@ -1,6 +1,6 @@
 ﻿using StockAnalysis.Common.Data;
 
-namespace MetricsDefinition.Metrics
+namespace StockAnalysis.MetricsDefinition.Metrics
 {
     [Metric("DIFF", "DIFF,PERCENT")]
     public sealed class Difference : MultipleOutputBarInputSerialMetric

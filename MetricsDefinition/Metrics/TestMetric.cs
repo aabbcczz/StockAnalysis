@@ -1,6 +1,6 @@
 ﻿using StockAnalysis.Common.Data;
 
-namespace MetricsDefinition.Metrics
+namespace StockAnalysis.MetricsDefinition.Metrics
 {
     [Metric("TESTMETRIC", "CP,OP,HP,LP,VOL,AMT")]
     public sealed class _TestMetric : MultipleOutputBarInputSerialMetric

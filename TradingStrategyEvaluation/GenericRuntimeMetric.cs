@@ -1,6 +1,6 @@
 ﻿using System;
 using StockAnalysis.Common.Data;
-using MetricsDefinition;
+using StockAnalysis.MetricsDefinition;
 using StockAnalysis.TradingStrategy;
 
 namespace StockAnalysis.TradingStrategy.Evaluation

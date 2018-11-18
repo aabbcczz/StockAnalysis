@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using StockAnalysis.Common.Data;
 using StockAnalysis.TradingStrategy;
-using MetricsDefinition.Metrics;
+using StockAnalysis.MetricsDefinition.Metrics;
 
 namespace StockAnalysis.TradingStrategy.Evaluation
 {

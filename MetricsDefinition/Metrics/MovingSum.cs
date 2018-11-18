@@ -1,4 +1,4 @@
-﻿namespace MetricsDefinition.Metrics
+﻿namespace StockAnalysis.MetricsDefinition.Metrics
 {
     [Metric("MS")]
     public sealed class MovingSum : SingleOutputRawInputSerialMetric

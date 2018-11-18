@@ -1,4 +1,4 @@
-﻿namespace MetricsDefinition.Metrics
+﻿namespace StockAnalysis.MetricsDefinition.Metrics
 {
     [Metric("LO", "VALUE,INDEX")]
     public sealed class Lowest : MultipleOutputRawInputSerialMetric

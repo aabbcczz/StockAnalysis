@@ -85,9 +85,9 @@
       <Project>{c03c9704-b9de-4a43-8b94-6fe14a84680c}</Project>
       <Name>Common</Name>
     </ProjectReference>
-    <ProjectReference Include="..\StockTradingUtility\StockTradingUtility.csproj">
+    <ProjectReference Include="..\StockTradingUtility\StockTrading.Utility.csproj">
       <Project>{bbd0e400-69e5-4167-aecf-5bd5ed7cc273}</Project>
-      <Name>StockTradingUtility</Name>
+      <Name>StockTrading.Utility</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

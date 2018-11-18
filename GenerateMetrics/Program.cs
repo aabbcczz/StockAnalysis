@@ -7,7 +7,7 @@
     using System.Text;
     using System.Threading.Tasks;
     using CommandLine;
-    using MetricsDefinition;
+    using StockAnalysis.MetricsDefinition;
     using StockAnalysis.Common.Utility;
     using StockAnalysis.Common.ChineseMarket;
 

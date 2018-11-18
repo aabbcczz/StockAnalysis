@@ -3,7 +3,7 @@ using System.Linq;
 using System.Reflection;
 using StockAnalysis.Common.Data;
 
-namespace MetricsDefinition
+namespace StockAnalysis.MetricsDefinition
 {
     sealed class StandaloneMetric : MetricExpression
     {

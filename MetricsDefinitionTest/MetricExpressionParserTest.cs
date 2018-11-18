@@ -1,9 +1,9 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-using MetricsDefinition;
+using StockAnalysis.MetricsDefinition;
 
-namespace MetricsDefinitionTest
+namespace StockAnalysis.MetricsDefinitionTest
 {
     [TestClass]
     public class MetricExpressionParserTest
