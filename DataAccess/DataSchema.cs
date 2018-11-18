@@ -1,4 +1,4 @@
-﻿namespace DataAccess
+﻿namespace StockAnalysis.DataAccess
 {
     public enum DataSchema
     {

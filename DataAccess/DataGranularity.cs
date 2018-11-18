@@ -1,4 +1,4 @@
-﻿namespace DataAccess
+﻿namespace StockAnalysis.DataAccess
 {
     /// <summary>
     /// define the granularity of Bar in second

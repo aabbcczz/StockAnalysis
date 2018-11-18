@@ -7,8 +7,8 @@
     <ProjectGuid>{5267DF43-BFA0-4E95-8BF8-E627647D0D61}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>DataAccess</RootNamespace>
-    <AssemblyName>DataAccess</AssemblyName>
+    <RootNamespace>StockAnalysis.DataAccess</RootNamespace>
+    <AssemblyName>StockAnalysis.DataAccess</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>

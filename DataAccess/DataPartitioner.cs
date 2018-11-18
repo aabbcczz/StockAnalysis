@@ -1,4 +1,4 @@
-﻿namespace DataAccess
+﻿namespace StockAnalysis.DataAccess
 {
     using System;
     using System.Collections.Generic;

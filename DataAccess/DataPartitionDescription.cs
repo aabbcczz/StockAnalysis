@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DataAccess
+namespace StockAnalysis.DataAccess
 {
     /// <summary>
     /// description of data partition
