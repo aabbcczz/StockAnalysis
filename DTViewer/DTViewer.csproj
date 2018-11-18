@@ -110,7 +110,7 @@
       <Project>{c03c9704-b9de-4a43-8b94-6fe14a84680c}</Project>
       <Name>Common</Name>
     </ProjectReference>
-    <ProjectReference Include="..\TradingStrategeEvaluation\TradingStrategyEvaluation.csproj">
+    <ProjectReference Include="..\TradingStrategyEvaluation\TradingStrategyEvaluation.csproj">
       <Project>{1ad439b8-c393-45cd-a68a-ef6153138e03}</Project>
       <Name>TradingStrategyEvaluation</Name>
     </ProjectReference>

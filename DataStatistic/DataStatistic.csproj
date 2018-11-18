@@ -73,7 +73,7 @@
       <Project>{f91a0391-93c9-4542-bafc-dbc694ca5fb5}</Project>
       <Name>MetricsDefinition</Name>
     </ProjectReference>
-    <ProjectReference Include="..\TradingStrategeEvaluation\TradingStrategyEvaluation.csproj">
+    <ProjectReference Include="..\TradingStrategyEvaluation\TradingStrategyEvaluation.csproj">
       <Project>{1ad439b8-c393-45cd-a68a-ef6153138e03}</Project>
       <Name>TradingStrategyEvaluation</Name>
     </ProjectReference>

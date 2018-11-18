@@ -34,7 +34,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MetricsDefinitionTest", "Me
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TradingStrategy", "TradingStrategy\TradingStrategy.csproj", "{A02B6B9C-D37A-4C58-8F3D-79FC8749219A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TradingStrategyEvaluation", "TradingStrategeEvaluation\TradingStrategyEvaluation.csproj", "{1AD439B8-C393-45CD-A68A-EF6153138E03}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TradingStrategyEvaluation", "TradingStrategyEvaluation\TradingStrategyEvaluation.csproj", "{1AD439B8-C393-45CD-A68A-EF6153138E03}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EvaluatorCmdClient", "EvaluatorCmdClient\EvaluatorCmdClient.csproj", "{1598105B-1F0F-47BD-8B67-7DEC9D777E54}"
 EndProject
