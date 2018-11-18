@@ -106,7 +106,7 @@ namespace EvaluatorCmdClient
             var combinedStrategySettings = CombinedStrategySettings.GenerateExampleSettings();
             combinedStrategySettings.SaveToFile(AddPrefixToFileName(options.CombinedStrategySettingsFile, prefix));
 
-            var stockDataSettings = ChinaStockDataSettings.GenerateExampleSettings();
+            var stockDataSettings = ChineseStockDataSettings.GenerateExampleSettings();
             stockDataSettings.SaveToFile(AddPrefixToFileName(options.StockDataSettingsFile, prefix));
         }
 
@@ -217,7 +217,7 @@ namespace EvaluatorCmdClient
             // load settings from files
             var tradingSettings = TradingSettings.LoadFromFile(options.TradingSettingsFile);
             var combinedStrategySettings = CombinedStrategySettings.LoadFromFile(options.CombinedStrategySettingsFile);
-            var stockDataSettings = ChinaStockDataSettings.LoadFromFile(options.StockDataSettingsFile);
+            var stockDataSettings = ChineseStockDataSettings.LoadFromFile(options.StockDataSettingsFile);
 
             // load symbols and stock name table
             var stockNameTable = TradingObjectNameTable<StockName>.LoadFromFile(stockDataSettings.StockNameTableFile);
@@ -243,7 +243,7 @@ namespace EvaluatorCmdClient
             // dump data for temporary usage, will be commented out in real code
             // create data provider
             //var dumpDataProvider
-            //    = new ChinaStockDataProvider(
+            //    = new ChineseStockDataProvider(
             //        stockNameTable,
             //        allDataFiles,
             //        options.StartDate,
@@ -290,7 +290,7 @@ namespace EvaluatorCmdClient
 
                         // initialize data provider
                         var dataProvider
-                            = new ChinaStockDataProvider(
+                            = new ChineseStockDataProvider(
                                 stockNameTable,
                                 allDataFiles,
                                 interval.Item1, // interval start date

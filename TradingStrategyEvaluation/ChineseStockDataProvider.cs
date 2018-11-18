@@ -11,7 +11,7 @@
     using TradingStrategy;
     using StockAnalysis.Common.ChineseMarket;
 
-    public sealed class ChinaStockDataProvider : ITradingDataProvider
+    public sealed class ChineseStockDataProvider : ITradingDataProvider
     {
         private readonly ITradingObject[] _stocks;
 
@@ -120,7 +120,7 @@
                 .ToArray();
         }
 
-        public ChinaStockDataProvider(TradingObjectNameTable<StockName> nameTable, string[] dataFiles, DateTime start, DateTime end, int warmupDataSize)
+        public ChineseStockDataProvider(TradingObjectNameTable<StockName> nameTable, string[] dataFiles, DateTime start, DateTime end, int warmupDataSize)
         {
             if (nameTable == null)
             {
@@ -146,7 +146,7 @@
             var allTradingData = new List<HistoryData>(dataFiles.Length);
             var allFirstNonWarmupDataPeriods = new Dictionary<string, DateTime>();
 
-            ChinaStockDataAccessor.Initialize();
+            ChineseStockDataAccessor.Initialize();
 
             // shuffle data files to avoid data conflict when multiple data provider are initialized simultaneously
             // the algorithm here is a hacking way, but it works well
@@ -158,7 +158,7 @@
                 {
                     if (!String.IsNullOrWhiteSpace(file) && File.Exists(file))
                     {
-                        var data = ChinaStockDataAccessor.Load(file, nameTable);
+                        var data = ChineseStockDataAccessor.Load(file, nameTable);
 
                         if (data == null || data.DataOrderedByTime.Length == 0)
                         {
@@ -272,7 +272,7 @@
             var tempTradingData = allTradingData.OrderBy(t => t.Name.Symbol.NormalizedSymbol).ToArray();
 
             _stocks = Enumerable.Range(0, tempTradingData.Length)
-                .Select(i => (ITradingObject)new ChinaStock(i, (StockName)tempTradingData[i].Name))
+                .Select(i => (ITradingObject)new ChineseStock(i, (StockName)tempTradingData[i].Name))
                 .ToArray();
 
             for (var i = 0; i < _stocks.Length; ++i) 

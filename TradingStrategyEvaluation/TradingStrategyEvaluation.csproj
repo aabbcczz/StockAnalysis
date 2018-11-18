@@ -64,10 +64,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BlockTradingDetailSummarizer.cs" />
-    <Compile Include="ChinaStock.cs" />
-    <Compile Include="ChinaStockDataAccessor.cs" />
-    <Compile Include="ChinaStockDataProvider.cs" />
-    <Compile Include="ChinaStockDataSettings.cs" />
+    <Compile Include="ChineseStock.cs" />
+    <Compile Include="ChineseStockDataAccessor.cs" />
+    <Compile Include="ChineseStockDataProvider.cs" />
+    <Compile Include="ChineseStockDataSettings.cs" />
     <Compile Include="CommissionSettings.cs" />
     <Compile Include="CombinedStrategyAssembler.cs" />
     <Compile Include="CombinedStrategySettings.cs" />

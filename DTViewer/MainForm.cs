@@ -29,7 +29,7 @@
         private const int StartAnnotationIndex = 0;
         private const int EndAnnotationIndex = 1;
 
-        private ChinaStockDataSettings _stockDataSettings = null;
+        private ChineseStockDataSettings _stockDataSettings = null;
 
         private ViewerSettings _viewerSettings = null;
 
@@ -61,7 +61,7 @@
             ColumnPositionR.DataPropertyName = "R";
 
             // initialize data accessor (cache)
-            ChinaStockDataAccessor.Initialize();
+            ChineseStockDataAccessor.Initialize();
         }
 
         private void ShowError(string error, Exception e = null)
@@ -104,7 +104,7 @@
 
         private void LoadDataSettingsFile(string fileName)
         {
-            _stockDataSettings = ChinaStockDataSettings.LoadFromFile(fileName);
+            _stockDataSettings = ChineseStockDataSettings.LoadFromFile(fileName);
 
             _stockNameTable = TradingObjectNameTable<StockName>.LoadFromFile(_stockDataSettings.StockNameTableFile);
 
@@ -121,7 +121,7 @@
             dataGridViewSymbols.DataSource = new SortableBindingList<StockProperty>(stockProperties);
 
             // reset data accessor (cache)
-            ChinaStockDataAccessor.Reset();
+            ChineseStockDataAccessor.Reset();
         }
 
         private void LoadClosedPositionFile(string fileName)
@@ -263,7 +263,7 @@
             HistoryData data;
             try
             {
-                data = ChinaStockDataAccessor.Load(file, _stockNameTable);
+                data = ChineseStockDataAccessor.Load(file, _stockNameTable);
             }
             catch (Exception ex)
             {

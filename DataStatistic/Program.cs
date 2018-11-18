@@ -85,7 +85,7 @@ namespace DataStatistic
             Console.CancelKeyPress += ConsoleCancelKeyPress;
 
             // load settings from files
-            var stockDataSettings = ChinaStockDataSettings.LoadFromFile(options.StockDataSettingsFile);
+            var stockDataSettings = ChineseStockDataSettings.LoadFromFile(options.StockDataSettingsFile);
 
             // load symbols and stock name table
             var stockNameTable = TradingObjectNameTable<StockName>.LoadFromFile(stockDataSettings.StockNameTableFile);
@@ -97,7 +97,7 @@ namespace DataStatistic
 
             // initialize data provider
             var dataProvider
-                = new ChinaStockDataProvider(
+                = new ChineseStockDataProvider(
                     stockNameTable,
                     allDataFiles,
                     options.StartDate,

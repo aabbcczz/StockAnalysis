@@ -5,7 +5,7 @@
     using StockAnalysis.Common.SymbolName;
     using StockAnalysis.Common.ChineseMarket;
 
-    public sealed class ChinaStock : ITradingObject
+    public sealed class ChineseStock : ITradingObject
     {
         public int Index { get; private set; }
 
@@ -29,7 +29,7 @@
 
         public double LimitDownRatio { get; private set; }
 
-        public ChinaStock(
+        public ChineseStock(
             int index,
             StockName stockName,
             int volumePerHand = 100,

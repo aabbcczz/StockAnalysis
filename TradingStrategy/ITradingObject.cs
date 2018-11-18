@@ -17,7 +17,7 @@
         bool IsTradable { get; }
 
         // specific object associated with this trading object. the value depends on the type of
-        // trading object. for example, for china stock trading object, this field will be associated
+        // trading object. for example, for chinese stock trading object, this field will be associated
         // with a StockName object.
         object Object { get; }
 

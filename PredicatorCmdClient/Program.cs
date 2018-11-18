@@ -140,7 +140,7 @@ namespace PredicatorCmdClient
 
             // load settings from files
             var combinedStrategySettings = CombinedStrategySettings.LoadFromFile(options.CombinedStrategySettingsFile);
-            var stockDataSettings = ChinaStockDataSettings.LoadFromFile(options.StockDataSettingsFile);
+            var stockDataSettings = ChineseStockDataSettings.LoadFromFile(options.StockDataSettingsFile);
             var positions = LoadPositions(options.PositionFile);
 
             // load symbols and stock name table
@@ -166,7 +166,7 @@ namespace PredicatorCmdClient
 
             // initialize data provider
             var dataProvider
-                = new ChinaStockDataProvider(
+                = new ChineseStockDataProvider(
                     stockNameTable,
                     allDataFiles,
                     options.StartDate,
@@ -187,7 +187,7 @@ namespace PredicatorCmdClient
                     .ToArray();
 
                 // rebuild data provider according to filtered symbols
-                dataProvider = new ChinaStockDataProvider(
+                dataProvider = new ChineseStockDataProvider(
                     stockNameTable,
                     filteredDataFiles,
                     options.StartDate, 

@@ -6,7 +6,7 @@ using StockAnalysis.Common.SymbolName;
 namespace TradingStrategyEvaluation
 {
     [Serializable]
-    public sealed class ChinaStockDataSettings
+    public sealed class ChineseStockDataSettings
     {
         public const string StockSymbolPattern = "%c";
 
@@ -16,20 +16,20 @@ namespace TradingStrategyEvaluation
 
         public string StockDataFileNamePattern { get; set; }
 
-        public static ChinaStockDataSettings LoadFromFile(string file)
+        public static ChineseStockDataSettings LoadFromFile(string file)
         {
             if (string.IsNullOrEmpty(file))
             {
                 throw new ArgumentNullException();
             }
 
-            ChinaStockDataSettings settings;
+            ChineseStockDataSettings settings;
 
-            var serializer = new XmlSerializer(typeof(ChinaStockDataSettings));
+            var serializer = new XmlSerializer(typeof(ChineseStockDataSettings));
 
             using (var reader = new StreamReader(file))
             {
-                settings = (ChinaStockDataSettings)serializer.Deserialize(reader);
+                settings = (ChineseStockDataSettings)serializer.Deserialize(reader);
             }
 
             if (String.IsNullOrEmpty(settings.StockNameTableFile)
@@ -54,7 +54,7 @@ namespace TradingStrategyEvaluation
                 throw new ArgumentNullException();
             }
 
-            var serializer = new XmlSerializer(typeof(ChinaStockDataSettings));
+            var serializer = new XmlSerializer(typeof(ChineseStockDataSettings));
 
             using (var writer = new StreamWriter(file))
             {
@@ -69,9 +69,9 @@ namespace TradingStrategyEvaluation
                 StockDataFileNamePattern.Replace(StockSymbolPattern, StockName.GetNormalizedSymbol(symbol)));
         }
 
-        public static ChinaStockDataSettings GenerateExampleSettings()
+        public static ChineseStockDataSettings GenerateExampleSettings()
         {
-            var settings = new ChinaStockDataSettings
+            var settings = new ChineseStockDataSettings
             {
                 StockDataFileDirectory = @"d:\stock\",
                 StockDataFileNamePattern = @"%c.day.csv",

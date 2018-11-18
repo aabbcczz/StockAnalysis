@@ -5,7 +5,7 @@
     using StockAnalysis.Common.SymbolName;
     using StockAnalysis.Common.ChineseMarket;
 
-    public static class ChinaStockDataAccessor
+    public static class ChineseStockDataAccessor
     {
         private static object _lock = new object();
         private static ConcurrentDictionary<string, HistoryData> _cache;
