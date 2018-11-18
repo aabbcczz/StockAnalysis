@@ -3,7 +3,7 @@
     using System;
     using Data;
 
-    public sealed class ChinaStockTick : ITimeSeriesData
+    public sealed class ChineseStockTick : ITimeSeriesData
     {
         public DateTime Time
         {

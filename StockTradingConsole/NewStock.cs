@@ -31,7 +31,7 @@
         {
             int volume = (int)(TotalCapitalUsedToBuy / price);
 
-            int hand = ChinaStockHelper.ConvertVolumeToHand(volume);
+            int hand = ChineseStockHelper.ConvertVolumeToHand(volume);
 
             return hand;
         }

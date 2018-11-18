@@ -71,7 +71,7 @@
                         RemainingCapitalCanBeUsed / estimatedPrice,
                         (float)RemainingVolumeCanBeBought));
 
-                return minVolume / ChinaStockHelper.VolumePerHand;
+                return minVolume / ChineseStockHelper.VolumePerHand;
             }
         }
 
@@ -79,8 +79,8 @@
         {
             lock (this)
             {
-                if (RemainingCapitalCanBeUsed < MinBuyPrice * ChinaStockHelper.VolumePerHand
-                    || RemainingVolumeCanBeBought < ChinaStockHelper.VolumePerHand)
+                if (RemainingCapitalCanBeUsed < MinBuyPrice * ChineseStockHelper.VolumePerHand
+                    || RemainingVolumeCanBeBought < ChineseStockHelper.VolumePerHand)
                 {
                     return true;
                 }

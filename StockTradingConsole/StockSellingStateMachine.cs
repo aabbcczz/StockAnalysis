@@ -120,7 +120,7 @@
 
         private bool IsNoEnoughForSelling(StockTradingInput input)
         {
-            if (_stock == null || _stock.Volume < ChinaStockHelper.ConvertHandToVolume(1))
+            if (_stock == null || _stock.Volume < ChineseStockHelper.ConvertHandToVolume(1))
             {
                 return true;
             }
@@ -211,7 +211,7 @@
                 return false;
             }
 
-            int sellingVolumeInHand = ChinaStockHelper.ConvertVolumeToHand(_stock.Volume);
+            int sellingVolumeInHand = ChineseStockHelper.ConvertVolumeToHand(_stock.Volume);
             if (sellingVolumeInHand == 0)
             {
                 return false;
@@ -262,7 +262,7 @@
                 Category = OrderCategory.Sell,
                 Price = sellingPrice,
                 PricingType = OrderPricingType.LimitPrice,
-                Volume = ChinaStockHelper.ConvertHandToVolume(volumeInHand),
+                Volume = ChineseStockHelper.ConvertHandToVolume(volumeInHand),
                 SecuritySymbol = _stock.Name.Symbol.RawSymbol,
                 SecurityName = _stock.Name.Names[0]
             };
@@ -279,7 +279,7 @@
                 Category = OrderCategory.Sell,
                 Price = 0.01f,
                 PricingType = OrderPricingType.MarketPriceMakeDealInFiveGradesThenCancel,
-                Volume = ChinaStockHelper.ConvertHandToVolume(volumeInHand),
+                Volume = ChineseStockHelper.ConvertHandToVolume(volumeInHand),
                 SecuritySymbol = _stock.Name.Symbol.RawSymbol,
                 SecurityName = _stock.Name.Names[0]
             };
@@ -385,7 +385,7 @@
                 return false;
             }
 
-            int sellingVolumeInHand = ChinaStockHelper.ConvertVolumeToHand(_stock.Volume);
+            int sellingVolumeInHand = ChineseStockHelper.ConvertVolumeToHand(_stock.Volume);
             if (sellingVolumeInHand == 0)
             {
                 return false;
@@ -419,7 +419,7 @@
                 return false;
             }
 
-            int sellingVolumeInHand = ChinaStockHelper.ConvertVolumeToHand(_stock.Volume);
+            int sellingVolumeInHand = ChineseStockHelper.ConvertVolumeToHand(_stock.Volume);
             if (sellingVolumeInHand == 0)
             {
                 return false;

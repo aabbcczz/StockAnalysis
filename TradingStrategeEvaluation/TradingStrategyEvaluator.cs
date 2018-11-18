@@ -422,7 +422,7 @@
                 }
 
                 // round the price to make it realistic
-                price = ChinaStockHelper.CalculatePrice(price, 0.0, 2);
+                price = ChineseStockHelper.CalculatePrice(price, 0.0, 2);
 
                 // Exclude unrealistic price.
                 if (instruction.Action == TradingAction.OpenLong)

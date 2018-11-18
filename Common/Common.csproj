@@ -48,8 +48,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ChineseMarket\ChinaStockHelper.cs" />
-    <Compile Include="ChineseMarket\ChinaStockTick.cs" />
+    <Compile Include="ChineseMarket\ChineseStockHelper.cs" />
+    <Compile Include="ChineseMarket\ChineseStockTick.cs" />
     <Compile Include="ChineseMarket\HistoryData.cs" />
     <Compile Include="ChineseMarket\StockBlock.cs" />
     <Compile Include="ChineseMarket\StockBlockManager.cs" />

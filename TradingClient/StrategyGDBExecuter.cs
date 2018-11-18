@@ -360,12 +360,12 @@
                 // determine if open price is in valid range
                 if (float.IsNaN(stock.ActualOpenPrice))
                 {
-                    double upLimitPrice = ChinaStockHelper.CalculatePrice(
+                    double upLimitPrice = ChineseStockHelper.CalculatePrice(
                         quote.YesterdayClosePrice,
                         stock.OpenPriceUpLimitPercentage - 100.0f,
                         2);
 
-                    double downLimitPrice = ChinaStockHelper.CalculatePrice(
+                    double downLimitPrice = ChineseStockHelper.CalculatePrice(
                         quote.YesterdayClosePrice,
                         stock.OpenPriceDownLimitPercentage - 100.0f,
                         2);
@@ -390,11 +390,11 @@
                         stock.ActualOpenPrice = quote.TodayOpenPrice;
                         stock.ActualOpenPriceDownLimit = (float)downLimitPrice;
                         stock.ActualOpenPriceUpLimit = (float)upLimitPrice;
-                        stock.ActualMaxBuyPrice = (float)ChinaStockHelper.CalculatePrice(
+                        stock.ActualMaxBuyPrice = (float)ChineseStockHelper.CalculatePrice(
                             quote.TodayOpenPrice,
                             stock.MaxBuyPriceIncreasePercentage,
                             2);
-                        stock.TodayDownLimitPrice = (float)ChinaStockHelper.CalculateDownLimit(stock.SecuritySymbol, stock.SecurityName, quote.YesterdayClosePrice, 2);
+                        stock.TodayDownLimitPrice = (float)ChineseStockHelper.CalculateDownLimit(stock.SecuritySymbol, stock.SecurityName, quote.YesterdayClosePrice, 2);
                         stock.ActualMinBuyPrice = Math.Max(stock.StoplossPrice, stock.TodayDownLimitPrice);
 
                     }
@@ -705,7 +705,7 @@
             var stock = _activeExistingStockIndex[quote.SecuritySymbol];
 
             // for sell order, if current price is up limit, sell it immediately
-            float upLimitPrice = (float)ChinaStockHelper.CalculateUpLimit(
+            float upLimitPrice = (float)ChineseStockHelper.CalculateUpLimit(
                     quote.SecuritySymbol, 
                     quote.SecurityName, 
                     quote.YesterdayClosePrice, 

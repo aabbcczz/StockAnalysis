@@ -77,18 +77,18 @@
             index++;
             index++;
 
-            DealVolumeInHand = ChinaStockHelper.ConvertVolumeToHand(long.Parse(fields[index++]));
+            DealVolumeInHand = ChineseStockHelper.ConvertVolumeToHand(long.Parse(fields[index++]));
             DealAmount = float.Parse(fields[index++]);
 
             for (int i = 0; i < 5; ++i)
             {
-                BuyVolumesInHand[i] = ChinaStockHelper.ConvertVolumeToHand(int.Parse(fields[index++]));
+                BuyVolumesInHand[i] = ChineseStockHelper.ConvertVolumeToHand(int.Parse(fields[index++]));
                 BuyPrices[i] = float.Parse(fields[index++]);
             }
 
             for (int i = 0; i < 5; ++i)
             {
-                SellVolumesInHand[i] = ChinaStockHelper.ConvertVolumeToHand(int.Parse(fields[index++]));
+                SellVolumesInHand[i] = ChineseStockHelper.ConvertVolumeToHand(int.Parse(fields[index++]));
                 SellPrices[i] = float.Parse(fields[index++]);
             }
 

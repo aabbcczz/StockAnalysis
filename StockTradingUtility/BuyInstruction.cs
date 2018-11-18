@@ -50,7 +50,7 @@
                 || maxBidPrice < expectedPrice
                 || MinBuyPrice > expectedPrice
                 || maxCapital <= 0.0
-                || maxVolume < 1 * ChinaStockHelper.VolumePerHand)
+                || maxVolume < 1 * ChineseStockHelper.VolumePerHand)
             {
                 throw new ArgumentOutOfRangeException();
             }

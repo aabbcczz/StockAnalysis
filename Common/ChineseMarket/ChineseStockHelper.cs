@@ -1,6 +1,6 @@
 ﻿namespace StockAnalysis.Common.ChineseMarket
 {
-    public static class ChinaStockHelper
+    public static class ChineseStockHelper
     {
         public const int VolumePerHand = 100;
         public const double DefaultUpLimitPercentage = 10.0F;
@@ -82,7 +82,7 @@
 
         public static double CalculateUpLimit(string symbol, string name, double price, int roundPosition)
         {
-            return CalculatePrice(price, ChinaStockHelper.GetUpLimitPercentage(symbol, name), roundPosition);
+            return CalculatePrice(price, ChineseStockHelper.GetUpLimitPercentage(symbol, name), roundPosition);
         }
 
         public static double CalculateDownLimit(double price, double downLimitPercentage, int roundPoisition)
@@ -92,7 +92,7 @@
 
         public static double CalculateDownLimit(string symbol, string name, double price, int roundPosition)
         {
-            return CalculatePrice(price, ChinaStockHelper.GetDownLimitPercentage(symbol, name), roundPosition);
+            return CalculatePrice(price, ChineseStockHelper.GetDownLimitPercentage(symbol, name), roundPosition);
         }
     }
 }

@@ -150,12 +150,12 @@
 
         public static double GetUpLimitPrice(this FiveLevelQuote quote)
         {
-            return ChinaStockHelper.CalculateUpLimit(quote.SecuritySymbol, quote.SecurityName, quote.YesterdayClosePrice, 2);
+            return ChineseStockHelper.CalculateUpLimit(quote.SecuritySymbol, quote.SecurityName, quote.YesterdayClosePrice, 2);
         }
 
         public static double GetDownLimitPrice(this FiveLevelQuote quote)
         {
-            return ChinaStockHelper.CalculateDownLimit(quote.SecuritySymbol, quote.SecurityName, quote.YesterdayClosePrice, 2);
+            return ChineseStockHelper.CalculateDownLimit(quote.SecuritySymbol, quote.SecurityName, quote.YesterdayClosePrice, 2);
         }
 
         public static bool IsTradingStopped(this FiveLevelQuote quote)

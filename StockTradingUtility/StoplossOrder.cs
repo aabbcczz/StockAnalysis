@@ -42,7 +42,7 @@
 
             float maxBuyPrice = quote.BuyPrices.Max();
             float minBuyPrice = quote.BuyPrices.Min();
-            int totalBuyVolume = ChinaStockHelper.ConvertHandToVolume(quote.BuyVolumesInHand.Sum());
+            int totalBuyVolume = ChineseStockHelper.ConvertHandToVolume(quote.BuyVolumesInHand.Sum());
 
             if (StoplossPrice < minBuyPrice)
             {
@@ -80,7 +80,7 @@
                     // order stop loss price is between minBuyPrice and maxBuyPrice
                     // we count the buy volume above stop loss price.
                     int aboveStoplossBuyVolume =
-                        ChinaStockHelper.ConvertHandToVolume(
+                        ChineseStockHelper.ConvertHandToVolume(
                             Enumerable
                                 .Range(0, quote.BuyPrices.Length)
                                 .Where(index => quote.BuyPrices[index] >= StoplossPrice)

@@ -66,7 +66,7 @@
                     // order sell price is between minBuyPrice and maxBuyPrice
                     // we count the buy volume above sell price.
                     int aboveSellPriceBuyVolume =
-                        ChinaStockHelper.ConvertHandToVolume(
+                        ChineseStockHelper.ConvertHandToVolume(
                             Enumerable
                                 .Range(0, quote.BuyPrices.Length)
                                 .Where(index => quote.BuyPrices[index] >= SellPrice)

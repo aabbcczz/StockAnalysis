@@ -281,7 +281,7 @@
             var quote = input.Quote;
 
             // capital is not enough for 1 hand for open price
-            if (_stock.TotalCapitalUsedToBuy < quote.TodayOpenPrice * ChinaStockHelper.ConvertHandToVolume(1))
+            if (_stock.TotalCapitalUsedToBuy < quote.TodayOpenPrice * ChineseStockHelper.ConvertHandToVolume(1))
             {
                 AppLogger.Default.InfoFormat(
                     "[{0}] Failed to buy because no enough capital {1:F2} for 1 hand for price {2:F2}",
@@ -389,7 +389,7 @@
                 Category = OrderCategory.Buy,
                 Price = buyingPrice,
                 PricingType = OrderPricingType.LimitPrice,
-                Volume = ChinaStockHelper.ConvertHandToVolume(volumeInHand),
+                Volume = ChineseStockHelper.ConvertHandToVolume(volumeInHand),
                 SecuritySymbol = _stock.Name.Symbol.RawSymbol,
                 SecurityName = _stock.Name.Names[0]
             };
