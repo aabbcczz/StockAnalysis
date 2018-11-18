@@ -1,15 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.IO;
-using System.Data.SqlClient;
-using CommandLine;
-using ImportTable.Properties;
-using StockAnalysis.Common.Utility;
-
-namespace ImportTable
+﻿namespace ImportTable
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text;
+    using System.IO;
+    using System.Data.SqlClient;
+    using CommandLine;
+    using Properties;
+    using StockAnalysis.Common.Utility;
+
     static class Program
     {
         static void Main(string[] args)

@@ -1,10 +1,9 @@
-﻿using System;
-using System.IO;
-using CommandLine;
-using CommandLine.Text;
-
-namespace CorrelationCalculator
+﻿namespace CorrelationCalculator
 {
+    using System;
+    using System.IO;
+    using CommandLine;
+
     public sealed class Options
     {
         [Option('l', "InputFileList", HelpText = "The file that contains list of input files")]

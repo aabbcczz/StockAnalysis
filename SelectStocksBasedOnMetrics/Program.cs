@@ -1,14 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.IO;
-using System.Text;
-using CommandLine;
-using StockAnalysis.Common.Utility;
-
-namespace SelectStocksBasedOnMetrics
+﻿namespace SelectStocksBasedOnMetrics
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Globalization;
+    using System.Linq;
+    using System.IO;
+    using System.Text;
+    using CommandLine;
+    using StockAnalysis.Common.Utility;
+
     static class Program
     {
         static void Main(string[] args)

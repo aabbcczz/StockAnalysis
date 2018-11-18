@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace StockAnalysis.TradingStrategy.MetricBooleanExpression
+﻿namespace StockAnalysis.TradingStrategy.MetricBooleanExpression
 {
+    using System;
+    using System.Collections.Generic;
+
     internal static class ComparisonOperatorHelper
     {
         private static Dictionary<string, ComparisonOperator> stringToOperatorMap

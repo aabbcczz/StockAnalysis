@@ -1,9 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using StockAnalysis.Common.Data;
-
-namespace StockAnalysis.TradingStrategy.Base
+﻿namespace StockAnalysis.TradingStrategy.Base
 {
+    using System;
+    using System.Collections.Generic;
+    using Common.Data;
+
     public abstract class GeneralTraceStopLossMarketExitingBase 
         : GeneralMarketExitingBase
     {

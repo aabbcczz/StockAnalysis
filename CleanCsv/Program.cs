@@ -1,10 +1,9 @@
-﻿using System;
-using System.Globalization;
-using System.Text;
-using StockAnalysis.Common.Utility;
-
-namespace CleanCsv
+﻿namespace CleanCsv
 {
+    using System;
+    using System.Globalization;
+    using System.Text;
+    using StockAnalysis.Common.Utility;
     static class Program
     {
         static void Main(string[] args)

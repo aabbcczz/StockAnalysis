@@ -1,9 +1,9 @@
-﻿using System;
-using StockAnalysis.TradingStrategy.Base;
-using StockAnalysis.TradingStrategy.MetricBooleanExpression;
-
-namespace StockAnalysis.TradingStrategy.Strategy
+﻿namespace StockAnalysis.TradingStrategy.Strategy
 {
+    using System;
+    using Base;
+    using MetricBooleanExpression;
+
     public sealed class MovingAverageCrossMarketExiting
         : MetricBasedMarketExiting
     {

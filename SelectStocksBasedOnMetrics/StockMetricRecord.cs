@@ -1,7 +1,7 @@
-﻿using System;
-
-namespace SelectStocksBasedOnMetrics
+﻿namespace SelectStocksBasedOnMetrics
 {
+    using System;
+
     sealed class StockMetricRecord
     {
         public string Symbol { get; set; }

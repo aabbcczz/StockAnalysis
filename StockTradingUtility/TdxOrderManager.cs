@@ -1,9 +1,9 @@
-﻿using StockAnalysis.Common.Exchange;
-using System;
-using System.Collections.Generic;
-
-namespace StockAnalysis.StockTrading.Utility
+﻿namespace StockAnalysis.StockTrading.Utility
 {
+    using Common.Exchange;
+    using System;
+    using System.Collections.Generic;
+
     public sealed class TdxOrderManager
     {
         private int _nextOrderNo = 0;

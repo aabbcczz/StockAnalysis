@@ -1,7 +1,7 @@
-﻿using StockAnalysis.Common.SymbolName;
-
-namespace GetFinanceReports
+﻿namespace GetFinanceReports
 {
+    using StockAnalysis.Common.SymbolName;
+
     public interface IReportFetcher
     {
         /// <summary>

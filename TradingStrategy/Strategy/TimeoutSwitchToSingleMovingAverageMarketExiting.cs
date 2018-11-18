@@ -1,11 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using StockAnalysis.Common.Data;
-using StockAnalysis.TradingStrategy.Base;
-
+﻿
 namespace StockAnalysis.TradingStrategy.Strategy
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using Base;
+    using Common.Data;
+
     public sealed class TimeoutSwitchToSingleMovingAverageMarketExiting 
         : GeneralMarketExitingBase
     {

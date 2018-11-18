@@ -1,9 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-
-namespace StockAnalysis.MetricsDefinition
+﻿namespace StockAnalysis.MetricsDefinition
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
     public sealed class MetricAttribute : Attribute
     {

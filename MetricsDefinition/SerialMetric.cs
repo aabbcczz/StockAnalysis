@@ -1,7 +1,7 @@
-﻿using System;
-
-namespace StockAnalysis.MetricsDefinition
+﻿namespace StockAnalysis.MetricsDefinition
 {
+    using System;
+
     public abstract class SerialMetric
     {
         private readonly int _windowSize;

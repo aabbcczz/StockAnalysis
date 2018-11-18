@@ -1,10 +1,9 @@
-﻿using System;
-using System.IO;
-using CommandLine;
-using CommandLine.Text;
-
-namespace DataStatistic
+﻿namespace DataStatistic
 {
+    using System;
+    using System.IO;
+    using CommandLine;
+
     public sealed class Options
     {
         [Option('s', "StockDataSettingsFile", Required = true, HelpText = "The file that contains the stock data settings")]

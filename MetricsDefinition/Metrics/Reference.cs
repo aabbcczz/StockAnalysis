@@ -1,6 +1,4 @@
-﻿using StockAnalysis.Common.Data;
-
-namespace StockAnalysis.MetricsDefinition.Metrics
+﻿namespace StockAnalysis.MetricsDefinition.Metrics
 {
     [Metric("REF")]
     public sealed class Reference : SingleOutputRawInputSerialMetric

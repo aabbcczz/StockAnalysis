@@ -1,7 +1,7 @@
-﻿using System;
-
-namespace StockAnalysis.TradingStrategy.Evaluation
+﻿namespace StockAnalysis.TradingStrategy.Evaluation
 {
+    using System;
+
     public class EquityPoint
     {
         // change fields to property to ensure CsvWriter/CsvReader can process it.

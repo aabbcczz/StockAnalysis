@@ -1,8 +1,8 @@
-﻿using System;
-using StockAnalysis.Common.Data;
-
-namespace StockAnalysis.TradingStrategy.Strategy
+﻿namespace StockAnalysis.TradingStrategy.Strategy
 {
+    using System;
+    using Common.Data;
+
     public static class BarPriceSelector
     {
         public static string GetSelectorString(int selector)

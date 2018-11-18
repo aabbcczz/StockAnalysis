@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace StockAnalysis.TradingStrategy.MetricBooleanExpression
+﻿namespace StockAnalysis.TradingStrategy.MetricBooleanExpression
 {
+    using System;
+    using System.Text;
+
     public class Comparison : IMetricBooleanExpression
     {
         private string _leftExpression;

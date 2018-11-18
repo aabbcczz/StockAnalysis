@@ -1,10 +1,9 @@
-﻿using System;
-using System.IO;
-using CommandLine;
-using CommandLine.Text;
-
-namespace EvaluatorCmdClient
+﻿namespace EvaluatorCmdClient
 {
+    using System;
+    using System.IO;
+    using CommandLine;
+
     public sealed class Options
     {
         [Option('g', "GenerateExampleFiles", HelpText = "Generate the example files that specified in other parameters")]

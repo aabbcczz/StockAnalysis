@@ -1,8 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace StockAnalysis.TradingStrategy
+﻿namespace StockAnalysis.TradingStrategy
 {
+    using System;
+
     public sealed class CompletedTransaction
     {
         public string Symbol { get; set; } // symbol of trading object

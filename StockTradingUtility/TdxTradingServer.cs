@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace StockAnalysis.StockTrading.Utility
+﻿namespace StockAnalysis.StockTrading.Utility
 {
+    using System;
+    using System.Text;
+
     public sealed class TdxTradingServer : ITradingServer
     {
         public TdxTradingServer()

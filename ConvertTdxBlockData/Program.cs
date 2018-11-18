@@ -1,13 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-
-using CommandLine;
-using StockAnalysis.Common.ChineseMarket;
-using StockAnalysis.TdxHelper;
-
-namespace ConvertTdxBlockData
+﻿namespace ConvertTdxBlockData
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+
+    using CommandLine;
+    using StockAnalysis.Common.ChineseMarket;
+    using StockAnalysis.TdxHelper;
     class Program
     {
         static void Main(string[] args)

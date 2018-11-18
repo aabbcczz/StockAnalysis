@@ -1,13 +1,13 @@
-﻿using System;
-using System.Configuration;
-using System.IO;
-using System.Threading;
-using CommandLine;
-using System.Linq;
-using StockAnalysis.Common.SymbolName;
-
-namespace GetFinanceReports
+﻿namespace GetFinanceReports
 {
+    using System;
+    using System.Configuration;
+    using System.IO;
+    using System.Threading;
+    using CommandLine;
+    using System.Linq;
+    using StockAnalysis.Common.SymbolName;
+
     static class Program
     {
         private const string ServerKey = "serverAddress";

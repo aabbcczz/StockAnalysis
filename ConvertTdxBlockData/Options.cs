@@ -1,10 +1,8 @@
-﻿using System;
-using System.IO;
-using CommandLine;
-using CommandLine.Text;
-
-namespace ConvertTdxBlockData
+﻿namespace ConvertTdxBlockData
 {
+    using System;
+    using System.IO;
+    using CommandLine;
     public sealed class Options
     {
         [Option('h', "HyFile", HelpText = "HangYe block file")]

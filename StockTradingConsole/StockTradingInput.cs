@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using StockAnalysis.StockTrading.Utility;
-
-namespace StockTradingConsole
+﻿namespace StockTradingConsole
 {
+    using System;
+    using StockAnalysis.StockTrading.Utility;
+
     class StockTradingInput
     {
         public TradingClient Client { get; private set; }

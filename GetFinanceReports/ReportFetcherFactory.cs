@@ -1,7 +1,6 @@
-﻿using System;
-
-namespace GetFinanceReports
+﻿namespace GetFinanceReports
 {
+    using System;
     public static class ReportFetcherFactory
     {
         public static IReportFetcher Create(string serverAddress)

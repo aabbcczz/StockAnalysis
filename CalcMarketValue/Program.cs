@@ -1,15 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Text;
-using CommandLine;
-using StockAnalysis.Common.Utility;
-using StockAnalysis.Common.SymbolName;
-using StockAnalysis.Common.Exchange;
-
-namespace CalcMarketValue
+﻿namespace CalcMarketValue
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Globalization;
+    using System.Linq;
+    using System.Text;
+    using CommandLine;
+    using StockAnalysis.Common.Utility;
+    using StockAnalysis.Common.SymbolName;
+    using StockAnalysis.Common.Exchange;
+
     static class Program
     {
         static void Main(string[] args)

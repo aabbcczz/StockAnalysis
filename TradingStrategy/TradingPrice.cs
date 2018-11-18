@@ -1,8 +1,8 @@
-﻿using System;
-using StockAnalysis.Common.Data;
-
-namespace StockAnalysis.TradingStrategy
+﻿namespace StockAnalysis.TradingStrategy
 {
+    using System;
+    using Common.Data;
+
     public sealed class TradingPrice
     {
         public TradingPricePeriod Period { get; private set; }

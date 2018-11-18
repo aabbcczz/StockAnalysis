@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using CommandLine;
-using CommandLine.Text;
-
-namespace GetFinanceReports
+﻿namespace GetFinanceReports
 {
+    using System;
+    using System.IO;
+    using CommandLine;
+
     public sealed class Options
     {
         private const string DateMark = "%date%";

@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using StockAnalysis.Common.Data;
-using StockAnalysis.TradingStrategy;
-using StockAnalysis.MetricsDefinition.Metrics;
-
-namespace StockAnalysis.TradingStrategy.Evaluation
+﻿namespace StockAnalysis.TradingStrategy.Evaluation
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using Common.Data;
+    using MetricsDefinition.Metrics;
+
     public sealed class TradeMetricsCalculator
     {
         public const int ERatioAtrWindowSize = 20;

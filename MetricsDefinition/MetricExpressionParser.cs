@@ -1,10 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-
-namespace StockAnalysis.MetricsDefinition
+﻿namespace StockAnalysis.MetricsDefinition
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Reflection;
+
     public sealed class MetricExpressionParser
     {
         private readonly Queue<Token> _tokens = new Queue<Token>();

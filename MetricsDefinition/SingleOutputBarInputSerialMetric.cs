@@ -1,7 +1,7 @@
-﻿using StockAnalysis.Common.Data;
-
-namespace StockAnalysis.MetricsDefinition
+﻿namespace StockAnalysis.MetricsDefinition
 {
+    using StockAnalysis.Common.Data;
+
     public abstract class SingleOutputBarInputSerialMetric : BarInputSerialMetric
     {
         protected SingleOutputBarInputSerialMetric(int windowSize)

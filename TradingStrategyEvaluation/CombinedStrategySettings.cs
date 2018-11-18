@@ -1,13 +1,11 @@
-﻿using System;
-using System.Linq;
-using System.IO;
-using System.Xml.Serialization;
-using StockAnalysis.TradingStrategy;
-using StockAnalysis.TradingStrategy.Strategy;
-using StockAnalysis.TradingStrategy.Base;
-
-namespace StockAnalysis.TradingStrategy.Evaluation
+﻿namespace StockAnalysis.TradingStrategy.Evaluation
 {
+    using System;
+    using System.Linq;
+    using System.IO;
+    using System.Xml.Serialization;
+    using Base;
+
     [Serializable]
     public sealed class CombinedStrategySettings
     {

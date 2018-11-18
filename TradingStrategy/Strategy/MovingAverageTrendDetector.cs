@@ -1,14 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using StockAnalysis.MetricsDefinition.Metrics;
-using StockAnalysis.TradingStrategy.Base;
-
-namespace StockAnalysis.TradingStrategy.Strategy
+﻿namespace StockAnalysis.TradingStrategy.Strategy
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+
     public sealed class MovingAverageTrendDetector
     {
         private int[] _periods;

@@ -1,12 +1,11 @@
-﻿using System;
-using System.Text;
-using System.IO;
-using System.Threading;
-using StockAnalysis.Common.Data;
-using StockAnalysis.TradingStrategy;
-
-namespace DataStatistic
+﻿namespace DataStatistic
 {
+    using System;
+    using System.Text;
+    using System.IO;
+    using System.Threading;
+    using StockAnalysis.Common.Data;
+    using StockAnalysis.TradingStrategy;
     sealed class PossibilityOfRaisingHighCounter : IBarCounter
     {
         private sealed class Results

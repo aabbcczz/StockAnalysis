@@ -1,11 +1,9 @@
-﻿using System;
-using System.Text;
-using System.IO;
-
-using StockAnalysis.TradingStrategy;
-
-namespace StockAnalysis.TradingStrategy.Evaluation
+﻿namespace StockAnalysis.TradingStrategy.Evaluation
 {
+    using System;
+    using System.Text;
+    using System.IO;
+
     public sealed class FileLogger : ILogger, IDisposable
     {
         private StreamWriter _writer;

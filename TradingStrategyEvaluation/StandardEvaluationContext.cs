@@ -1,14 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using StockAnalysis.TradingStrategy;
-using StockAnalysis.Common.ChineseMarket;
-using StockAnalysis.Common.Data;
-using StockAnalysis.Common.SymbolName;
-using StockAnalysis.TradingStrategy.Base;
-
-namespace StockAnalysis.TradingStrategy.Evaluation
+﻿namespace StockAnalysis.TradingStrategy.Evaluation
 {
+    using System;
+    using System.Collections.Generic;
+    using System.IO;
+    using Common.ChineseMarket;
+    using Common.Data;
+    using Common.SymbolName;
+    using Base;
+
     internal sealed class StandardEvaluationContext : IEvaluationContext
     {
         private Bar[] _currentPeriodData;

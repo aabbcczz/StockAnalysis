@@ -1,10 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-
-namespace StockAnalysis.TradingStrategy
+﻿namespace StockAnalysis.TradingStrategy
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Reflection;
+
     public static class ParameterHelper
     {
         public static IEnumerable<ParameterAttribute> GetParameterAttributes(object obj)

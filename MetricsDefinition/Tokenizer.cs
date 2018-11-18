@@ -1,8 +1,8 @@
-﻿using System;
-using System.Text.RegularExpressions;
-
-namespace StockAnalysis.MetricsDefinition
+﻿namespace StockAnalysis.MetricsDefinition
 {
+    using System;
+    using System.Text.RegularExpressions;
+
     sealed class Tokenizer
     {
         static readonly Regex RegexIdentifier = new Regex(@"[_a-zA-Z\%][_a-zA-Z\%0-9]*", RegexOptions.Compiled);

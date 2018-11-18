@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace StockAnalysis.TradingStrategy
+﻿namespace StockAnalysis.TradingStrategy
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+
     public sealed class MetricGroupSorter
     {
         public sealed class DefaultAscendingOrderComparer : IComparer<double[]>

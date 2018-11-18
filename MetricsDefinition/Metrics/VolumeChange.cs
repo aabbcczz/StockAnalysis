@@ -1,7 +1,7 @@
-﻿using StockAnalysis.Common.Data;
-
-namespace StockAnalysis.MetricsDefinition.Metrics
+﻿namespace StockAnalysis.MetricsDefinition.Metrics
 {
+    using Common.Data;
+
     [Metric("VC")]
     public sealed class VolumeChange : SingleOutputBarInputSerialMetric
     {

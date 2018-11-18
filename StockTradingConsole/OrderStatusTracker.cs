@@ -5,6 +5,7 @@
     using System.Linq;
     using StockAnalysis.StockTrading.Utility;
     using StockAnalysis.Common.Utility;
+
     sealed class OrderStatusTracker
     {
         private object _syncObj = new object();

@@ -1,13 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using StockAnalysis.StockTrading.Utility;
-
-namespace TradingClient
+﻿namespace TradingClient
 {
+    using StockAnalysis.StockTrading.Utility;
+
     sealed class RuntimeStockOrder
     {
         public string SecuritySymbol { get; private set; }

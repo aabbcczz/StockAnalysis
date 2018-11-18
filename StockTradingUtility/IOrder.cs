@@ -1,8 +1,8 @@
-﻿using StockAnalysis.Common.Utility;
-using StockAnalysis.Common.Exchange;
-
-namespace StockAnalysis.StockTrading.Utility
+﻿namespace StockAnalysis.StockTrading.Utility
 {
+    using Common.Utility;
+    using Common.Exchange;
+
     /// <summary>
     /// Interface of Order
     /// </summary>

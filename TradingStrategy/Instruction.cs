@@ -1,7 +1,7 @@
-﻿using System;
-
-namespace StockAnalysis.TradingStrategy
+﻿namespace StockAnalysis.TradingStrategy
 {
+    using System;
+
     public abstract class Instruction
     {
         public long Id { get; private set; }

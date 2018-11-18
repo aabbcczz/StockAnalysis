@@ -1,9 +1,9 @@
-﻿using StockAnalysis.StockTrading.Utility;
-using System;
-using StockAnalysis.Common.SymbolName;
-
-namespace StockTradingConsole
+﻿namespace StockTradingConsole
 {
+    using StockAnalysis.StockTrading.Utility;
+    using System;
+    using StockAnalysis.Common.SymbolName;
+
     /// <summary>
     /// Interface of stock trading state machine
     /// </summary>

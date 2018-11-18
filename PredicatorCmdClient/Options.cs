@@ -1,10 +1,9 @@
-﻿using System;
-using System.IO;
-using CommandLine;
-using CommandLine.Text;
-
-namespace PredicatorCmdClient
+﻿namespace PredicatorCmdClient
 {
+    using System;
+    using System.IO;
+    using CommandLine;
+
     public sealed class Options
     {
         [Option('c', "CombinedStrategySettingsFile", Required = true, HelpText = "The file that contains combined strategy settings")]

@@ -4,12 +4,13 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
+    using System.Configuration;
+    using System.Threading;
 
     using CommandLine;
     using CommandLine.Text;
     using StockAnalysis.StockTrading.Utility;
-    using System.Configuration;
-    using System.Threading;
+
     using StockAnalysis.Common.Utility;
     class Program
     {

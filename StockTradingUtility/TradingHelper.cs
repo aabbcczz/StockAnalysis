@@ -1,10 +1,11 @@
 ﻿namespace StockAnalysis.StockTrading.Utility
 {
-    using StockAnalysis.Common.ChineseMarket;
+    using Common.ChineseMarket;
     using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Runtime.InteropServices;
+
     public static class TradingHelper
     {
         public const int InvalidOrderNo = -1;

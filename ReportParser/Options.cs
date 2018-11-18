@@ -1,10 +1,8 @@
-﻿using System.Collections.Generic;
-using System.IO;
-using CommandLine;
-using CommandLine.Text;
-
-namespace ReportParser
+﻿namespace ReportParser
 {
+    using System.IO;
+    using CommandLine;
+
     public sealed class Options
     {
         [Option('i', "InputFolder", Required = true, HelpText = "The folder that contains finance report files.")]

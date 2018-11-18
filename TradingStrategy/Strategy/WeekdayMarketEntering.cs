@@ -1,13 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-
-using StockAnalysis.MetricsDefinition;
-using StockAnalysis.TradingStrategy.Base;
-using StockAnalysis.TradingStrategy.MetricBooleanExpression;
-using StockAnalysis.TradingStrategy.GroupMetrics;
-
-namespace StockAnalysis.TradingStrategy.Strategy
+﻿namespace StockAnalysis.TradingStrategy.Strategy
 {
+    using Base;
+
     public sealed class WeekdayMarketEntering
         : GeneralMarketEnteringBase
     {

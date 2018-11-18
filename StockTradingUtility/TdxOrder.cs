@@ -1,9 +1,8 @@
-﻿using StockAnalysis.Common.Exchange;
-using System;
-
-
-namespace StockAnalysis.StockTrading.Utility
+﻿namespace StockAnalysis.StockTrading.Utility
 {
+    using Common.Exchange;
+    using System;
+
     public sealed class TdxOrder
     {
         /// <summary>

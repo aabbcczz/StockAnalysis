@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using StockAnalysis.TradingStrategy;
-namespace StockAnalysis.TradingStrategy.GroupMetrics
+﻿namespace StockAnalysis.TradingStrategy.GroupMetrics
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+
     public sealed class BlockMetricSorterManager : IRuntimeMetricManagerObserver
     {
         private IComparer<double[]> _comparer;

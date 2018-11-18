@@ -1,7 +1,7 @@
-﻿using System;
-
-namespace StockAnalysis.TradingStrategy
+﻿namespace StockAnalysis.TradingStrategy
 {
+    using System;
+
     public sealed class EvaluationProgressEventArgs : EventArgs
     {
         public DateTime EvaluationPeriod { get; private set; }

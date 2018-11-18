@@ -1,12 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using StockAnalysis.Common.Exchange;
-using StockAnalysis.Common.Utility;
-using StockAnalysis.Common.SymbolName;
-
-namespace StockAnalysis.StockTrading.Utility
+﻿namespace StockAnalysis.StockTrading.Utility
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using Common.Exchange;
+    using Common.Utility;
+    using Common.SymbolName;
+
     public sealed class TradingClient : IDisposable
     {
         private Dictionary<IExchange, string> _shareholderCodes = new Dictionary<IExchange, string>();

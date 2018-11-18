@@ -1,8 +1,8 @@
-﻿using System;
-using StockAnalysis.Common.Data;
-
-namespace StockAnalysis.MetricsDefinition.Metrics
+﻿namespace StockAnalysis.MetricsDefinition.Metrics
 {
+    using System;
+    using Common.Data;
+
     /// <summary>
     /// The StdDev of TureRange metric
     /// </summary>

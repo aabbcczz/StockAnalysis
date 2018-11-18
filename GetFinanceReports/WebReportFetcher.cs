@@ -1,11 +1,11 @@
-﻿using System;
-using System.Text;
-using System.Net;
-using System.IO;
-using StockAnalysis.Common.SymbolName;
-
-namespace GetFinanceReports
+﻿namespace GetFinanceReports
 {
+    using System;
+    using System.Text;
+    using System.Net;
+    using System.IO;
+    using StockAnalysis.Common.SymbolName;
+
     public sealed class WebReportFetcher : IReportFetcher
     {
         private const string DefaultSuffixOfOutputFile = @"html";

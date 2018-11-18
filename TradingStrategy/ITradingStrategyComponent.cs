@@ -1,9 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using StockAnalysis.Common.Data;
-
-namespace StockAnalysis.TradingStrategy
+﻿namespace StockAnalysis.TradingStrategy
 {
+    using System;
+    using System.Collections.Generic;
+    using Common.Data;
+
     public interface ITradingStrategyComponent
     {
         string Name { get; }

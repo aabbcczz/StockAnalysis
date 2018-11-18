@@ -1,11 +1,11 @@
-﻿using System;
-using System.Threading;
-using StockAnalysis.Common.Exchange;
-using StockAnalysis.Common.Utility;
-using StockAnalysis.Common.SymbolName;
-
-namespace StockAnalysis.StockTrading.Utility
+﻿namespace StockAnalysis.StockTrading.Utility
 {
+    using System;
+    using System.Threading;
+    using Common.Exchange;
+    using Common.Utility;
+    using Common.SymbolName;
+
     /// <summary>
     /// base class of all kinds of order
     /// </summary>

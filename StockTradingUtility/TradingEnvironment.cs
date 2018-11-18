@@ -1,8 +1,8 @@
-﻿using System;
-using StockAnalysis.Common.Utility;
-
-namespace StockAnalysis.StockTrading.Utility
+﻿namespace StockAnalysis.StockTrading.Utility
 {
+    using System;
+    using Common.Utility;
+
     public static class TradingEnvironment
     {
         private static int InitializationCount = 0;

@@ -1,13 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿
 
-using StockAnalysis.TradingStrategy;
 
 namespace StockAnalysis.TradingStrategy.Strategy
 {
+    using System;
+    using System.Collections.Generic;
+
     internal sealed class PeriodCounter<T>
     {
         private readonly Dictionary<int, int> _periods = new Dictionary<int, int>();

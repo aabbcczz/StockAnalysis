@@ -1,7 +1,6 @@
-﻿using System;
-
-namespace GetFinanceReports
+﻿namespace GetFinanceReports
 {
+    using System;
     using StockAnalysis.Common.SymbolName;
     using StockAnalysis.Common.Exchange;
 

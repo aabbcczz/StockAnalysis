@@ -2,8 +2,8 @@
 {
     using System;
     using System.Collections.Concurrent;
-    using StockAnalysis.Common.SymbolName;
-    using StockAnalysis.Common.ChineseMarket;
+    using Common.SymbolName;
+    using Common.ChineseMarket;
 
     public static class ChineseStockDataAccessor
     {

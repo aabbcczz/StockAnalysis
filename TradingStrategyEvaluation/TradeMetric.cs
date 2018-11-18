@@ -2,7 +2,7 @@
 {
     using System;
     using System.Linq;
-    using StockAnalysis.TradingStrategy;
+    using TradingStrategy;
 
     using MathNet.Numerics;
     using MathNet.Numerics.Statistics;

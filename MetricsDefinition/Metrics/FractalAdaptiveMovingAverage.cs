@@ -1,7 +1,7 @@
-﻿using StockAnalysis.Common.Data;
-
-namespace StockAnalysis.MetricsDefinition.Metrics
+﻿namespace StockAnalysis.MetricsDefinition.Metrics
 {
+    using Common.Data;
+
     // please refer to http://etfhq.com/blog/2010/09/30/fractal-adaptive-moving-average-frama/
     // for more details and understand the algorithm
 

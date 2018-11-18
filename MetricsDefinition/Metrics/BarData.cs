@@ -1,7 +1,7 @@
-﻿using StockAnalysis.Common.Data;
-
-namespace StockAnalysis.MetricsDefinition.Metrics
+﻿namespace StockAnalysis.MetricsDefinition.Metrics
 {
+    using Common.Data;
+
     [Metric("BAR", "CP,OP,HP,LP,VOL,AMT")]
     public sealed class BarData : MultipleOutputBarInputSerialMetric
     {

@@ -1,15 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Runtime.InteropServices;
-
-using AutoIt;
-using System.Configuration;
-
-namespace AutoExportStockData
+﻿namespace AutoExportStockData
 {
+    using System;
+    using System.Runtime.InteropServices;
+
+    using AutoIt;
+    using System.Configuration;
     static class DataExporterHelper
     {
         public static IntPtr CleanUpAndGetMainWindowHandle()

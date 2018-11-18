@@ -1,8 +1,8 @@
-﻿using System;
-using StockAnalysis.Common.Data;
-
-namespace StockAnalysis.MetricsDefinition.Metrics
+﻿namespace StockAnalysis.MetricsDefinition.Metrics
 {
+    using System;
+    using StockAnalysis.Common.Data;
+
     [Metric("QKD", "K,D,J")]
     public sealed class QuickKdj : MultipleOutputBarInputSerialMetric
     {

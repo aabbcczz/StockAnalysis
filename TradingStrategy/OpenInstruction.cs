@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace StockAnalysis.TradingStrategy
+﻿namespace StockAnalysis.TradingStrategy
 {
+    using System;
+
     public sealed class OpenInstruction : Instruction
     {
         // if StopLossPriceForBuying is not 0.0, it means nor stop loss price neither position size should be estimated.

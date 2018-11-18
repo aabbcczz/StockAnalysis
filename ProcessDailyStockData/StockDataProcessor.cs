@@ -1,11 +1,11 @@
-﻿using System;
-using System.Linq;
-using System.Text;
-using System.IO;
-using StockAnalysis.Common.SymbolName;
-
-namespace ProcessDailyStockData
+﻿namespace ProcessDailyStockData
 {
+    using System;
+    using System.Linq;
+    using System.Text;
+    using System.IO;
+    using StockAnalysis.Common.SymbolName;
+
     sealed class StockDataProcessor : IDataProcessor
     {
         public void ConvertToCsvFile(ITradingObjectName name, string inputFile, string outputFile, DateTime startDate, DateTime endDate)

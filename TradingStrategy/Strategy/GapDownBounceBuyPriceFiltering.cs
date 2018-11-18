@@ -1,13 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using StockAnalysis.TradingStrategy.Base;
-
-namespace StockAnalysis.TradingStrategy.Strategy
+﻿namespace StockAnalysis.TradingStrategy.Strategy
 {
+    using Base;
+
     public sealed class GapDownBounceBuyPriceFiltering : GeneralBuyPriceFilteringBase
     {
         private RuntimeMetricProxy _metricProxy;

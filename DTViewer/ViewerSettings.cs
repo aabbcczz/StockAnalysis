@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.IO;
-using System.Threading.Tasks;
-using System.Xml.Serialization;
-
-namespace DTViewer
+﻿namespace DTViewer
 {
+    using System;
+    using System.IO;
+    using System.Xml.Serialization;
+
     [Serializable]
     public sealed class ViewerSettings
     {

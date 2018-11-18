@@ -1,10 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using StockAnalysis.Common.Data;
-
-namespace StockAnalysis.TradingStrategy.Base
+﻿namespace StockAnalysis.TradingStrategy.Base
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using Common.Data;
+
     internal sealed class CloseInstructionPriceComparer : IComparer<CloseInstruction>
     {
         public int Compare(CloseInstruction x, CloseInstruction y)

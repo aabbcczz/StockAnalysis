@@ -1,8 +1,8 @@
-﻿using System;
-using StockAnalysis.Common.Data;
-
-namespace StockAnalysis.MetricsDefinition
+﻿namespace StockAnalysis.MetricsDefinition
 {
+    using System;
+    using Common.Data;
+
     sealed class CallOperator : MetricBinaryOperator
     {
         private readonly StandaloneMetric _caller;

@@ -1,7 +1,7 @@
-﻿using StockAnalysis.Common.SymbolName;
-
-namespace StockTradingConsole
+﻿namespace StockTradingConsole
 {
+    using StockAnalysis.Common.SymbolName;
+
     public sealed class OldStock
     {
         public StockName Name { get; set; }

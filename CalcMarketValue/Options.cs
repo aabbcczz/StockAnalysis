@@ -1,8 +1,7 @@
-﻿using System.IO;
-using CommandLine;
-
-namespace CalcMarketValue
+﻿namespace CalcMarketValue
 {
+    using System.IO;
+    using CommandLine;
     public sealed class Options
     {
         [Option('s', "ShareFile", Required = true, HelpText = "The file that contains share information")]

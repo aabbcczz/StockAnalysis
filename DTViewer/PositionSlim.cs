@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using StockAnalysis.TradingStrategy;
-
-namespace DTViewer
+﻿namespace DTViewer
 {
+    using System;
+    using System.Text;
+    using StockAnalysis.TradingStrategy;
+
     internal sealed class PositionSlim
     {
         public string Symbol { get; private set; }

@@ -1,8 +1,8 @@
-﻿using System;
-using StockAnalysis.Common.Data;
-
-namespace StockAnalysis.MetricsDefinition.Metrics
+﻿namespace StockAnalysis.MetricsDefinition.Metrics
 {
+    using System;
+    using Common.Data;
+
     /// <summary>
     /// The Bar low position metric. Used to calculate the position in the low shade of bar.
     /// </summary>

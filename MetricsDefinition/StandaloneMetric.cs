@@ -1,10 +1,10 @@
-﻿using System;
-using System.Linq;
-using System.Reflection;
-using StockAnalysis.Common.Data;
-
-namespace StockAnalysis.MetricsDefinition
+﻿namespace StockAnalysis.MetricsDefinition
 {
+    using System;
+    using System.Linq;
+    using System.Reflection;
+    using Common.Data;
+
     sealed class StandaloneMetric : MetricExpression
     {
         private readonly SerialMetric _metric;

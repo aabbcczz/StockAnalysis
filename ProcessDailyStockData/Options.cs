@@ -1,10 +1,9 @@
-﻿using System;
-using System.IO;
-using CommandLine;
-using CommandLine.Text;
-
-namespace ProcessDailyStockData
+﻿namespace ProcessDailyStockData
 {
+    using System;
+    using System.IO;
+    using CommandLine;
+
     public sealed class Options
     {
         [Option('i', "InputFile", HelpText = "The input file")]

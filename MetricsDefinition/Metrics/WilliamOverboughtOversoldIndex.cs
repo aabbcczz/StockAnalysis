@@ -1,7 +1,7 @@
-﻿using StockAnalysis.Common.Data;
-
-namespace StockAnalysis.MetricsDefinition.Metrics
+﻿namespace StockAnalysis.MetricsDefinition.Metrics
 {
+    using Common.Data;
+
     [Metric("WR, WMSR")]
     public sealed class WilliamOverboughtOversoldIndex : SingleOutputBarInputSerialMetric
     {

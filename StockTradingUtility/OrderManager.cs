@@ -1,14 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Threading;
-
-using StockAnalysis.Common.Utility;
-
-
-namespace StockAnalysis.StockTrading.Utility
+﻿namespace StockAnalysis.StockTrading.Utility
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Threading.Tasks;
+    using System.Threading;
+
+    using Common.Utility;
+
     public sealed class OrderManager
     {
         public const int MinCancellationIntervalInMillisecond = 1000;

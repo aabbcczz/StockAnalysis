@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace StockAnalysis.DataAccess
+﻿namespace StockAnalysis.DataAccess
 {
+    using System;
+
     /// <summary>
     /// description of data partition
     /// </summary>

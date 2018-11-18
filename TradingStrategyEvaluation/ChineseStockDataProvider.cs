@@ -6,10 +6,10 @@
     using System.IO;
     using System.Threading.Tasks;
 
-    using StockAnalysis.Common.Data;
-    using StockAnalysis.Common.SymbolName;
-    using StockAnalysis.TradingStrategy;
-    using StockAnalysis.Common.ChineseMarket;
+    using Common.Data;
+    using Common.SymbolName;
+    using Common.ChineseMarket;
+    using TradingStrategy;
 
     public sealed class ChineseStockDataProvider : ITradingDataProvider
     {

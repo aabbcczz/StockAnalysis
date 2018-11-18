@@ -1,10 +1,8 @@
-﻿using System;
-using System.IO;
-using CommandLine;
-using CommandLine.Text;
-
-namespace StockTradingConsole
+﻿namespace StockTradingConsole
 {
+    using System.IO;
+    using CommandLine;
+
     public sealed class Options
     {
         [Option('n', "NewStockFile", Required = true, HelpText = "The file that contains new stocks to buy")]

@@ -1,8 +1,8 @@
-﻿using System;
-using StockAnalysis.Common.ChineseMarket;
-
-namespace StockAnalysis.TradingStrategy
+﻿namespace StockAnalysis.TradingStrategy
 {
+    using System;
+    using Common.ChineseMarket;
+
     public sealed class UnifiedMetricProxy
     {
         private const string ForBoardIndexMetricHeader = "B_";

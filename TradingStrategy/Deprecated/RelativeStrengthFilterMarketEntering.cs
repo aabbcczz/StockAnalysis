@@ -1,9 +1,9 @@
-﻿using System;
-using StockAnalysis.Common.Data;
-using StockAnalysis.TradingStrategy.Base;
-
-namespace StockAnalysis.TradingStrategy.Strategy
+﻿namespace StockAnalysis.TradingStrategy.Strategy
 {
+    using System;
+    using Common.Data;
+    using Base;
+
     [DeprecatedStrategy]
     public sealed class RelativeStrengthFilterMarketEntering
         : GeneralMarketEnteringBase

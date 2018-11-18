@@ -1,9 +1,8 @@
-﻿using StockAnalysis.Common.Data;
-
-namespace StockAnalysis.MetricsDefinition.Metrics
+﻿namespace StockAnalysis.MetricsDefinition.Metrics
 {
+    using Common.Data;
     /// <summary>
-    /// The ATR metric
+    /// The GROWTH metric
     /// </summary>
     [Metric("GROWTH")]
     public sealed class Growth : SingleOutputBarInputSerialMetric

@@ -1,23 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.IO;
-using System.Text;
-
-using CommandLine;
-
-using StockAnalysis.TradingStrategy;
-
-using StockAnalysis.TradingStrategy.Base;
-using StockAnalysis.TradingStrategy.Evaluation;
-
-using CsvHelper;
-using StockAnalysis.Common.ChineseMarket;
-using StockAnalysis.Common.SymbolName;
-using StockAnalysis.Common.Data;
-
-namespace PredicatorCmdClient
+﻿namespace PredicatorCmdClient
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.IO;
+    using System.Text;
+
+    using CommandLine;
+    using CsvHelper;
+    using StockAnalysis.TradingStrategy;
+    using StockAnalysis.TradingStrategy.Base;
+    using StockAnalysis.TradingStrategy.Evaluation;
+    using StockAnalysis.Common.ChineseMarket;
+    using StockAnalysis.Common.SymbolName;
+    using StockAnalysis.Common.Data;
+
     static class Program
     {
         static void Main(string[] args)

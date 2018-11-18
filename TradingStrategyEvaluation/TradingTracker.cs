@@ -1,9 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using StockAnalysis.TradingStrategy;
-
-namespace StockAnalysis.TradingStrategy.Evaluation
+﻿namespace StockAnalysis.TradingStrategy.Evaluation
 {
+    using System;
+    using System.Collections.Generic;
+
     public sealed class TradingTracker
     {
         private readonly List<Transaction> _transactionHistory = new List<Transaction>();

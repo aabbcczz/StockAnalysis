@@ -1,9 +1,9 @@
-﻿using System;
-using StockAnalysis.MetricsDefinition.Metrics;
-using StockAnalysis.Common.Data;
-
-namespace StockAnalysis.TradingStrategy.Strategy
+﻿namespace StockAnalysis.TradingStrategy.Strategy
 {
+    using System;
+    using MetricsDefinition.Metrics;
+    using Common.Data;
+
     public sealed class BounceRuntimeMetric : IRuntimeMetric
     {
         private readonly Lowest _lowest;

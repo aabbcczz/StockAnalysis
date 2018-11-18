@@ -1,8 +1,8 @@
-﻿using System.IO;
-using CommandLine;
-
-namespace ImportTable
+﻿namespace ImportTable
 {
+    using System.IO;
+    using CommandLine;
+
     public sealed class Options
     {
         [Option('c', "csv", Required = true, HelpText = "The csv file to be imported to database")]

@@ -1,7 +1,7 @@
-﻿using System;
-
-namespace StockAnalysis.MetricsDefinition.Metrics
+﻿namespace StockAnalysis.MetricsDefinition.Metrics
 {
+    using System;
+
     [Metric("MB,MAB")]
     public sealed class MovingAverageBias : SingleOutputRawInputSerialMetric
     {

@@ -1,9 +1,9 @@
 ﻿namespace StockAnalysis.TradingStrategy.Evaluation
 {
-    using StockAnalysis.TradingStrategy;
     using System.Linq;
-    using StockAnalysis.Common.SymbolName;
-    using StockAnalysis.Common.ChineseMarket;
+    using TradingStrategy;
+    using Common.SymbolName;
+    using Common.ChineseMarket;
 
     public sealed class ChineseStock : ITradingObject
     {

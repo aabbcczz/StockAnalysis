@@ -1,16 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.IO;
-using System.Xml.Serialization;
-
-using StockAnalysis.TradingStrategy;
-using StockAnalysis.TradingStrategy.Evaluation;
-using CsvHelper;
-
-namespace EvaluatorCmdClient
+﻿namespace EvaluatorCmdClient
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text;
+    using System.IO;
+    using System.Xml.Serialization;
+
+    using StockAnalysis.TradingStrategy;
+    using StockAnalysis.TradingStrategy.Evaluation;
+    using CsvHelper;
     public sealed class EvaluationResultContext : IDisposable
     {
         private const string DumpedDataFileName = "Dumpdata.csv";

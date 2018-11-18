@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace StockAnalysis.MetricsDefinition.Metrics
+﻿namespace StockAnalysis.MetricsDefinition.Metrics
 {
     [Metric("CRSI")]
     public sealed class CumulativeRelativeStrengthIndex : SingleOutputRawInputSerialMetric

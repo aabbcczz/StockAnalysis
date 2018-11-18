@@ -6,7 +6,7 @@
     using System.Threading.Tasks;
     using System.Threading;
 
-    using StockAnalysis.Common.Utility;
+    using Common.Utility;
 
     sealed class QuotePublisher
     {

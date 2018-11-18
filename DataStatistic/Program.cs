@@ -1,16 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using System.IO;
-
-using CommandLine;
-using StockAnalysis.TradingStrategy.Evaluation;
-
-using StockAnalysis.Common.SymbolName;
-
-namespace DataStatistic
+﻿namespace DataStatistic
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Threading.Tasks;
+    using System.IO;
+
+    using CommandLine;
+    using StockAnalysis.TradingStrategy.Evaluation;
+    using StockAnalysis.Common.SymbolName;
     static class Program
     {
         private static bool _toBeStopped = false;

@@ -1,15 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.IO;
-
-using CsvHelper;
-using StockAnalysis.Common.SymbolName;
-using StockAnalysis.Common.Utility;
-
-namespace TradingClient.StrategyGDB
+﻿namespace TradingClient.StrategyGDB
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text;
+    using System.IO;
+
+    using CsvHelper;
+    using StockAnalysis.Common.SymbolName;
+    using StockAnalysis.Common.Utility;
+
     sealed class DataFileReaderWriter
     {
         public const string NewStockFileName = "newstocks.csv";

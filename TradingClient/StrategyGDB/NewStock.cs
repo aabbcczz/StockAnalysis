@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace TradingClient.StrategyGDB
+﻿namespace TradingClient.StrategyGDB
 {
+    using System;
+
     public sealed class NewStock
     {
         public DateTime DateToBuy { get; set; }

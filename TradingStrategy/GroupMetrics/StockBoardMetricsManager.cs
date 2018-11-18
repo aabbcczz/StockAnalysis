@@ -1,11 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using StockAnalysis.Common.ChineseMarket;
-using StockAnalysis.Common.SymbolName;
-
-namespace StockAnalysis.TradingStrategy.GroupMetrics
+﻿namespace StockAnalysis.TradingStrategy.GroupMetrics
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using Common.ChineseMarket;
+    using Common.SymbolName;
+
     public sealed class StockBoardMetricsManager : IGroupRuntimeMetricManagerObserver
     {
         private IEvaluationContext _context;

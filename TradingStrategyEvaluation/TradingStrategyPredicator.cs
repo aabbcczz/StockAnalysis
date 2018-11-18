@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using StockAnalysis.Common.Data;
-using StockAnalysis.Common.ChineseMarket;
-using StockAnalysis.TradingStrategy;
-
-namespace StockAnalysis.TradingStrategy.Evaluation
+﻿namespace StockAnalysis.TradingStrategy.Evaluation
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using Common.Data;
+    using Common.ChineseMarket;
+
     /// <summary>
     /// Predicate the action according to latest data and strategy
     /// </summary>

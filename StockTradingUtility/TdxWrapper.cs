@@ -1,56 +1,52 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Runtime.InteropServices;
-
-namespace StockAnalysis.StockTrading.Utility
+﻿namespace StockAnalysis.StockTrading.Utility
 {
-    
-//1.交易API均是Trade.dll文件的导出函数，包括以下函数：
-//基本版的9个函数：
-// void  OpenTdx();//打开通达信
-// void  CloseTdx();//关闭通达信
-//  int  Logon(char* IP, short Port, char* Version, short YybID, char* AccountNo,char* TradeAccount, char* JyPassword,   char* TxPassword, char* ErrInfo);//登录帐号
-// void  Logoff(int ClientID);//注销
-// void  QueryData(int ClientID, int Category, char* Result, char* ErrInfo);//查询各类交易数据
-// void  SendOrder(int ClientID, int Category ,int PriceType,  char* Gddm,  char* Zqdm , float Price, int Quantity,  char* Result, char* ErrInfo);//下单
-// void  CancelOrder(int ClientID, char* ExchangeID, char* hth, char* Result, char* ErrInfo);//撤单
-// void  GetQuote(int ClientID, char* Zqdm, char* Result, char* ErrInfo);//获取五档报价
-// void  Repay(int ClientID, char* Amount, char* Result, char* ErrInfo);//融资融券账户直接还款
+    using System;
+    using System.Text;
+    using System.Runtime.InteropServices;
+
+    //1.交易API均是Trade.dll文件的导出函数，包括以下函数：
+    //基本版的9个函数：
+    // void  OpenTdx();//打开通达信
+    // void  CloseTdx();//关闭通达信
+    //  int  Logon(char* IP, short Port, char* Version, short YybID, char* AccountNo,char* TradeAccount, char* JyPassword,   char* TxPassword, char* ErrInfo);//登录帐号
+    // void  Logoff(int ClientID);//注销
+    // void  QueryData(int ClientID, int Category, char* Result, char* ErrInfo);//查询各类交易数据
+    // void  SendOrder(int ClientID, int Category ,int PriceType,  char* Gddm,  char* Zqdm , float Price, int Quantity,  char* Result, char* ErrInfo);//下单
+    // void  CancelOrder(int ClientID, char* ExchangeID, char* hth, char* Result, char* ErrInfo);//撤单
+    // void  GetQuote(int ClientID, char* Zqdm, char* Result, char* ErrInfo);//获取五档报价
+    // void  Repay(int ClientID, char* Amount, char* Result, char* ErrInfo);//融资融券账户直接还款
 
 
-//普通批量版新增的5个函数：(有些券商对批量操作进行了限速，最大批量操作数目请咨询券商)
-// void  QueryHistoryData(int ClientID, int Category, char* StartDate, char* EndDate, char* Result, char* ErrInfo);//查询各类历史数据
-// void  QueryDatas(int ClientID, int Category[], int Count, char* Result[], char* ErrInfo[]);//单账户批量查询各类交易数据
-// void  SendOrders(int ClientID, int Category[] , int PriceType[], char* Gddm[],  char* Zqdm[] , float Price[], int Quantity[],  int Count, char* Result[], char* ErrInfo[]);//单账户批量下单
-// void  CancelOrders(int ClientID, char* ExchangeID[], char* hth[], int Count, char* Result[], char* ErrInfo[]);//单账户批量撤单
-// void  GetQuotes(int ClientID, char* Zqdm[], int Count, char* Result[], char* ErrInfo[]);//单账户批量获取五档报价
+    //普通批量版新增的5个函数：(有些券商对批量操作进行了限速，最大批量操作数目请咨询券商)
+    // void  QueryHistoryData(int ClientID, int Category, char* StartDate, char* EndDate, char* Result, char* ErrInfo);//查询各类历史数据
+    // void  QueryDatas(int ClientID, int Category[], int Count, char* Result[], char* ErrInfo[]);//单账户批量查询各类交易数据
+    // void  SendOrders(int ClientID, int Category[] , int PriceType[], char* Gddm[],  char* Zqdm[] , float Price[], int Quantity[],  int Count, char* Result[], char* ErrInfo[]);//单账户批量下单
+    // void  CancelOrders(int ClientID, char* ExchangeID[], char* hth[], int Count, char* Result[], char* ErrInfo[]);//单账户批量撤单
+    // void  GetQuotes(int ClientID, char* Zqdm[], int Count, char* Result[], char* ErrInfo[]);//单账户批量获取五档报价
 
 
-//高级批量版新增的4个函数：
-// void  QueryMultiAccountsDatas(int ClientID[], int Category[], int Count, char* Result[], char* ErrInfo[]);//批量向不同账户查询各类交易数据
-// void  SendMultiAccountsOrders(int ClientID[], int Category[] , int PriceType[], char* Gddm[],  char* Zqdm[] , float Price[], int Quantity[],  int Count, char* Result[], char* ErrInfo[]);//批量向不同账户下单
-// void  CancelMultiAccountsOrders(int ClientID[], char* ExchangeID[], char* hth[], int Count, char* Result[], char* ErrInfo[]);//批量向不同账户撤单
-// void  GetMultiAccountsQuotes(int ClientID[], char* Zqdm[], int Count, char* Result[], char* ErrInfo[]);//批量向不同账户获取五档报价
+    //高级批量版新增的4个函数：
+    // void  QueryMultiAccountsDatas(int ClientID[], int Category[], int Count, char* Result[], char* ErrInfo[]);//批量向不同账户查询各类交易数据
+    // void  SendMultiAccountsOrders(int ClientID[], int Category[] , int PriceType[], char* Gddm[],  char* Zqdm[] , float Price[], int Quantity[],  int Count, char* Result[], char* ErrInfo[]);//批量向不同账户下单
+    // void  CancelMultiAccountsOrders(int ClientID[], char* ExchangeID[], char* hth[], int Count, char* Result[], char* ErrInfo[]);//批量向不同账户撤单
+    // void  GetMultiAccountsQuotes(int ClientID[], char* Zqdm[], int Count, char* Result[], char* ErrInfo[]);//批量向不同账户获取五档报价
 
 
-///交易接口执行后，如果失败，则字符串ErrInfo保存了出错信息中文说明；
-///如果成功，则字符串Result保存了结果数据,形式为表格数据，行数据之间通过\n字符分割，列数据之间通过\t分隔。
-///Result是\n，\t分隔的中文字符串，比如查询股东代码时返回的结果字符串就是 
+    ///交易接口执行后，如果失败，则字符串ErrInfo保存了出错信息中文说明；
+    ///如果成功，则字符串Result保存了结果数据,形式为表格数据，行数据之间通过\n字符分割，列数据之间通过\t分隔。
+    ///Result是\n，\t分隔的中文字符串，比如查询股东代码时返回的结果字符串就是 
 
-///"股东代码\t股东名称\t帐号类别\t保留信息\n
-///0000064567\t\t0\t\nA000064567\t\t1\t\n
-///2000064567\t\t2\t\nB000064567\t\t3\t"
+    ///"股东代码\t股东名称\t帐号类别\t保留信息\n
+    ///0000064567\t\t0\t\nA000064567\t\t1\t\n
+    ///2000064567\t\t2\t\nB000064567\t\t3\t"
 
-///查得此数据之后，通过分割字符串， 可以恢复为几行几列的表格形式的数据
+    ///查得此数据之后，通过分割字符串， 可以恢复为几行几列的表格形式的数据
 
 
 
-//2.API使用流程为: 应用程序先调用OpenTdx打开通达信实例，一个实例下可以同时登录多个交易账户，每个交易账户称之为ClientID.
-//通过调用Logon获得ClientID，然后可以调用其他API函数向各个ClientID进行查询或下单; 应用程序退出时应调用Logoff注销ClientID, 最后调用CloseTdx关闭通达信实例. 
-//OpenTdx和CloseTdx在整个应用程序中只能被调用一次.API带有断线自动重连功能，应用程序只需根据API函数返回的出错信息进行适当错误处理即可。
+    //2.API使用流程为: 应用程序先调用OpenTdx打开通达信实例，一个实例下可以同时登录多个交易账户，每个交易账户称之为ClientID.
+    //通过调用Logon获得ClientID，然后可以调用其他API函数向各个ClientID进行查询或下单; 应用程序退出时应调用Logoff注销ClientID, 最后调用CloseTdx关闭通达信实例. 
+    //OpenTdx和CloseTdx在整个应用程序中只能被调用一次.API带有断线自动重连功能，应用程序只需根据API函数返回的出错信息进行适当错误处理即可。
 
 
 

@@ -1,16 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.IO;
-using System.Threading.Tasks;
-using System.Configuration;
-using System.Drawing;
-
-using AutoIt;
-
-namespace AutoExportStockData
+﻿namespace AutoExportStockData
 {
+    using System;
+    using System.IO;
+    using System.Configuration;
+
+    using AutoIt;
     class Program
     {
         static void Main(string[] args)

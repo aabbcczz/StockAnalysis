@@ -1,9 +1,9 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using StockAnalysis.Common.Exchange;
-
-namespace StockAnalysis.StockTrading.Utility
+﻿namespace StockAnalysis.StockTrading.Utility
 {
+    using System.Collections.Generic;
+    using System.Linq;
+    using Common.Exchange;
+
     public sealed class QueryShareholderRegistryResult
     {
         private static string[] columns = new string[]

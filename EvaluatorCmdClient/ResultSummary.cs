@@ -1,15 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Dynamic;
-using System.Reflection;
-
-using StockAnalysis.TradingStrategy;
-using StockAnalysis.TradingStrategy.Evaluation;
-using CsvHelper.Configuration;
-
-namespace EvaluatorCmdClient
+﻿namespace EvaluatorCmdClient
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Linq.Dynamic;
+    using System.Reflection;
+
+    using StockAnalysis.TradingStrategy;
+    using StockAnalysis.TradingStrategy.Evaluation;
+    using CsvHelper.Configuration;
+
     public sealed class ResultSummary
     {
         private const int MaxParameterCount = 80;

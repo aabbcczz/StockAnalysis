@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Linq;
     using StockAnalysis.Common.Utility;
+
     class StateMachine<StateType, InputType> where InputType : class
     {
         private Dictionary<StateType, List<StateTransition<StateType, InputType>>> _outgoingTransitions;

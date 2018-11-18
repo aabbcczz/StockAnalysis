@@ -1,7 +1,7 @@
-﻿using System;
-
-namespace StockAnalysis.TradingStrategy
+﻿namespace StockAnalysis.TradingStrategy
 {
+    using System;
+
     public sealed class Position
     {
         private const double UninitializedStopLossPrice = double.MinValue;

@@ -1,10 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using StockAnalysis.TradingStrategy.Base;
-using StockAnalysis.TradingStrategy;
-
-namespace StockAnalysis.TradingStrategy.Strategy
+﻿namespace StockAnalysis.TradingStrategy.Strategy
 {
+    using System;
+    using System.Collections.Generic;
+    using Base;
+
     public sealed class EqualValuePositionSizing : GeneralPositionSizingBase
     {
         [Parameter(10, "权益被分割的块数，每份头寸将占有一份. 0表示自适应划分")]

@@ -1,10 +1,10 @@
-﻿using System;
-using System.Xml.Serialization;
-using System.IO;
-using StockAnalysis.Common.SymbolName;
-
-namespace StockAnalysis.TradingStrategy.Evaluation
+﻿namespace StockAnalysis.TradingStrategy.Evaluation
 {
+    using System;
+    using System.Xml.Serialization;
+    using System.IO;
+    using Common.SymbolName;
+
     [Serializable]
     public sealed class ChineseStockDataSettings
     {

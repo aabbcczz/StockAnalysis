@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace StockTradingConsole
+﻿namespace StockTradingConsole
 {
+    using System;
+
     public sealed class NewStockForSerialization
     {
         public DateTime DateToBuy { get; set; }

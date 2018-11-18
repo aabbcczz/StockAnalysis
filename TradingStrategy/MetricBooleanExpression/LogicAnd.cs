@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace StockAnalysis.TradingStrategy.MetricBooleanExpression
+﻿namespace StockAnalysis.TradingStrategy.MetricBooleanExpression
 {
+    using System;
+
     public class LogicAnd : LogicOperation
     {
         public LogicAnd(IMetricBooleanExpression expression1, IMetricBooleanExpression expression2)

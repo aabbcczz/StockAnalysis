@@ -1,17 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.IO;
-using System.Threading.Tasks;
-
-using StockAnalysis.TradingStrategy.GroupMetrics;
-using StockAnalysis.MetricsDefinition.Metrics;
-using StockAnalysis.TradingStrategy.Base;
-using CsvHelper;
-
-namespace StockAnalysis.TradingStrategy.Strategy
+﻿namespace StockAnalysis.TradingStrategy.Strategy
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text;
+    using System.IO;
+    using GroupMetrics;
+    using MetricsDefinition.Metrics;
+    using Base;
+    using CsvHelper;
+
     [DeprecatedStrategy]
     public sealed class BlockPriceIndexFilterMarketEntering : GeneralMarketEnteringBase
     {

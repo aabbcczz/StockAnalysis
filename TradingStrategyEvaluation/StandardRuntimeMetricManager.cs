@@ -1,10 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using StockAnalysis.TradingStrategy;
-using StockAnalysis.Common.Data;
-
-namespace StockAnalysis.TradingStrategy.Evaluation
+﻿namespace StockAnalysis.TradingStrategy.Evaluation
 {
+    using System;
+    using System.Collections.Generic;
+    using Common.Data;
+
     internal sealed class StandardRuntimeMetricManager : IRuntimeMetricManager
     {
         private readonly int _maxTradingObjectNumber;

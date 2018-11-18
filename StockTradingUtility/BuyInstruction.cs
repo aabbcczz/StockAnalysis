@@ -1,6 +1,6 @@
 ﻿namespace StockAnalysis.StockTrading.Utility
 {
-    using StockAnalysis.Common.ChineseMarket;
+    using Common.ChineseMarket;
     using System;
     public sealed class BuyInstruction
     {

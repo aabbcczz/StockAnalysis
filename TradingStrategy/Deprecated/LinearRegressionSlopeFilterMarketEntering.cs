@@ -1,9 +1,8 @@
-﻿using System;
-using StockAnalysis.MetricsDefinition;
-using StockAnalysis.TradingStrategy.Base;
-
-namespace StockAnalysis.TradingStrategy.Strategy
+﻿namespace StockAnalysis.TradingStrategy.Strategy
 {
+    using System;
+    using Base;
+
     [DeprecatedStrategy]
     public sealed class LinearRegressionSlopeFilterMarketEntering 
         : GeneralMarketEnteringBase

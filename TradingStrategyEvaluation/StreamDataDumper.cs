@@ -1,15 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.IO;
-
-using StockAnalysis.Common.Data;
-using StockAnalysis.Common.Utility;
-
-using StockAnalysis.TradingStrategy;
-
-namespace StockAnalysis.TradingStrategy.Evaluation
+﻿namespace StockAnalysis.TradingStrategy.Evaluation
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.IO;
+
+    using Common.Data;
+    using Common.Utility;
+
+
     public sealed class StreamDataDumper : IDataDumper
     {
         private StreamWriter _writer;

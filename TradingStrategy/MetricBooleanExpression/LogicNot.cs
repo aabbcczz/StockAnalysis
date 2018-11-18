@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace StockAnalysis.TradingStrategy.MetricBooleanExpression
+﻿namespace StockAnalysis.TradingStrategy.MetricBooleanExpression
 {
+    using System;
+
     public class LogicNot : LogicOperation
     {
         public LogicNot(IMetricBooleanExpression expression)

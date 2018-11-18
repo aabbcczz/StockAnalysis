@@ -1,8 +1,9 @@
-﻿using System;
-using System.Reflection;
-
-namespace StockAnalysis.TradingStrategy
+﻿namespace StockAnalysis.TradingStrategy
 {
+    using System;
+    using System.Reflection;
+
+
     [AttributeUsage(AttributeTargets.Property)]
     public sealed class ParameterAttribute : Attribute 
     {

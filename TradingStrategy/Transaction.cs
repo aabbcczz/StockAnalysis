@@ -1,8 +1,8 @@
-﻿using System;
-using StockAnalysis.Common.Utility;
-
-namespace StockAnalysis.TradingStrategy
+﻿namespace StockAnalysis.TradingStrategy
 {
+    using System;
+    using StockAnalysis.Common.Utility;
+
     public sealed class Transaction
     {
         public long InstructionId { get; set; }

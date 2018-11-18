@@ -1,18 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using log4net;
-using log4net.Appender;
-using log4net.Core;
-using log4net.Layout;
-using log4net.Util;
-using System.Windows.Forms;
-
-namespace TradingClient
+﻿namespace TradingClient
 {
+    using log4net.Appender;
+    using log4net.Core;
+    using System.Windows.Forms;
+
     /// <summary>
     /// Displays messages to text box
     /// </summary>

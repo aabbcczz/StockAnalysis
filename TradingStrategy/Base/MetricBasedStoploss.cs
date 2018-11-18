@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using StockAnalysis.TradingStrategy.MetricBooleanExpression;
-
-namespace StockAnalysis.TradingStrategy.Base
+﻿namespace StockAnalysis.TradingStrategy.Base
 {
+    using System;
+
     public abstract class MetricBasedStoploss : GeneralStopLossBase
     {
         private RuntimeMetricProxy _proxy;

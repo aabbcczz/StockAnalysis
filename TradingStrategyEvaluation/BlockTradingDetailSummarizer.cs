@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using StockAnalysis.TradingStrategy;
-using StockAnalysis.TradingStrategy.Strategy;
-
-namespace StockAnalysis.TradingStrategy.Evaluation
+﻿namespace StockAnalysis.TradingStrategy.Evaluation
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using Strategy;
+
     public sealed class BlockTradingDetailSummarizer
     {
         public sealed class BlockTradingDetail

@@ -2,9 +2,9 @@
 {
     using System;
     using System.Linq;
-    using StockAnalysis.Common.Utility;
-    using StockAnalysis.Common.Exchange;
-    using StockAnalysis.Common.ChineseMarket;
+    using Common.Utility;
+    using Common.Exchange;
+    using Common.ChineseMarket;
 
     public sealed class StoplossOrder : OrderBase
     {

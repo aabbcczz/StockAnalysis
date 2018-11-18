@@ -1,14 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using AutoIt;
-using System.Configuration;
-
-namespace AutoExportStockData
+﻿namespace AutoExportStockData
 {
+    using System;
+    using AutoIt;
+
     class StockDataExporter : DataExporterBase
     {
         protected override bool SelectDataToExport(int step)

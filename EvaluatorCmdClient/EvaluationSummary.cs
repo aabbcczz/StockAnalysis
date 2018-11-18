@@ -1,8 +1,8 @@
-﻿using System;
-using StockAnalysis.TradingStrategy.Evaluation;
-
-namespace EvaluatorCmdClient
+﻿namespace EvaluatorCmdClient
 {
+    using System;
+    using StockAnalysis.TradingStrategy.Evaluation;
+
     [Serializable]
     public sealed class EvaluationSummary
     {

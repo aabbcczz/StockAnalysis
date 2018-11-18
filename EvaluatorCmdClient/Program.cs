@@ -1,21 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using System.IO;
-
-using CommandLine;
-
-using StockAnalysis.TradingStrategy;
-using StockAnalysis.TradingStrategy.Evaluation;
-using StockAnalysis.TradingStrategy.Base;
-
-using System.Threading;
-using StockAnalysis.Common.ChineseMarket;
-using StockAnalysis.Common.SymbolName;
-
-namespace EvaluatorCmdClient
+﻿namespace EvaluatorCmdClient
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Threading.Tasks;
+    using System.IO;
+
+    using CommandLine;
+
+    using StockAnalysis.TradingStrategy;
+    using StockAnalysis.TradingStrategy.Evaluation;
+    using StockAnalysis.TradingStrategy.Base;
+
+    using System.Threading;
+    using StockAnalysis.Common.ChineseMarket;
+    using StockAnalysis.Common.SymbolName;
+
     static class Program
     {
         private static EvaluationResultContextManager _contextManager;

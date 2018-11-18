@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Reflection;
-
-namespace StockAnalysis.TradingStrategy.Base
+﻿namespace StockAnalysis.TradingStrategy.Base
 {
+    using System;
+
     public sealed class GlobalSettingsComponent : GeneralTradingStrategyComponentBase
     {
         public override string Name

@@ -1,8 +1,8 @@
 ﻿using System;
-using StockAnalysis.Common.SymbolName;
-
 namespace ProcessDailyStockData
 {
+    using StockAnalysis.Common.SymbolName;
+
     interface IDataProcessor
     {
         ITradingObjectName GetName(string file);

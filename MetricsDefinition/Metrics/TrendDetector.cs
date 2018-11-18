@@ -1,9 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-
-namespace StockAnalysis.MetricsDefinition.Metrics
+﻿namespace StockAnalysis.MetricsDefinition.Metrics
 {
+    using System;
+    using System.Linq;
+
     [Metric("TD")]
     public sealed class TrendDetector : SingleOutputRawInputSerialMetric
     {

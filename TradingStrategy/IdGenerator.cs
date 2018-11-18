@@ -1,7 +1,7 @@
-﻿using System.Threading;
-
-namespace StockAnalysis.TradingStrategy
+﻿namespace StockAnalysis.TradingStrategy
 {
+    using System.Threading;
+
     public static class IdGenerator
     {
         private static long _nextId;

@@ -1,15 +1,13 @@
-﻿
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.IO;
-using StockAnalysis.TradingStrategy;
-using StockAnalysis.TradingStrategy.Evaluation;
-
-using StockAnalysis.Common.Data;
-
-namespace DataStatistic
+﻿namespace DataStatistic
 {
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text;
+    using System.IO;
+    using StockAnalysis.TradingStrategy;
+    using StockAnalysis.TradingStrategy.Evaluation;
+
+    using StockAnalysis.Common.Data;
     class GapDownBounceCounter : IBarCounter
     {
         private const int SampleBarSequenceLength = 8;

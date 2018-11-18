@@ -1,11 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using StockAnalysis.Common.Data;
-using StockAnalysis.TradingStrategy.Base;
-
-namespace StockAnalysis.TradingStrategy.Strategy
+﻿namespace StockAnalysis.TradingStrategy.Strategy
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using Common.Data;
+    using Base;
+
     public sealed class CommonPositionAdjusting : GeneralPositionAdjustingBase
     {
         private Dictionary<string, double> _highestPrices = new Dictionary<string, double>(); 

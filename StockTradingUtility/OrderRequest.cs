@@ -1,8 +1,8 @@
-﻿using System;
-using StockAnalysis.Common.Exchange;
-
-namespace StockAnalysis.StockTrading.Utility
+﻿namespace StockAnalysis.StockTrading.Utility
 {
+    using System;
+    using Common.Exchange;
+
     public sealed class OrderRequest
     {
         /// <summary>

@@ -1,8 +1,8 @@
-﻿using System;
-using StockAnalysis.Common.ChineseMarket;
-
-namespace StockAnalysis.TradingStrategy.Strategy
+﻿namespace StockAnalysis.TradingStrategy.Strategy
 {
+    using System;
+    using Common.ChineseMarket;
+
     sealed class BoardIndexBasedEquityUtilizationCalculator
     {
         private readonly IEvaluationContext _context;

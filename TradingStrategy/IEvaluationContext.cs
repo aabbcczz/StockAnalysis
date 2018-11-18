@@ -1,13 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-
-using StockAnalysis.Common.Data;
-using StockAnalysis.Common.ChineseMarket;
-
-using StockAnalysis.TradingStrategy.Base;
-
-namespace StockAnalysis.TradingStrategy
+﻿namespace StockAnalysis.TradingStrategy
 {
+    using System;
+    using System.Collections.Generic;
+
+    using Common.Data;
+    using Common.ChineseMarket;
+
+    using Base;
+
     public interface IEvaluationContext
     {
         IRuntimeMetricManager MetricManager { get; }

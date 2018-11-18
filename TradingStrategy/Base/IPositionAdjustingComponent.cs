@@ -1,7 +1,7 @@
-﻿using System.Collections.Generic;
-
-namespace StockAnalysis.TradingStrategy.Base
+﻿namespace StockAnalysis.TradingStrategy.Base
 {
+    using System.Collections.Generic;
+
     public interface IPositionAdjustingComponent : ITradingStrategyComponent
     {
         /// <summary>

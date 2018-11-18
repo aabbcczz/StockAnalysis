@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.IO;
-using CommandLine;
-
-namespace ReportParser
+﻿namespace ReportParser
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text;
+    using System.IO;
+    using CommandLine;
     using StockAnalysis.Common.SymbolName;
     using StockAnalysis.Common.Exchange;
     using StockAnalysis.FinancialReportUtility;
