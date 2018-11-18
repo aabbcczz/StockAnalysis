@@ -1,10 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Xml;
-
-namespace StockAnalysis.Share
+﻿namespace StockAnalysis.FinancialReportUtility
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Xml;
+
     public sealed class AliasNameMapping
     {
         private const string MapElementName = "Map";

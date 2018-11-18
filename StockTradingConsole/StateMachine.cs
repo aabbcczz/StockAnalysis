@@ -1,14 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using StockTrading.Utility;
-using StockAnalysis.Share;
-using StockAnalysis.Common.Utility;
-
-namespace StockTradingConsole
+﻿namespace StockTradingConsole
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using StockAnalysis.Common.Utility;
     class StateMachine<StateType, InputType> where InputType : class
     {
         private Dictionary<StateType, List<StateTransition<StateType, InputType>>> _outgoingTransitions;

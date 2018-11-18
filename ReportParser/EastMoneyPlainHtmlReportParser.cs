@@ -1,14 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using HtmlAgilityPack;
-using System.IO;
-using System.Web;
-
-using StockAnalysis.Share;
-
-namespace ReportParser
+﻿namespace ReportParser
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using HtmlAgilityPack;
+    using System.IO;
+    using System.Web;
+    using StockAnalysis.FinancialReportUtility;
+
     class EastMoneyPlainHtmlReportParser : IReportParser
     {
         private const string EffectiveRowStartPattern = "│";

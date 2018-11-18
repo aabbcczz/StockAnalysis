@@ -1,6 +1,5 @@
 ﻿namespace DataAccess
 {
-    using StockAnalysis.Share;
     using System;
     using System.IO;
     using System.Linq;

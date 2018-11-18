@@ -1,15 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-using StockTrading.Utility;
-using StockAnalysis.Share;
-using StockAnalysis.Common.Utility;
-using System.Threading;
-
-namespace TradingClient
+﻿namespace TradingClient
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Threading.Tasks;
+
+    using StockTrading.Utility;
+    using StockAnalysis.Common.Utility;
+    using System.Threading;
+    using StockAnalysis.Common.ChineseMarket;
+
     sealed class StrategyGdbExecuter
     {
         private const int MaxNumberOfNewStockCanBeBoughtInOneDay = 6; // 策略一日内允许买入的股票最大数目

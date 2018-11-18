@@ -1,7 +1,7 @@
-﻿using StockAnalysis.Share;
-
-namespace ReportParser
+﻿namespace ReportParser
 {
+    using StockAnalysis.FinancialReportUtility;
+
     public interface IReportParser
     {
         /// <summary>

@@ -1,9 +1,9 @@
-﻿using System;
-using StockAnalysis.Common.SymbolName;
-
-using StockAnalysis.Share;
-namespace StockTradingConsole
+﻿namespace StockTradingConsole
 {
+    using System;
+    using StockAnalysis.Common.SymbolName;
+    using StockAnalysis.Common.ChineseMarket;
+
     public sealed class NewStock
     {
         public DateTime DateToBuy { get; set; }

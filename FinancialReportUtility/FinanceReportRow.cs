@@ -1,8 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace StockAnalysis.Share
+﻿namespace StockAnalysis.FinancialReportUtility
 {
+    using System;
+    using System.Collections.Generic;
+
     public sealed class FinanceReportRow
     {
         private readonly FinanceReportCell[] _cells;

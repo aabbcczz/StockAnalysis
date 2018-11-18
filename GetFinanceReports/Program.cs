@@ -4,7 +4,6 @@ using System.IO;
 using System.Threading;
 using CommandLine;
 using System.Linq;
-using StockAnalysis.Share;
 using StockAnalysis.Common.SymbolName;
 
 namespace GetFinanceReports

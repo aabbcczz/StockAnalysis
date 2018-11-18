@@ -1,11 +1,12 @@
-﻿using System;
-using System.Linq;
-using TradingStrategy;
-
-using StockAnalysis.Common.Math;
-
-namespace TradingStrategyEvaluation
+﻿namespace TradingStrategyEvaluation
 {
+    using System;
+    using System.Linq;
+    using TradingStrategy;
+
+    using MathNet.Numerics;
+    using MathNet.Numerics.Statistics;
+
     public sealed class TradeMetric
     {
         public const string SymbolForAll = "-----";
@@ -327,10 +328,27 @@ namespace TradingStrategyEvaluation
             double[] equities = exponentialEquity
                 ? OrderedEquitySequence.Select(e => Math.Log(e.Equity)).ToArray()
                 : OrderedEquitySequence.Select(e => e.Equity).ToArray();
+            double[] indices = Enumerable.Range(0, equities.Length).Select(n => (double)n).ToArray();
 
-            var result = LinearRegression.ComputeSeries(equities);
+            if (equities.Count() <= 2)
+            {
+                KRatio = 1;
+            }
+            else
+            {
+                // we are using the KRatio 2013 formula. 
+                // see https://thesystematictrader.com/2013/04/22/coding-lars-kestners-k-ratio-in-excel/
 
-            KRatio = result.Slope / result.StdErrorForSlope / equities.Length;
+                var fitResult = Fit.Line(indices, equities);
+                var intercept = fitResult.Item1;
+                var slope = fitResult.Item2;
+
+                var standardErrorOfFit = GoodnessOfFit.StandardError(indices.Select(i => intercept + i * slope), equities, 2);
+                var sumOfSquareOfX = indices.Variance() * equities.Count();
+                var stdErrorOfSlope = standardErrorOfFit / (indices.StandardDeviation() * Math.Sqrt((double)equities.Count()));
+
+                KRatio = slope / stdErrorOfSlope / equities.Count();
+            }
         }
     }
 }

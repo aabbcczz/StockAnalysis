@@ -1,10 +1,10 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.IO;
-using System.Xml;
-
-namespace StockAnalysis.Share
+﻿namespace StockAnalysis.FinancialReportUtility
 {
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.IO;
+    using System.Xml;
+
     public sealed class DataDictionary
     {
         public sealed class TableDataDictionary

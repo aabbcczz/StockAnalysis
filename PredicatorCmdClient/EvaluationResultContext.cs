@@ -1,17 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.IO;
-using System.Xml.Serialization;
-
-using TradingStrategy;
-using TradingStrategyEvaluation;
-using CsvHelper;
-using StockAnalysis.Share;
-
-namespace PredicatorCmdClient
+﻿namespace PredicatorCmdClient
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Text;
+    using System.IO;
+    using System.Xml.Serialization;
+
+    using TradingStrategy;
+    using TradingStrategyEvaluation;
+    using CsvHelper;
+
     public sealed class PredicationContext : IDisposable
     {
         private const string LogFileName = "Log.txt";

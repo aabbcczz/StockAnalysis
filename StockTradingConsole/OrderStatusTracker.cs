@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using StockAnalysis.Share;
-using StockTrading.Utility;
-using StockAnalysis.Common.Utility;
-
-namespace StockTradingConsole
+﻿namespace StockTradingConsole
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using StockTrading.Utility;
+    using StockAnalysis.Common.Utility;
     sealed class OrderStatusTracker
     {
         private object _syncObj = new object();

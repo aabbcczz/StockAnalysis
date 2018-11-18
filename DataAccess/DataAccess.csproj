@@ -64,10 +64,6 @@
       <Project>{c03c9704-b9de-4a43-8b94-6fe14a84680c}</Project>
       <Name>Common</Name>
     </ProjectReference>
-    <ProjectReference Include="..\StockAnalysisShare\StockAnalysisShare.csproj">
-      <Project>{46EEBD03-E7D2-4958-A782-D22435CBC2BB}</Project>
-      <Name>StockAnalysisShare</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

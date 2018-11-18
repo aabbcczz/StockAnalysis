@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.Concurrent;
-using StockAnalysis.Share;
-using StockAnalysis.Common.SymbolName;
-
-
-namespace TradingStrategyEvaluation
+﻿namespace TradingStrategyEvaluation
 {
+    using System;
+    using System.Collections.Concurrent;
+    using StockAnalysis.Common.SymbolName;
+    using StockAnalysis.Common.ChineseMarket;
+
     public static class ChinaStockDataAccessor
     {
         private static object _lock = new object();

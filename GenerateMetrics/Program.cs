@@ -1,17 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.IO;
-using System.Text;
-using System.Threading.Tasks;
-using CommandLine;
-using MetricsDefinition;
-using StockAnalysis.Share;
-
-namespace GenerateMetrics
+﻿namespace GenerateMetrics
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.IO;
+    using System.Text;
+    using System.Threading.Tasks;
+    using CommandLine;
+    using MetricsDefinition;
     using StockAnalysis.Common.Utility;
-    using StockAnalysis.Common.Data;
+    using StockAnalysis.Common.ChineseMarket;
 
     static class Program
     {

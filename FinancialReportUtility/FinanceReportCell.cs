@@ -1,7 +1,6 @@
-﻿using System;
-
-namespace StockAnalysis.Share
+﻿namespace StockAnalysis.FinancialReportUtility
 {
+    using System;
     public sealed class FinanceReportCell
     {
         public enum CellType

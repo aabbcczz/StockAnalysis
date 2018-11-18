@@ -1,14 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.IO;
-using StockAnalysis.Common.ChineseMarket;
-using StockAnalysis.Common.Data;
-using TradingStrategy;
-using StockAnalysis.Share;
-
-namespace TradingStrategyEvaluation
+﻿namespace TradingStrategyEvaluation
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.IO;
+    using StockAnalysis.Common.ChineseMarket;
+    using StockAnalysis.Common.Data;
+    using TradingStrategy;
+
     public sealed class TradingStrategyEvaluator
     {
         private readonly int _numberOfAccounts;

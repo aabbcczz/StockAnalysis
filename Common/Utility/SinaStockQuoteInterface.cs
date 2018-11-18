@@ -1,16 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Net;
-using System.Net.Http;
-using System.IO;
-
-namespace StockAnalysis.Share
+﻿namespace StockAnalysis.Common.Utility
 {
-    using Common.Exchange;
-    using Common.SymbolName;
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text;
+    using System.Threading.Tasks;
+    using System.Net.Http;
+    using Exchange;
+    using SymbolName;
 
     public static class SinaStockQuoteInterface
     {

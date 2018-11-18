@@ -1,8 +1,7 @@
-﻿using System.Collections.Generic;
-using System.Text.RegularExpressions;
-
-namespace StockAnalysis.Share
+﻿namespace StockAnalysis.FinancialReportUtility
 {
+    using System.Collections.Generic;
+    using System.Text.RegularExpressions;
     public static class FinanceReportHelper
     {
         private static readonly Dictionary<string, decimal> Units = new Dictionary<string, decimal>

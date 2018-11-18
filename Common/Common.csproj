@@ -48,17 +48,20 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ChineseMarket\ChinaStockHelper.cs" />
+    <Compile Include="ChineseMarket\ChinaStockTick.cs" />
+    <Compile Include="ChineseMarket\HistoryData.cs" />
     <Compile Include="ChineseMarket\StockBlock.cs" />
     <Compile Include="ChineseMarket\StockBlockManager.cs" />
     <Compile Include="ChineseMarket\StockBlockRelationship.cs" />
     <Compile Include="ChineseMarket\StockBlockRelationshipManager.cs" />
+    <Compile Include="ChineseMarket\UntradableObject.cs" />
     <Compile Include="Data\Bar.cs" />
     <Compile Include="Data\TimeSeriesData.cs" />
     <Compile Include="Exchange\BiddingMethod.cs" />
     <Compile Include="Exchange\BiddingTimeRange.cs" />
     <Compile Include="Exchange\ChinaFinancialFuturesExchange.cs" />
     <Compile Include="ChineseMarket\StockBoardIndex.cs" />
-    <Compile Include="Math\LinearRegression.cs" />
     <Compile Include="SymbolName\TradingObjectName.cs" />
     <Compile Include="SymbolName\TradingObjectNameFactory.cs" />
     <Compile Include="SymbolName\TradingObjectNameTable.cs" />
@@ -88,13 +91,17 @@
     <Compile Include="Utility\CsvStringExtension.cs" />
     <Compile Include="Utility\MD5Hash.cs" />
     <Compile Include="Utility\PropertyComparer.cs" />
+    <Compile Include="Utility\SinaStockQuote.cs" />
+    <Compile Include="Utility\SinaStockQuoteInterface.cs" />
     <Compile Include="Utility\SortableBindingList.cs" />
     <Compile Include="Utility\WaitableConcurrentQueue.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Content Include="SymbolName\SymbolTable.txt" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

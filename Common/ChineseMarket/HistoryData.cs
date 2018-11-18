@@ -1,13 +1,13 @@
-﻿namespace StockAnalysis.Share
+﻿namespace StockAnalysis.Common.ChineseMarket
 {
     using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Text;
 
-    using Common.Data;
-    using Common.SymbolName;
-    using Common.Utility;
+    using Data;
+    using SymbolName;
+    using Utility;
 
     public class HistoryData
     {

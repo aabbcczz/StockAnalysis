@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using TradingStrategy;
-using StockAnalysis.Share;
-using TradingStrategy.Base;
-
-namespace TradingStrategy.Strategy
+﻿namespace TradingStrategy.Strategy
 {
+    using System.Collections.Generic;
+    using System.Linq;
+    using TradingStrategy.Base;
     public sealed class GapDownBouncePositionAdjusting : GeneralPositionAdjustingBase
     {
         public override string Name

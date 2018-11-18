@@ -1,22 +1,22 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Linq;
-using System.Text;
-using System.IO;
-
-using System.Windows.Forms;
-
-using TradingStrategy;
-using TradingStrategyEvaluation;
-using StockAnalysis.Share;
-using CsvHelper;
-using StockAnalysis.Common.SymbolName;
-using StockAnalysis.Common.Data;
-using StockAnalysis.Common.Utility;
-
-namespace DTViewer
+﻿namespace DTViewer
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Data;
+    using System.Linq;
+    using System.Text;
+    using System.IO;
+
+    using System.Windows.Forms;
+
+    using TradingStrategy;
+    using TradingStrategyEvaluation;
+    using CsvHelper;
+    using StockAnalysis.Common.SymbolName;
+    using StockAnalysis.Common.Data;
+    using StockAnalysis.Common.Utility;
+    using StockAnalysis.Common.ChineseMarket;
+
     public partial class MainForm : Form
     {
         private const string ViewerSettingsFileName = "ViewerSettings.xml";

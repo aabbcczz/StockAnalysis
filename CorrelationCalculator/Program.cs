@@ -1,17 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using System.IO;
-using System.Text;
-
-using CommandLine;
-using StockAnalysis.Share;
-using MathNet.Numerics.Statistics;
-using MathNet.Numerics.LinearAlgebra;
-
-namespace CorrelationCalculator
+﻿namespace CorrelationCalculator
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.IO;
+    using System.Text;
+
+    using CommandLine;
+    using MathNet.Numerics.Statistics;
+    using MathNet.Numerics.LinearAlgebra;
+    using StockAnalysis.Common.ChineseMarket;
+
     static class Program
     {
         static void Main(string[] args)

@@ -1,11 +1,11 @@
-﻿using System;
-using System.Linq;
-using StockAnalysis.Common.Utility;
-using StockAnalysis.Share;
-using StockAnalysis.Common.Exchange;
-
-namespace StockTrading.Utility
+﻿namespace StockTrading.Utility
 {
+    using System;
+    using System.Linq;
+    using StockAnalysis.Common.Utility;
+    using StockAnalysis.Common.Exchange;
+    using StockAnalysis.Common.ChineseMarket;
+
     public sealed class StoplossOrder : OrderBase
     {
         public float StoplossPrice { get; private set; }

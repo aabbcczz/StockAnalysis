@@ -1,14 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using TradingStrategy;
-using StockAnalysis.Share;
-
-namespace TradingStrategy.GroupMetrics
+﻿namespace TradingStrategy.GroupMetrics
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+
     public sealed class BlockMetricsManager : IGroupRuntimeMetricManagerObserver
     {
         private IEvaluationContext _context;

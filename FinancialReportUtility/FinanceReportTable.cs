@@ -1,9 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-
-namespace StockAnalysis.Share
+﻿namespace StockAnalysis.FinancialReportUtility
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+
     public sealed class FinanceReportTable
     {
         private readonly FinanceReportColumnDefinition[] _columnDefinitions;

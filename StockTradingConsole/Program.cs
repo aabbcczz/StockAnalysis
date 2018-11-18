@@ -1,19 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using CommandLine;
-using CommandLine.Text;
-using StockTrading.Utility;
-using StockAnalysis.Share;
-using System.Configuration;
-using System.Threading;
-using StockAnalysis.Common.Utility;
-
-namespace StockTradingConsole
+﻿namespace StockTradingConsole
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Threading.Tasks;
+
+    using CommandLine;
+    using CommandLine.Text;
+    using StockTrading.Utility;
+    using System.Configuration;
+    using System.Threading;
+    using StockAnalysis.Common.Utility;
     class Program
     {
         static void Main(string[] args)

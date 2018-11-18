@@ -1,10 +1,10 @@
-﻿using TradingStrategy;
-using StockAnalysis.Share;
-using System.Linq;
-using StockAnalysis.Common.SymbolName;
-
-namespace TradingStrategyEvaluation
+﻿namespace TradingStrategyEvaluation
 {
+    using TradingStrategy;
+    using System.Linq;
+    using StockAnalysis.Common.SymbolName;
+    using StockAnalysis.Common.ChineseMarket;
+
     public sealed class ChinaStock : ITradingObject
     {
         public int Index { get; private set; }

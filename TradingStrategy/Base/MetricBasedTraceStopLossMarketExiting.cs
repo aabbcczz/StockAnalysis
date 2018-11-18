@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using StockAnalysis.Share;
-
-namespace TradingStrategy.Base
+﻿namespace TradingStrategy.Base
 {
     public abstract class MetricBasedTraceStopLossMarketExiting
         : GeneralTraceStopLossMarketExitingBase

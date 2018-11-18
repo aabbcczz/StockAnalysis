@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using StockAnalysis.Share;
-using TradingStrategy.Base;
-
-namespace TradingStrategy.Strategy
+﻿namespace TradingStrategy.Strategy
 {
+    using System;
+    using System.Linq;
+    using Base;
     public sealed class TimeoutMarketExiting 
         : GeneralMarketExitingBase
     {

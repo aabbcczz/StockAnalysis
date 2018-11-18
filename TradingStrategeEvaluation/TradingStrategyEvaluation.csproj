@@ -48,8 +48,14 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="MathNet.Numerics, Version=4.7.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\MathNet.Numerics.4.7.0\lib\net40\MathNet.Numerics.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Numerics" />
+    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -98,14 +104,13 @@
       <Project>{f91a0391-93c9-4542-bafc-dbc694ca5fb5}</Project>
       <Name>MetricsDefinition</Name>
     </ProjectReference>
-    <ProjectReference Include="..\StockAnalysisShare\StockAnalysisShare.csproj">
-      <Project>{46eebd03-e7d2-4958-a782-d22435cbc2bb}</Project>
-      <Name>StockAnalysisShare</Name>
-    </ProjectReference>
     <ProjectReference Include="..\TradingStrategy\TradingStrategy.csproj">
       <Project>{a02b6b9c-d37a-4c58-8f3d-79fc8749219a}</Project>
       <Name>TradingStrategy</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

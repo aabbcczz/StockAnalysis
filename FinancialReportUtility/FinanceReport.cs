@@ -1,9 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-
-namespace StockAnalysis.Share
+﻿namespace StockAnalysis.FinancialReportUtility
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
     public class FinanceReport
     {
         public string CompanySymbol { get; set; }

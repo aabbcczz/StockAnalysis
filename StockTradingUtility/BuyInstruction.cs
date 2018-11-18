@@ -1,13 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using StockAnalysis.Share;
-
-namespace StockTrading.Utility
+﻿namespace StockTrading.Utility
 {
+    using StockAnalysis.Common.ChineseMarket;
+    using System;
     public sealed class BuyInstruction
     {
         /// <summary>

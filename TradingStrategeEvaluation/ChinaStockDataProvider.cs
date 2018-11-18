@@ -1,16 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.IO;
-using System.Threading.Tasks;
-
-using StockAnalysis.Common.Data;
-using StockAnalysis.Common.SymbolName;
-using TradingStrategy;
-using StockAnalysis.Share;
-
-namespace TradingStrategyEvaluation
+﻿namespace TradingStrategyEvaluation
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.IO;
+    using System.Threading.Tasks;
+
+    using StockAnalysis.Common.Data;
+    using StockAnalysis.Common.SymbolName;
+    using TradingStrategy;
+    using StockAnalysis.Common.ChineseMarket;
+
     public sealed class ChinaStockDataProvider : ITradingDataProvider
     {
         private readonly ITradingObject[] _stocks;

@@ -1,16 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.IO;
-
-using CsvHelper;
-using StockAnalysis.Share;
-using StockAnalysis.Common.Utility;
-
-namespace StockTradingConsole
+﻿namespace StockTradingConsole
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text;
+    using System.IO;
+
+    using CsvHelper;
+    using StockAnalysis.Common.Utility;
+
     sealed class DataFileReaderWriter
     {
         public const string NewStockFileName = "newstocks.csv";

@@ -1,14 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using StockTrading.Utility;
-using StockAnalysis.Share;
-
-namespace StockTradingConsole
+﻿namespace StockTradingConsole
 {
+    using System;
     class StateTransition<StateType, InputType>
     {
         public StateType FromState { get; private set; }

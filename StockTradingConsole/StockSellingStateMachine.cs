@@ -1,15 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using StockTrading.Utility;
-using StockAnalysis.Share;
-using StockAnalysis.Common.Utility;
-using StockAnalysis.Common.Exchange;
-
-namespace StockTradingConsole
+﻿namespace StockTradingConsole
 {
+    using System;
+    using StockTrading.Utility;
+    using StockAnalysis.Common.Utility;
+    using StockAnalysis.Common.Exchange;
+    using StockAnalysis.Common.ChineseMarket;
+
     class StockSellingStateMachine : StockTradingStateMachineBase
     {
         private StateMachine<SellingState, StockTradingInput> _stateMachine;

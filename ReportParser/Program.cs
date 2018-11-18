@@ -4,12 +4,12 @@ using System.Linq;
 using System.Text;
 using System.IO;
 using CommandLine;
-using StockAnalysis.Share;
 
 namespace ReportParser
 {
     using StockAnalysis.Common.SymbolName;
     using StockAnalysis.Common.Exchange;
+    using StockAnalysis.FinancialReportUtility;
 
     static class Program
     {
