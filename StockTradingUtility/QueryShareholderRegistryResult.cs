@@ -2,7 +2,7 @@
 using System.Linq;
 using StockAnalysis.Common.Exchange;
 
-namespace StockTrading.Utility
+namespace StockAnalysis.StockTrading.Utility
 {
     public sealed class QueryShareholderRegistryResult
     {

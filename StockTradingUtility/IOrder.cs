@@ -1,7 +1,7 @@
 ﻿using StockAnalysis.Common.Utility;
 using StockAnalysis.Common.Exchange;
 
-namespace StockTrading.Utility
+namespace StockAnalysis.StockTrading.Utility
 {
     /// <summary>
     /// Interface of Order

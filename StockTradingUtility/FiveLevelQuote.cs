@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace StockTrading.Utility
+namespace StockAnalysis.StockTrading.Utility
 {
     public sealed class FiveLevelQuote
     {

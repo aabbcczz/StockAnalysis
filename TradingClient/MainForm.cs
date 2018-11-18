@@ -2,7 +2,7 @@
 using System.Threading;
 using System.Windows.Forms;
 
-using StockTrading.Utility;
+using StockAnalysis.StockTrading.Utility;
 using StockAnalysis.Common.Utility;
 
 

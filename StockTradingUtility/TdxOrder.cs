@@ -2,7 +2,7 @@
 using System;
 
 
-namespace StockTrading.Utility
+namespace StockAnalysis.StockTrading.Utility
 {
     public sealed class TdxOrder
     {

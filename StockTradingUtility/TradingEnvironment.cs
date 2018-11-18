@@ -1,7 +1,7 @@
 ﻿using System;
 using StockAnalysis.Common.Utility;
 
-namespace StockTrading.Utility
+namespace StockAnalysis.StockTrading.Utility
 {
     public static class TradingEnvironment
     {

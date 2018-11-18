@@ -7,7 +7,7 @@
 
     using CommandLine;
     using CommandLine.Text;
-    using StockTrading.Utility;
+    using StockAnalysis.StockTrading.Utility;
     using System.Configuration;
     using System.Threading;
     using StockAnalysis.Common.Utility;

@@ -1,5 +1,5 @@
 ﻿using System;
-using StockTrading.Utility;
+using StockAnalysis.StockTrading.Utility;
 using StockAnalysis.Common.SymbolName;
 
 namespace StockTradingConsole

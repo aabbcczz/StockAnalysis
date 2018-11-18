@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace StockTrading.Utility
+namespace StockAnalysis.StockTrading.Utility
 {
     public sealed class TdxOrderManager
     {

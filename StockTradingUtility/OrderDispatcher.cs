@@ -5,7 +5,7 @@ using System.Threading;
 using StockAnalysis.Common.Utility;
 
 
-namespace StockTrading.Utility
+namespace StockAnalysis.StockTrading.Utility
 {
     sealed class OrderDispatcher
     {

@@ -5,7 +5,7 @@ using StockAnalysis.Common.Exchange;
 using StockAnalysis.Common.Utility;
 using StockAnalysis.Common.SymbolName;
 
-namespace StockTrading.Utility
+namespace StockAnalysis.StockTrading.Utility
 {
     public sealed class TradingClient : IDisposable
     {

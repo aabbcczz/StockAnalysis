@@ -5,7 +5,7 @@
     using System.Linq;
     using System.Threading.Tasks;
 
-    using StockTrading.Utility;
+    using StockAnalysis.StockTrading.Utility;
     using StockAnalysis.Common.Utility;
     using System.Threading;
     using StockAnalysis.Common.ChineseMarket;

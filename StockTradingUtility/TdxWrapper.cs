@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Runtime.InteropServices;
 
-namespace StockTrading.Utility
+namespace StockAnalysis.StockTrading.Utility
 {
     
 //1.交易API均是Trade.dll文件的导出函数，包括以下函数：

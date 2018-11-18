@@ -7,8 +7,8 @@
     <ProjectGuid>{BBD0E400-69E5-4167-AECF-5BD5ED7CC273}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>StockTrading.Utility</RootNamespace>
-    <AssemblyName>StockTradingUtility</AssemblyName>
+    <RootNamespace>StockAnalysis.StockTrading.Utility</RootNamespace>
+    <AssemblyName>StockAnalysis.StockTrading.Utility</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>

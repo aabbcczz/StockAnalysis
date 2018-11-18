@@ -4,7 +4,7 @@ using StockAnalysis.Common.Exchange;
 using StockAnalysis.Common.Utility;
 using StockAnalysis.Common.SymbolName;
 
-namespace StockTrading.Utility
+namespace StockAnalysis.StockTrading.Utility
 {
     /// <summary>
     /// base class of all kinds of order

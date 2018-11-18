@@ -1,7 +1,7 @@
 ﻿namespace StockTradingConsole
 {
     using System;
-    using StockTrading.Utility;
+    using StockAnalysis.StockTrading.Utility;
     using StockAnalysis.Common.Utility;
     using StockAnalysis.Common.Exchange;
     using StockAnalysis.Common.ChineseMarket;

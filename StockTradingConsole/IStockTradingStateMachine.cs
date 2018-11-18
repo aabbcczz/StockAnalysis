@@ -1,4 +1,4 @@
-﻿using StockTrading.Utility;
+﻿using StockAnalysis.StockTrading.Utility;
 using System;
 using StockAnalysis.Common.SymbolName;
 

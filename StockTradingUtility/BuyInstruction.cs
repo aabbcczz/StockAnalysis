@@ -1,4 +1,4 @@
-﻿namespace StockTrading.Utility
+﻿namespace StockAnalysis.StockTrading.Utility
 {
     using StockAnalysis.Common.ChineseMarket;
     using System;

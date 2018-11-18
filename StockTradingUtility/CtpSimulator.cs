@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using StockAnalysis.Common.Utility;
 
-namespace StockTrading.Utility
+namespace StockAnalysis.StockTrading.Utility
 {
     public sealed class CtpSimulator
     {

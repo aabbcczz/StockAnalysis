@@ -1,4 +1,4 @@
-﻿namespace StockTrading.Utility
+﻿namespace StockAnalysis.StockTrading.Utility
 {
     using System;
     using System.Collections.Generic;
