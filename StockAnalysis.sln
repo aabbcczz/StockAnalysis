@@ -72,6 +72,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommonTests", "CommonTests\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FinancialReportUtility", "FinancialReportUtility\FinancialReportUtility.csproj", "{358099B6-1179-4A52-966E-EE4C8CD5AE8E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataAccessTests", "DataAccessTests\DataAccessTests.csproj", "{313C769C-AD6A-4D2D-80F3-5E3167A91A6E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -280,6 +282,14 @@ Global
 		{358099B6-1179-4A52-966E-EE4C8CD5AE8E}.Release|Any CPU.Build.0 = Release|Any CPU
 		{358099B6-1179-4A52-966E-EE4C8CD5AE8E}.Release|x86.ActiveCfg = Release|Any CPU
 		{358099B6-1179-4A52-966E-EE4C8CD5AE8E}.Release|x86.Build.0 = Release|Any CPU
+		{313C769C-AD6A-4D2D-80F3-5E3167A91A6E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{313C769C-AD6A-4D2D-80F3-5E3167A91A6E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{313C769C-AD6A-4D2D-80F3-5E3167A91A6E}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{313C769C-AD6A-4D2D-80F3-5E3167A91A6E}.Debug|x86.Build.0 = Debug|Any CPU
+		{313C769C-AD6A-4D2D-80F3-5E3167A91A6E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{313C769C-AD6A-4D2D-80F3-5E3167A91A6E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{313C769C-AD6A-4D2D-80F3-5E3167A91A6E}.Release|x86.ActiveCfg = Release|Any CPU
+		{313C769C-AD6A-4D2D-80F3-5E3167A91A6E}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

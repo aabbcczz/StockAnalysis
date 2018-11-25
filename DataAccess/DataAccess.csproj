@@ -44,6 +44,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DataAccessorFactory.cs" />
     <Compile Include="DataCategory.cs" />
     <Compile Include="DataGranularity.cs" />
     <Compile Include="FileStorageAccessor.cs" />

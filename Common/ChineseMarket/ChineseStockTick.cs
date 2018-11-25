@@ -2,6 +2,7 @@
 {
     using System;
     using Data;
+    using TeaTime;
 
     public sealed class ChineseStockTick : ITimeSeriesData
     {

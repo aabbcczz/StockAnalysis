@@ -9,14 +9,8 @@
     /// </summary>
     public static class DataPartitioner
     {
-        private readonly static DateTime minPartitionTimeInclusive = new DateTime(1900, 1, 1);
-        private readonly static DateTime maxPartitionTimeExclusive = new DateTime(2100, 1, 1);
-
-        /// <summary>
-        /// the zero point of data partition. partition number could be negative 
-        /// if real data time is earlier than the zero point.
-        /// </summary>
-        public readonly static DateTime PartitionZeroPoint = new DateTime(2000, 1, 1); 
+        public readonly static DateTime MinPartitionTimeInclusive = new DateTime(1900, 1, 1);
+        public readonly static DateTime MaxPartitionTimeExclusive = new DateTime(9999, 1, 1);
 
         /// <summary>
         /// Partition data
@@ -32,9 +26,9 @@
                 throw new ArgumentNullException();
             }
 
-            if (startTimeInclusive < minPartitionTimeInclusive || endTimeExclusive > maxPartitionTimeExclusive)
+            if (startTimeInclusive < MinPartitionTimeInclusive || endTimeExclusive > MaxPartitionTimeExclusive)
             {
-                throw new ArgumentOutOfRangeException($"the start time and end time should be in [{minPartitionTimeInclusive}, {maxPartitionTimeExclusive})");
+                throw new ArgumentOutOfRangeException($"the start time and end time should be in [{MinPartitionTimeInclusive}, {MaxPartitionTimeExclusive})");
             }
 
             if (startTimeInclusive >= endTimeExclusive)
@@ -61,8 +55,8 @@
         private static IEnumerable<DataPartitionDescription> PartitionTickData(DataDescription dataDescription, DateTime startTimeInclusive, DateTime endTimeExclusive)
         {
             System.Diagnostics.Debug.Assert(dataDescription != null);
-            System.Diagnostics.Debug.Assert(startTimeInclusive >= minPartitionTimeInclusive);
-            System.Diagnostics.Debug.Assert(endTimeExclusive <= maxPartitionTimeExclusive);
+            System.Diagnostics.Debug.Assert(startTimeInclusive >= MinPartitionTimeInclusive);
+            System.Diagnostics.Debug.Assert(endTimeExclusive <= MaxPartitionTimeExclusive);
             System.Diagnostics.Debug.Assert(startTimeInclusive < endTimeExclusive);
 
             // for tick data, every partition stores only one day data
@@ -79,8 +73,8 @@
         private static IEnumerable<DataPartitionDescription> PartitionDdeData(DataDescription dataDescription, DateTime startTimeInclusive, DateTime endTimeExclusive)
         {
             System.Diagnostics.Debug.Assert(dataDescription != null);
-            System.Diagnostics.Debug.Assert(startTimeInclusive >= minPartitionTimeInclusive);
-            System.Diagnostics.Debug.Assert(endTimeExclusive <= maxPartitionTimeExclusive);
+            System.Diagnostics.Debug.Assert(startTimeInclusive >= MinPartitionTimeInclusive);
+            System.Diagnostics.Debug.Assert(endTimeExclusive <= MaxPartitionTimeExclusive);
             System.Diagnostics.Debug.Assert(startTimeInclusive < endTimeExclusive);
 
             // for dde data, every partition stores 10 years data
@@ -97,8 +91,8 @@
         private static IEnumerable<DataPartitionDescription> PartitionBarData(DataDescription dataDescription, DateTime startTimeInclusive, DateTime endTimeExclusive)
         {
             System.Diagnostics.Debug.Assert(dataDescription != null);
-            System.Diagnostics.Debug.Assert(startTimeInclusive >= minPartitionTimeInclusive);
-            System.Diagnostics.Debug.Assert(endTimeExclusive <= maxPartitionTimeExclusive);
+            System.Diagnostics.Debug.Assert(startTimeInclusive >= MinPartitionTimeInclusive);
+            System.Diagnostics.Debug.Assert(endTimeExclusive <= MaxPartitionTimeExclusive);
             System.Diagnostics.Debug.Assert(startTimeInclusive < endTimeExclusive);
 
             // for bar data, depends on the granularity G, each partition contains N data. 
@@ -116,8 +110,8 @@
                     new DataPartitionDescription()
                     {
                         DataDescription = dataDescription,
-                        StartTimeInclusive = minPartitionTimeInclusive,
-                        EndTimeExclusive = maxPartitionTimeExclusive,
+                        StartTimeInclusive = MinPartitionTimeInclusive,
+                        EndTimeExclusive = MaxPartitionTimeExclusive,
                         PartitionId = "0"
                     }
                 };
@@ -170,15 +164,15 @@
 
         private static IEnumerable<Tuple<DateTime, DateTime>> PartitionTimeByDay(DateTime startTimeInclusive, DateTime endTimeExclusive)
         {
-            System.Diagnostics.Debug.Assert(startTimeInclusive >= minPartitionTimeInclusive);
-            System.Diagnostics.Debug.Assert(endTimeExclusive <= maxPartitionTimeExclusive);
+            System.Diagnostics.Debug.Assert(startTimeInclusive >= MinPartitionTimeInclusive);
+            System.Diagnostics.Debug.Assert(endTimeExclusive <= MaxPartitionTimeExclusive);
             System.Diagnostics.Debug.Assert(startTimeInclusive < endTimeExclusive);
 
             DateTime partitionStartDate = startTimeInclusive.Date;
             DateTime partitionEndDate = endTimeExclusive.Date;
             if (partitionEndDate < endTimeExclusive)
             {
-                partitionEndDate.AddDays(1);
+                partitionEndDate = partitionEndDate.AddDays(1);
             }
 
             while (partitionStartDate < partitionEndDate)
@@ -193,8 +187,8 @@
 
         private static IEnumerable<Tuple<DateTime, DateTime>> PartitionTimeByMonth(DateTime startTimeInclusive, DateTime endTimeExclusive)
         {
-            System.Diagnostics.Debug.Assert(startTimeInclusive >= minPartitionTimeInclusive);
-            System.Diagnostics.Debug.Assert(endTimeExclusive <= maxPartitionTimeExclusive);
+            System.Diagnostics.Debug.Assert(startTimeInclusive >= MinPartitionTimeInclusive);
+            System.Diagnostics.Debug.Assert(endTimeExclusive <= MaxPartitionTimeExclusive);
             System.Diagnostics.Debug.Assert(startTimeInclusive < endTimeExclusive);
 
             DateTime partitionStartDate = new DateTime(startTimeInclusive.Date.Year, startTimeInclusive.Date.Month, 1);
@@ -202,7 +196,7 @@
 
             if (partitionEndDate < endTimeExclusive)
             {
-                partitionEndDate.AddMonths(1);
+                partitionEndDate = partitionEndDate.AddMonths(1);
             }
 
             while (partitionStartDate < partitionEndDate)
@@ -222,8 +216,8 @@
                 throw new ArgumentException("years must be greater than 0");
             }
 
-            System.Diagnostics.Debug.Assert(startTimeInclusive >= minPartitionTimeInclusive);
-            System.Diagnostics.Debug.Assert(endTimeExclusive <= maxPartitionTimeExclusive);
+            System.Diagnostics.Debug.Assert(startTimeInclusive >= MinPartitionTimeInclusive);
+            System.Diagnostics.Debug.Assert(endTimeExclusive <= MaxPartitionTimeExclusive);
             System.Diagnostics.Debug.Assert(startTimeInclusive < endTimeExclusive);
 
             int partitionStartYear = (startTimeInclusive.Year / years) * years;
@@ -233,7 +227,7 @@
             DateTime partitionEndDate = new DateTime(partitionEndYear, 1, 1);
             if (partitionEndDate < endTimeExclusive)
             {
-                partitionEndDate.AddYears(years);
+                partitionEndDate = partitionEndDate.AddYears(years);
             }
 
             while (partitionStartDate < partitionEndDate)

@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using TeaTime;
 
     public struct Bar : ITimeSeriesData
     {
@@ -17,7 +18,13 @@
             Amount = 0.0
         };
 
-        public DateTime Time { get; set; }  // transaction time
+        public DateTime Time // transaction time
+        {
+            get { return (DateTime)TeaTime; }
+            set { TeaTime = (Time)value; }
+        }
+
+        public Time TeaTime; // transaction time
         public double OpenPrice; // price when openning market
         public double ClosePrice; // price when closing market
         public double HighestPrice; // highest price in the whole day

@@ -4,8 +4,8 @@
     using System.IO;
     using System.Linq;
     using System.Text;
-    using StockAnalysis.Common.Utility;
-    using StockAnalysis.Common.SymbolName;
+    using Common.Utility;
+    using Common.SymbolName;
 
     internal static class FileStorageAccessorHelper
     {
@@ -60,13 +60,13 @@
         }
 
         /// <summary>
-        /// Get an absolute path to the data file based on data description and base path
+        /// Get an absolute path and file name to the data file based on data description and base path
         /// </summary>
         /// <param name="basePath">base path</param>
         /// <param name="description">data description</param>
         /// <param name="symbol">symbol of security whose data to be accessed</param>
         /// <returns>the absolute path to the data folder</returns>
-        public static string GetPartitionDataAbsolutePath(string rootPath, DataPartitionDescription description, SecuritySymbol symbol)
+        public static string GetPartitionDataAbsolutePathAndFileName(string rootPath, DataPartitionDescription description, SecuritySymbol symbol)
         {
             if (string.IsNullOrEmpty(rootPath))
             {
@@ -103,7 +103,7 @@
         /// </summary>
         /// <param name="granularity">data granularity</param>
         /// <returns>string representation of granularity</returns>
-        public static string GetGranularityString(uint granularity)
+        private static string GetGranularityString(uint granularity)
         {
             if (granularity == 0)
             {
@@ -129,7 +129,7 @@
         /// <param name="symbol">symbol</param>
         /// <param name="prefixLength">length of prefix to return</param>
         /// <returns>hash prefix string</returns>
-        public static string GetSymbolHashPrefix(string symbol, int prefixLength)
+        private static string GetSymbolHashPrefix(string symbol, int prefixLength)
         {
             if (string.IsNullOrEmpty(symbol))
             {
@@ -156,7 +156,7 @@
         /// </summary>
         /// <param name="s">string to be checked and converted</param>
         /// <returns>string that can be valid path</returns>
-        public static string ConvertStringToValidPath(string s)
+        private static string ConvertStringToValidPath(string s)
         {
             if (s == null)
             {
@@ -191,7 +191,7 @@
         /// </summary>
         /// <param name="s">string to be checked and converted</param>
         /// <returns>string that can be valid file name</returns>
-        public static string ConvertStringToValidFileName(string s)
+        private static string ConvertStringToValidFileName(string s)
         {
             if (s == null)
             {

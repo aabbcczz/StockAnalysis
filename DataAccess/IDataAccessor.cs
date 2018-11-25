@@ -1,15 +1,17 @@
 ﻿namespace StockAnalysis.DataAccess
 {
-    using StockAnalysis.Common.Data;
-    using StockAnalysis.Common.SymbolName;
+    using Common.Data;
+    using Common.SymbolName;
 
     using System.Collections.Generic;
     using System;
 
-    public interface IDataAccessor<T> where T : ITimeSeriesData
+    public interface IDataAccessor
     {
-        IEnumerable<T> ReadData(DataDescription description, SecuritySymbol symbol, DateTime startTimeInclusive, DateTime endTimeExclusive);
+        IEnumerable<T> ReadData<T>(DataDescription description, SecuritySymbol symbol, DateTime startTimeInclusive, DateTime endTimeExclusive)
+            where T : struct, ITimeSeriesData;
 
-        void WriteData(IEnumerable<T> data, DataDescription description, SecuritySymbol symbol, DateTime startTimeInclusive, DateTime endTimeExclusive);
+        void WriteData<T>(IEnumerable<T> data, DataDescription description, SecuritySymbol symbol)
+            where T : struct, ITimeSeriesData;
     }
 }
