@@ -56,7 +56,7 @@
             var endDate = periods.Last();
             if (endDate.Date < endDate)
             {
-                endDate.AddDays(1);
+                endDate = endDate.AddDays(1);
             }
 
             if (tracker.MinTransactionTime < startDate)

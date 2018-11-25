@@ -102,7 +102,7 @@
 
             if (localTime.TimeOfDay > tradingDataSplitTime)
             {
-                day.AddDays(1.0);
+                day = day.AddDays(1.0);
             }
 
             return day;
