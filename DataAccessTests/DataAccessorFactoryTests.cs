@@ -63,7 +63,7 @@ namespace StockAnalysis.DataAccess.Tests
         private void TestDataAccessForGranularity(IDataAccessor accessor, DataGranularity granularity)
         {
             // prepare Bar data;
-            var testDataToBeWritten = PrepareBarTestData(granularity);
+            var writtenData = PrepareBarTestData(granularity);
 
             DataDescription description = new DataDescription()
             {
@@ -76,29 +76,31 @@ namespace StockAnalysis.DataAccess.Tests
             SecuritySymbol symbol = new SecuritySymbol("600001", "SH.600001", ExchangeId.ShanghaiSecurityExchange);
 
             // test write and read consistency
-            accessor.WriteData(testDataToBeWritten, description, symbol);
+            accessor.WriteData(writtenData, description, symbol);
 
-            var startTimeInclusive = testDataToBeWritten[0].Time;
-            var endTimeExclusive = testDataToBeWritten[testDataToBeWritten.Count - 1].Time.AddTicks(1);
-            var readoutDataEnumerable = accessor.ReadData<Bar>(description, symbol, startTimeInclusive, endTimeExclusive);
-            var readoutData = readoutDataEnumerable.ToList();
-            CompareData(testDataToBeWritten, readoutData).Should().BeTrue();
+            var startTimeInclusive = writtenData[0].Time;
+            var endTimeExclusive = writtenData[writtenData.Count - 1].Time.AddTicks(1);
+            var readData = accessor.ReadData<Bar>(description, symbol, startTimeInclusive, endTimeExclusive).ToList();
+            CompareData(writtenData, readData).Should().BeTrue();
 
             // test overwriting functionality
-            accessor.WriteData(testDataToBeWritten, description, symbol);
-            var readoutData1 = accessor.ReadData<Bar>(description, symbol, startTimeInclusive, endTimeExclusive).ToList();
-            CompareData(testDataToBeWritten, readoutData1).Should().BeTrue();
+            // prepare a new set of data
+            writtenData = PrepareBarTestData(granularity);
+            accessor.WriteData(writtenData, description, symbol);
+            readData = accessor.ReadData<Bar>(description, symbol, startTimeInclusive, endTimeExclusive).ToList();
+            CompareData(writtenData, readData).Should().BeTrue();
 
             // test partial overwritting consistency
-            int skipCount = testDataToBeWritten.Count / 3;
-            int takeCount = testDataToBeWritten.Count / 3;
+            writtenData = PrepareBarTestData(granularity);
+            int skipCount = writtenData.Count / 3;
+            int takeCount = writtenData.Count / 3;
 
-            var testData2 = testDataToBeWritten.Skip(skipCount).Take(takeCount).ToList();
-            accessor.WriteData(testData2, description, symbol);
-            startTimeInclusive = testData2.First().Time;
-            endTimeExclusive = testData2.Last().Time.AddTicks(1);
-            var readoutData2 = accessor.ReadData<Bar>(description, symbol, startTimeInclusive, endTimeExclusive).ToList();
-            CompareData(testDataToBeWritten, readoutData1).Should().BeTrue();
+            var writtenDataSubset = writtenData.Skip(skipCount).Take(takeCount).ToList();
+            accessor.WriteData(writtenDataSubset, description, symbol);
+            startTimeInclusive = writtenDataSubset.First().Time;
+            endTimeExclusive = writtenDataSubset.Last().Time.AddTicks(1);
+            readData = accessor.ReadData<Bar>(description, symbol, startTimeInclusive, endTimeExclusive).ToList();
+            CompareData(writtenDataSubset, readData).Should().BeTrue();
         }
 
         private List<Bar> PrepareBarTestData(DataGranularity granularity)
