@@ -88,7 +88,6 @@ While True
    EndIf
 WEnd
 
-
 ; draw down menu
 ControlClick($MainWindowHwnd, "", $SystemMenuButtonHandle)
 
@@ -192,7 +191,10 @@ Func SelectDataToExport($step)
    Local $dialogHandle = WinGetHandle($dialogTitle)
    Local $buttonSelectAll = ControlGetHandle($dialogHandle, "", "[CLASSNN:Button3]")
    Local $buttonOk = ControlGetHandle($dialogHandle, "", "[CLASSNN:Button1]")
-   Local $listView = ControlGetHandle($dialogHandle, "", "[CLASSNN:SysListView321]")
+   Local $listView = ControlGetHandle($dialogHandle, "", "[CLASS:SysListView32; INSTANCE:1]")
+
+  ; DebugWriteLine("List view handle: " & $listView)
+   WinActivate($dialogHandle)
 
    If $step = 1 Then
 	  SelectListViewItem($dialogHandle, $listView, "ª¶…Ó£¡π…")
@@ -224,7 +226,8 @@ EndFunc
 
 
 Func SelectListViewItem($winHandle, $listviewHandle, $item)
-   Local $id = ControlListView($winHandle, "", $listviewHandle, "FindItem", $item, "")
+   Local $id = ControlListView($winHandle, "", $listviewHandle, "FindItem", $item)
+   ; DebugWriteLine("id = " & $id)
    If $id < 0 Then
 	  DebugWriteLine("failed to find item " & $item & " from list view")
 	  Exit -100
