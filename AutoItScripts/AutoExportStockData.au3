@@ -77,6 +77,9 @@ ControlCommand($DataDownloadDialogHwnd, "", $DailyDataButtonId, "Check", "");
 ; click "开始下载” button
 ControlClick($DataDownloadDialogHwnd, "", "[CLASS:Button; INSTANCE:9]")
 
+; wait 5s to ensure the close button has been disabled firstly
+Sleep(5000)
+
 ; wait until "关闭" button is available
 While True
    Sleep(1000)
