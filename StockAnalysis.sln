@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.438
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GetFinanceReports", "GetFinanceReports\GetFinanceReports.csproj", "{696164B2-F36C-4132-A5E3-0A7A9AEA9295}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -50,8 +50,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StockTrading.Utility", "Sto
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TradingClient", "TradingClient\TradingClient.csproj", "{D317E35D-1AB0-469F-A552-137F2D4B1BC6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AutoExportStockData", "AutoExportStockData\AutoExportStockData.csproj", "{FF2B0614-2F8C-4D18-B7A2-0CC64885E340}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PrepareKFoldTestData", "PrepareKFoldTestData\PrepareKFoldTestData.csproj", "{A0758802-3FA8-457C-A445-3FA634717BFA}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StockTradingConsole", "StockTradingConsole\StockTradingConsole.csproj", "{907B7BC7-AA2D-4C29-BFAE-CD1E35F8BA2F}"
@@ -73,6 +71,12 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FinancialReportUtility", "FinancialReportUtility\FinancialReportUtility.csproj", "{358099B6-1179-4A52-966E-EE4C8CD5AE8E}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataAccessTests", "DataAccessTests\DataAccessTests.csproj", "{313C769C-AD6A-4D2D-80F3-5E3167A91A6E}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{9F69BE8A-2D75-4FC1-AFDD-909D85F49B9D}"
+	ProjectSection(SolutionItems) = preProject
+		AutoItScripts\AutoExportStockData.au3 = AutoItScripts\AutoExportStockData.au3
+		AutoItScripts\DumpEastMoneyDDEData.au3 = AutoItScripts\DumpEastMoneyDDEData.au3
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -198,12 +202,6 @@ Global
 		{D317E35D-1AB0-469F-A552-137F2D4B1BC6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D317E35D-1AB0-469F-A552-137F2D4B1BC6}.Release|Any CPU.Build.0 = Release|Any CPU
 		{D317E35D-1AB0-469F-A552-137F2D4B1BC6}.Release|x86.ActiveCfg = Release|Any CPU
-		{FF2B0614-2F8C-4D18-B7A2-0CC64885E340}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{FF2B0614-2F8C-4D18-B7A2-0CC64885E340}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{FF2B0614-2F8C-4D18-B7A2-0CC64885E340}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{FF2B0614-2F8C-4D18-B7A2-0CC64885E340}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{FF2B0614-2F8C-4D18-B7A2-0CC64885E340}.Release|Any CPU.Build.0 = Release|Any CPU
-		{FF2B0614-2F8C-4D18-B7A2-0CC64885E340}.Release|x86.ActiveCfg = Release|Any CPU
 		{A0758802-3FA8-457C-A445-3FA634717BFA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{A0758802-3FA8-457C-A445-3FA634717BFA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A0758802-3FA8-457C-A445-3FA634717BFA}.Debug|x86.ActiveCfg = Debug|Any CPU
@@ -293,5 +291,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {6A7399FD-B406-4F4D-A229-68AA8F7A51AA}
 	EndGlobalSection
 EndGlobal

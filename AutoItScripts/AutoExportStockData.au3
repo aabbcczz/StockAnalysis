@@ -56,6 +56,8 @@ EndIf
 ; draw down menu
 ControlClick($MainWindowHwnd, "", $SystemMenuButtonHandle)
 
+Sleep(2000)
+
 ; download data
 Send("{DOWN 11}")
 Send("{ENTER}")
@@ -168,6 +170,8 @@ Func StartTdx()
    EndIf
 
    ControlClick($loginWindowHandle, "", $buttonHandle)
+
+   Sleep(10000)
 
    Local $handle = WinWait($MainWindowTitle, "", $TimeoutSecond)
 
