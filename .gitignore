@@ -238,3 +238,5 @@ EvaluatorCmdClient/settings/Stock/code.test.3.txt
 EvaluatorCmdClient/settings/Stock/code.test.4.txt
 EvaluatorCmdClient/settings/Stock/code.txt
 EvaluatorCmdClient/settings/Stock/name.txt
+/.vs/StockAnalysis/v15/Server/sqlite3
+/AutoItScripts/AutoExportStockData.exe

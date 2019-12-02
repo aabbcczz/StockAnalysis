@@ -24,7 +24,7 @@
                 for (var i = 0; i < MaxParameterCount; ++i)
                 {
                     var exp = string.Format("ParameterValue{0}", i + 1);
-                    var e = DynamicExpression.ParseLambda<ResultSummary, object>(exp);
+                    var e = DynamicExpression.ParseLambda<ResultSummary, string>(exp);
 
                     if (i >= ParameterNames.Length)
                     {
@@ -39,7 +39,7 @@
                 for (var i = 0; i < MaxERatioCount; ++i)
                 {
                     var exp = string.Format("ERatio{0}", i + 1);
-                    var e = DynamicExpression.ParseLambda<ResultSummary, object>(exp);
+                    var e = DynamicExpression.ParseLambda<ResultSummary, double>(exp);
 
                     if (i >= TradeMetricsCalculator.ERatioWindowSizes.Length || !ResultSummary.ShouldOutputERatio)
                     {

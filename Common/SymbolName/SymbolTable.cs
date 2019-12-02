@@ -14,8 +14,8 @@
     /// Symbol table class
     /// </summary>
     /// <remarks>
-    /// format: regularexpression <tab> exchange_abbreviation <tab> country_code
-    /// example: a\d* <tab> CZCE <tab> CN
+    /// format: regularexpression <tab> exchange_abbreviation
+    /// example: a\d* <tab> CZCE
     /// additional <tab> character will be ignored
     /// </remarks>
     public sealed class SymbolTable

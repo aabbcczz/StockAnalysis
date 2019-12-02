@@ -10,7 +10,7 @@
         // TODO: fix the class by correct data
         public NasdaqSecurityExchange()
         {
-            Country = Country.CreateCountryByCode("USA");
+            Country = Country.CreateCountryByCode("US");
             TimeZone = TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time");
             Name = "National Association Of Securities Dealers Automated Quotations";
             CapitalizedAbbreviation = "NASDAQ";

@@ -68,6 +68,7 @@
                             throw new InvalidOperationException(
                                 string.Format(
                                     "Alias [{0}] has different normalized name: [{1}] and [{2}]",
+                                    alias,
                                     name,
                                     existingName));
                         }

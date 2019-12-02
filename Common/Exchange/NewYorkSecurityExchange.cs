@@ -10,7 +10,7 @@
         // TODO: fix the class by correct data
         public NewYorkSecurityExchange()
         {
-            Country = Country.CreateCountryByCode("USA");
+            Country = Country.CreateCountryByCode("US");
             TimeZone = TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time");
             Name = "New York Security Exchange";
             CapitalizedAbbreviation = "NYSE";

@@ -41,6 +41,7 @@
                     throw new InvalidProgramException(
                         string.Format(
                             "Metric {0} is not inherited from class {1}, {2}, {3}, or {4}",
+                            metric,
                             typeof(SingleOutputBarInputSerialMetric).Name,
                             typeof(SingleOutputRawInputSerialMetric).Name,
                             typeof(MultipleOutputBarInputSerialMetric).Name,
