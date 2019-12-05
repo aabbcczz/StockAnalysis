@@ -240,3 +240,4 @@ EvaluatorCmdClient/settings/Stock/code.txt
 EvaluatorCmdClient/settings/Stock/name.txt
 /.vs/StockAnalysis/v15/Server/sqlite3
 /AutoItScripts/AutoExportStockData.exe
+AutoItScripts/DumpEastMoneyDDEData.exe

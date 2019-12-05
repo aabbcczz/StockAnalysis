@@ -55,7 +55,7 @@
                     continue;
                 }
 
-                // fields: regex, exchange name, country
+                // fields: regex, exchange name
                 string regexString = fields[0];
                 string exchangeAbbr = fields[1];
 

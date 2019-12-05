@@ -50,8 +50,8 @@ ControlClick($MainWindowHwnd, "", 4096, "left", 1, $HSPH_X, $HSPH_Y)
 Sleep(3000)
 
 ; click DDE决策
-Global $DDEJC_X = 340
-Global $DDEJC_Y = 10
+Global $DDEJC_X = 400
+Global $DDEJC_Y = 15
 
 Local $frameHwnd = ControlGetHandle($MainWindowHwnd, "", 59648)
 DebugWriteLine("Frame HWND = " & $frameHwnd)
@@ -76,10 +76,16 @@ ClientToScreen($frameHwnd, $AREA_X, $AREA_Y, $xScreen, $yScreen)
 
 MouseClick("right", $xScreen, $yScreen);
 
+Sleep(1000)
+
 ; select "export all data"
-Send("{DOWN 7}")
-Send("{RIGHT}")
-Send("{ENTER}")
+MouseMove($xScreen + 50, $yScreen + 180)
+Sleep(100)
+
+MouseMove($xScreen + 230, $yScreen + 180)
+Sleep(100)
+
+MouseClick("left", $xScreen + 230, $yScreen + 180);
 
 ; wait for the dialog
 Global $ExportDialogTitle = "[TITLE:导出对话框]"
