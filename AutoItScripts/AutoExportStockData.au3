@@ -8,8 +8,8 @@ Global $DebugFlag = True
 
 ; cmdArgs: tdx_application_full_path
 If $CmdLine[0] < 1 Then
-   DebugWriteLine("no enough parameter")
-   DebugWriteLine("Usage: <exe> tdx_application_full_path [timeout]")
+   DebugLog("no enough parameter")
+   DebugLog("Usage: <exe> tdx_application_full_path [timeout]")
    Exit -100
 EndIf
 
@@ -27,9 +27,9 @@ Global $MainWindowTitle = "[TITLE:中信证券至信全能版; CLASS:TdxW_MainFrame_Class
 
 ; check if main window is opened, if not, try to start it.
 If Not IsMainWindowOpened() Then
-   DebugWriteLine("Main window is not detected, try to start TDX application")
+   DebugLog("Main window is not detected, try to start TDX application")
    If StartTdx() == 0 Then
-	  DebugWriteLine("Failed to start TDX application")
+	  DebugLog("Failed to start TDX application")
 	  Exit -1
    EndIf
 EndIf
@@ -65,7 +65,7 @@ Send("{ENTER}")
 ; wait dialog
 Global $DataDownloadDialogTitle = "[TITLE:盘后数据下载]"
 If WinWait($DataDownloadDialogTitle, "", 10) == 0 Then
-   DebugWriteLine("Failed to wait for data downloading dialog")
+   DebugLog("Failed to wait for data downloading dialog")
    Exit -3
 EndIf
 
@@ -103,7 +103,7 @@ Send("{ENTER}")
 ; wait dialog
 Global $ExportDialogTitle = "[TITLE:数据导出]"
 If WinWait($ExportDialogTitle, "", 10) == 0 Then
-   DebugWriteLine("Failed to wait for data exporting dialog")
+   DebugLog("Failed to wait for data exporting dialog")
    Exit -4
 EndIf
 
@@ -113,7 +113,7 @@ ControlClick($ExportDialogTitle, "", "[CLASS:Button; INSTANCE:7]")
 ; wait dialog
 Global $AdvancedExportDialogTitle = "[TITLE:高级导出]"
 If WinWait($AdvancedExportDialogTitle, "", 10) == 0 Then
-   DebugWriteLine("Failed to wait for advanced data exporting dialog")
+   DebugLog("Failed to wait for advanced data exporting dialog")
    Exit -5
 EndIf
 
@@ -182,7 +182,7 @@ Func IsMainWindowOpened()
    return WinWait($MainWindowTitle, "", 5) <> 0
 EndFunc
 
-Func DebugWriteLine($s)
+Func DebugLog($s)
    If $DebugFlag Then
 	  ConsoleWrite(@HOUR & ":" & @MIN & ":" & @SEC & " " & $s & @CRLF)
    EndIf
@@ -191,7 +191,7 @@ EndFunc
 Func SelectDataToExport($step)
    Local $dialogTitle = "[Title:选择品种]"
    If WinWait($dialogTitle, "", 10) == 0 Then
-	  DebugWriteLine("Failed to wait for selecting data dialog")
+	  DebugLog("Failed to wait for selecting data dialog")
 	  Exit -6
    EndIf
 
@@ -200,7 +200,7 @@ Func SelectDataToExport($step)
    Local $buttonOk = ControlGetHandle($dialogHandle, "", "[CLASSNN:Button1]")
    Local $listView = ControlGetHandle($dialogHandle, "", "[CLASS:SysListView32; INSTANCE:1]")
 
-  ; DebugWriteLine("List view handle: " & $listView)
+  ; DebugLog("List view handle: " & $listView)
    WinActivate($dialogHandle)
 
    If $step = 1 Then
@@ -234,9 +234,9 @@ EndFunc
 
 Func SelectListViewItem($winHandle, $listviewHandle, $item)
    Local $id = ControlListView($winHandle, "", $listviewHandle, "FindItem", $item)
-   ; DebugWriteLine("id = " & $id)
+   ; DebugLog("id = " & $id)
    If $id < 0 Then
-	  DebugWriteLine("failed to find item " & $item & " from list view")
+	  DebugLog("failed to find item " & $item & " from list view")
 	  Exit -100
    EndIf
 

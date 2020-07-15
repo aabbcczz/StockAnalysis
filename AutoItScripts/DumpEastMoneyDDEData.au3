@@ -42,7 +42,7 @@ Global $MainWindowHwnd = WinGetHandle($MainWindowTitle)
 WinActivate($MainWindowHwnd)
 
 ; Get control of ª¶…Ó≈≈–– and click it
-Global $HSPH_X = 256
+Global $HSPH_X = 177
 Global $HSPH_Y = 10
 
 ControlClick($MainWindowHwnd, "", 4096, "left", 1, $HSPH_X, $HSPH_Y)

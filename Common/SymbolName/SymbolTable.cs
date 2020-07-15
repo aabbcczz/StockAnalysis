@@ -114,8 +114,12 @@
                 {
                     if (Instance == null)
                     {
-                        Instance = new SymbolTable();
-                        Instance.LoadRules(SymbolTableFileName);
+                        // create temp object
+                        var tempInstance = new SymbolTable();
+                        tempInstance.LoadRules(SymbolTableFileName);
+
+                        // assign temp object to actual instance to avoid race condition
+                        Instance = tempInstance;
                     }
                 }
             }
